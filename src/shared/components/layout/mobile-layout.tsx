@@ -81,7 +81,7 @@ export function MobileLayout({ children }: MobileLayoutProps) {
               </button>
             </div>
 
-            {/* Tab 4: Pakan */}
+            {/* Tab 4: E-Learning */}
             <button
               onClick={() => navigate("MobilePakan")}
               className={`relative z-10 w-14 h-12 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer ${
@@ -89,7 +89,7 @@ export function MobileLayout({ children }: MobileLayoutProps) {
               }`}
             >
               <MedalStar size={20} weight={currentRoute === "MobilePakan" ? "Bold" : "Linear"} />
-              <span className="text-[9px] font-semibold capitalize mt-0.5 tracking-wide">Pakan</span>
+              <span className="text-[9px] font-semibold capitalize mt-0.5 tracking-wide">E-Learning</span>
             </button>
 
             {/* Tab 5: Profile (Sarang) */}

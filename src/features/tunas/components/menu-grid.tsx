@@ -1,8 +1,8 @@
 import {
-  ClipboardList,
-  Calendar,
+  User,
+  Bill,
   MapPoint,
-  ClockCircle,
+  ClipboardList,
   Compass,
   KeyMinimalistic,
   UsersGroupRounded,
@@ -11,10 +11,10 @@ import {
 import { toast } from "sonner";
 
 const MENU_ITEMS = [
-  { label: "Absensi", icon: ClipboardList, action: () => toast.info("Membuka menu Absensi...") },
-  { label: "Cuti & Izin", icon: Calendar, action: () => toast.info("Membuka menu Cuti & Izin...") },
+  { label: "Kartu Pegawai", icon: User, action: () => toast.info("Membuka Kartu Pegawai...") },
+  { label: "Reimbust", icon: Bill, action: () => toast.info("Membuka menu Reimbust...") },
   { label: "Dinas Luar", icon: MapPoint, action: () => toast.info("Membuka menu Dinas Luar...") },
-  { label: "Lembur", icon: ClockCircle, action: () => toast.info("Membuka menu Lembur...") },
+  { label: "Penugasan", icon: ClipboardList, action: () => toast.info("Membuka menu Penugasan...") },
   { label: "Request Location", icon: Compass, action: () => toast.info("Membuka menu Request Location...") },
   { label: "Ganti Password", icon: KeyMinimalistic, action: () => toast.info("Membuka menu Ganti Password...") },
   { label: "Pegawai", icon: UsersGroupRounded, action: () => toast.info("Membuka daftar Pegawai...") },

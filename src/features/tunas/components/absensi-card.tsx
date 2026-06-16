@@ -1,4 +1,4 @@
-import { ArrowDownLeft, ArrowUpRight, ArrowUp, Repeat } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Calendar, Clock } from "lucide-react";
 
 interface AbsensiCardProps {
   clockInTime: string;
@@ -6,25 +6,22 @@ interface AbsensiCardProps {
   isCheckedIn?: boolean;
 }
 
-export function AbsensiCard({ clockInTime, clockOutTime, isCheckedIn = false }: AbsensiCardProps) {
+export function AbsensiCard({ clockInTime, clockOutTime }: AbsensiCardProps) {
   // Status check in
   const getCheckInStatus = () => {
     if (clockInTime === "--:--") return "--";
     const [h, m] = clockInTime.split(":").map(Number);
-    if (h < 8 || (h === 8 && m === 0)) return "Early";
-    return "Late";
+    if (h < 8 || (h === 8 && m === 0)) return "Lebih Awal";
+    return "Terlambat";
   };
 
   // Status check out
   const getCheckOutStatus = () => {
-    if (clockOutTime === "--:--") return "Not Yet";
+    if (clockOutTime === "--:--") return "Belum";
     const [h] = clockOutTime.split(":").map(Number);
-    if (h < 17) return "Early";
-    return "On Time";
+    if (h < 17) return "Lebih Awal";
+    return "Tepat Waktu";
   };
-
-  // Dynamic month name
-  const currentMonth = new Date().toLocaleDateString("id-ID", { month: "long" });
 
   const isClockedIn = clockInTime !== "--:--";
   const isClockedOut = clockOutTime !== "--:--";
@@ -42,7 +39,7 @@ export function AbsensiCard({ clockInTime, clockOutTime, isCheckedIn = false }: 
             <ArrowDownLeft className="w-4.5 h-4.5" />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="text-xs font-black leading-tight text-white">Check In</span>
+            <span className="text-xs font-black leading-tight text-white">Masuk</span>
             <span className="text-[10px] text-white/70 font-bold leading-normal mt-0.5 capitalize">
               {getCheckInStatus()}
             </span>
@@ -55,67 +52,65 @@ export function AbsensiCard({ clockInTime, clockOutTime, isCheckedIn = false }: 
         </div>
       </div>
 
-      {/* Card 2: Check Out (Pink/Rose Gradient) */}
-      <div className={`bg-gradient-to-br from-[#ec4899] to-[#be185d] text-white p-4 rounded-3xl shadow-lg shadow-[#ec4899]/10 flex flex-col text-left justify-between min-h-[110px] transition-all hover:scale-[1.01] hover:shadow-xl ${
+      {/* Card 2: Check Out (Pink/Rose Gradient) — RIGHT aligned */}
+      <div className={`bg-gradient-to-br from-[#ec4899] to-[#be185d] text-white p-4 rounded-3xl shadow-lg shadow-[#ec4899]/10 flex flex-col text-right justify-between min-h-[110px] transition-all hover:scale-[1.01] hover:shadow-xl ${
         isClockedOut ? "opacity-100" : "opacity-80"
       }`}>
-        <div className="flex items-start gap-2.5">
+        <div className="flex items-start gap-2.5 flex-row-reverse">
           <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
             isClockedOut ? "bg-white/25 text-white" : "bg-white/15 text-white/80"
           }`}>
             <ArrowUpRight className="w-4.5 h-4.5" />
           </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-xs font-black leading-tight text-white">Check Out</span>
+          <div className="flex flex-col min-w-0 items-end">
+            <span className="text-xs font-black leading-tight text-white">Pulang</span>
             <span className="text-[10px] text-white/70 font-bold leading-normal mt-0.5 capitalize">
               {getCheckOutStatus()}
             </span>
           </div>
         </div>
-        <div className="mt-4">
+        <div className="mt-4 flex justify-end">
           <span className="text-2xl font-black leading-none tracking-tight text-white">
             {clockOutTime}
           </span>
         </div>
       </div>
 
-      {/* Card 3: Absence (Cyan Gradient) */}
+      {/* Card 3: Cuti & Izin (Cyan Gradient) */}
       <div className="bg-gradient-to-br from-[#06b6d4] to-[#0891b2] text-white p-4 rounded-3xl shadow-lg shadow-[#06b6d4]/10 flex flex-col text-left justify-between min-h-[110px] transition-all hover:scale-[1.01] hover:shadow-xl">
         <div className="flex items-start gap-2.5">
           <div className="w-8 h-8 rounded-full bg-white/25 text-white flex items-center justify-center shrink-0">
-            <ArrowUp className="w-4.5 h-4.5" />
+            <Calendar className="w-4.5 h-4.5" />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="text-xs font-black leading-tight text-white">Absence</span>
+            <span className="text-xs font-black leading-tight text-white">Cuti & Izin</span>
             <span className="text-[10px] text-white/70 font-bold leading-normal mt-0.5 capitalize">
-              {currentMonth}
+              Sisa Cuti & Izin
             </span>
           </div>
         </div>
         <div className="mt-4 flex items-baseline gap-1 text-left text-white">
-          <span className="text-2xl font-black leading-none tracking-tight">1</span>
+          <span className="text-2xl font-black leading-none tracking-tight">12</span>
           <span className="text-[10px] text-white/80 font-black uppercase">Hari</span>
         </div>
       </div>
 
-      {/* Card 4: Total Attended (Yellow Gradient) */}
-      <div className="bg-gradient-to-br from-[#eab308] to-[#ca8a04] text-white p-4 rounded-3xl shadow-lg shadow-[#eab308]/10 flex flex-col text-left justify-between min-h-[110px] transition-all hover:scale-[1.01] hover:shadow-xl">
-        <div className="flex items-start gap-2.5">
+      {/* Card 4: Lembur (Yellow Gradient) — RIGHT aligned */}
+      <div className="bg-gradient-to-br from-[#eab308] to-[#ca8a04] text-white p-4 rounded-3xl shadow-lg shadow-[#eab308]/10 flex flex-col text-right justify-between min-h-[110px] transition-all hover:scale-[1.01] hover:shadow-xl">
+        <div className="flex items-start gap-2.5 flex-row-reverse">
           <div className="w-8 h-8 rounded-full bg-white/25 text-white flex items-center justify-center shrink-0">
-            <Repeat className="w-4.5 h-4.5" />
+            <Clock className="w-4.5 h-4.5" />
           </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-xs font-black leading-tight text-white">Total Attended</span>
+          <div className="flex flex-col min-w-0 items-end">
+            <span className="text-xs font-black leading-tight text-white">Lembur</span>
             <span className="text-[10px] text-white/70 font-bold leading-normal mt-0.5 capitalize">
-              {currentMonth}
+              Total Bulan Ini
             </span>
           </div>
         </div>
-        <div className="mt-4 flex items-baseline gap-1 text-left text-white">
-          <span className="text-2xl font-black leading-none tracking-tight">
-            {isCheckedIn ? 19 : 18}
-          </span>
-          <span className="text-[10px] text-white/80 font-black uppercase">Hari</span>
+        <div className="mt-4 flex items-baseline gap-1 justify-end text-white">
+          <span className="text-2xl font-black leading-none tracking-tight">20</span>
+          <span className="text-[10px] text-white/80 font-black uppercase">Jam</span>
         </div>
       </div>
     </div>
