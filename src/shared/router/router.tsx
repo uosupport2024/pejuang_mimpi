@@ -1,5 +1,6 @@
 import { createContext, useContext, type ReactNode } from "react";
 import { BrowserRouter, useNavigate, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 export type RouteType =
   | "Dashboard"
@@ -102,6 +103,26 @@ export function RouterProvider({ children }: { children: ReactNode }) {
     <BrowserRouter>
       <RouterInnerProvider>{children}</RouterInnerProvider>
     </BrowserRouter>
+  );
+}
+
+export function PageTransition({ children, route }: { children: ReactNode; route: string }) {
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={route}
+        initial={{ opacity: 0, y: 15, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: -15, scale: 0.97 }}
+        transition={{
+          duration: 0.3,
+          ease: [0.34, 1.56, 0.64, 1] // Spring/hatch overshoot curve
+        }}
+        className="w-full h-full"
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
   );
 }
 

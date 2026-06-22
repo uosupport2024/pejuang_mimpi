@@ -1,4 +1,4 @@
-import { useRouter } from "@/shared/router/router";
+import { useRouter, PageTransition } from "@/shared/router/router";
 import { DashboardLayout } from "./dashboard-layout";
 import { MobileLayout } from "./mobile-layout";
 
@@ -106,14 +106,18 @@ export function MainContainer({ user, onLogout }: MainContainerProps) {
   if (user.role === "User") {
     return (
       <MobileLayout>
-        {renderMobilePage()}
+        <PageTransition route={currentRoute}>
+          {renderMobilePage()}
+        </PageTransition>
       </MobileLayout>
     );
   }
 
   return (
     <DashboardLayout user={user} onLogout={onLogout}>
-      {renderDesktopPage()}
+      <PageTransition route={currentRoute}>
+        {renderDesktopPage()}
+      </PageTransition>
     </DashboardLayout>
   );
 }
