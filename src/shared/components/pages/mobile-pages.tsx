@@ -27,7 +27,7 @@ export function MobileLumbungPage({ user }: PageProps) {
   return (
     <div className="space-y-4">
       {/* Wallet Card */}
-      <div className="bg-[#e0542c] text-white p-5 rounded-3xl shadow-lg shadow-[#e0542c]/20 relative overflow-hidden space-y-4">
+      <div className="bg-[#1e2a4a] text-white p-5 rounded-3xl shadow-lg shadow-[#1e2a4a]/20 relative overflow-hidden space-y-4">
         <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-xl pointer-events-none" />
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">

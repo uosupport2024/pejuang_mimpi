@@ -20,6 +20,7 @@ export type RouteType =
   | "Login"
   | "MobileHome"
   | "MobileLumbung"
+  | "MobileAyamku"
   | "MobilePakan"
   | "MobileProfile";
 
@@ -42,6 +43,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   Login: "/auth/login",
   MobileHome: "/mobile/home",
   MobileLumbung: "/mobile/lumbung",
+  MobileAyamku: "/mobile/ayamku",
   MobilePakan: "/mobile/pakan",
   MobileProfile: "/mobile/profile",
 };
@@ -65,6 +67,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/auth/login": "Login",
   "/mobile/home": "MobileHome",
   "/mobile/lumbung": "MobileLumbung",
+  "/mobile/ayamku": "MobileAyamku",
   "/mobile/pakan": "MobilePakan",
   "/mobile/profile": "MobileProfile",
 };

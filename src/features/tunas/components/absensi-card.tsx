@@ -1,116 +1,44 @@
-import { ArrowDownLeft, ArrowUpRight, Calendar, Clock } from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
-interface AbsensiCardProps {
-  clockInTime: string;
-  clockOutTime: string;
-  isCheckedIn?: boolean;
-}
-
-export function AbsensiCard({ clockInTime, clockOutTime }: AbsensiCardProps) {
-  // Status check in
-  const getCheckInStatus = () => {
-    if (clockInTime === "--:--") return "--";
-    const [h, m] = clockInTime.split(":").map(Number);
-    if (h < 8 || (h === 8 && m === 0)) return "Lebih Awal";
-    return "Terlambat";
-  };
-
-  // Status check out
-  const getCheckOutStatus = () => {
-    if (clockOutTime === "--:--") return "Belum";
-    const [h] = clockOutTime.split(":").map(Number);
-    if (h < 17) return "Lebih Awal";
-    return "Tepat Waktu";
-  };
-
-  const isClockedIn = clockInTime !== "--:--";
-  const isClockedOut = clockOutTime !== "--:--";
-
+export function AbsensiCard() {
   return (
     <div className="grid grid-cols-2 gap-3.5 w-full">
-      {/* Card 1: Check In (Purple Gradient) */}
-      <div className={`bg-gradient-to-br from-[#7c3aed] to-[#5b21b6] text-white p-4 rounded-3xl shadow-lg shadow-[#7c3aed]/10 flex flex-col text-left justify-between min-h-[110px] transition-all hover:scale-[1.01] hover:shadow-xl ${
-        isClockedIn ? "opacity-100" : "opacity-80"
-      }`}>
-        <div className="flex items-start gap-2.5">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-            isClockedIn ? "bg-white/25 text-white" : "bg-white/15 text-white/80"
-          }`}>
-            <ArrowDownLeft className="w-4.5 h-4.5" />
+      {/* Card 1: Cuti & Izin (Sawah Pertumbuhan / Green Gradient) */}
+      <div className={`bg-gradient-to-br ${THEME_COLORS.celengan.rumah.gradient} text-white p-3.5 rounded-2xl shadow-md shadow-[#7FA46D]/15 flex flex-col text-left justify-between min-h-[90px] transition-all hover:scale-[1.01] hover:shadow-lg`}>
+        <div className="flex items-start gap-2">
+          <div className="w-7 h-7 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
+            <Calendar className="w-3.5 h-3.5" />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="text-xs font-black leading-tight text-white">Masuk</span>
-            <span className="text-[10px] text-white/70 font-bold leading-normal mt-0.5 capitalize">
-              {getCheckInStatus()}
-            </span>
-          </div>
-        </div>
-        <div className="mt-4">
-          <span className="text-2xl font-black leading-none tracking-tight text-white">
-            {clockInTime}
-          </span>
-        </div>
-      </div>
-
-      {/* Card 2: Check Out (Pink/Rose Gradient) — RIGHT aligned */}
-      <div className={`bg-gradient-to-br from-[#ec4899] to-[#be185d] text-white p-4 rounded-3xl shadow-lg shadow-[#ec4899]/10 flex flex-col text-right justify-between min-h-[110px] transition-all hover:scale-[1.01] hover:shadow-xl ${
-        isClockedOut ? "opacity-100" : "opacity-80"
-      }`}>
-        <div className="flex items-start gap-2.5 flex-row-reverse">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-            isClockedOut ? "bg-white/25 text-white" : "bg-white/15 text-white/80"
-          }`}>
-            <ArrowUpRight className="w-4.5 h-4.5" />
-          </div>
-          <div className="flex flex-col min-w-0 items-end">
-            <span className="text-xs font-black leading-tight text-white">Pulang</span>
-            <span className="text-[10px] text-white/70 font-bold leading-normal mt-0.5 capitalize">
-              {getCheckOutStatus()}
-            </span>
-          </div>
-        </div>
-        <div className="mt-4 flex justify-end">
-          <span className="text-2xl font-black leading-none tracking-tight text-white">
-            {clockOutTime}
-          </span>
-        </div>
-      </div>
-
-      {/* Card 3: Cuti & Izin (Cyan Gradient) */}
-      <div className="bg-gradient-to-br from-[#06b6d4] to-[#0891b2] text-white p-4 rounded-3xl shadow-lg shadow-[#06b6d4]/10 flex flex-col text-left justify-between min-h-[110px] transition-all hover:scale-[1.01] hover:shadow-xl">
-        <div className="flex items-start gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-white/25 text-white flex items-center justify-center shrink-0">
-            <Calendar className="w-4.5 h-4.5" />
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-xs font-black leading-tight text-white">Cuti & Izin</span>
-            <span className="text-[10px] text-white/70 font-bold leading-normal mt-0.5 capitalize">
+            <span className="text-[10.5px] font-black leading-tight text-white">Cuti & Izin</span>
+            <span className="text-[8.5px] text-white/75 font-bold leading-normal mt-0.5 capitalize">
               Sisa Cuti & Izin
             </span>
           </div>
         </div>
-        <div className="mt-4 flex items-baseline gap-1 text-left text-white">
-          <span className="text-2xl font-black leading-none tracking-tight">12</span>
-          <span className="text-[10px] text-white/80 font-black uppercase">Hari</span>
+        <div className="mt-2.5 flex items-baseline gap-0.5 text-left text-white">
+          <span className="text-lg font-black leading-none tracking-tight">12</span>
+          <span className="text-[8.5px] text-white/80 font-black uppercase">Hari</span>
         </div>
       </div>
 
-      {/* Card 4: Lembur (Yellow Gradient) — RIGHT aligned */}
-      <div className="bg-gradient-to-br from-[#eab308] to-[#ca8a04] text-white p-4 rounded-3xl shadow-lg shadow-[#eab308]/10 flex flex-col text-right justify-between min-h-[110px] transition-all hover:scale-[1.01] hover:shadow-xl">
-        <div className="flex items-start gap-2.5 flex-row-reverse">
-          <div className="w-8 h-8 rounded-full bg-white/25 text-white flex items-center justify-center shrink-0">
-            <Clock className="w-4.5 h-4.5" />
+      {/* Card 2: Lembur (Padi Kemakmuran / Yellow Gradient) — RIGHT aligned */}
+      <div className={`bg-gradient-to-br ${THEME_COLORS.celengan.laptopBaru.gradient} text-white p-3.5 rounded-2xl shadow-md shadow-[#F2B233]/15 flex flex-col text-right justify-between min-h-[90px] transition-all hover:scale-[1.01] hover:shadow-lg`}>
+        <div className="flex items-start gap-2 flex-row-reverse">
+          <div className="w-7 h-7 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
+            <Clock className="w-3.5 h-3.5" />
           </div>
           <div className="flex flex-col min-w-0 items-end">
-            <span className="text-xs font-black leading-tight text-white">Lembur</span>
-            <span className="text-[10px] text-white/70 font-bold leading-normal mt-0.5 capitalize">
+            <span className="text-[10.5px] font-black leading-tight text-white">Lembur</span>
+            <span className="text-[8.5px] text-white/75 font-bold leading-normal mt-0.5 capitalize">
               Total Bulan Ini
             </span>
           </div>
         </div>
-        <div className="mt-4 flex items-baseline gap-1 justify-end text-white">
-          <span className="text-2xl font-black leading-none tracking-tight">20</span>
-          <span className="text-[10px] text-white/80 font-black uppercase">Jam</span>
+        <div className="mt-2.5 flex items-baseline gap-0.5 justify-end text-white">
+          <span className="text-lg font-black leading-none tracking-tight">20</span>
+          <span className="text-[8.5px] text-white/80 font-black uppercase">Jam</span>
         </div>
       </div>
     </div>

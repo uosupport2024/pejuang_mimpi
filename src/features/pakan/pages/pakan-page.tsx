@@ -1,64 +1,66 @@
 import { useState } from "react";
-import { Search, BookOpen, GraduationCap, Trophy, Play, CheckCircle2, Timer } from "lucide-react";
+import { Search, BookOpen, GraduationCap, Trophy, Play, CheckCircle2, Timer, Heart, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import type { PakanPageProps } from "../types/pakan.type";
+import logoWhite from "@/assets/logo/logo-white.png";
+import patternBg from "@/assets/bg/pattern-background.png";
 
 interface Course {
   id: string;
   title: string;
+  excerpt: string;
   category: "Dasar" | "Manajemen" | "Kesehatan";
   instructor: string;
   duration: string;
   modulesCount: number;
   progress: number; // 0 to 100
-  colorTheme: string; // solid bg color for icon
-  textColor: string; // text color for icon
+  gradientTheme: string;
 }
 
 const COURSES_DATA: Course[] = [
   {
     id: "1",
     title: "Dasar-Dasar Budidaya Ayam Petelur Modern",
+    excerpt: "Dasar pemeliharaan ayam petelur dari kandang hingga pakan harian.",
     category: "Dasar",
     instructor: "Dr. Ir. Budi Santoso",
     duration: "4.5 Jam",
     modulesCount: 8,
     progress: 75,
-    colorTheme: "bg-[#1e2a4a]/10",
-    textColor: "text-[#1e2a4a]",
+    gradientTheme: "from-[#7FA46D] to-[#5C824C]",
   },
   {
     id: "2",
     title: "Manajemen Pakan & Optimalisasi Nutrisi",
+    excerpt: "Formulasi pakan berkualitas tinggi untuk produktivitas telur maksimal.",
     category: "Manajemen",
     instructor: "Ade Solihin, M.B.A.",
     duration: "3.2 Jam",
     modulesCount: 6,
     progress: 40,
-    colorTheme: "bg-[#e0542c]/10",
-    textColor: "text-[#e0542c]",
+    gradientTheme: "from-[#F25C2A] to-[#C54117]",
   },
   {
     id: "3",
     title: "SOP Kesehatan, Vaksinasi & Sanitasi Kandang",
+    excerpt: "Sanitasi kandang dan prosedur vaksinasi tepat cegah penyakit.",
     category: "Kesehatan",
     instructor: "drh. Siti Rahma",
     duration: "5.0 Jam",
     modulesCount: 10,
     progress: 0,
-    colorTheme: "bg-emerald-100",
-    textColor: "text-emerald-700",
+    gradientTheme: "from-[#5C8A90] to-[#3F686D]",
   },
   {
     id: "4",
     title: "Analisis Bisnis & Pemasaran Hasil Ternak",
+    excerpt: "Strategi distribusi telur dan analisis finansial peternakan ayam.",
     category: "Manajemen",
     instructor: "Prof. Dr. Hendra Wijaya",
     duration: "2.8 Jam",
     modulesCount: 5,
     progress: 100,
-    colorTheme: "bg-amber-100",
-    textColor: "text-amber-700",
+    gradientTheme: "from-[#F2B233] to-[#C58F1B]",
   },
 ];
 
@@ -79,23 +81,45 @@ export function PakanPage({ user }: PakanPageProps) {
 
   return (
     <div className="space-y-4">
-      {/* Welcome & Learning Banner (Solid Navy matching THEME_COLORS.hex.navBg) */}
-      <div className="relative overflow-hidden rounded-2xl p-5 bg-[#1e2a4a] text-white shadow-sm">
-        <div className="relative z-10 flex flex-col justify-between h-full">
-          <div>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-[9px] font-black uppercase tracking-wider">
-              E-Learning Center
+      {/* Header Banner Card - matching the design in Sangkar & Tunas */}
+      <div className="-mt-6 -mx-5 relative mb-4">
+        <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-7 pb-6 relative overflow-hidden">
+          {/* Background Pattern */}
+          <div 
+            className="absolute inset-0 opacity-15 pointer-events-none"
+            style={{ 
+              backgroundImage: `url(${patternBg})`,
+              backgroundSize: "150px 150px",
+              backgroundRepeat: "repeat"
+            }}
+          />
+
+          {/* Top row: Logo & Welcome Info */}
+          <div className="flex justify-between items-center z-10 relative mb-4">
+            {/* Left: Logo & User Info */}
+            <div className="flex items-center gap-3.5">
+              <img src={logoWhite} alt="Logo" className="w-12 h-12 object-contain" />
+              <div className="flex flex-col text-left">
+                <span className="text-[10px] font-extrabold tracking-wider uppercase text-white/90 leading-none">
+                  Selamat Belajar
+                </span>
+                <span className="text-lg font-black tracking-tight text-white mt-1.5 leading-none">
+                  {user?.name || "Rekan"}
+                </span>
+              </div>
+            </div>
+
+            {/* Right: Page Label Badge */}
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 text-white text-[9px] font-black tracking-wide uppercase shadow-xs">
+              E-Learning
             </span>
-            <h2 className="text-base font-black mt-2 leading-tight">
-              Ayo Tingkatkan Keahlianmu, {user?.name || "Rekan"}!
-            </h2>
-            <p className="text-[10px] text-zinc-300 mt-1 max-w-[240px] leading-relaxed">
-              Pelajari standar operasional terbaik langsung dari para ahli peternakan.
-            </p>
           </div>
 
+          {/* Divider line */}
+          <div className="h-[1px] bg-white/15 w-full my-1.5 z-10 relative" />
+
           {/* Stats Bar (Solid accents using THEME_COLORS.hex.accent #fee279) */}
-          <div className="grid grid-cols-3 gap-2 mt-4 pt-3.5 border-t border-white/10 text-center">
+          <div className="grid grid-cols-3 gap-2 mt-2 pt-2.5 text-center z-10 relative">
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-1 text-[#fee279]">
                 <Trophy className="w-3.5 h-3.5 shrink-0" />
@@ -113,26 +137,26 @@ export function PakanPage({ user }: PakanPageProps) {
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-1 text-[#fee279]">
                 <Timer className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-xs font-black">7.7h</span>
+                <span className="text-xs font-black">7.7 Jam</span>
               </div>
               <span className="text-[8px] text-zinc-400 font-bold uppercase mt-0.5">Belajar</span>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Search Input */}
-      <div className="relative">
-        <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-          <Search className="w-4 h-4 text-zinc-400" />
-        </span>
-        <input
-          type="text"
-          placeholder="Cari materi pembelajaran..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-zinc-100 rounded-xl text-xs text-zinc-800 placeholder-zinc-400 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20"
-        />
+          {/* Search Input inside Header Card */}
+          <div className="relative mt-4 z-10">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+              <Search className="w-4 h-4 text-zinc-400" />
+            </span>
+            <input
+              type="text"
+              placeholder="Cari materi pembelajaran..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-white text-zinc-800 placeholder-zinc-450 rounded-xl text-xs shadow-xs focus:outline-none focus:ring-2 focus:ring-white/20"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Category Tabs */}
@@ -152,79 +176,88 @@ export function PakanPage({ user }: PakanPageProps) {
         ))}
       </div>
 
-      {/* Course List */}
-      <div className="space-y-3">
+      {/* Course List Grid */}
+      <div className="grid grid-cols-2 gap-3">
         {filteredCourses.length > 0 ? (
-          filteredCourses.map((course) => (
-            <div
-              key={course.id}
-              className="bg-white rounded-2xl p-4 border border-zinc-100 shadow-xs flex flex-col justify-between hover:scale-[1.01] transition-transform duration-200"
-            >
-              <div className="flex gap-3">
-                {/* Image Placeholder with Solid Background */}
-                <div className={`w-14 h-14 rounded-xl ${course.colorTheme} ${course.textColor} shrink-0 flex items-center justify-center shadow-inner`}>
-                  <GraduationCap className="w-7 h-7" />
-                </div>
-                
-                {/* Course Details */}
-                <div className="min-w-0 flex-1">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-500 text-[8px] font-black uppercase tracking-wide">
+          filteredCourses.map((course) => {
+            // Map course category or ID to icon
+            const getCourseIcon = (id: string) => {
+              switch (id) {
+                case "1": return GraduationCap;
+                case "2": return BookOpen;
+                case "3": return Heart;
+                case "4": return TrendingUp;
+                default: return GraduationCap;
+              }
+            };
+            const IconComp = getCourseIcon(course.id);
+            
+            return (
+              <div
+                key={course.id}
+                className="bg-white rounded-2xl border border-zinc-100 shadow-xs flex flex-col overflow-hidden hover:scale-[1.01] transition-transform duration-200"
+              >
+                {/* Thumbnail Header Block - Compact Height (h-22) */}
+                <div className={`h-22 bg-gradient-to-tr ${course.gradientTheme} flex items-center justify-center relative shrink-0`}>
+                  {/* Glassmorphic icon container - smaller size */}
+                  <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/20 shadow-xs">
+                    <IconComp className="w-5 h-5" />
+                  </div>
+                  {/* Category badge absolutely positioned on top-right */}
+                  <span className="absolute top-2 right-2 inline-flex items-center px-1.5 py-0.5 rounded-full bg-black/25 text-white text-[7.5px] font-black uppercase tracking-wide backdrop-blur-xs">
                     {course.category}
                   </span>
-                  <h3 className="text-xs font-black text-zinc-800 mt-1 leading-snug line-clamp-2">
-                    {course.title}
-                  </h3>
-                  <span className="block text-[9px] text-zinc-400 font-bold mt-0.5 truncate">
-                    Oleh: {course.instructor}
-                  </span>
-                </div>
-              </div>
-
-              {/* Progress & Action */}
-              <div className="mt-4 pt-3.5 border-t border-zinc-100/80 flex items-center justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-center text-[9px] font-bold text-zinc-500 mb-1">
-                    <span>Progres Belajar</span>
-                    <span className="font-black text-zinc-700">{course.progress}%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-[#e0542c] rounded-full transition-all duration-500"
-                      style={{ width: `${course.progress}%` }}
-                    />
-                  </div>
                 </div>
 
-                <button
-                  onClick={() => handleStartCourse(course.title)}
-                  className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wide flex items-center gap-1 cursor-pointer transition-all ${
-                    course.progress === 100
-                      ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                      : "bg-[#e0542c] text-white hover:bg-[#c23f1b]"
-                  }`}
-                >
-                  {course.progress === 100 ? (
-                    <>
-                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                      Selesai
-                    </>
-                  ) : course.progress > 0 ? (
-                    <>
-                      <Play className="w-3 h-3 fill-current shrink-0" />
-                      Lanjut
-                    </>
-                  ) : (
-                    <>
-                      <Play className="w-3 h-3 fill-current shrink-0" />
-                      Mulai
-                    </>
-                  )}
-                </button>
+                {/* Content details & Action Button - Compact padding */}
+                <div className="p-2.5 flex-1 flex flex-col justify-between space-y-2.5">
+                  <div className="space-y-0.5 text-left">
+                    {/* Title - Compact size and spacing */}
+                    <h3 className="text-[10px] font-black text-zinc-900 leading-snug line-clamp-2 min-h-[30px]">
+                      {course.title}
+                    </h3>
+                    
+                    {/* Excerpt - 1 line max, small size */}
+                    <p className="text-[8px] text-zinc-400 font-bold leading-normal line-clamp-1">
+                      {course.excerpt}
+                    </p>
+
+                    {/* Instructor / Author */}
+                    <span className="block text-[7.5px] text-zinc-400 font-extrabold tracking-wider uppercase truncate">
+                      Oleh: {course.instructor}
+                    </span>
+                  </div>
+
+
+
+                  {/* Action Button - Compact height and py */}
+                  <button
+                    onClick={() => handleStartCourse(course.title)}
+                    className="w-full py-1.5 rounded-xl bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white text-[8.5px] font-black uppercase tracking-wider shadow-xs hover:from-[#c23f1b] hover:to-[#e0542c] active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5 font-bold"
+                  >
+                    {course.progress === 100 ? (
+                      <>
+                        <CheckCircle2 className="w-3 h-3 shrink-0" />
+                        Selesai
+                      </>
+                    ) : course.progress > 0 ? (
+                      <>
+                        <Play className="w-2.5 h-2.5 fill-current shrink-0" />
+                        Lanjut
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-2.5 h-2.5 fill-current shrink-0" />
+                        Mulai
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         ) : (
-          <div className="text-center py-8 bg-white rounded-2xl border border-zinc-100">
+          <div className="col-span-2 text-center py-8 bg-white rounded-2xl border border-zinc-100">
             <span className="text-xs text-zinc-400 font-bold">Materi tidak ditemukan</span>
           </div>
         )}

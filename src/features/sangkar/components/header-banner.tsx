@@ -1,5 +1,6 @@
-import { Eye, EyeOff, ChevronDown, ChevronUp } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import logoWhite from "@/assets/logo/logo-white.png";
+import patternBg from "@/assets/bg/pattern-background.png";
 import { useHeaderBanner } from "../hooks/use-header-banner";
 import type { SangkarUser } from "../types/sangkar.type";
 
@@ -12,8 +13,6 @@ export function HeaderBanner({ user }: HeaderBannerProps) {
     currentTime,
     showBalance,
     setShowBalance,
-    isExpanded,
-    setIsExpanded,
     formatDate,
     formatTime,
     formatRupiah,
@@ -21,15 +20,20 @@ export function HeaderBanner({ user }: HeaderBannerProps) {
 
   return (
     <div className="-mt-6 -mx-5 relative">
-      {/* Header Banner Card */}
-      <div className={`w-full bg-gradient-to-b from-[#e0542c] to-[#ff7e5a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#e0542c]/25 border-b border-white/10 flex flex-col transition-all duration-500 ease-in-out overflow-hidden ${isExpanded ? "p-6 pt-7 pb-6 max-h-[300px]" : "p-6 pt-6 pb-5 max-h-[112px]"
-        }`}>
-        {/* Glow overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/15 to-transparent pointer-events-none rounded-b-[40px]" />
+      {/* Header Banner Card - Solid background color matching Navigation Bottom Bar (#1e2a4a) */}
+      <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-7 pb-6 relative overflow-hidden">
+        {/* Background Pattern - Repeating and subtle (15% opacity) */}
+        <div
+          className="absolute inset-0 opacity-15 pointer-events-none"
+          style={{
+            backgroundImage: `url(${patternBg})`,
+            backgroundSize: "150px 150px",
+            backgroundRepeat: "repeat"
+          }}
+        />
 
-        {/* Content with Logo + Greeting & Name on left, Date & Time on right (collapsible) */}
-        <div className={`transition-all duration-300 ease-in-out overflow-hidden flex justify-between items-center z-10 relative ${isExpanded ? "max-h-[80px] opacity-100 mb-3.5" : "max-h-0 opacity-0 mb-0 pointer-events-none"
-          }`}>
+        {/* Content with Logo + Greeting & Name on left, Date & Time on right */}
+        <div className="flex justify-between items-center z-10 relative mb-3.5">
           {/* Left: Logo & User Info */}
           <div className="flex items-center gap-3.5">
             <img src={logoWhite} alt="Logo" className="w-12 h-12 object-contain" />
@@ -63,9 +67,8 @@ export function HeaderBanner({ user }: HeaderBannerProps) {
           </span>
         </div>
 
-        {/* Footer Block (collapsible) */}
-        <div className={`transition-all duration-300 ease-in-out overflow-hidden flex flex-col gap-2 ${isExpanded ? "max-h-[80px] opacity-100 mt-3.5" : "max-h-0 opacity-0 mt-0 pointer-events-none"
-          }`}>
+        {/* Footer Block */}
+        <div className="flex flex-col gap-2 mt-3.5 z-10 relative">
           {/* Divider line */}
           <div className="h-[1px] bg-white/15 w-full" />
 
@@ -78,19 +81,6 @@ export function HeaderBanner({ user }: HeaderBannerProps) {
           </div>
         </div>
       </div>
-
-      <button
-        type="button"
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-5 z-20 w-12 h-5 rounded-t-none rounded-b-lg bg-[#ff7e5a] hover:bg-[#e0542c] border border-white/20 text-white flex items-center justify-center transition-all duration-200 cursor-pointer shadow-md shadow-black/10 group"
-        title={isExpanded ? "Sembunyikan Detail" : "Tampilkan Detail"}
-      >
-        {isExpanded ? (
-          <ChevronUp className="w-3.5 h-3.5 group-hover:-translate-y-0.5 transition-transform" />
-        ) : (
-          <ChevronDown className="w-3.5 h-3.5 group-hover:translate-y-0.5 transition-transform" />
-        )}
-      </button>
     </div>
   );
 }

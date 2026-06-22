@@ -22,6 +22,7 @@ import { OrganizationPage } from "@/features/organization";
 // Feature page imports (Mobile)
 import { SangkarPage } from "@/features/sangkar";
 import { TunasPage } from "@/features/tunas";
+import { AyamkuPage } from "@/features/ayamku";
 import { PakanPage } from "../../../features/pakan";
 import { SarangPage } from "../../../features/sarang";
 
@@ -91,6 +92,8 @@ export function MainContainer({ user, onLogout }: MainContainerProps) {
         return <SangkarPage user={user} />;
       case "MobileLumbung":
         return <TunasPage user={user} />;
+      case "MobileAyamku":
+        return <AyamkuPage user={user} />;
       case "MobilePakan":
         return <PakanPage user={user} />;
       case "MobileProfile":

@@ -1,4 +1,5 @@
 import Chart from "react-apexcharts";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 // Mini radialBar ApexCharts per card (dengan animasi)
 function MiniRadial({ pct }: { pct: number; color: string }) {
@@ -85,7 +86,12 @@ export function StatistikCelengan() {
       },
     },
     stroke: { lineCap: "round" },
-    colors: ["#7c3aed", "#ec4899", "#06b6d4", "#eab308"],
+    colors: [
+      THEME_COLORS.celengan.rumah.solid,
+      THEME_COLORS.celengan.motor.solid,
+      THEME_COLORS.celengan.liburanBali.solid,
+      THEME_COLORS.celengan.laptopBaru.solid
+    ],
     labels: ["Rumah", "Motor", "Liburan Bali", "Laptop Baru"],
   };
 
@@ -102,10 +108,10 @@ export function StatistikCelengan() {
   };
 
   const items = [
-    { name: "Rumah", filled: 40_000_000, target: 200_000_000, color: "#7c3aed", pct: 20 },
-    { name: "Motor", filled: 12_000_000, target: 30_000_000, color: "#ec4899", pct: 40 },
-    { name: "Liburan Bali", filled: 7_000_000, target: 10_000_000, color: "#06b6d4", pct: 70 },
-    { name: "Laptop Baru", filled: 18_000_000, target: 20_000_000, color: "#eab308", pct: 90 },
+    { name: "Rumah", filled: 40_000_000, target: 200_000_000, color: THEME_COLORS.celengan.rumah.solid, pct: 20 },
+    { name: "Motor", filled: 12_000_000, target: 30_000_000, color: THEME_COLORS.celengan.motor.solid, pct: 40 },
+    { name: "Liburan Bali", filled: 7_000_000, target: 10_000_000, color: THEME_COLORS.celengan.liburanBali.solid, pct: 70 },
+    { name: "Laptop Baru", filled: 18_000_000, target: 20_000_000, color: THEME_COLORS.celengan.laptopBaru.solid, pct: 90 },
   ];
 
   return (

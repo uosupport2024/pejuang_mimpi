@@ -24,15 +24,19 @@ interface UserProfile {
 
 interface AppContentProps {
   session: { token: string; user: UserProfile } | null;
+  isInitializing: boolean;
   handleLoginSuccess: (response: LoginResponse) => void;
   handleLogout: () => void;
 }
 
-function AppContent({ session, handleLoginSuccess, handleLogout }: AppContentProps) {
+function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout }: AppContentProps) {
   const { currentRoute, navigate } = useRouter();
 
   // Redirect and route guards based on login session and path
   useEffect(() => {
+    // Wait until cookies have been read before running any guard
+    if (isInitializing) return;
+
     if (!session) {
       // If not logged in, force navigation to Login (/auth/login)
       if (currentRoute !== "Login") {
@@ -40,7 +44,8 @@ function AppContent({ session, handleLoginSuccess, handleLogout }: AppContentPro
       }
     } else {
       const isMobileRoute = currentRoute === "MobileHome" || 
-                            currentRoute === "MobileLumbung" || 
+                            currentRoute === "MobileLumbung" ||
+                            currentRoute === "MobileAyamku" ||
                             currentRoute === "MobilePakan" || 
                             currentRoute === "MobileProfile";
 
@@ -56,7 +61,12 @@ function AppContent({ session, handleLoginSuccess, handleLogout }: AppContentPro
         }
       }
     }
-  }, [session, currentRoute, navigate]);
+  }, [session, isInitializing, currentRoute, navigate]);
+
+  // Render nothing during initialization to prevent flash-to-login on refresh
+  if (isInitializing) {
+    return null;
+  }
 
   if (!session) {
     return <LoginPage onLoginSuccess={handleLoginSuccess} />;
@@ -76,6 +86,9 @@ function App() {
     user: UserProfile;
   } | null>(null)
 
+  // isInitializing=true until we've attempted to read cookies
+  const [isInitializing, setIsInitializing] = useState(true)
+
   // Load session from cookies on mount
   useEffect(() => {
     const token = getCookie("auth_token")
@@ -92,6 +105,9 @@ function App() {
         eraseCookie("user_profile")
       }
     }
+
+    // Mark initialization complete regardless of whether session was found
+    setIsInitializing(false)
   }, [])
 
   const handleLoginSuccess = (response: LoginResponse) => {
@@ -133,6 +149,7 @@ function App() {
     <RouterProvider>
       <AppContent 
         session={session}
+        isInitializing={isInitializing}
         handleLoginSuccess={handleLoginSuccess}
         handleLogout={handleLogout}
       />

@@ -1,45 +1,22 @@
-import { useMemo } from 'react';
-import ayamLogo from '@/assets/illustrations/logo-talk.png';
-
-const QUOTES = [
-  "Konsistensi dimulai dari kehadiran setiap hari. Sedikit demi sedikit lama-lama menjadi bukit!",
-  "Mimpi besar dimulai dari langkah kecil hari ini. Jangan lupa nabung ya!",
-  "Setiap koin yang kamu simpan adalah investasi untuk masa depanmu yang lebih cerah.",
-  "Disiplin adalah jembatan antara tujuan dan pencapaian. Yuk, semangat terus!",
-  "Hari yang baik untuk mulai menyisihkan uang. Masa depanmu pasti berterima kasih!",
-  "Tabungan yang sedikit, jika dikumpulkan terus, akan menjadi kebebasan finansialmu esok hari.",
-  "Fokus pada tujuan, bukan pada rintangan. Ayo capai target impianmu bersama!"
-];
+import bgQuote from '@/assets/bg/bg-quote-1.png';
 
 export function MotivationQuote() {
-  // Pilih quote harian berdasarkan hari dalam seminggu (0-6)
-  const dailyQuote = useMemo(() => {
-    const dayOfWeek = new Date().getDay();
-    return QUOTES[dayOfWeek % QUOTES.length];
-  }, []);
-
   return (
-    <div className="mt-8 flex items-end gap-3 px-1">
-      {/* Avatar Ayam */}
-      <div className="shrink-0 relative">
-        <div className="w-16 h-16 rounded-full flex items-center justify-center relative z-10 -ml-1">
-          <img
-            src={ayamLogo}
-            alt="Maskot Pejuang Mimpi"
-            className="w-full h-full object-contain"
-          />
-        </div>
-      </div>
+    <div 
+      className="w-full rounded-[24px] relative overflow-hidden flex flex-col justify-center min-h-[135px] bg-no-repeat bg-[length:100%_100%] shadow-xs text-left"
+      style={{ backgroundImage: `url(${bgQuote})` }}
+    >
+      {/* Blurred background overlay - flush left/top/bottom, fading to 0 opacity on the right */}
+      <div 
+        className="absolute inset-y-0 left-0 w-[45%] bg-gradient-to-r from-[#F7F3EB]/95 via-[#F7F3EB]/50 to-transparent backdrop-blur-xs pointer-events-none rounded-l-[24px]"
+      />
 
-      {/* Bubble Chat - Retro/Pixel Style */}
-      <div className="relative bg-white border-2 border-zinc-900 px-4 pt-4 pb-3.5 mb-2 flex-1 ml-3 shadow-[3px_3px_0px_0px_rgba(24,24,27,1)] rounded-lg">
-        {/* Outline Ekor */}
-        <div className="absolute -left-[10px] bottom-4 w-0 h-0 border-y-[8px] border-y-transparent border-r-[8px] border-r-zinc-900" />
-        {/* Fill Ekor */}
-        <div className="absolute -left-[6px] bottom-[18px] w-0 h-0 border-y-[6px] border-y-transparent border-r-[6px] border-r-white" />
-
-        <p className="font-mono text-[10.5px] font-bold text-zinc-900 leading-relaxed relative z-10 tracking-tight">
-          &ldquo;{dailyQuote}&rdquo;
+      <div className="max-w-[40%] z-10 space-y-1 relative pl-5">
+        <h3 className="text-[12px] font-black text-[#1e2a4a] leading-tight">
+          Terus Berjuang, Tingkatkan Dirimu!
+        </h3>
+        <p className="text-[9px] font-bold text-zinc-700 leading-relaxed">
+          Belajar, bekerja, menabung untuk masa depan yang lebih baik.
         </p>
       </div>
     </div>

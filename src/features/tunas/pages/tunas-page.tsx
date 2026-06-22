@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { MapPin, Fingerprint, ArrowLeft, Briefcase } from "lucide-react";
+import { MapPin, ArrowLeft, Briefcase, Clock } from "lucide-react";
+import logoWhite from "@/assets/logo/logo-white.png";
+import patternBg from "@/assets/bg/pattern-background.png";
 import { AbsensiCard } from "../components/absensi-card";
 import { MenuGrid } from "../components/menu-grid";
-import { KehadiranHeatmap } from "../components/kehadiran-heatmap";
+// import { KehadiranHeatmap } from "../components/kehadiran-heatmap";
 import { AttendanceHistory } from "../components/attendance-history";
 import { useTunas } from "../hooks/use-tunas";
-import { THEME_COLORS } from "@/shared/constants/colors";
+// import { THEME_COLORS } from "@/shared/constants/colors";
 import type { TunasPageProps } from "../types/tunas.type";
 import { PakanLokerList } from "../../pakan/components/pakan-list";
 import { usePakan } from "../../pakan/hooks/use-pakan";
@@ -106,66 +108,110 @@ export function TunasPage({ user }: TunasPageProps) {
 
   return (
     <div className="space-y-4">
-      {/* Greeting Header */}
-      <div className="flex justify-between items-center px-1 pt-1">
-        <div className="flex flex-col text-left">
-          <span className="text-[10px] text-zinc-400 font-extrabold uppercase tracking-wider">
-            {getGreeting()}
-          </span>
-          <span className="text-lg font-black text-gray-900 mt-0.5 leading-none">
-            {user.name}
-          </span>
+      {/* Header Banner Card - matching the design in Sangkar */}
+      <div className="-mt-6 -mx-5 relative mb-4">
+        <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-7 pb-6 relative overflow-hidden">
+          {/* Background Pattern */}
+          <div 
+            className="absolute inset-0 opacity-15 pointer-events-none"
+            style={{ 
+              backgroundImage: `url(${patternBg})`,
+              backgroundSize: "150px 150px",
+              backgroundRepeat: "repeat"
+            }}
+          />
+
+          {/* Content */}
+          <div className="flex justify-between items-start z-10 relative mb-4">
+            {/* Left: Logo & User Info */}
+            <div className="flex items-center gap-3.5">
+              <img src={logoWhite} alt="Logo" className="w-12 h-12 object-contain" />
+              <div className="flex flex-col text-left">
+                <span className="text-[10px] font-extrabold tracking-wider uppercase text-white/90 leading-none">
+                  {getGreeting()}
+                </span>
+                <span className="text-lg font-black tracking-tight text-white mt-1.5 leading-none">
+                  {user.name}
+                </span>
+              </div>
+            </div>
+
+            {/* Right: Pakan Button */}
+            <button
+              type="button"
+              onClick={() => setActiveView("pakan")}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white text-[9px] font-black uppercase tracking-wider shadow-sm hover:scale-105 active:scale-95 transition-all cursor-pointer hover:shadow-[#e0542c]/20"
+            >
+              <Briefcase className="w-3.5 h-3.5 text-white/95" />
+              <span>Pakan</span>
+            </button>
+          </div>
+
+          {/* Divider line */}
+          <div className="h-[1px] bg-white/15 w-full my-1.5 z-10 relative" />
+
+          {/* Bottom row: Date & Location */}
+          <div className="flex justify-between items-center z-10 relative mt-2 text-xs">
+            <span className="font-semibold text-white/80">
+              {dayName}, {dateString}
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 text-white text-[9px] font-black tracking-wide uppercase max-w-[180px] shadow-xs">
+              <MapPin className="w-3 h-3 text-white/90 shrink-0" />
+              <span className="truncate">{locationName}</span>
+            </span>
+          </div>
         </div>
-        
-        {/* Loker (Pakan) Entry Button on the Top Right */}
-        <button
-          type="button"
-          onClick={() => setActiveView("pakan")}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white text-[9px] font-black uppercase tracking-wider shadow-sm hover:scale-105 active:scale-95 transition-all cursor-pointer hover:shadow-[#e0542c]/20 animate-bounce-slow"
-        >
-          <Briefcase className="w-3 h-3 text-white/95" />
-          <span>Pakan</span>
-        </button>
       </div>
 
-      {/* Day, Date & Location Header */}
-      <div className="flex justify-between items-center px-1">
-        <div className="flex flex-col text-left">
-          <span className="text-xs font-bold text-zinc-500 leading-none">
-            {dayName}, {dateString}
-          </span>
-        </div>
-        <div>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1e2a4a] text-white text-[9px] font-black tracking-wide uppercase max-w-[180px] shadow-xs">
-            <MapPin className="w-3 h-3 text-white/90 shrink-0" />
-            <span className="truncate">{locationName}</span>
-          </span>
-        </div>
-      </div>
+      {/* Horizontal Clock In / Out & Action Card (Style matching user screenshot, no border) */}
+      <div className="w-full bg-[#1e2a4a] text-white p-4.5 px-5 rounded-3xl shadow-lg shadow-[#1e2a4a]/20 flex items-center justify-between gap-4">
+        {/* Times Info (Left Column) */}
+        <div className="flex items-center gap-8 text-left">
+          {/* Clock In */}
+          <div className="flex flex-col">
+            <span className="text-[10px] text-white/60 font-bold uppercase tracking-wider leading-none">Masuk</span>
+            <span className="text-sm font-black text-white mt-2 leading-none">
+              {clockInTime === "--:--" ? "--" : clockInTime}
+            </span>
+          </div>
 
-      {/* Attendance card + center button */}
-      <div className="relative">
-        <AbsensiCard
-          clockInTime={clockInTime}
-          clockOutTime={clockOutTime}
-          isCheckedIn={isCheckedIn}
-        />
-        {/* Tombol absensi di tengah-tengah 4 card */}
+          {/* Clock Out */}
+          <div className="flex flex-col">
+            <span className="text-[10px] text-white/60 font-bold uppercase tracking-wider leading-none">Pulang</span>
+            <span className="text-sm font-black text-white mt-2 leading-none">
+              {clockOutTime === "--:--" ? "--" : clockOutTime}
+            </span>
+          </div>
+        </div>
+
+        {/* Capsule Button (Right Column) */}
         <button
           type="button"
           onClick={handleClockPress}
-          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-20 h-20 rounded-full ${THEME_COLORS.classes.navBg} text-white flex items-center justify-center shadow-2xl shadow-[#1e2a4a]/40 transition-all duration-200 active:scale-95 cursor-pointer group border-2 border-white/20 ring-[5px] ring-white`}
-          title="Lakukan Absensi"
+          className={`px-5 py-2.5 rounded-full text-xs font-black tracking-wide transition-all active:scale-95 cursor-pointer shadow-xs flex items-center gap-1.5 ${
+            isCheckedIn && clockOutTime !== "--:--"
+              ? "bg-white/10 text-white/40 cursor-not-allowed"
+              : "bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white shadow-[#e0542c]/15"
+          }`}
+          disabled={isCheckedIn && clockOutTime !== "--:--"}
         >
-          <Fingerprint className="w-8 h-8 group-hover:scale-110 transition-transform" />
+          {!(isCheckedIn && clockOutTime !== "--:--") && <Clock className="w-3.5 h-3.5 text-white/90" />}
+          {!isCheckedIn
+            ? "Presensi Masuk"
+            : clockOutTime === "--:--"
+            ? "Presensi Pulang"
+            : "Selesai"}
         </button>
       </div>
+
+      {/* Attendance card */}
+      <AbsensiCard />
 
       {/* Services Grid Menu */}
       <MenuGrid />
 
-      {/* Heatmap Statistic */}
-      <KehadiranHeatmap />
+      {/* Heatmap Statistic - Hidden for now */}
+      {/* <KehadiranHeatmap /> */}
 
       {/* Attendance History */}
       <AttendanceHistory />

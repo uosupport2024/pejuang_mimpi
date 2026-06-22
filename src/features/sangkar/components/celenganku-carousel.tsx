@@ -1,4 +1,5 @@
 import { Home, Bike, Palmtree, Laptop, Plus } from "lucide-react";
+import { THEME_COLORS } from "@/shared/constants/colors";
 import { toast } from "sonner";
 
 export function CelengankuCarousel() {
@@ -19,7 +20,7 @@ export function CelengankuCarousel() {
         {/* Card 1: Rumah */}
         <div
           onClick={() => toast.info("Membuka detail Celengan Rumah...")}
-          className="w-28 h-28 bg-gradient-to-br from-[#7c3aed] to-[#5b21b6] text-white p-3.5 rounded-2xl flex flex-col justify-between shrink-0 snap-start shadow-md hover:scale-102 transition-all duration-200 cursor-pointer"
+          className={`w-28 h-28 bg-gradient-to-br ${THEME_COLORS.celengan.rumah.gradient} text-white p-3.5 rounded-2xl flex flex-col justify-between shrink-0 snap-start shadow-md hover:scale-102 transition-all duration-200 cursor-pointer`}
         >
           <Home className="w-5 h-5 text-white/95" />
           <span className="text-xs font-extrabold tracking-tight text-left leading-tight">Rumah</span>
@@ -28,7 +29,7 @@ export function CelengankuCarousel() {
         {/* Card 2: Motor */}
         <div
           onClick={() => toast.info("Membuka detail Celengan Motor...")}
-          className="w-28 h-28 bg-gradient-to-br from-[#ec4899] to-[#be185d] text-white p-3.5 rounded-2xl flex flex-col justify-between shrink-0 snap-start shadow-md hover:scale-102 transition-all duration-200 cursor-pointer"
+          className={`w-28 h-28 bg-gradient-to-br ${THEME_COLORS.celengan.motor.gradient} text-white p-3.5 rounded-2xl flex flex-col justify-between shrink-0 snap-start shadow-md hover:scale-102 transition-all duration-200 cursor-pointer`}
         >
           <Bike className="w-5 h-5 text-white/95" />
           <span className="text-xs font-extrabold tracking-tight text-left leading-tight">Motor</span>
@@ -37,7 +38,7 @@ export function CelengankuCarousel() {
         {/* Card 3: Liburan Bali */}
         <div
           onClick={() => toast.info("Membuka detail Celengan Liburan Bali...")}
-          className="w-28 h-28 bg-gradient-to-br from-[#06b6d4] to-[#0891b2] text-white p-3.5 rounded-2xl flex flex-col justify-between shrink-0 snap-start shadow-md hover:scale-102 transition-all duration-200 cursor-pointer"
+          className={`w-28 h-28 bg-gradient-to-br ${THEME_COLORS.celengan.liburanBali.gradient} text-white p-3.5 rounded-2xl flex flex-col justify-between shrink-0 snap-start shadow-md hover:scale-102 transition-all duration-200 cursor-pointer`}
         >
           <Palmtree className="w-5 h-5 text-white/95" />
           <span className="text-xs font-extrabold tracking-tight text-left leading-tight">Liburan Bali</span>
@@ -46,7 +47,7 @@ export function CelengankuCarousel() {
         {/* Card 4: Laptop Baru */}
         <div
           onClick={() => toast.info("Membuka detail Celengan Laptop Baru...")}
-          className="w-28 h-28 bg-gradient-to-br from-[#eab308] to-[#ca8a04] text-white p-3.5 rounded-2xl flex flex-col justify-between shrink-0 snap-start shadow-md hover:scale-102 transition-all duration-200 cursor-pointer"
+          className={`w-28 h-28 bg-gradient-to-br ${THEME_COLORS.celengan.laptopBaru.gradient} text-white p-3.5 rounded-2xl flex flex-col justify-between shrink-0 snap-start shadow-md hover:scale-102 transition-all duration-200 cursor-pointer`}
         >
           <Laptop className="w-5 h-5 text-white/95" />
           <span className="text-xs font-extrabold tracking-tight text-left leading-tight">Laptop Baru</span>
