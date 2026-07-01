@@ -4,8 +4,11 @@ import { CelengankuCarousel } from "../components/celenganku-carousel";
 import { StatistikCelengan } from "../components/statistik-celengan";
 import { TunasLokerList } from "../components/tunas-loker-list";
 import type { SangkarPageProps } from "../types/sangkar.type";
+import { useCelengans } from "../hooks/use-celengan";
 
 export function SangkarPage({ user }: SangkarPageProps) {
+  const { celengans, refresh } = useCelengans();
+
   return (
     <div className="space-y-4">
       {/* Collapsible Header Banner Wrapper */}
@@ -15,10 +18,10 @@ export function SangkarPage({ user }: SangkarPageProps) {
       <MotivationQuote />
 
       {/* Celenganku Carousel Card Section */}
-      <CelengankuCarousel />
+      <CelengankuCarousel celengans={celengans} onRefresh={refresh} />
 
       {/* Statistik Celengan Section */}
-      <StatistikCelengan />
+      <StatistikCelengan celengans={celengans} />
 
       {/* Daftar Tunas Terbaru Section */}
       <TunasLokerList />

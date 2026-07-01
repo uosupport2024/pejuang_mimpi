@@ -1,5 +1,7 @@
 import Chart from "react-apexcharts";
-import { THEME_COLORS } from "@/shared/constants/colors";
+import { getCelenganStyle } from "./celenganku-carousel";
+import type { Celengan } from "../types/celengan";
+import logoSad from "@/assets/illustrations/logo_sad.png";
 
 // Mini radialBar ApexCharts per card (dengan animasi)
 function MiniRadial({ pct }: { pct: number; color: string }) {
@@ -62,7 +64,32 @@ function MiniRadial({ pct }: { pct: number; color: string }) {
   );
 }
 
-export function StatistikCelengan() {
+export function StatistikCelengan({ celengans }: { celengans: Celengan[] }) {
+  const formatCompactRupiah = (val: number) => {
+    if (val >= 1_000_000_000)
+      return "Rp " + (val / 1_000_000_000).toLocaleString("id-ID", { maximumFractionDigits: 1 }).replace(",", ".") + " M";
+    if (val >= 1_000_000)
+      return "Rp " + (val / 1_000_000).toLocaleString("id-ID", { maximumFractionDigits: 1 }).replace(",", ".") + " jt";
+    if (val >= 1_000)
+      return "Rp " + (val / 1_000).toLocaleString("id-ID", { maximumFractionDigits: 1 }).replace(",", ".") + " rb";
+    return "Rp " + val.toLocaleString("id-ID");
+  };
+
+  // Limit display to top 4 celengans to avoid breaking layout
+  const activeCelengans = celengans.slice(0, 4);
+
+  const items = activeCelengans.map((item) => {
+    const pct = item.target_amount > 0 ? Math.min(Math.round((item.current_amount / item.target_amount) * 100), 100) : 0;
+    const style = getCelenganStyle(item.icon);
+    return {
+      name: item.name,
+      filled: item.current_amount,
+      target: item.target_amount,
+      color: style.solid,
+      pct,
+    };
+  });
+
   const mainChartOptions: ApexCharts.ApexOptions = {
     chart: {
       type: "radialBar",
@@ -86,33 +113,29 @@ export function StatistikCelengan() {
       },
     },
     stroke: { lineCap: "round" },
-    colors: [
-      THEME_COLORS.celengan.rumah.solid,
-      THEME_COLORS.celengan.motor.solid,
-      THEME_COLORS.celengan.liburanBali.solid,
-      THEME_COLORS.celengan.laptopBaru.solid
-    ],
-    labels: ["Rumah", "Motor", "Liburan Bali", "Laptop Baru"],
+    colors: items.map((item) => item.color),
+    labels: items.map((item) => item.name),
   };
 
-  const mainSeries = [20, 40, 70, 90];
+  const mainSeries = items.map((item) => item.pct);
 
-  const formatCompactRupiah = (val: number) => {
-    if (val >= 1_000_000_000)
-      return "Rp " + (val / 1_000_000_000).toLocaleString("id-ID", { maximumFractionDigits: 1 }).replace(",", ".") + " M";
-    if (val >= 1_000_000)
-      return "Rp " + (val / 1_000_000).toLocaleString("id-ID", { maximumFractionDigits: 1 }).replace(",", ".") + " jt";
-    if (val >= 1_000)
-      return "Rp " + (val / 1_000).toLocaleString("id-ID", { maximumFractionDigits: 1 }).replace(",", ".") + " rb";
-    return "Rp " + val.toLocaleString("id-ID");
-  };
-
-  const items = [
-    { name: "Rumah", filled: 40_000_000, target: 200_000_000, color: THEME_COLORS.celengan.rumah.solid, pct: 20 },
-    { name: "Motor", filled: 12_000_000, target: 30_000_000, color: THEME_COLORS.celengan.motor.solid, pct: 40 },
-    { name: "Liburan Bali", filled: 7_000_000, target: 10_000_000, color: THEME_COLORS.celengan.liburanBali.solid, pct: 70 },
-    { name: "Laptop Baru", filled: 18_000_000, target: 20_000_000, color: THEME_COLORS.celengan.laptopBaru.solid, pct: 90 },
-  ];
+  if (celengans.length === 0) {
+    return (
+      <div className="space-y-2">
+        <div className="flex justify-between items-center px-0.5">
+          <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+            Statistik Celengan
+          </span>
+          <span className="text-[10px] text-zinc-400 font-bold">Progres Target</span>
+        </div>
+        <div className="h-44 flex flex-col items-center justify-center bg-zinc-50/50 rounded-2xl border border-dashed border-gray-250 p-4 text-center">
+          <img src={logoSad} alt="Sedih" className="w-14 h-14 mb-2 opacity-80" />
+          <span className="text-xs text-slate-500 font-bold">Belum ada data celengan</span>
+          <span className="text-[10px] text-slate-405 mt-0.5">Silakan buat celengan baru di atas.</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-2">
@@ -125,26 +148,30 @@ export function StatistikCelengan() {
 
       <div className="flex items-stretch gap-2.5">
         {/* Main radialBar chart — Left, stretches to match card list height */}
-        <div className="w-1/2 flex justify-center items-center bg-zinc-50/50 rounded-2xl">
-          <Chart
-            options={mainChartOptions}
-            series={mainSeries}
-            type="radialBar"
-            height={180}
-            width="100%"
-          />
+        <div className="w-1/2 flex justify-center items-center bg-zinc-50/50 rounded-2xl p-2">
+          {mainSeries.length > 0 ? (
+            <Chart
+              options={mainChartOptions}
+              series={mainSeries}
+              type="radialBar"
+              height={180}
+              width="100%"
+            />
+          ) : (
+            <span className="text-xs text-slate-400">Loading chart...</span>
+          )}
         </div>
 
         {/* Card list — Right */}
-        <div className="w-1/2 flex flex-col gap-1.5">
+        <div className="w-1/2 flex flex-col gap-1.5 justify-center">
           {items.map((item, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between rounded-xl px-2.5 py-1 shadow-sm flex-1"
+              className="flex items-center justify-between rounded-xl px-2.5 py-1 shadow-sm flex-1 min-h-[38px]"
               style={{ background: item.color }}
             >
               {/* Left: name + amount */}
-              <div className="flex flex-col gap-0.5 flex-1 min-w-0 pr-1">
+              <div className="flex flex-col gap-0.5 flex-1 min-w-0 pr-1 text-left">
                 <span className="text-[10px] font-bold leading-none truncate text-white">
                   {item.name}
                 </span>

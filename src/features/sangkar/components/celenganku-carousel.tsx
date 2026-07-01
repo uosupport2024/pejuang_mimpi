@@ -1,64 +1,84 @@
-import { Home, Bike, Palmtree, Laptop, Plus } from "lucide-react";
+import { Plus, Home, Bike, Palmtree, Laptop, HelpCircle } from "lucide-react";
 import { THEME_COLORS } from "@/shared/constants/colors";
-import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import type { Celengan } from "../types/celengan";
 
-export function CelengankuCarousel() {
+export function getIconComponent(iconName: string | null | undefined) {
+  switch (iconName?.toLowerCase()) {
+    case "rumah":
+    case "home":
+      return Home;
+    case "motor":
+    case "bike":
+    case "bicycle":
+    case "motorcycle":
+      return Bike;
+    case "liburanbali":
+    case "liburan bali":
+    case "palmtree":
+    case "palm":
+      return Palmtree;
+    case "laptopbaru":
+    case "laptop baru":
+    case "laptop":
+    case "computer":
+      return Laptop;
+    default:
+      return HelpCircle;
+  }
+}
+
+export function getCelenganStyle(iconName: string | null | undefined) {
+  const name = iconName?.toLowerCase() || "";
+  if (name.includes("rumah") || name.includes("home")) return THEME_COLORS.celengan.rumah;
+  if (name.includes("motor") || name.includes("bike") || name.includes("cycle")) return THEME_COLORS.celengan.motor;
+  if (name.includes("bali") || name.includes("liburan") || name.includes("palm")) return THEME_COLORS.celengan.liburanBali;
+  if (name.includes("laptop") || name.includes("computer")) return THEME_COLORS.celengan.laptopBaru;
+  return THEME_COLORS.celengan.rumah;
+}
+
+interface CelengankuCarouselProps {
+  celengans: Celengan[];
+  onRefresh: () => void;
+}
+
+export function CelengankuCarousel({ celengans }: CelengankuCarouselProps) {
   const navigate = useNavigate();
 
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center px-1">
         <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">Celenganku</span>
-        <span
-          onClick={() => navigate("/mobile/celengan?type=rumah")}
-          className="text-[10px] text-[#e0542c] font-bold cursor-pointer hover:underline"
-        >
-          Lihat Semua
-        </span>
+        {celengans.length > 0 && (
+          <span
+            onClick={() => navigate(`/mobile/celengan?id=${celengans[0].id}`)}
+            className="text-[10px] text-[#e0542c] font-bold cursor-pointer hover:underline"
+          >
+            Lihat Semua
+          </span>
+        )}
       </div>
 
       {/* Horizontal Carousel */}
       <div className="flex gap-3 overflow-x-auto pb-3 pt-1 scrollbar-none snap-x snap-mandatory">
-        {/* Card 1: Rumah */}
-        <div
-          onClick={() => navigate("/mobile/celengan?type=rumah")}
-          className={`w-28 h-28 bg-gradient-to-br ${THEME_COLORS.celengan.rumah.gradient} text-white p-3.5 rounded-2xl flex flex-col justify-between shrink-0 snap-start shadow-md hover:scale-102 transition-all duration-200 cursor-pointer`}
-        >
-          <Home className="w-5 h-5 text-white/95" />
-          <span className="text-xs font-bold tracking-tight text-left leading-tight">Rumah</span>
-        </div>
+        {celengans.map((item) => {
+          const style = getCelenganStyle(item.icon);
+          const Icon = getIconComponent(item.icon);
+          return (
+            <div
+              key={item.id}
+              onClick={() => navigate(`/mobile/celengan?id=${item.id}`)}
+              className={`w-28 h-28 bg-gradient-to-br ${style.gradient} text-white p-3.5 rounded-2xl flex flex-col justify-between shrink-0 snap-start shadow-md hover:scale-102 transition-all duration-200 cursor-pointer`}
+            >
+              <Icon className="w-5 h-5 text-white/95" />
+              <span className="text-xs font-bold tracking-tight text-left leading-tight">{item.name}</span>
+            </div>
+          );
+        })}
 
-        {/* Card 2: Motor */}
+        {/* Card: Tambah Celengan */}
         <div
-          onClick={() => navigate("/mobile/celengan?type=motor")}
-          className={`w-28 h-28 bg-gradient-to-br ${THEME_COLORS.celengan.motor.gradient} text-white p-3.5 rounded-2xl flex flex-col justify-between shrink-0 snap-start shadow-md hover:scale-102 transition-all duration-200 cursor-pointer`}
-        >
-          <Bike className="w-5 h-5 text-white/95" />
-          <span className="text-xs font-bold tracking-tight text-left leading-tight">Motor</span>
-        </div>
-
-        {/* Card 3: Liburan Bali */}
-        <div
-          onClick={() => navigate("/mobile/celengan?type=liburanBali")}
-          className={`w-28 h-28 bg-gradient-to-br ${THEME_COLORS.celengan.liburanBali.gradient} text-white p-3.5 rounded-2xl flex flex-col justify-between shrink-0 snap-start shadow-md hover:scale-102 transition-all duration-200 cursor-pointer`}
-        >
-          <Palmtree className="w-5 h-5 text-white/95" />
-          <span className="text-xs font-bold tracking-tight text-left leading-tight">Liburan Bali</span>
-        </div>
-
-        {/* Card 4: Laptop Baru */}
-        <div
-          onClick={() => navigate("/mobile/celengan?type=laptopBaru")}
-          className={`w-28 h-28 bg-gradient-to-br ${THEME_COLORS.celengan.laptopBaru.gradient} text-white p-3.5 rounded-2xl flex flex-col justify-between shrink-0 snap-start shadow-md hover:scale-102 transition-all duration-200 cursor-pointer`}
-        >
-          <Laptop className="w-5 h-5 text-white/95" />
-          <span className="text-xs font-bold tracking-tight text-left leading-tight">Laptop Baru</span>
-        </div>
-
-        {/* Card 5: Tambah Celengan */}
-        <div
-          onClick={() => toast.success("Membuka form tambah celengan baru...")}
+          onClick={() => navigate("/mobile/celengan/add")}
           className="w-28 h-28 border-2 border-dashed border-gray-300 hover:border-[#e0542c]/60 rounded-2xl flex flex-col justify-between p-3.5 shrink-0 snap-start transition-all duration-200 hover:bg-gray-50/50 cursor-pointer group text-gray-400 hover:text-[#e0542c]"
         >
           <Plus className="w-5 h-5 text-gray-450 group-hover:text-[#e0542c] transition-colors" />

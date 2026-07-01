@@ -2,191 +2,156 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
-  Home,
-  Bike,
-  Palmtree,
-  Laptop,
   Calendar,
   TrendingUp,
   Clock,
   Plus,
   Minus,
-  History
+  History,
+  Trash2
 } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
-import { THEME_COLORS } from "@/shared/constants/colors";
 import { toast } from "sonner";
 import patternBg from "@/assets/bg/pattern-background.png";
-
-// Static mapping for Celengan options
-const CELENGAN_DATA = {
-  rumah: {
-    id: "rumah",
-    name: "Rumah",
-    target: 200000000,
-    initialFilled: 40000000,
-    gradient: THEME_COLORS.celengan.rumah.gradient,
-    color: THEME_COLORS.celengan.rumah.solid,
-    icon: Home,
-    deadline: "31 Desember 2027",
-    desc: "Tabungan impian untuk membeli atau merenovasi rumah masa depan.",
-    history: [
-      { id: 1, date: "24 Jun 2026", desc: "Setoran Bulanan (Gaji Pokok)", amount: 2000000, type: "deposit" },
-      { id: 2, date: "15 Jun 2026", desc: "Bonus Lembur", amount: 500000, type: "deposit" },
-      { id: 3, date: "25 Mei 2026", desc: "Setoran Bulanan", amount: 2000000, type: "deposit" },
-      { id: 4, date: "10 Mei 2026", desc: "Hadiah Ulang Tahun", amount: 1000000, type: "deposit" },
-    ]
-  },
-  motor: {
-    id: "motor",
-    name: "Motor",
-    target: 30000000,
-    initialFilled: 12000000,
-    gradient: THEME_COLORS.celengan.motor.gradient,
-    color: THEME_COLORS.celengan.motor.solid,
-    icon: Bike,
-    deadline: "30 September 2026",
-    desc: "Target cicilan/pembelian motor baru untuk menunjang mobilitas kerja.",
-    history: [
-      { id: 1, date: "20 Jun 2026", desc: "Tabungan Rutin", amount: 1000000, type: "deposit" },
-      { id: 2, date: "05 Jun 2026", desc: "Tambahan THR", amount: 1500000, type: "deposit" },
-      { id: 3, date: "20 Mei 2026", desc: "Tabungan Rutin", amount: 1000000, type: "deposit" },
-    ]
-  },
-  liburanBali: {
-    id: "liburanBali",
-    name: "Liburan Bali",
-    target: 10000000,
-    initialFilled: 7000000,
-    gradient: THEME_COLORS.celengan.liburanBali.gradient,
-    color: THEME_COLORS.celengan.liburanBali.solid,
-    icon: Palmtree,
-    deadline: "15 Desember 2026",
-    desc: "Liburan akhir tahun bersama keluarga ke pantai dan alam Bali.",
-    history: [
-      { id: 1, date: "18 Jun 2026", desc: "Alokasi Hiburan", amount: 500000, type: "deposit" },
-      { id: 2, date: "18 Mei 2026", desc: "Alokasi Hiburan", amount: 500000, type: "deposit" },
-      { id: 3, date: "02 Mei 2026", desc: "Kembalian Belanja Bulanan", amount: 200000, type: "deposit" },
-    ]
-  },
-  laptopBaru: {
-    id: "laptopBaru",
-    name: "Laptop Baru",
-    target: 20000000,
-    initialFilled: 18000000,
-    gradient: THEME_COLORS.celengan.laptopBaru.gradient,
-    color: THEME_COLORS.celengan.laptopBaru.solid,
-    icon: Laptop,
-    deadline: "31 Oktober 2026",
-    desc: "Upgrade laptop kerja untuk coding dan performa pengerjaan tugas yang lebih kencang.",
-    history: [
-      { id: 1, date: "26 Jun 2026", desc: "Insentif Proyek", amount: 3000000, type: "deposit" },
-      { id: 2, date: "26 Mei 2026", desc: "Setoran Bulanan", amount: 1500000, type: "deposit" },
-      { id: 3, date: "12 Apr 2026", desc: "Tarik sebagian untuk servis", amount: 500000, type: "withdraw" },
-    ]
-  }
-};
+import { useCelenganDetail } from "../hooks/use-celengan";
+import { getCelenganStyle, getIconComponent } from "../components/celenganku-carousel";
 
 export function CelenganDetailPage() {
   const { navigate } = useRouter();
   const [searchParams] = useSearchParams();
-  const typeParam = searchParams.get("type") || "rumah";
+  const idParam = searchParams.get("id");
+  const typeParam = searchParams.get("type");
 
-  // Safeguard in case of invalid type parameter
-  const key = (typeParam in CELENGAN_DATA ? typeParam : "rumah") as keyof typeof CELENGAN_DATA;
-  const celengan = CELENGAN_DATA[key];
+  const {
+    celengan,
+    history,
+    loading,
+    isSubmitting,
+    deposit,
+    withdraw,
+    remove
+  } = useCelenganDetail(idParam, typeParam);
 
-  // Local state for savings simulation
-  const [currentAmount, setCurrentAmount] = useState(celengan.initialFilled);
-  const [history, setHistory] = useState(celengan.history);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [transactionAmount, setTransactionAmount] = useState("");
   const [transactionDesc, setTransactionDesc] = useState("");
 
-  const pct = Math.min(Math.round((currentAmount / celengan.target) * 100), 100);
-  const IconComponent = celengan.icon;
-
   const formatRupiah = (val: number) => {
     return "Rp " + val.toLocaleString("id-ID");
   };
 
-  const handleDeposit = (e: React.FormEvent) => {
+  const handleDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!celengan) return;
+
     const amountNum = parseFloat(transactionAmount);
     if (isNaN(amountNum) || amountNum <= 0) {
       toast.error("Masukkan nominal tabungan yang valid!");
       return;
     }
 
-    const newAmount = currentAmount + amountNum;
-    setCurrentAmount(newAmount);
-
-    const today = new Date();
-    const formattedDate = today.toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "short",
-      year: "numeric"
-    });
-
-    const newHistoryItem = {
-      id: Date.now(),
-      date: formattedDate,
-      desc: transactionDesc.trim() || "Menabung langsung",
-      amount: amountNum,
-      type: "deposit"
-    };
-
-    setHistory([newHistoryItem, ...history]);
-    setShowDepositModal(false);
-    setTransactionAmount("");
-    setTransactionDesc("");
-    toast.success(`Berhasil menambahkan ${formatRupiah(amountNum)} ke Celengan!`);
+    try {
+      await deposit(amountNum, transactionDesc.trim());
+      setShowDepositModal(false);
+      setTransactionAmount("");
+      setTransactionDesc("");
+      toast.success(`Berhasil menambahkan ${formatRupiah(amountNum)} ke Celengan!`);
+    } catch (error: any) {
+      // toast is already handled in hook, but in case:
+    }
   };
 
-  const handleWithdraw = (e: React.FormEvent) => {
+  const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!celengan) return;
+
     const amountNum = parseFloat(transactionAmount);
     if (isNaN(amountNum) || amountNum <= 0) {
       toast.error("Masukkan nominal penarikan yang valid!");
       return;
     }
 
-    if (amountNum > currentAmount) {
+    if (amountNum > celengan.current_amount) {
       toast.error("Saldo celengan tidak mencukupi!");
       return;
     }
 
-    const newAmount = currentAmount - amountNum;
-    setCurrentAmount(newAmount);
-
-    const today = new Date();
-    const formattedDate = today.toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "short",
-      year: "numeric"
-    });
-
-    const newHistoryItem = {
-      id: Date.now(),
-      date: formattedDate,
-      desc: transactionDesc.trim() || "Penarikan Celengan",
-      amount: amountNum,
-      type: "withdraw"
-    };
-
-    setHistory([newHistoryItem, ...history]);
-    setShowWithdrawModal(false);
-    setTransactionAmount("");
-    setTransactionDesc("");
-    toast.success(`Berhasil menarik ${formatRupiah(amountNum)} dari Celengan!`);
+    try {
+      await withdraw(amountNum, transactionDesc.trim());
+      setShowWithdrawModal(false);
+      setTransactionAmount("");
+      setTransactionDesc("");
+      toast.success(`Berhasil menarik ${formatRupiah(amountNum)} dari Celengan!`);
+    } catch (error: any) {
+      // error is handled in hook
+    }
   };
+
+  const handleDelete = async () => {
+    if (!celengan) return;
+    if (!confirm(`Apakah Anda yakin ingin menghapus celengan "${celengan.name}"?`)) return;
+
+    try {
+      await remove();
+    } catch (error) {
+      // error is handled in hook
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#F7F3EB] text-slate-500">
+        <span className="text-sm font-semibold">Memuat detail celengan...</span>
+      </div>
+    );
+  }
+
+  if (!celengan) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#F7F3EB] text-slate-500 p-6 text-center">
+        <span className="text-sm font-semibold">Celengan tidak ditemukan.</span>
+        <button onClick={() => navigate("MobileHome")} className="mt-4 bg-[#e0542c] text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer">
+          Kembali ke Home
+        </button>
+      </div>
+    );
+  }
+
+  const style = getCelenganStyle(celengan.icon);
+  const IconComponent = getIconComponent(celengan.icon);
+  const currentAmount = celengan.current_amount;
+  const target = celengan.target_amount;
+  const pct = target > 0 ? Math.min(Math.round((currentAmount / target) * 100), 100) : 0;
+
+  // Deadline logic (estimated 1 year from creation date or standard default)
+  const deadlineDate = celengan.created_at ? new Date(celengan.created_at) : new Date();
+  if (!celengan.created_at) {
+    deadlineDate.setMonth(deadlineDate.getMonth() + 12);
+  } else {
+    deadlineDate.setFullYear(deadlineDate.getFullYear() + 1);
+  }
+  const deadlineStr = deadlineDate.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
+  const celenganDesc = celengan.name.toLowerCase().includes("rumah")
+    ? "Tabungan impian untuk membeli atau merenovasi rumah masa depan."
+    : celengan.name.toLowerCase().includes("motor")
+    ? "Target cicilan/pembelian motor baru untuk menunjang mobilitas kerja."
+    : celengan.name.toLowerCase().includes("bali") || celengan.name.toLowerCase().includes("liburan")
+    ? "Liburan akhir tahun bersama keluarga ke pantai dan alam Bali."
+    : celengan.name.toLowerCase().includes("laptop") || celengan.name.toLowerCase().includes("computer")
+    ? "Upgrade laptop kerja untuk coding dan performa pengerjaan tugas yang lebih kencang."
+    : `Celengan tabungan khusus untuk merealisasikan rencana ${celengan.name}.`;
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F7F3EB] text-slate-800 pb-20 relative -mt-6 -mx-5">
       {/* Top sticky navigation */}
-      <div className="bg-[#1e2a4a] text-white flex items-center gap-3 px-5 pt-4 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden">
-        {/* Background Pattern - Repeating and subtle (15% opacity) */}
+      <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-4 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden">
+        {/* Background Pattern */}
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
           style={{
@@ -195,19 +160,28 @@ export function CelenganDetailPage() {
             backgroundRepeat: "repeat"
           }}
         />
+        <div className="flex items-center gap-3 relative z-10">
+          <button
+            onClick={() => navigate("MobileHome")}
+            className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer animate-none relative z-10"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <span className="text-base font-bold tracking-tight relative z-10">Detail Celengan</span>
+        </div>
         <button
-          onClick={() => navigate("MobileHome")}
-          className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer animate-none relative z-10"
+          onClick={handleDelete}
+          className="p-2 bg-red-650/10 hover:bg-red-600 hover:text-white text-red-400 rounded-xl transition-all cursor-pointer relative z-10 flex items-center justify-center"
+          title="Hapus Celengan"
         >
-          <ArrowLeft className="w-6 h-6" />
+          <Trash2 className="w-4 h-4" />
         </button>
-        <span className="text-base font-bold tracking-tight relative z-10">Detail Celengan</span>
       </div>
 
       {/* Main Container */}
       <div className="p-4 space-y-4">
         {/* Dynamic Theme Color Hero Card */}
-        <div className={`bg-gradient-to-br ${celengan.gradient} text-white p-5 rounded-3xl shadow-lg relative overflow-hidden`}>
+        <div className={`bg-gradient-to-br ${style.gradient} text-white p-5 rounded-3xl shadow-lg relative overflow-hidden`}>
           {/* Decorative graphic element */}
           <div className="absolute -right-4 -bottom-4 opacity-15 text-white pointer-events-none">
             <IconComponent className="w-32 h-32" />
@@ -224,7 +198,7 @@ export function CelenganDetailPage() {
 
           <div className="mt-5 relative z-10">
             <h2 className="text-xl font-bold tracking-tight">{celengan.name}</h2>
-            <p className="text-xs text-white/80 mt-1 leading-relaxed max-w-[85%]">{celengan.desc}</p>
+            <p className="text-xs text-white/80 mt-1 leading-relaxed max-w-[85%]">{celenganDesc}</p>
           </div>
 
           {/* Progress Bar Section */}
@@ -236,19 +210,19 @@ export function CelenganDetailPage() {
               />
             </div>
             <div className="flex justify-between items-baseline text-white">
-              <div className="flex flex-col">
+              <div className="flex flex-col text-left">
                 <span className="text-[10px] text-white/70 font-semibold uppercase tracking-wider">Terkumpul</span>
                 <span className="text-lg font-bold">{formatRupiah(currentAmount)}</span>
               </div>
               <div className="flex flex-col items-end">
                 <span className="text-[10px] text-white/70 font-semibold uppercase tracking-wider">Target</span>
-                <span className="text-sm font-bold text-white/95">{formatRupiah(celengan.target)}</span>
+                <span className="text-sm font-bold text-white/95">{formatRupiah(target)}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Details Grid & Statistics - Simple, borderless, no cards */}
+        {/* Details Grid & Statistics */}
         <div className="space-y-4 px-1 py-1">
           <div className="flex items-center gap-1.5 border-b border-slate-200/60 pb-2">
             <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">Detail Informasi</span>
@@ -256,40 +230,40 @@ export function CelenganDetailPage() {
 
           <div className="space-y-4">
             {/* Target Selesai */}
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-3 text-left">
               <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg shrink-0 mt-0.5">
                 <Calendar className="w-4 h-4" />
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">Target Selesai</span>
-                <span className="text-sm font-bold text-slate-800 mt-1">{celengan.deadline}</span>
+                <span className="text-sm font-bold text-slate-800 mt-1">{deadlineStr}</span>
               </div>
             </div>
 
             {/* Kekurangan Dana */}
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-3 text-left">
               <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg shrink-0 mt-0.5">
                 <TrendingUp className="w-4 h-4" />
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">Kekurangan Dana</span>
                 <span className="text-sm font-bold text-slate-800 mt-1">
-                  {formatRupiah(Math.max(celengan.target - currentAmount, 0))}
+                  {formatRupiah(Math.max(target - currentAmount, 0))}
                 </span>
               </div>
             </div>
 
             {/* Estimasi Rencana */}
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-3 text-left">
               <div className="p-1.5 bg-slate-100 text-slate-650 rounded-lg shrink-0 mt-0.5">
                 <Clock className="w-4 h-4" />
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">Estimasi Rencana</span>
                 <span className="text-xs font-bold text-slate-700 mt-1 leading-relaxed">
-                  {currentAmount >= celengan.target
+                  {currentAmount >= target
                     ? "Target Anda telah tercapai! 🎉"
-                    : `Menabung ${formatRupiah(Math.round((celengan.target - currentAmount) / 12))} per bulan selama 12 bulan.`
+                    : `Menabung ${formatRupiah(Math.round((target - currentAmount) / 12))} per bulan selama 12 bulan.`
                   }
                 </span>
               </div>
@@ -325,28 +299,38 @@ export function CelenganDetailPage() {
             <span className="text-[10px] font-bold text-slate-400">{history.length} Transaksi</span>
           </div>
 
-          <div className="space-y-2.5">
-            {history.map((item) => (
-              <div 
-                key={item.id} 
-                className={`p-3.5 rounded-xl border flex justify-between items-center transition-all shadow-sm ${
-                  item.type === "deposit" 
-                    ? "bg-emerald-50/50 border-emerald-200/80" 
-                    : "bg-rose-50/50 border-rose-200/80"
-                }`}
-              >
-                <div className="flex flex-col min-w-0 pr-2">
-                  <span className="text-xs font-bold text-slate-800 leading-tight">{item.desc}</span>
-                  <span className="text-[9px] text-slate-400 mt-1 font-semibold leading-none">{item.date}</span>
-                </div>
+          <div className="space-y-2.5 text-left">
+            {history.map((item) => {
+              const formattedTrxDate = item.created_at
+                ? new Date(item.created_at).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric"
+                  })
+                : "-";
+              const note = item.note || (item.type === "deposit" ? "Menabung langsung" : "Penarikan Celengan");
+              return (
+                <div
+                  key={item.id}
+                  className={`p-3.5 rounded-xl border flex justify-between items-center transition-all shadow-sm ${
+                    item.type === "deposit"
+                      ? "bg-emerald-50/50 border-emerald-200/80"
+                      : "bg-rose-50/50 border-rose-200/80"
+                  }`}
+                >
+                  <div className="flex flex-col min-w-0 pr-2">
+                    <span className="text-xs font-bold text-slate-800 leading-tight">{note}</span>
+                    <span className="text-[9px] text-slate-400 mt-1 font-semibold leading-none">{formattedTrxDate}</span>
+                  </div>
 
-                <span className={`text-xs font-extrabold shrink-0 ${
-                  item.type === "deposit" ? "text-emerald-700" : "text-rose-700"
-                }`}>
-                  {item.type === "deposit" ? "+" : "-"} {formatRupiah(item.amount)}
-                </span>
-              </div>
-            ))}
+                  <span className={`text-xs font-extrabold shrink-0 ${
+                    item.type === "deposit" ? "text-emerald-700" : "text-rose-700"
+                  }`}>
+                    {item.type === "deposit" ? "+" : "-"} {formatRupiah(item.amount)}
+                  </span>
+                </div>
+              );
+            })}
 
             {history.length === 0 && (
               <div className="text-center py-8 text-slate-400 text-xs bg-white rounded-xl border border-slate-100">
@@ -365,13 +349,13 @@ export function CelenganDetailPage() {
               <span className="text-sm font-bold text-slate-900 uppercase tracking-wider">Tabung Sekarang</span>
               <button
                 onClick={() => { setShowDepositModal(false); setTransactionAmount(""); setTransactionDesc(""); }}
-                className="text-slate-400 hover:text-slate-600 text-xs font-bold px-2 py-1"
+                className="text-slate-400 hover:text-slate-650 text-xs font-bold px-2 py-1"
               >
                 Tutup
               </button>
             </div>
 
-            <form onSubmit={handleDeposit} className="space-y-4">
+            <form onSubmit={handleDeposit} className="space-y-4 text-left">
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase text-slate-400">Nominal Tabungan (Rupiah)</label>
                 <div className="relative">
@@ -382,7 +366,7 @@ export function CelenganDetailPage() {
                     placeholder="Contoh: 1000000"
                     value={transactionAmount}
                     onChange={(e) => setTransactionAmount(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-3 text-sm font-bold focus:outline-none focus:border-[#e0542c]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-3 text-sm font-bold focus:outline-none focus:border-[#e0542c] text-slate-800"
                   />
                 </div>
               </div>
@@ -394,15 +378,16 @@ export function CelenganDetailPage() {
                   placeholder="Setoran celengan..."
                   value={transactionDesc}
                   onChange={(e) => setTransactionDesc(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#e0542c]"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#e0542c] text-slate-800"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-[#e0542c] hover:bg-[#c23f1b] text-white py-3 rounded-xl font-bold text-sm shadow-md shadow-[#e0542c]/15 transition-all cursor-pointer"
+                disabled={isSubmitting}
+                className="w-full bg-[#e0542c] hover:bg-[#c23f1b] text-white py-3 rounded-xl font-bold text-sm shadow-md shadow-[#e0542c]/15 transition-all cursor-pointer disabled:opacity-50"
               >
-                Konfirmasi Tabungan
+                {isSubmitting ? "Memproses..." : "Konfirmasi Tabungan"}
               </button>
             </form>
           </div>
@@ -417,13 +402,13 @@ export function CelenganDetailPage() {
               <span className="text-sm font-bold text-slate-900 uppercase tracking-wider">Tarik Celengan</span>
               <button
                 onClick={() => { setShowWithdrawModal(false); setTransactionAmount(""); setTransactionDesc(""); }}
-                className="text-slate-400 hover:text-slate-600 text-xs font-bold px-2 py-1"
+                className="text-slate-400 hover:text-slate-650 text-xs font-bold px-2 py-1"
               >
                 Tutup
               </button>
             </div>
 
-            <form onSubmit={handleWithdraw} className="space-y-4">
+            <form onSubmit={handleWithdraw} className="space-y-4 text-left">
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase text-slate-400">Nominal Penarikan (Rupiah)</label>
                 <div className="relative">
@@ -438,7 +423,7 @@ export function CelenganDetailPage() {
                   />
                 </div>
                 <span className="text-[10px] text-slate-400 font-medium">
-                  Saldo Tersedia: {formatRupiah(currentAmount)}
+                  Saldo Tersedia: {formatRupiah(celengan.current_amount)}
                 </span>
               </div>
 
@@ -455,9 +440,10 @@ export function CelenganDetailPage() {
 
               <button
                 type="submit"
-                className="w-full bg-slate-800 hover:bg-slate-900 text-white py-3 rounded-xl font-bold text-sm shadow-md transition-all cursor-pointer"
+                disabled={isSubmitting}
+                className="w-full bg-slate-800 hover:bg-slate-900 text-white py-3 rounded-xl font-bold text-sm shadow-md transition-all cursor-pointer disabled:opacity-50"
               >
-                Konfirmasi Penarikan
+                {isSubmitting ? "Memproses..." : "Konfirmasi Penarikan"}
               </button>
             </form>
           </div>
