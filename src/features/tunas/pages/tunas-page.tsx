@@ -95,8 +95,8 @@ export function TunasPage({ user }: TunasPageProps) {
             <ArrowLeft className="w-4.5 h-4.5" />
           </button>
           <div className="flex flex-col text-left">
-            <span className="text-[10px] text-zinc-400 font-extrabold uppercase tracking-wider">Tunas</span>
-            <span className="text-base font-black text-gray-900 leading-none">Pakan (Loker)</span>
+            <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Tunas</span>
+            <span className="text-base font-bold text-gray-900 leading-none">Pakan (Loker)</span>
           </div>
         </div>
 
@@ -112,9 +112,9 @@ export function TunasPage({ user }: TunasPageProps) {
       <div className="-mt-6 -mx-5 relative mb-4">
         <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-7 pb-6 relative overflow-hidden">
           {/* Background Pattern */}
-          <div 
+          <div
             className="absolute inset-0 opacity-15 pointer-events-none"
-            style={{ 
+            style={{
               backgroundImage: `url(${patternBg})`,
               backgroundSize: "150px 150px",
               backgroundRepeat: "repeat"
@@ -127,10 +127,10 @@ export function TunasPage({ user }: TunasPageProps) {
             <div className="flex items-center gap-3.5">
               <img src={logoWhite} alt="Logo" className="w-12 h-12 object-contain" />
               <div className="flex flex-col text-left">
-                <span className="text-[10px] font-extrabold tracking-wider uppercase text-white/90 leading-none">
+                <span className="text-[10px] font-bold tracking-wider uppercase text-white/90 leading-none">
                   {getGreeting()}
                 </span>
-                <span className="text-lg font-black tracking-tight text-white mt-1.5 leading-none">
+                <span className="text-lg font-bold tracking-tight text-white mt-1.5 leading-none">
                   {user.name}
                 </span>
               </div>
@@ -140,7 +140,7 @@ export function TunasPage({ user }: TunasPageProps) {
             <button
               type="button"
               onClick={() => setActiveView("pakan")}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white text-[9px] font-black uppercase tracking-wider shadow-sm hover:scale-105 active:scale-95 transition-all cursor-pointer hover:shadow-[#e0542c]/20"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white text-[9px] font-bold uppercase tracking-wider shadow-sm hover:scale-105 active:scale-95 transition-all cursor-pointer hover:shadow-[#e0542c]/20"
             >
               <Briefcase className="w-3.5 h-3.5 text-white/95" />
               <span>Pakan</span>
@@ -155,7 +155,7 @@ export function TunasPage({ user }: TunasPageProps) {
             <span className="font-semibold text-white/80">
               {dayName}, {dateString}
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 text-white text-[9px] font-black tracking-wide uppercase max-w-[180px] shadow-xs">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 text-white text-[9px] font-bold tracking-wide uppercase max-w-[180px] shadow-xs">
               <MapPin className="w-3 h-3 text-white/90 shrink-0" />
               <span className="truncate">{locationName}</span>
             </span>
@@ -170,7 +170,7 @@ export function TunasPage({ user }: TunasPageProps) {
           {/* Clock In */}
           <div className="flex flex-col">
             <span className="text-[10px] text-white/60 font-bold uppercase tracking-wider leading-none">Masuk</span>
-            <span className="text-sm font-black text-white mt-2 leading-none">
+            <span className="text-sm font-bold text-white mt-2 leading-none">
               {clockInTime === "--:--" ? "--" : clockInTime}
             </span>
           </div>
@@ -178,7 +178,7 @@ export function TunasPage({ user }: TunasPageProps) {
           {/* Clock Out */}
           <div className="flex flex-col">
             <span className="text-[10px] text-white/60 font-bold uppercase tracking-wider leading-none">Pulang</span>
-            <span className="text-sm font-black text-white mt-2 leading-none">
+            <span className="text-sm font-bold text-white mt-2 leading-none">
               {clockOutTime === "--:--" ? "--" : clockOutTime}
             </span>
           </div>
@@ -188,19 +188,18 @@ export function TunasPage({ user }: TunasPageProps) {
         <button
           type="button"
           onClick={handleClockPress}
-          className={`px-5 py-2.5 rounded-full text-xs font-black tracking-wide transition-all active:scale-95 cursor-pointer shadow-xs flex items-center gap-1.5 ${
-            isCheckedIn && clockOutTime !== "--:--"
-              ? "bg-white/10 text-white/40 cursor-not-allowed"
-              : "bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white shadow-[#e0542c]/15"
-          }`}
+          className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wide transition-all active:scale-95 cursor-pointer shadow-xs flex items-center gap-1.5 ${isCheckedIn && clockOutTime !== "--:--"
+            ? "bg-white/10 text-white/40 cursor-not-allowed"
+            : "bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white shadow-[#e0542c]/15"
+            }`}
           disabled={isCheckedIn && clockOutTime !== "--:--"}
         >
           {!(isCheckedIn && clockOutTime !== "--:--") && <Clock className="w-3.5 h-3.5 text-white/90" />}
           {!isCheckedIn
             ? "Presensi Masuk"
             : clockOutTime === "--:--"
-            ? "Presensi Pulang"
-            : "Selesai"}
+              ? "Presensi Pulang"
+              : "Selesai"}
         </button>
       </div>
 

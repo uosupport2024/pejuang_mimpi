@@ -47,7 +47,8 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout 
                             currentRoute === "MobileLumbung" ||
                             currentRoute === "MobileAyamku" ||
                             currentRoute === "MobilePakan" || 
-                            currentRoute === "MobileProfile";
+                            currentRoute === "MobileProfile" ||
+                            currentRoute === "MobileCelenganDetail";
 
       if (session.user.role === "Administrator") {
         // Administrator role must stay on desktop routes

@@ -11,15 +11,15 @@ export function AbsensiCard() {
             <Calendar className="w-3.5 h-3.5" />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="text-[10.5px] font-black leading-tight text-white">Cuti & Izin</span>
+            <span className="text-[10.5px] font-bold leading-tight text-white">Cuti & Izin</span>
             <span className="text-[8.5px] text-white/75 font-bold leading-normal mt-0.5 capitalize">
               Sisa Cuti & Izin
             </span>
           </div>
         </div>
         <div className="mt-2.5 flex items-baseline gap-0.5 text-left text-white">
-          <span className="text-lg font-black leading-none tracking-tight">12</span>
-          <span className="text-[8.5px] text-white/80 font-black uppercase">Hari</span>
+          <span className="text-lg font-bold leading-none tracking-tight">12</span>
+          <span className="text-[8.5px] text-white/80 font-bold uppercase">Hari</span>
         </div>
       </div>
 
@@ -30,15 +30,15 @@ export function AbsensiCard() {
             <Clock className="w-3.5 h-3.5" />
           </div>
           <div className="flex flex-col min-w-0 items-end">
-            <span className="text-[10.5px] font-black leading-tight text-white">Lembur</span>
+            <span className="text-[10.5px] font-bold leading-tight text-white">Lembur</span>
             <span className="text-[8.5px] text-white/75 font-bold leading-normal mt-0.5 capitalize">
               Total Bulan Ini
             </span>
           </div>
         </div>
         <div className="mt-2.5 flex items-baseline gap-0.5 justify-end text-white">
-          <span className="text-lg font-black leading-none tracking-tight">20</span>
-          <span className="text-[8.5px] text-white/80 font-black uppercase">Jam</span>
+          <span className="text-lg font-bold leading-none tracking-tight">20</span>
+          <span className="text-[8.5px] text-white/80 font-bold uppercase">Jam</span>
         </div>
       </div>
     </div>

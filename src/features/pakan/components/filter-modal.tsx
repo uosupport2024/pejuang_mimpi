@@ -71,7 +71,7 @@ export function FilterModal({
             >
               <X className="w-5 h-5" />
             </button>
-            <span className="text-sm font-extrabold text-gray-900">Filter Lowongan</span>
+            <span className="text-sm font-bold text-gray-900">Filter Lowongan</span>
           </div>
 
           <button
@@ -86,7 +86,7 @@ export function FilterModal({
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Section: Job Type */}
           <div className="space-y-3">
-            <span className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider block text-left">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block text-left">
               Tipe Pekerjaan
             </span>
             <div className="flex flex-wrap gap-2.5">
@@ -97,11 +97,10 @@ export function FilterModal({
                     key={type}
                     type="button"
                     onClick={() => toggleTempJobType(type)}
-                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all duration-150 cursor-pointer ${
-                      isActive
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all duration-150 cursor-pointer ${isActive
                         ? "bg-[#e0542c] text-white border border-transparent"
                         : "bg-zinc-50 border border-gray-200/80 text-gray-750 hover:bg-zinc-100/60"
-                    }`}
+                      }`}
                   >
                     {type}
                   </button>
@@ -112,7 +111,7 @@ export function FilterModal({
 
           {/* Section: Workplace Type */}
           <div className="space-y-3">
-            <span className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider block text-left">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block text-left">
               Lokasi Kerja
             </span>
             <div className="flex flex-wrap gap-2.5">
@@ -123,11 +122,10 @@ export function FilterModal({
                     key={workplace}
                     type="button"
                     onClick={() => toggleTempWorkplace(workplace)}
-                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all duration-150 cursor-pointer ${
-                      isActive
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all duration-150 cursor-pointer ${isActive
                         ? "bg-[#e0542c] text-white border border-transparent"
                         : "bg-zinc-50 border border-gray-200/80 text-gray-750 hover:bg-zinc-100/60"
-                    }`}
+                      }`}
                   >
                     {workplace}
                   </button>
@@ -138,7 +136,7 @@ export function FilterModal({
 
           {/* Section: Specialization Category */}
           <div className="space-y-3">
-            <span className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider block text-left">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block text-left">
               Kategori Spesialisasi
             </span>
             <div className="flex flex-wrap gap-2.5">
@@ -149,11 +147,10 @@ export function FilterModal({
                     key={cat.id}
                     type="button"
                     onClick={() => toggleTempCategory(cat.id)}
-                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all duration-150 cursor-pointer ${
-                      isActive
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all duration-150 cursor-pointer ${isActive
                         ? "bg-[#e0542c] text-white border border-transparent"
                         : "bg-zinc-50 border border-gray-200/80 text-gray-750 hover:bg-zinc-100/60"
-                    }`}
+                      }`}
                   >
                     {cat.name}
                   </button>
@@ -164,7 +161,7 @@ export function FilterModal({
 
           {/* Section: Minimum Salary */}
           <div className="space-y-3">
-            <span className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider block text-left">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block text-left">
               Rentang Gaji Minimum
             </span>
             <div className="flex flex-wrap gap-2.5">
@@ -175,11 +172,10 @@ export function FilterModal({
                     key={salary.label}
                     type="button"
                     onClick={() => setTempMinSalary(salary.value)}
-                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all duration-150 cursor-pointer ${
-                      isActive
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all duration-150 cursor-pointer ${isActive
                         ? "bg-[#e0542c] text-white border border-transparent"
                         : "bg-zinc-50 border border-gray-200/80 text-gray-750 hover:bg-zinc-100/60"
-                    }`}
+                      }`}
                   >
                     {salary.label}
                   </button>
@@ -193,7 +189,7 @@ export function FilterModal({
         <div className="p-5 bg-white shrink-0">
           <button
             onClick={onApply}
-            className="w-full py-3.5 bg-[#e0542c] hover:bg-[#c23f1b] text-white font-extrabold rounded-2xl transition-all duration-200 text-xs cursor-pointer"
+            className="w-full py-3.5 bg-[#e0542c] hover:bg-[#c23f1b] text-white font-bold rounded-2xl transition-all duration-200 text-xs cursor-pointer"
           >
             Tampilkan {tempFilteredCount} Lowongan
           </button>

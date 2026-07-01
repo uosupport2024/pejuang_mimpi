@@ -10,10 +10,10 @@ export function ProfileDetails({ user, isOpen }: ProfileDetailsProps) {
 
   return (
     <div className="bg-white p-4 rounded-2xl border border-zinc-150 shadow-xs space-y-3.5 animate-slide-up duration-200">
-      <h3 className="text-xs font-extrabold text-zinc-950 uppercase tracking-wide text-left">
+      <h3 className="text-xs font-bold text-zinc-950 uppercase tracking-wide text-left">
         Informasi Karyawan
       </h3>
-      
+
       <div className="divide-y divide-zinc-100 text-xs font-semibold space-y-2.5">
         <div className="flex justify-between items-center pt-2">
           <span className="text-zinc-400">Email</span>

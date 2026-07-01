@@ -139,7 +139,7 @@ export function KehadiranHeatmap() {
           <button
             type="button"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#1e2a4a] hover:bg-[#151e36] text-white text-[9px] font-extrabold cursor-pointer active:scale-95 transition-all shadow-xs z-50 relative"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#1e2a4a] hover:bg-[#151e36] text-white text-[9px] font-bold cursor-pointer active:scale-95 transition-all shadow-xs z-50 relative"
           >
             <span>{selectedYear}</span>
             <ChevronDown className="w-3 h-3 text-white/80" />

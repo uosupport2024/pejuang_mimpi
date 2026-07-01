@@ -71,11 +71,11 @@ export function DashboardPage() {
                 </div>
               </div>
               <div className="mt-4 flex items-baseline gap-2.5">
-                <span className="text-2xl font-extrabold text-gray-950 tracking-tight">{card.value}</span>
+                <span className="text-2xl font-bold text-gray-950 tracking-tight">{card.value}</span>
                 {card.change && (
                   <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${card.isPositive
-                      ? "bg-emerald-500/10 text-emerald-600"
-                      : "bg-rose-500/10 text-rose-600"
+                    ? "bg-emerald-500/10 text-emerald-600"
+                    : "bg-rose-500/10 text-rose-600"
                     }`}>
                     {card.change}
                   </span>
@@ -134,8 +134,8 @@ export function DashboardPage() {
                 <div
                   style={{ height: bar.height }}
                   className={`w-6 rounded-t-lg transition-all ${bar.highlight
-                      ? "bg-[#e0542c]"
-                      : "bg-[#e0542c]/50 hover:bg-[#e0542c]/80"
+                    ? "bg-[#e0542c]"
+                    : "bg-[#e0542c]/50 hover:bg-[#e0542c]/80"
                     }`}
                 ></div>
               </div>

@@ -34,19 +34,19 @@ const MISI_DATA: Misi[] = [
 // EXACT VECTOR REPLICAS OF THE CHICKEN'S JENGGER & GELAMBIR (Matching reference image exactly)
 const JenggerDefaultSVG = () => (
   <svg viewBox="0 0 100 80" className="w-full h-full drop-shadow-md">
-    <path 
-      d="M20 62 C15 50, 18 35, 32 30 C36 16, 52 14, 65 24 C72 15, 88 18, 90 35 C95 44, 90 56, 80 62" 
-      fill="#ff2e2e" 
-      stroke="#2c1a04" 
-      strokeWidth="4.5" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
+    <path
+      d="M20 62 C15 50, 18 35, 32 30 C36 16, 52 14, 65 24 C72 15, 88 18, 90 35 C95 44, 90 56, 80 62"
+      fill="#ff2e2e"
+      stroke="#2c1a04"
+      strokeWidth="4.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
-    <path 
-      d="M20 62 C35 66, 65 66, 80 62" 
-      fill="none" 
-      stroke="#2c1a04" 
-      strokeWidth="4.5" 
+    <path
+      d="M20 62 C35 66, 65 66, 80 62"
+      fill="none"
+      stroke="#2c1a04"
+      strokeWidth="4.5"
       strokeLinecap="round"
     />
   </svg>
@@ -55,20 +55,20 @@ const JenggerDefaultSVG = () => (
 const GelambirDefaultSVG = () => (
   <svg viewBox="0 0 80 80" className="w-full h-full drop-shadow-md">
     {/* Left Lobe */}
-    <path 
-      d="M40 25 C30 25, 20 35, 20 54 C20 68, 38 68, 40 56 Z" 
-      fill="#ff2e2e" 
-      stroke="#2c1a04" 
-      strokeWidth="4.5" 
-      strokeLinejoin="round" 
+    <path
+      d="M40 25 C30 25, 20 35, 20 54 C20 68, 38 68, 40 56 Z"
+      fill="#ff2e2e"
+      stroke="#2c1a04"
+      strokeWidth="4.5"
+      strokeLinejoin="round"
     />
     {/* Right Lobe */}
-    <path 
-      d="M40 25 C50 25, 60 35, 60 54 C60 68, 42 68, 40 56 Z" 
-      fill="#ff2e2e" 
-      stroke="#2c1a04" 
-      strokeWidth="4.5" 
-      strokeLinejoin="round" 
+    <path
+      d="M40 25 C50 25, 60 35, 60 54 C60 68, 42 68, 40 56 Z"
+      fill="#ff2e2e"
+      stroke="#2c1a04"
+      strokeWidth="4.5"
+      strokeLinejoin="round"
     />
   </svg>
 );
@@ -502,9 +502,9 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
     mata: typeof ACCESSORIES[number] | null;
     leher: typeof ACCESSORIES[number] | null;
   }>({
-    topi: null, 
-    mata: null, 
-    leher: null, 
+    topi: null,
+    mata: null,
+    leher: null,
   });
 
   const handleToggleAccessory = (acc: typeof ACCESSORIES[number]) => {
@@ -555,15 +555,15 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
         <div className="flex items-center gap-3">
           <img src={logoWhite} alt="Logo" className="w-12 h-12 object-contain" />
           <div className="flex flex-col text-left">
-            <span className="text-[10px] font-extrabold tracking-wider uppercase text-white/95 drop-shadow-md">
+            <span className="text-[10px] font-bold tracking-wider uppercase text-white/95 drop-shadow-md">
               Peliharaan
             </span>
-            <span className="text-xl font-black tracking-tight text-white mt-0.5 drop-shadow-md">
+            <span className="text-xl font-bold tracking-tight text-white mt-0.5 drop-shadow-md">
               Ayamku
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-xs border border-white/10 text-white text-[10px] font-black uppercase tracking-wide shadow-xs">
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-xs border border-white/10 text-white text-[10px] font-bold uppercase tracking-wide shadow-xs">
           <Star className="w-3.5 h-3.5 text-[#fee279]" />
           {totalPoin} Poin
         </div>
@@ -636,7 +636,7 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-3.5 py-1.5 rounded-full text-[9.5px] font-black uppercase tracking-wider transition-all cursor-pointer ${activeTab === tab
+                className={`px-3.5 py-1.5 rounded-full text-[9.5px] font-bold uppercase tracking-wider transition-all cursor-pointer ${activeTab === tab
                   ? "bg-[#e0542c] text-white shadow-xs"
                   : "bg-white/10 text-white/70 hover:bg-white/15"
                   }`}
@@ -648,7 +648,7 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
           {(equipped.topi || equipped.mata || equipped.leher) && (
             <button
               onClick={handleResetAccessories}
-              className="text-[8px] font-black uppercase text-red-400 hover:text-red-300 tracking-wider px-2.5 py-1 bg-red-500/10 border border-red-500/25 rounded-lg transition-all cursor-pointer"
+              className="text-[8px] font-bold uppercase text-red-400 hover:text-red-300 tracking-wider px-2.5 py-1 bg-red-500/10 border border-red-500/25 rounded-lg transition-all cursor-pointer"
             >
               Default
             </button>

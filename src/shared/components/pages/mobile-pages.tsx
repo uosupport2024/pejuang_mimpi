@@ -38,7 +38,7 @@ export function MobileLumbungPage({ user }: PageProps) {
         </div>
         <div className="space-y-1">
           <p className="text-[9px] text-white/70">Perkiraan Gaji Pokok</p>
-          <h2 className="text-2xl font-black tracking-tight">{formatRupiah(user.gaji_pokok || 4440000)}</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{formatRupiah(user.gaji_pokok || 4440000)}</h2>
         </div>
         <div className="pt-2 border-t border-white/10 flex justify-between items-center text-[10px] text-white/80">
           <span>{user.bank || "Mandiri"}</span>
@@ -48,8 +48,8 @@ export function MobileLumbungPage({ user }: PageProps) {
 
       {/* Salary Breakdown */}
       <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs space-y-3">
-        <h3 className="text-xs font-extrabold text-gray-950 uppercase tracking-wide">Rincian Slip Gaji</h3>
-        
+        <h3 className="text-xs font-bold text-gray-950 uppercase tracking-wide">Rincian Slip Gaji</h3>
+
         <div className="divide-y divide-gray-100 text-xs font-semibold space-y-2.5">
           <div className="flex justify-between items-center pt-2">
             <span className="text-zinc-500">Gaji Pokok</span>

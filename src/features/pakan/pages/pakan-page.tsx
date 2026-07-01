@@ -70,7 +70,7 @@ export function PakanPage({ user }: PakanPageProps) {
 
   const filteredCourses = COURSES_DATA.filter((course) => {
     const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
+      course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "Semua" || course.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -85,9 +85,9 @@ export function PakanPage({ user }: PakanPageProps) {
       <div className="-mt-6 -mx-5 relative mb-4">
         <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-7 pb-6 relative overflow-hidden">
           {/* Background Pattern */}
-          <div 
+          <div
             className="absolute inset-0 opacity-15 pointer-events-none"
-            style={{ 
+            style={{
               backgroundImage: `url(${patternBg})`,
               backgroundSize: "150px 150px",
               backgroundRepeat: "repeat"
@@ -100,17 +100,17 @@ export function PakanPage({ user }: PakanPageProps) {
             <div className="flex items-center gap-3.5">
               <img src={logoWhite} alt="Logo" className="w-12 h-12 object-contain" />
               <div className="flex flex-col text-left">
-                <span className="text-[10px] font-extrabold tracking-wider uppercase text-white/90 leading-none">
+                <span className="text-[10px] font-bold tracking-wider uppercase text-white/90 leading-none">
                   Selamat Belajar
                 </span>
-                <span className="text-lg font-black tracking-tight text-white mt-1.5 leading-none">
+                <span className="text-lg font-bold tracking-tight text-white mt-1.5 leading-none">
                   {user?.name || "Rekan"}
                 </span>
               </div>
             </div>
 
             {/* Right: Page Label Badge */}
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 text-white text-[9px] font-black tracking-wide uppercase shadow-xs">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 text-white text-[9px] font-bold tracking-wide uppercase shadow-xs">
               E-Learning
             </span>
           </div>
@@ -123,21 +123,21 @@ export function PakanPage({ user }: PakanPageProps) {
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-1 text-[#fee279]">
                 <Trophy className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-xs font-black">1</span>
+                <span className="text-xs font-bold">1</span>
               </div>
               <span className="text-[8px] text-zinc-400 font-bold uppercase mt-0.5">Selesai</span>
             </div>
             <div className="flex flex-col items-center border-x border-white/10">
               <div className="flex items-center gap-1 text-[#fee279]">
                 <BookOpen className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-xs font-black">2</span>
+                <span className="text-xs font-bold">2</span>
               </div>
               <span className="text-[8px] text-zinc-400 font-bold uppercase mt-0.5">Aktif</span>
             </div>
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-1 text-[#fee279]">
                 <Timer className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-xs font-black">7.7 Jam</span>
+                <span className="text-xs font-bold">7.7 Jam</span>
               </div>
               <span className="text-[8px] text-zinc-400 font-bold uppercase mt-0.5">Belajar</span>
             </div>
@@ -165,11 +165,10 @@ export function PakanPage({ user }: PakanPageProps) {
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0 transition-all cursor-pointer ${
-              selectedCategory === cat
-                ? "bg-[#e0542c] text-white shadow-xs"
-                : "bg-white text-zinc-500 border border-zinc-100 hover:bg-zinc-50"
-            }`}
+            className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 transition-all cursor-pointer ${selectedCategory === cat
+              ? "bg-[#e0542c] text-white shadow-xs"
+              : "bg-white text-zinc-500 border border-zinc-100 hover:bg-zinc-50"
+              }`}
           >
             {cat}
           </button>
@@ -191,7 +190,7 @@ export function PakanPage({ user }: PakanPageProps) {
               }
             };
             const IconComp = getCourseIcon(course.id);
-            
+
             return (
               <div
                 key={course.id}
@@ -204,7 +203,7 @@ export function PakanPage({ user }: PakanPageProps) {
                     <IconComp className="w-5 h-5" />
                   </div>
                   {/* Category badge absolutely positioned on top-right */}
-                  <span className="absolute top-2 right-2 inline-flex items-center px-1.5 py-0.5 rounded-full bg-black/25 text-white text-[7.5px] font-black uppercase tracking-wide backdrop-blur-xs">
+                  <span className="absolute top-2 right-2 inline-flex items-center px-1.5 py-0.5 rounded-full bg-black/25 text-white text-[7.5px] font-bold uppercase tracking-wide backdrop-blur-xs">
                     {course.category}
                   </span>
                 </div>
@@ -213,17 +212,17 @@ export function PakanPage({ user }: PakanPageProps) {
                 <div className="p-2.5 flex-1 flex flex-col justify-between space-y-2.5">
                   <div className="space-y-0.5 text-left">
                     {/* Title - Compact size and spacing */}
-                    <h3 className="text-[10px] font-black text-zinc-900 leading-snug line-clamp-2 min-h-[30px]">
+                    <h3 className="text-[10px] font-bold text-zinc-900 leading-snug line-clamp-2 min-h-[30px]">
                       {course.title}
                     </h3>
-                    
+
                     {/* Excerpt - 1 line max, small size */}
                     <p className="text-[8px] text-zinc-400 font-bold leading-normal line-clamp-1">
                       {course.excerpt}
                     </p>
 
                     {/* Instructor / Author */}
-                    <span className="block text-[7.5px] text-zinc-400 font-extrabold tracking-wider uppercase truncate">
+                    <span className="block text-[7.5px] text-zinc-400 font-bold tracking-wider uppercase truncate">
                       Oleh: {course.instructor}
                     </span>
                   </div>
@@ -233,7 +232,7 @@ export function PakanPage({ user }: PakanPageProps) {
                   {/* Action Button - Compact height and py */}
                   <button
                     onClick={() => handleStartCourse(course.title)}
-                    className="w-full py-1.5 rounded-xl bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white text-[8.5px] font-black uppercase tracking-wider shadow-xs hover:from-[#c23f1b] hover:to-[#e0542c] active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5 font-bold"
+                    className="w-full py-1.5 rounded-xl bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white text-[8.5px] font-bold uppercase tracking-wider shadow-xs hover:from-[#c23f1b] hover:to-[#e0542c] active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5 font-bold"
                   >
                     {course.progress === 100 ? (
                       <>

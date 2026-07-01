@@ -20,7 +20,7 @@ import { AnnouncementPage } from "@/features/announcement";
 import { OrganizationPage } from "@/features/organization";
 
 // Feature page imports (Mobile)
-import { SangkarPage } from "@/features/sangkar";
+import { SangkarPage, CelenganDetailPage } from "@/features/sangkar";
 import { TunasPage } from "@/features/tunas";
 import { AyamkuPage } from "@/features/ayamku";
 import { PakanPage } from "../../../features/pakan";
@@ -98,6 +98,8 @@ export function MainContainer({ user, onLogout }: MainContainerProps) {
         return <PakanPage user={user} />;
       case "MobileProfile":
         return <SarangPage user={user} onLogout={onLogout} />;
+      case "MobileCelenganDetail":
+        return <CelenganDetailPage />;
       default:
         return <SangkarPage user={user} />;
     }

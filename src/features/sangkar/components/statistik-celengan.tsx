@@ -117,7 +117,7 @@ export function StatistikCelengan() {
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center px-0.5">
-        <span className="text-xs font-extrabold text-gray-900 uppercase tracking-wider">
+        <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">
           Statistik Celengan
         </span>
         <span className="text-[10px] text-zinc-400 font-bold">Progres Target</span>
@@ -145,7 +145,7 @@ export function StatistikCelengan() {
             >
               {/* Left: name + amount */}
               <div className="flex flex-col gap-0.5 flex-1 min-w-0 pr-1">
-                <span className="text-[10px] font-extrabold leading-none truncate text-white">
+                <span className="text-[10px] font-bold leading-none truncate text-white">
                   {item.name}
                 </span>
                 <span className="text-[8.5px] font-medium leading-none text-white/75 mt-0.5">

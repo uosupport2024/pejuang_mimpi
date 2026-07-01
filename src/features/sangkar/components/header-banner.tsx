@@ -38,33 +38,33 @@ export function HeaderBanner({ user }: HeaderBannerProps) {
           <div className="flex items-center gap-3.5">
             <img src={logoWhite} alt="Logo" className="w-12 h-12 object-contain" />
             <div className="flex flex-col text-left">
-              <span className="text-[10px] font-extrabold tracking-wider uppercase text-white/90 leading-none">Selamat Bekerja</span>
-              <span className="text-lg font-black tracking-tight text-white mt-1.5 leading-none">{user.name}</span>
+              <span className="text-[10px] font-bold tracking-wider uppercase text-white/90 leading-none">Selamat Bekerja</span>
+              <span className="text-lg font-bold tracking-tight text-white mt-1.5 leading-none">{user.name}</span>
             </div>
           </div>
 
           {/* Right: Date & Time */}
           <div className="flex flex-col text-right">
             <span className="text-[10px] font-bold text-white/85 tracking-wide leading-none">{formatDate(currentTime)}</span>
-            <span className="text-base font-black tracking-tight text-white mt-1.5 leading-none">{formatTime(currentTime)}</span>
+            <span className="text-base font-bold tracking-tight text-white mt-1.5 leading-none">{formatTime(currentTime)}</span>
           </div>
         </div>
 
         {/* Total Kekayaan Kamu Section - Always visible */}
         <div className="z-10 relative flex flex-col text-left">
-          <div className="flex justify-between items-center w-full mb-1.5">
-            <span className="text-xs font-semibold text-white/80 tracking-wide">Total Kekayaan Kamu</span>
+          <span className="text-xs font-semibold text-white/80 tracking-wide mb-1.5">Total Kekayaan Kamu</span>
+          <div className="flex items-center gap-1.5 -mt-0.5">
+            <span className="text-2xl font-bold tracking-tight">
+              {showBalance ? formatRupiah(7000000) : "Rp ••••••••"}
+            </span>
             <button
               type="button"
               onClick={() => setShowBalance(!showBalance)}
               className="text-white/85 hover:text-white p-0.5 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
             >
-              {showBalance ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+              {showBalance ? <Eye className="w-4.5 h-4.5" /> : <EyeOff className="w-4.5 h-4.5" />}
             </button>
           </div>
-          <span className="text-2xl font-black tracking-tight -mt-0.5">
-            {showBalance ? formatRupiah(7000000) : "Rp ••••••••"}
-          </span>
         </div>
 
         {/* Footer Block */}
@@ -75,7 +75,7 @@ export function HeaderBanner({ user }: HeaderBannerProps) {
           {/* Bulan Ini Akan Mendapatkan Footer */}
           <div className="flex justify-between items-center text-xs">
             <span className="font-semibold text-white/80">Bulan ini akan mendapatkan</span>
-            <span className="font-black text-right">
+            <span className="font-bold text-right bg-orange-500 text-white px-2 py-0.5 rounded-full text-sm">
               {showBalance ? formatRupiah(3500000) : "Rp ••••••••"}
             </span>
           </div>

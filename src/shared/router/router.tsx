@@ -23,7 +23,8 @@ export type RouteType =
   | "MobileLumbung"
   | "MobileAyamku"
   | "MobilePakan"
-  | "MobileProfile";
+  | "MobileProfile"
+  | "MobileCelenganDetail";
 
 export const ROUTE_TO_PATH: Record<RouteType, string> = {
   Dashboard: "/dashboard",
@@ -47,6 +48,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   MobileAyamku: "/mobile/ayamku",
   MobilePakan: "/mobile/pakan",
   MobileProfile: "/mobile/profile",
+  MobileCelenganDetail: "/mobile/celengan",
 };
 
 export const PATH_TO_ROUTE: Record<string, RouteType> = {
@@ -71,6 +73,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/mobile/ayamku": "MobileAyamku",
   "/mobile/pakan": "MobilePakan",
   "/mobile/profile": "MobileProfile",
+  "/mobile/celengan": "MobileCelenganDetail",
 };
 
 interface RouterContextType {

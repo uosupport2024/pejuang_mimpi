@@ -61,7 +61,7 @@ export function AttendanceHistory() {
           type="button"
           onClick={() => toast.info("Membuka riwayat absensi lengkap...")}
           style={{ color: THEME_COLORS.hex.navBg }}
-          className="text-[10px] font-extrabold cursor-pointer hover:opacity-75"
+          className="text-[10px] font-bold cursor-pointer hover:opacity-75"
         >
           Lihat Semua
         </button>
@@ -72,7 +72,7 @@ export function AttendanceHistory() {
         {historyData.map((item, index) => {
           const style = cardStyles[item.status];
           const displayDayName = indonesianDays[item.dayName] || item.dayName;
-          
+
           return (
             <div
               key={index}
@@ -80,8 +80,8 @@ export function AttendanceHistory() {
             >
               {/* Left Column: Full-height Translucent Date Badge (Flush with left/top/bottom edges) */}
               <div className="w-16 bg-white/15 flex flex-col items-center justify-center shrink-0">
-                <span className="text-xl font-black leading-none text-white">{item.day}</span>
-                <span className="text-[9px] font-extrabold uppercase mt-1.5 leading-none text-white/90 tracking-wider">
+                <span className="text-xl font-bold leading-none text-white">{item.day}</span>
+                <span className="text-[9px] font-bold uppercase mt-1.5 leading-none text-white/90 tracking-wider">
                   {displayDayName}
                 </span>
               </div>
@@ -89,7 +89,7 @@ export function AttendanceHistory() {
               {/* Middle Column: Times & Location */}
               <div className="flex-1 min-w-0 flex flex-col text-left justify-center py-4.5 pl-4 pr-4">
                 {/* Times Row */}
-                <div className="flex items-center gap-1.5 text-sm font-black text-white leading-none">
+                <div className="flex items-center gap-1.5 text-sm font-bold text-white leading-none">
                   <span>{item.checkIn}</span>
                   <span className="text-white/60 font-semibold">—</span>
                   <span>{item.checkOut}</span>
@@ -105,8 +105,8 @@ export function AttendanceHistory() {
               {/* Right Column: Total Work Hours Glass Badge */}
               <div className="flex items-center pr-4 shrink-0">
                 <div className="flex flex-col items-center justify-center bg-white/20 border border-white/10 rounded-xl px-2.5 py-1.5 min-w-[56px] shrink-0 text-center">
-                  <span className="text-[11px] font-black leading-none text-white">{item.totalHours}</span>
-                  <span className="text-[7.5px] font-extrabold uppercase mt-1 leading-none text-white/80 tracking-wider">Jam</span>
+                  <span className="text-[11px] font-bold leading-none text-white">{item.totalHours}</span>
+                  <span className="text-[7.5px] font-bold uppercase mt-1 leading-none text-white/80 tracking-wider">Jam</span>
                 </div>
               </div>
             </div>

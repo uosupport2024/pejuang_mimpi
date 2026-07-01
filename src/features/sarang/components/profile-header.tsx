@@ -28,7 +28,7 @@ export function ProfileHeader({ user, onBack, onNotificationClick }: ProfileHead
         </button>
 
         {/* Title */}
-        <span className="text-sm font-extrabold tracking-wide">Account</span>
+        <span className="text-sm font-bold tracking-wide">Account</span>
 
         {/* Notification Bell */}
         <button
@@ -42,7 +42,7 @@ export function ProfileHeader({ user, onBack, onNotificationClick }: ProfileHead
 
       {/* Avatar Container */}
       <div className="relative mb-3">
-        <div className="w-20 h-20 rounded-full bg-zinc-200 border-2 border-white/90 flex items-center justify-center font-black text-2xl text-zinc-700 shadow-md">
+        <div className="w-20 h-20 rounded-full bg-zinc-200 border-2 border-white/90 flex items-center justify-center font-bold text-2xl text-zinc-700 shadow-md">
           {initials}
         </div>
         <button className="absolute bottom-0 right-0 bg-[#e0542c] hover:bg-[#c23f1b] text-white p-1.5 rounded-full border border-[#1e2a4a] hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-sm">
@@ -52,7 +52,7 @@ export function ProfileHeader({ user, onBack, onNotificationClick }: ProfileHead
 
       {/* Name and Email */}
       <div className="space-y-0.5 text-center">
-        <h2 className="text-base font-extrabold text-white leading-tight">
+        <h2 className="text-base font-bold text-white leading-tight">
           {user.name}
         </h2>
         <p className="text-[10.5px] text-zinc-300 font-medium tracking-wide">

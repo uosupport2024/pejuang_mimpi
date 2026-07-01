@@ -40,7 +40,7 @@ export function TunasLokerList() {
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center px-0.5">
-        <span className="text-xs font-extrabold text-gray-900 uppercase tracking-wider">Daftar Tunas Terbaru</span>
+        <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">Daftar Tunas Terbaru</span>
         <span
           onClick={() => toast.info("Membuka riwayat lengkap tunas...")}
           className="text-[10px] text-[#e0542c] font-bold cursor-pointer hover:underline"
@@ -59,25 +59,25 @@ export function TunasLokerList() {
               onClick={() => toast.success(`Membuka lamaran untuk ${item.position} di ${item.company}...`)}
             >
               <div className="flex flex-col text-left min-w-0">
-                <span className="text-xs font-extrabold text-gray-900 group-hover:text-[#e0542c] transition-colors truncate">{item.position}</span>
+                <span className="text-xs font-bold text-gray-900 group-hover:text-[#e0542c] transition-colors truncate">{item.position}</span>
                 <span className="text-[10px] text-zinc-400 font-bold truncate mt-0.5">{item.company}</span>
 
                 {/* Badges: Type (Green), Location (Yellow), Education (Blue) */}
                 <div className="flex flex-wrap gap-1 mt-2">
-                  <span className={`text-[8.5px] font-extrabold px-2 py-0.5 rounded-full ${THEME_COLORS.badges.type}`}>
+                  <span className={`text-[8.5px] font-bold px-2 py-0.5 rounded-full ${THEME_COLORS.badges.type}`}>
                     {item.type}
                   </span>
-                  <span className={`text-[8.5px] font-extrabold px-2 py-0.5 rounded-full ${THEME_COLORS.badges.location}`}>
+                  <span className={`text-[8.5px] font-bold px-2 py-0.5 rounded-full ${THEME_COLORS.badges.location}`}>
                     {item.location}
                   </span>
-                  <span className={`text-[8.5px] font-extrabold px-2 py-0.5 rounded-full ${THEME_COLORS.badges.education}`}>
+                  <span className={`text-[8.5px] font-bold px-2 py-0.5 rounded-full ${THEME_COLORS.badges.education}`}>
                     {item.education}
                   </span>
                 </div>
               </div>
 
               <div className="flex flex-col text-right shrink-0 ml-3 self-center">
-                <span className="text-xs font-black text-[#e0542c]">{item.salary}</span>
+                <span className="text-xs font-bold text-[#e0542c]">{item.salary}</span>
               </div>
             </div>
           );

@@ -94,7 +94,7 @@ export function ProfileMenu({
       {sections.map((section, secIdx) => (
         <div key={secIdx} className="space-y-2">
           {/* Group Header Title (Simple, flat text, no border) */}
-          <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider block text-left px-1.5">
+          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block text-left px-1.5">
             {section.title}
           </span>
 
@@ -118,7 +118,7 @@ export function ProfileMenu({
                       </div>
 
                       <div className="flex flex-col">
-                        <span className="text-xs font-extrabold text-zinc-850">
+                        <span className="text-xs font-bold text-zinc-850">
                           {item.name}
                         </span>
                         {item.sublabel && (
@@ -130,9 +130,8 @@ export function ProfileMenu({
                     </div>
 
                     <ChevronRight
-                      className={`w-4 h-4 text-zinc-350 transition-transform ${
-                        (item as any).isActive ? "rotate-90 text-[#e0542c]" : ""
-                      }`}
+                      className={`w-4 h-4 text-zinc-350 transition-transform ${(item as any).isActive ? "rotate-90 text-[#e0542c]" : ""
+                        }`}
                     />
                   </button>
                 </div>
@@ -145,7 +144,7 @@ export function ProfileMenu({
       {/* Logout Button in its own matching borderless card block */}
       {onLogout && (
         <div className="space-y-2">
-          <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider block text-left px-1.5">
+          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block text-left px-1.5">
             Sesi
           </span>
           <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden">
@@ -158,7 +157,7 @@ export function ProfileMenu({
                 <div className="w-8.5 h-8.5 rounded-full bg-rose-50 flex items-center justify-center text-rose-500 shrink-0">
                   <LogOut className="w-4 h-4" />
                 </div>
-                <span className="text-xs font-extrabold text-rose-600">
+                <span className="text-xs font-bold text-rose-600">
                   Keluar Akun
                 </span>
               </div>

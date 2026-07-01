@@ -110,7 +110,7 @@ export function PakanLokerList({
 
       {/* Header Info */}
       <div className="flex justify-between items-center px-0.5">
-        <span className="text-xs font-extrabold text-gray-900 uppercase tracking-wider">Daftar Lowongan Kerja</span>
+        <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">Daftar Lowongan Kerja</span>
         <span className="text-[10px] text-zinc-450 font-bold">{jobs.length} Loker Dimuat</span>
       </div>
 
@@ -126,7 +126,7 @@ export function PakanLokerList({
               {/* Top Row: Title & Salary */}
               <div className="flex justify-between items-start gap-3 w-full">
                 <div className="flex flex-col text-left min-w-0">
-                  <span className="text-xs font-extrabold text-gray-950 group-hover:text-[#e0542c] transition-colors truncate">
+                  <span className="text-xs font-bold text-gray-950 group-hover:text-[#e0542c] transition-colors truncate">
                     {item.position}
                   </span>
                   <span className="text-[10px] text-zinc-450 font-bold truncate mt-0.5">
@@ -134,7 +134,7 @@ export function PakanLokerList({
                   </span>
                 </div>
                 <div className="shrink-0 text-right">
-                  <span className="text-xs font-black text-[#e0542c]">{item.salary}</span>
+                  <span className="text-xs font-bold text-[#e0542c]">{item.salary}</span>
                 </div>
               </div>
 
@@ -142,16 +142,15 @@ export function PakanLokerList({
               <div className="flex justify-between items-center mt-3 pt-2.5 border-t border-zinc-100 w-full">
                 {/* Badges */}
                 <div className="flex gap-1.5">
-                  <span className="px-2 py-0.5 text-[9px] font-extrabold rounded-md bg-[#1e2a4a]/5 text-[#1e2a4a] uppercase tracking-wider">
+                  <span className="px-2 py-0.5 text-[9px] font-bold rounded-md bg-[#1e2a4a]/5 text-[#1e2a4a] uppercase tracking-wider">
                     {item.jobType}
                   </span>
-                  <span className={`px-2 py-0.5 text-[9px] font-extrabold rounded-md uppercase tracking-wider ${
-                    item.workplace === "Remote" 
-                      ? "bg-emerald-500/10 text-emerald-600" 
-                      : item.workplace === "Hybrid"
+                  <span className={`px-2 py-0.5 text-[9px] font-bold rounded-md uppercase tracking-wider ${item.workplace === "Remote"
+                    ? "bg-emerald-500/10 text-emerald-600"
+                    : item.workplace === "Hybrid"
                       ? "bg-blue-500/10 text-blue-600"
                       : "bg-zinc-500/10 text-zinc-600"
-                  }`}>
+                    }`}>
                     {item.workplace}
                   </span>
                 </div>
