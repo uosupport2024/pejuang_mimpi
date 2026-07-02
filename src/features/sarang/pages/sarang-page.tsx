@@ -10,8 +10,12 @@ import {
   ChangePasswordDrawer,
   JadwalShiftDrawer,
   ContractDrawer,
+  HelpCenterDrawer,
+  TermsAndPrivacyDrawer,
 } from "../components/profile-drawers";
 import patternBg from "@/assets/bg/pattern-background.png";
+import { Button } from "@/shared/components/ui/button";
+import { Logout } from "@solar-icons/react";
 import {
   CreditCard,
   Clock,
@@ -19,7 +23,6 @@ import {
   Lock,
   HelpCircle,
   ShieldAlert,
-  LogOut,
   ChevronRight,
   Sparkles,
   Eye,
@@ -35,6 +38,8 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isJadwalShiftOpen, setIsJadwalShiftOpen] = useState(false);
   const [isContractOpen, setIsContractOpen] = useState(false);
+  const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
+  const [isTermsAndPrivacyOpen, setIsTermsAndPrivacyOpen] = useState(false);
 
   // Card Number visibility toggle
   const [showCardNumber, setShowCardNumber] = useState(false);
@@ -222,7 +227,7 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
             className="bg-white rounded-[24px] border border-gray-100/70 p-4 shadow-xs text-left flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 shrink-0">
+              <div className="w-9 h-9 rounded-full bg-[#5c8a90] flex items-center justify-center text-white shrink-0 shadow-xs shadow-[#5c8a90]/10">
                 <Clock className="w-4.5 h-4.5" />
               </div>
               <div>
@@ -239,7 +244,7 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
             className="bg-white rounded-[24px] border border-gray-100/70 p-4 shadow-xs text-left flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 shrink-0">
+              <div className="w-9 h-9 rounded-full bg-[#f2b233] flex items-center justify-center text-white shrink-0 shadow-xs shadow-[#f2b233]/10">
                 <FileText className="w-4.5 h-4.5" />
               </div>
               <div>
@@ -264,7 +269,7 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
             className="bg-white rounded-[24px] border border-gray-100/70 p-4 shadow-xs text-left flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600 shrink-0">
+              <div className="w-9 h-9 rounded-full bg-[#334c7a] flex items-center justify-center text-white shrink-0 shadow-xs shadow-[#334c7a]/10">
                 <Lock className="w-4.5 h-4.5" />
               </div>
               <div>
@@ -277,11 +282,11 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
 
           {/* Help */}
           <div
-            onClick={() => toast.info("Bantuan & Kontak...")}
+            onClick={() => setIsHelpCenterOpen(true)}
             className="bg-white rounded-[24px] border border-gray-100/70 p-4 shadow-xs text-left flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 shrink-0">
+              <div className="w-9 h-9 rounded-full bg-[#7fa46d] flex items-center justify-center text-white shrink-0 shadow-xs shadow-[#7fa46d]/10">
                 <HelpCircle className="w-4.5 h-4.5" />
               </div>
               <div>
@@ -294,11 +299,11 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
 
           {/* Terms */}
           <div
-            onClick={() => toast.info("Syarat & Ketentuan...")}
+            onClick={() => setIsTermsAndPrivacyOpen(true)}
             className="bg-white rounded-[24px] border border-gray-100/70 p-4 shadow-xs text-left flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center text-rose-500 shrink-0">
+              <div className="w-9 h-9 rounded-full bg-[#f25c2a] flex items-center justify-center text-white shrink-0 shadow-xs shadow-[#f25c2a]/10">
                 <ShieldAlert className="w-4.5 h-4.5" />
               </div>
               <div>
@@ -314,13 +319,13 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
       {/* Logout Button at the bottom */}
       {onLogout && (
         <div className="pt-2">
-          <button
+          <Button
             onClick={onLogout}
-            className="w-full h-11 bg-rose-50 border border-rose-100 hover:bg-rose-100/50 text-rose-600 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-xs"
+            className="w-full h-10 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-xs text-xs border-0"
           >
-            <LogOut className="w-4.5 h-4.5" />
+            <Logout className="w-4 h-4" />
             <span>Keluar Akun</span>
-          </button>
+          </Button>
         </div>
       )}
 
@@ -354,6 +359,16 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
         isOpen={isContractOpen}
         onClose={() => setIsContractOpen(false)}
         user={user}
+      />
+
+      <HelpCenterDrawer
+        isOpen={isHelpCenterOpen}
+        onClose={() => setIsHelpCenterOpen(false)}
+      />
+
+      <TermsAndPrivacyDrawer
+        isOpen={isTermsAndPrivacyOpen}
+        onClose={() => setIsTermsAndPrivacyOpen(false)}
       />
     </div>
   );

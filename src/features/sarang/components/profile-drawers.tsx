@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Check, Loader2, Calendar, FileText, Download } from "lucide-react";
+import { X, Check, Loader2, Calendar, FileText, Download, Mail, ShieldAlert } from "lucide-react";
 import type { SarangUser } from "../types/sarang.type";
 
 interface BaseDrawerProps {
@@ -390,6 +390,150 @@ export function ContractDrawer({ isOpen, onClose, user }: { isOpen: boolean; onC
         >
           <Download className="w-4 h-4" />
           <span>Unduh Salinan Kontrak (PDF)</span>
+        </button>
+      </div>
+    </BaseProfileDrawer>
+  );
+}
+
+// 6. Pusat Bantuan & Kontak Drawer
+export function HelpCenterDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  return (
+    <BaseProfileDrawer isOpen={isOpen} onClose={onClose} title="Pusat Bantuan">
+      <div className="space-y-5 text-xs font-semibold text-zinc-700">
+        <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/15 flex items-start gap-3.5">
+          <div className="w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center text-white shrink-0 shadow-sm">
+            <Mail className="w-5 h-5" />
+          </div>
+          <div className="min-w-0 flex-1 space-y-1 text-left">
+            <h4 className="font-bold text-zinc-900 text-sm">Kontak Layanan Pengguna</h4>
+            <p className="text-[10px] text-zinc-500 leading-normal">
+              Ada kendala pembayaran gaji, absensi, atau masalah teknis aplikasi? Hubungi tim support kami via email.
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-zinc-50 rounded-2xl border border-zinc-150 p-4 space-y-3.5 text-left">
+          <div className="space-y-0.5">
+            <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider block">ALAMAT EMAIL RESMI</span>
+            <span className="text-sm font-bold text-zinc-800 font-mono">icons@portotalents.com</span>
+          </div>
+
+          <a
+            href="mailto:icons@portotalents.com"
+            className="w-full h-10 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.99] text-xs shadow-sm shadow-emerald-500/10"
+          >
+            <Mail className="w-4 h-4" />
+            <span>Kirim Email Sekarang</span>
+          </a>
+        </div>
+
+        <div className="text-zinc-400 text-[10px] text-center font-medium leading-relaxed px-2">
+          Jam operasional tim bantuan: Senin - Jumat (09:00 - 17:00 WIB). Email balasan akan dikirim maksimal dalam 1x24 jam kerja.
+        </div>
+      </div>
+    </BaseProfileDrawer>
+  );
+}
+
+// 7. Syarat & Ketentuan Drawer (UU PDP No. 27/2022 Compliant)
+export function TermsAndPrivacyDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const [activeTab, setActiveTab] = useState<"terms" | "privacy">("privacy");
+
+  return (
+    <BaseProfileDrawer
+      isOpen={isOpen}
+      onClose={onClose}
+      title={activeTab === "privacy" ? "Kebijakan Privasi" : "Syarat & Ketentuan"}
+    >
+      <div className="space-y-4 text-xs font-semibold text-zinc-700 text-left">
+        {/* Pills style switcher */}
+        <div className="grid grid-cols-2 p-1 bg-zinc-100 rounded-xl shrink-0">
+          <button
+            onClick={() => setActiveTab("privacy")}
+            className={`py-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer ${
+              activeTab === "privacy" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-500 hover:text-zinc-800"
+            }`}
+          >
+            Kebijakan Privasi
+          </button>
+          <button
+            onClick={() => setActiveTab("terms")}
+            className={`py-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer ${
+              activeTab === "terms" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-500 hover:text-zinc-800"
+            }`}
+          >
+            Syarat & Ketentuan
+          </button>
+        </div>
+
+        {/* Scrollable Document Content Area */}
+        <div className="space-y-4 max-h-[45vh] overflow-y-auto pr-1 text-[11px] leading-relaxed font-medium text-zinc-650">
+          {activeTab === "privacy" ? (
+            <>
+              <div className="p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/10 text-emerald-700 text-[10px] leading-normal mb-2 flex gap-2">
+                <ShieldAlert className="w-4.5 h-4.5 shrink-0 mt-0.5 text-emerald-600" />
+                <span>
+                  Dokumen ini disusun mematuhi <strong>Undang-Undang Republik Indonesia Nomor 27 Tahun 2022</strong> tentang Perlindungan Data Pribadi (UU PDP).
+                </span>
+              </div>
+
+              <h4 className="font-bold text-zinc-900 uppercase text-[10px] tracking-wide mt-2">1. Jenis Data Pribadi Yang Dikumpulkan</h4>
+              <p className="text-zinc-500">
+                Kami mengumpulkan data pribadi berupa Nama Lengkap, Alamat Surat Elektronik (Email), Nomor Telepon, Jenis Kelamin, Status Pernikahan, Tanggal Bergabung, nama Bank, dan Nomor Rekening Payroll demi pelaksanaan fungsi ketenagakerjaan dan administrasi penggajian.
+              </p>
+
+              <h4 className="font-bold text-zinc-900 uppercase text-[10px] tracking-wide mt-2">2. Dasar Hukum & Tujuan Pemrosesan Data</h4>
+              <p className="text-zinc-500">
+                Pemrosesan data didasarkan pada hubungan kontraktual ketenagakerjaan antara Anda dan perusahaan. Seluruh pemrosesan dilakukan semata-mata untuk mengelola profil kerja, memverifikasi pencatatan kehadiran (absensi), dan memproses penyaluran penggajian (payroll) bulanan.
+              </p>
+
+              <h4 className="font-bold text-zinc-900 uppercase text-[10px] tracking-wide mt-2">3. Hak Anda Sebagai Subjek Data Pribadi (Pasal 5-12 UU PDP)</h4>
+              <p className="text-zinc-500">
+                Sesuai UU PDP RI, Anda memiliki hak penuh untuk:
+              </p>
+              <ul className="list-disc list-inside pl-1 space-y-1 text-zinc-500">
+                <li>Mengakses dan mendapatkan salinan data pribadi Anda.</li>
+                <li>Memperbaiki, melengkapi, atau memperbarui kesalahan data pribadi Anda (melalui drawer ubah profil/rekening).</li>
+                <li>Menarik kembali persetujuan pemrosesan data pribadi Anda.</li>
+                <li>Mengakhiri pemrosesan, menghapus, atau memusnahkan data pribadi Anda sesuai dengan ketentuan hukum yang berlaku.</li>
+              </ul>
+
+              <h4 className="font-bold text-zinc-900 uppercase text-[10px] tracking-wide mt-2">4. Keamanan dan Jaminan Kerahasiaan</h4>
+              <p className="text-zinc-500">
+                Data Anda dienkripsi dan disimpan dalam server dengan tingkat pengawasan ketat. Informasi sensitif seperti nomor rekening payroll dilindungi menggunakan enkripsi end-to-end dan pembatasan akses karyawan. Kami tidak akan pernah membagikan atau menjual data pribadi Anda kepada pihak ketiga mana pun tanpa persetujuan eksplisit tertulis dari Anda.
+              </p>
+            </>
+          ) : (
+            <>
+              <h4 className="font-bold text-zinc-900 uppercase text-[10px] tracking-wide mt-1">1. Ruang Lingkup Layanan Aplikasi</h4>
+              <p className="text-zinc-500">
+                Aplikasi Pejuang Mimpi menyediakan platform digital ketenagakerjaan internal untuk pencatatan absensi, pengelolaan profil karyawan, monitoring tabungan impian, serta integrasi nomor rekening payroll bagi penyaluran gaji periodik.
+              </p>
+
+              <h4 className="font-bold text-zinc-900 uppercase text-[10px] tracking-wide mt-2">2. Persetujuan Pemrosesan Data Karyawan</h4>
+              <p className="text-zinc-500">
+                Dengan menyetujui syarat ini, Anda memberikan persetujuan eksplisit yang sah kepada platform untuk memproses informasi profil pribadi dan nomor rekening Anda untuk keperluan pelaporan internal kerja dan payroll gaji bulanan.
+              </p>
+
+              <h4 className="font-bold text-zinc-900 uppercase text-[10px] tracking-wide mt-2">3. Kewajiban & Keakuratan Informasi Karyawan</h4>
+              <p className="text-zinc-500">
+                Anda bertanggung jawab penuh atas keakuratan nomor rekening, nama bank, dan data pribadi yang diinput. Kelalaian atau kesalahan pengisian rekening yang mengakibatkan gangguan pada proses payroll berada di luar tanggung jawab sistem.
+              </p>
+
+              <h4 className="font-bold text-zinc-900 uppercase text-[10px] tracking-wide mt-2">4. Penangguhan & Pemutusan Akses</h4>
+              <p className="text-zinc-500">
+                Sistem berhak menangguhkan akses aplikasi apabila ditemukan penyalahgunaan akun, upaya pemalsuan data identitas kerja, atau aktivitas mencurigakan yang membahayakan keamanan server database.
+              </p>
+            </>
+          )}
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full h-10 bg-zinc-900 hover:bg-zinc-850 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-[0.99] text-xs shadow-xs"
+        >
+          <span>Saya Mengerti & Setuju</span>
         </button>
       </div>
     </BaseProfileDrawer>

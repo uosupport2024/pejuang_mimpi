@@ -225,9 +225,9 @@ export function TunasPage({ user }: TunasPageProps) {
         >
           {!(isCheckedIn && clockOutTime !== "--:--") && <Clock className="w-3.5 h-3.5 text-white/90" />}
           {!isCheckedIn
-            ? "Presensi Masuk"
+            ? "Masuk"
             : clockOutTime === "--:--"
-              ? "Presensi Pulang"
+              ? "Keluar"
               : "Selesai"}
         </button>
       </div>
