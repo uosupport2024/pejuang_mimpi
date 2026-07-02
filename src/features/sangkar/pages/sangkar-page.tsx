@@ -7,7 +7,7 @@ import type { SangkarPageProps } from "../types/sangkar.type";
 import { useCelengans } from "../hooks/use-celengan";
 
 export function SangkarPage({ user }: SangkarPageProps) {
-  const { celengans, refresh } = useCelengans();
+  const { celengans, loading, refresh } = useCelengans();
 
   return (
     <div className="space-y-4">
@@ -18,10 +18,10 @@ export function SangkarPage({ user }: SangkarPageProps) {
       <MotivationQuote />
 
       {/* Celenganku Carousel Card Section */}
-      <CelengankuCarousel celengans={celengans} onRefresh={refresh} />
+      <CelengankuCarousel celengans={celengans} onRefresh={refresh} loading={loading} />
 
       {/* Statistik Celengan Section */}
-      <StatistikCelengan celengans={celengans} />
+      <StatistikCelengan celengans={celengans} loading={loading} />
 
       {/* Daftar Tunas Terbaru Section */}
       <TunasLokerList />

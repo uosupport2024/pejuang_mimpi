@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { MapPin, ArrowLeft, Briefcase, Clock } from "lucide-react";
+import { MapPin, ArrowLeft, Briefcase, Clock, Bookmark } from "lucide-react";
+import { toast } from "sonner";
 import logoWhite from "@/assets/logo/logo-white.png";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { AbsensiCard } from "../components/absensi-card";
@@ -17,6 +18,7 @@ function PakanLokerSubPage() {
     searchQuery,
     setSearchQuery,
     filteredJobs,
+    isLoading,
     isLoadingMore,
     hasMore,
     loadMore,
@@ -36,6 +38,10 @@ function PakanLokerSubPage() {
     toggleTempWorkplace,
     tempCategories,
     toggleTempCategory,
+    tempProvinces,
+    toggleTempProvince,
+    tempCities,
+    toggleTempCity,
     tempMinSalary,
     setTempMinSalary,
   } = usePakan();
@@ -46,6 +52,7 @@ function PakanLokerSubPage() {
         jobs={filteredJobs}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        isLoading={isLoading}
         isLoadingMore={isLoadingMore}
         hasMore={hasMore}
         loadMore={loadMore}
@@ -63,6 +70,10 @@ function PakanLokerSubPage() {
         toggleTempWorkplace={toggleTempWorkplace}
         tempCategories={tempCategories}
         toggleTempCategory={toggleTempCategory}
+        tempProvinces={tempProvinces}
+        toggleTempProvince={toggleTempProvince}
+        tempCities={tempCities}
+        toggleTempCity={toggleTempCity}
         tempMinSalary={tempMinSalary}
         setTempMinSalary={setTempMinSalary}
       />
@@ -86,22 +97,40 @@ export function TunasPage({ user }: TunasPageProps) {
   if (activeView === "pakan") {
     return (
       <div className="space-y-4">
-        {/* Header Back Button */}
-        <div className="flex items-center gap-3 px-1 pt-1">
-          <button
-            onClick={() => setActiveView("dashboard")}
-            className="w-8 h-8 rounded-full bg-white border border-zinc-100 shadow-xs flex items-center justify-center text-zinc-700 active:scale-95 transition-all cursor-pointer hover:bg-zinc-50"
-          >
-            <ArrowLeft className="w-4.5 h-4.5" />
-          </button>
-          <div className="flex flex-col text-left">
-            <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Tunas</span>
-            <span className="text-base font-bold text-gray-900 leading-none">Pakan (Loker)</span>
+        {/* Flat Sticky Navy Header matching detail page layout */}
+        <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-4 pb-4 sticky -top-6 z-20 shadow-md -mx-5 -mt-6 relative overflow-hidden">
+          {/* Background Pattern */}
+          <div
+            className="absolute inset-0 opacity-15 pointer-events-none"
+            style={{
+              backgroundImage: `url(${patternBg})`,
+              backgroundSize: "150px 150px",
+              backgroundRepeat: "repeat"
+            }}
+          />
+          <div className="flex items-center gap-3 relative z-10 w-full justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setActiveView("dashboard")}
+                className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+              >
+                <ArrowLeft className="w-6 h-6" />
+              </button>
+              <span className="text-sm font-bold tracking-tight">Pakan</span>
+            </div>
+            <button
+              onClick={() => toast.success("Pencarian disimpan!")}
+              className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+            >
+              <Bookmark className="w-5 h-5 text-white" />
+            </button>
           </div>
         </div>
 
         {/* Loker Content Page */}
-        <PakanLokerSubPage />
+        <div className="pt-2">
+          <PakanLokerSubPage />
+        </div>
       </div>
     );
   }

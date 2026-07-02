@@ -25,7 +25,8 @@ export type RouteType =
   | "MobilePakan"
   | "MobileProfile"
   | "MobileCelenganDetail"
-  | "MobileCelenganAdd";
+  | "MobileCelenganAdd"
+  | "MobileLokerDetail";
 
 export const ROUTE_TO_PATH: Record<RouteType, string> = {
   Dashboard: "/dashboard",
@@ -51,6 +52,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   MobileProfile: "/mobile/profile",
   MobileCelenganDetail: "/mobile/celengan",
   MobileCelenganAdd: "/mobile/celengan/add",
+  MobileLokerDetail: "/mobile/loker",
 };
 
 export const PATH_TO_ROUTE: Record<string, RouteType> = {
@@ -77,6 +79,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/mobile/profile": "MobileProfile",
   "/mobile/celengan": "MobileCelenganDetail",
   "/mobile/celengan/add": "MobileCelenganAdd",
+  "/mobile/loker": "MobileLokerDetail",
 };
 
 interface RouterContextType {
@@ -90,7 +93,12 @@ function RouterInnerProvider({ children }: { children: ReactNode }) {
   const navigateFn = useNavigate();
   const location = useLocation();
 
-  const currentRoute = PATH_TO_ROUTE[location.pathname] || "Dashboard";
+  let resolvedPath = location.pathname;
+  if (resolvedPath.startsWith("/mobile/loker/")) {
+    resolvedPath = "/mobile/loker";
+  }
+
+  const currentRoute = PATH_TO_ROUTE[resolvedPath] || "Dashboard";
 
   const navigate = (route: RouteType) => {
     const path = ROUTE_TO_PATH[route] || "/dashboard";
@@ -124,7 +132,7 @@ export function PageTransition({ children, route }: { children: ReactNode; route
           duration: 0.3,
           ease: [0.34, 1.56, 0.64, 1] // Spring/hatch overshoot curve
         }}
-        className="w-full h-full"
+        className="w-full"
       >
         {children}
       </motion.div>

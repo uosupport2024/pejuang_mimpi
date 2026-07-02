@@ -15,6 +15,7 @@ export interface LoginResponse {
     gaji_pokok?: number;
     lembur?: number;
     izin?: number;
+    status?: string;
   };
   error?: string;
 }

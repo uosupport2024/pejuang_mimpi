@@ -1,11 +1,13 @@
 import { useEffect, useRef } from "react";
 import { Search, Briefcase, SlidersHorizontal } from "lucide-react";
-import { toast } from "sonner";
 import { FilterModal } from "./filter-modal";
 import type { JobOpening } from "../types/pakan.type";
+import { useNavigate } from "react-router-dom";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface PakanLokerListProps {
   jobs: JobOpening[];
+  isLoading?: boolean;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   isLoadingMore: boolean;
@@ -25,12 +27,17 @@ interface PakanLokerListProps {
   toggleTempWorkplace: (workplace: string) => void;
   tempCategories: string[];
   toggleTempCategory: (category: string) => void;
+  tempProvinces: { id: string; name: string }[];
+  toggleTempProvince: (province: { id: string; name: string }) => void;
+  tempCities: string[];
+  toggleTempCity: (city: string) => void;
   tempMinSalary: number;
   setTempMinSalary: (salary: number) => void;
 }
 
 export function PakanLokerList({
   jobs,
+  isLoading,
   searchQuery,
   onSearchChange,
   isLoadingMore,
@@ -49,10 +56,15 @@ export function PakanLokerList({
   toggleTempWorkplace,
   tempCategories,
   toggleTempCategory,
+  tempProvinces,
+  toggleTempProvince,
+  tempCities,
+  toggleTempCity,
   tempMinSalary,
   setTempMinSalary,
 }: PakanLokerListProps) {
   const observerRef = useRef<HTMLDivElement | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!hasMore || isLoadingMore) return;
@@ -115,50 +127,59 @@ export function PakanLokerList({
       </div>
 
       {/* List of jobs */}
-      <div className="flex flex-col gap-3">
-        {jobs.length > 0 ? (
-          jobs.map((item) => (
-            <div
-              key={item.id}
-              className="flex flex-col p-4 bg-white hover:bg-zinc-50/35 rounded-2xl border border-zinc-150 shadow-xs transition-all duration-200 cursor-pointer group"
-              onClick={() => toast.success(`Membuka lamaran untuk ${item.position} di ${item.company}...`)}
-            >
-              {/* Top Row: Title & Salary */}
-              <div className="flex justify-between items-start gap-3 w-full">
-                <div className="flex flex-col text-left min-w-0">
-                  <span className="text-xs font-bold text-gray-950 group-hover:text-[#e0542c] transition-colors truncate">
-                    {item.position}
-                  </span>
-                  <span className="text-[10px] text-zinc-450 font-bold truncate mt-0.5">
-                    {item.company}
-                  </span>
+      <div className="flex flex-col gap-2.5">
+        {isLoading ? (
+          // Initial skeleton loading template
+          <div className="space-y-3.5">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between p-3.5 bg-white rounded-2xl border border-gray-100/70 shadow-md shadow-black/[0.06] animate-pulse"
+              >
+                <div className="flex flex-col text-left min-w-0 flex-1">
+                  <div className="h-3.5 bg-zinc-200 rounded w-2/3 mb-2" />
+                  <div className="h-2.5 bg-zinc-100 rounded w-1/3 mb-2.5" />
+                  <div className="flex gap-1.5">
+                    <div className="h-4 bg-zinc-100 rounded-full w-14" />
+                    <div className="h-4 bg-zinc-100 rounded-full w-14" />
+                    <div className="h-4 bg-zinc-100 rounded-full w-14" />
+                  </div>
                 </div>
-                <div className="shrink-0 text-right">
-                  <span className="text-xs font-bold text-[#e0542c]">{item.salary}</span>
+                <div className="h-3.5 bg-zinc-200 rounded w-16 shrink-0 ml-3" />
+              </div>
+            ))}
+          </div>
+        ) : jobs.length > 0 ? (
+          jobs.map((item, idx) => (
+            <div
+              key={item.id || idx}
+              className="flex items-center justify-between p-3.5 bg-white hover:bg-zinc-50/40 rounded-2xl border border-gray-100/70 shadow-md shadow-black/[0.06] transition-all duration-200 cursor-pointer group hover:scale-[1.005] hover:shadow-lg"
+              onClick={() => navigate(`/mobile/loker/${item.id}`)}
+            >
+              <div className="flex flex-col text-left min-w-0 flex-1">
+                <span className="text-xs font-bold text-gray-900 group-hover:text-[#e0542c] transition-colors truncate">
+                  {item.position}
+                </span>
+                <span className="text-[10px] text-zinc-400 font-bold truncate mt-0.5">
+                  {item.company}
+                </span>
+
+                {/* Badges row matching homepage style */}
+                <div className="flex gap-1 mt-2 overflow-x-auto scrollbar-none select-none">
+                  <span className={`text-[7.5px] font-extrabold px-1.5 py-0.5 rounded-full leading-none whitespace-nowrap ${THEME_COLORS.badges.type}`}>
+                    {item.jobType || "Full-time"}
+                  </span>
+                  <span className={`text-[7.5px] font-extrabold px-1.5 py-0.5 rounded-full leading-none whitespace-nowrap ${THEME_COLORS.badges.location}`}>
+                    {item.workplace || "On-site"}
+                  </span>
+                  <span className={`text-[7.5px] font-extrabold px-1.5 py-0.5 rounded-full leading-none whitespace-nowrap ${THEME_COLORS.badges.education}`}>
+                    {item.location.split("•")[0].trim()}
+                  </span>
                 </div>
               </div>
 
-              {/* Bottom Row: Metadata Badges & Location */}
-              <div className="flex justify-between items-center mt-3 pt-2.5 border-t border-zinc-100 w-full">
-                {/* Badges */}
-                <div className="flex gap-1.5">
-                  <span className="px-2 py-0.5 text-[9px] font-bold rounded-md bg-[#1e2a4a]/5 text-[#1e2a4a] uppercase tracking-wider">
-                    {item.jobType}
-                  </span>
-                  <span className={`px-2 py-0.5 text-[9px] font-bold rounded-md uppercase tracking-wider ${item.workplace === "Remote"
-                    ? "bg-emerald-500/10 text-emerald-600"
-                    : item.workplace === "Hybrid"
-                      ? "bg-blue-500/10 text-blue-600"
-                      : "bg-zinc-500/10 text-zinc-600"
-                    }`}>
-                    {item.workplace}
-                  </span>
-                </div>
-
-                {/* Location */}
-                <span className="text-[9px] text-zinc-450 font-bold truncate max-w-[150px]">
-                  {item.location.split("•")[0].trim()}
-                </span>
+              <div className="flex flex-col text-right shrink-0 ml-3 self-center">
+                <span className="text-xs font-bold text-[#e0542c]">{item.salary}</span>
               </div>
             </div>
           ))
@@ -179,27 +200,18 @@ export function PakanLokerList({
               {[1, 2].map((i) => (
                 <div
                   key={i}
-                  className="flex flex-col p-4 bg-white rounded-2xl border border-zinc-150 shadow-xs animate-pulse"
+                  className="flex items-center justify-between p-3.5 bg-white rounded-2xl border border-gray-100/70 shadow-md shadow-black/[0.06] animate-pulse"
                 >
-                  {/* Top Row Skeleton */}
-                  <div className="flex justify-between items-start gap-3 w-full">
-                    <div className="flex flex-col text-left min-w-0">
-                      <div className="h-3 w-32 bg-zinc-200 rounded-md mb-2" />
-                      <div className="h-2.5 w-20 bg-zinc-100 rounded-md" />
-                    </div>
-                    <div className="shrink-0 text-right">
-                      <div className="h-3.5 w-16 bg-zinc-200 rounded-md" />
-                    </div>
-                  </div>
-
-                  {/* Bottom Row Skeleton */}
-                  <div className="flex justify-between items-center mt-3 pt-2.5 border-t border-zinc-100 w-full">
+                  <div className="flex flex-col text-left min-w-0 flex-1">
+                    <div className="h-3.5 bg-zinc-200 rounded w-2/3 mb-2" />
+                    <div className="h-2.5 bg-zinc-100 rounded w-1/3 mb-2.5" />
                     <div className="flex gap-1.5">
-                      <div className="h-4 w-12 bg-zinc-100 rounded-md" />
-                      <div className="h-4 w-12 bg-zinc-100 rounded-md" />
+                      <div className="h-4 bg-zinc-100 rounded-full w-14" />
+                      <div className="h-4 bg-zinc-100 rounded-full w-14" />
+                      <div className="h-4 bg-zinc-100 rounded-full w-14" />
                     </div>
-                    <div className="h-2.5 w-20 bg-zinc-100 rounded-md" />
                   </div>
+                  <div className="h-3.5 bg-zinc-200 rounded w-16 shrink-0 ml-3" />
                 </div>
               ))}
             </>
@@ -228,6 +240,10 @@ export function PakanLokerList({
         toggleTempWorkplace={toggleTempWorkplace}
         tempCategories={tempCategories}
         toggleTempCategory={toggleTempCategory}
+        tempProvinces={tempProvinces}
+        toggleTempProvince={toggleTempProvince}
+        tempCities={tempCities}
+        toggleTempCity={toggleTempCity}
         tempMinSalary={tempMinSalary}
         setTempMinSalary={setTempMinSalary}
       />

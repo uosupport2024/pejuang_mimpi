@@ -1,5 +1,6 @@
-import { ChevronLeft, Bell, Camera } from "lucide-react";
+import { Camera } from "lucide-react";
 import type { SarangUser } from "../types/sarang.type";
+import patternBg from "@/assets/bg/pattern-background.png";
 
 interface ProfileHeaderProps {
   user: SarangUser;
@@ -7,7 +8,7 @@ interface ProfileHeaderProps {
   onNotificationClick: () => void;
 }
 
-export function ProfileHeader({ user, onBack, onNotificationClick }: ProfileHeaderProps) {
+export function ProfileHeader({ user }: ProfileHeaderProps) {
   // Get initials from user name
   const initials = user.name
     .split(" ")
@@ -16,48 +17,58 @@ export function ProfileHeader({ user, onBack, onNotificationClick }: ProfileHead
     .toUpperCase();
 
   return (
-    <div className="-mt-6 -mx-5 px-5 pt-5 pb-8 bg-[#1e2a4a] text-white flex flex-col items-center relative rounded-b-none z-10">
-      {/* Top Header Bar */}
-      <div className="w-full flex justify-between items-center mb-6">
-        {/* Back Button */}
-        <button
-          onClick={onBack}
-          className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer"
-        >
-          <ChevronLeft className="w-5 h-5 -ml-0.5" />
-        </button>
+    <div className="-mt-6 -mx-5 px-5 pt-6 pb-6 bg-[#1e2a4a] text-white flex items-center relative overflow-hidden rounded-b-[32px] shadow-md z-10">
+      {/* Background Pattern */}
+      <div
+        className="absolute inset-0 opacity-15 pointer-events-none"
+        style={{
+          backgroundImage: `url(${patternBg})`,
+          backgroundSize: "150px 150px",
+        }}
+      />
 
-        {/* Title */}
-        <span className="text-sm font-bold tracking-wide">Account</span>
-
-        {/* Notification Bell */}
-        <button
-          onClick={onNotificationClick}
-          className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer relative"
-        >
-          <Bell className="w-4.5 h-4.5" />
-          <span className="absolute top-2 right-2.5 w-2 h-2 bg-rose-500 rounded-full border border-[#1e2a4a]" />
-        </button>
-      </div>
-
-      {/* Avatar Container */}
-      <div className="relative mb-3">
-        <div className="w-20 h-20 rounded-full bg-zinc-200 border-2 border-white/90 flex items-center justify-center font-bold text-2xl text-zinc-700 shadow-md">
-          {initials}
+      {/* Profile info row */}
+      <div className="flex items-center gap-4 relative z-10 w-full">
+        {/* Avatar Container on the left (Square with rounded 12px) */}
+        <div className="relative shrink-0">
+          <div className="p-0.5 rounded-xl bg-white/10 backdrop-blur-xs shadow-md">
+            <div className="w-14 h-14 rounded-xl bg-zinc-100 border border-white flex items-center justify-center font-bold text-lg text-zinc-700 shadow-inner">
+              {initials}
+            </div>
+          </div>
+          <button className="absolute -bottom-1 -right-1 bg-[#e0542c] hover:bg-[#c23f1b] text-white p-1 rounded-full border border-[#1e2a4a] hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-sm">
+            <Camera className="w-2.5 h-2.5" />
+          </button>
         </div>
-        <button className="absolute bottom-0 right-0 bg-[#e0542c] hover:bg-[#c23f1b] text-white p-1.5 rounded-full border border-[#1e2a4a] hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-sm">
-          <Camera className="w-3.5 h-3.5" />
-        </button>
-      </div>
 
-      {/* Name and Email */}
-      <div className="space-y-0.5 text-center">
-        <h2 className="text-base font-bold text-white leading-tight">
-          {user.name}
-        </h2>
-        <p className="text-[10.5px] text-zinc-300 font-medium tracking-wide">
-          {user.email}
-        </p>
+        {/* Name and Email details on the right - height matched to avatar */}
+        <div className="h-14 flex flex-col justify-between text-left min-w-0 flex-1 py-0.5">
+          <div className="space-y-0.5">
+            <h2 className="text-sm font-bold text-white leading-none tracking-wide truncate">
+              {user.name}
+            </h2>
+            <p className="text-[10px] text-zinc-300 font-semibold tracking-wide truncate leading-none">
+              {user.email}
+            </p>
+          </div>
+          <div className="flex">
+            {(() => {
+              const isUserActive = !user.status || 
+                user.status.toLowerCase() === "active" || 
+                user.status.toLowerCase() === "aktif";
+              return (
+                <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[8.5px] font-bold border leading-none ${
+                  isUserActive
+                    ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/25"
+                    : "bg-zinc-500/15 text-zinc-400 border-zinc-500/25"
+                }`}>
+                  <span className={`w-1.2 h-1.2 rounded-full ${isUserActive ? "bg-emerald-400 animate-pulse" : "bg-zinc-400"}`} />
+                  <span>{isUserActive ? "Aktif" : "Tidak Aktif"}</span>
+                </span>
+              );
+            })()}
+          </div>
+        </div>
       </div>
     </div>
   );

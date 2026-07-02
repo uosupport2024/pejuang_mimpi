@@ -14,7 +14,11 @@ import { useRouter } from "@/shared/router/router";
 import { toast } from "sonner";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { useCelenganDetail } from "../hooks/use-celengan";
-import { getCelenganStyle, getIconComponent } from "../components/celenganku-carousel";
+import { getCelenganStyle } from "../components/celenganku-carousel";
+import { formatThousands, parseThousands } from "@/shared/utils/format";
+import { Input } from "@/shared/components/ui/input";
+import { getChickenIcon } from "@/shared/utils/icons";
+import { motion } from "motion/react";
 
 export function CelenganDetailPage() {
   const { navigate } = useRouter();
@@ -45,7 +49,7 @@ export function CelenganDetailPage() {
     e.preventDefault();
     if (!celengan) return;
 
-    const amountNum = parseFloat(transactionAmount);
+    const amountNum = parseThousands(transactionAmount);
     if (isNaN(amountNum) || amountNum <= 0) {
       toast.error("Masukkan nominal tabungan yang valid!");
       return;
@@ -66,7 +70,7 @@ export function CelenganDetailPage() {
     e.preventDefault();
     if (!celengan) return;
 
-    const amountNum = parseFloat(transactionAmount);
+    const amountNum = parseThousands(transactionAmount);
     if (isNaN(amountNum) || amountNum <= 0) {
       toast.error("Masukkan nominal penarikan yang valid!");
       return;
@@ -101,8 +105,40 @@ export function CelenganDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-[#F7F3EB] text-slate-500">
-        <span className="text-sm font-semibold">Memuat detail celengan...</span>
+      <div className="flex flex-col min-h-screen bg-[#F7F3EB] text-slate-800 pb-20 relative -mt-6 -mx-5 animate-pulse">
+        {/* Top Header Placeholder */}
+        <div className="bg-[#1e2a4a] h-14 w-full" />
+        
+        <div className="p-4 space-y-4">
+          {/* Hero Card Placeholder */}
+          <div className="bg-white border border-slate-200/40 rounded-3xl p-5 space-y-4 shadow-sm">
+            <div className="flex justify-between items-start">
+              <div className="w-14 h-14 bg-slate-100 rounded-2xl" />
+              <div className="h-5 bg-slate-100 rounded-full w-20" />
+            </div>
+            <div className="h-6 bg-slate-150 rounded w-2/3" />
+            <div className="h-4 bg-slate-100 rounded w-3/4 animate-pulse" />
+            <div className="h-3 bg-slate-100 rounded w-1/2" />
+          </div>
+
+          {/* Details Placeholder */}
+          <div className="bg-white border border-slate-200/40 rounded-3xl p-5 space-y-3.5 shadow-sm">
+            <div className="h-4 bg-slate-100 rounded w-1/3" />
+            <div className="h-[1px] bg-slate-100 w-full" />
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex justify-between items-center">
+                <div className="h-4 bg-slate-100 rounded w-24" />
+                <div className="h-4 bg-slate-150 rounded w-16" />
+              </div>
+            ))}
+          </div>
+
+          {/* Action buttons Placeholder */}
+          <div className="flex gap-3">
+            <div className="flex-1 h-12 bg-white border border-slate-200 rounded-2xl" />
+            <div className="flex-1 h-12 bg-white border border-slate-200 rounded-2xl" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -118,8 +154,8 @@ export function CelenganDetailPage() {
     );
   }
 
-  const style = getCelenganStyle(celengan.icon);
-  const IconComponent = getIconComponent(celengan.icon);
+  const style = getCelenganStyle(celengan.id);
+  const iconSrc = getChickenIcon(celengan.icon);
   const currentAmount = celengan.current_amount;
   const target = celengan.target_amount;
   const pct = target > 0 ? Math.min(Math.round((currentAmount / target) * 100), 100) : 0;
@@ -183,13 +219,38 @@ export function CelenganDetailPage() {
         {/* Dynamic Theme Color Hero Card */}
         <div className={`bg-gradient-to-br ${style.gradient} text-white p-5 rounded-3xl shadow-lg relative overflow-hidden`}>
           {/* Decorative graphic element */}
-          <div className="absolute -right-4 -bottom-4 opacity-15 text-white pointer-events-none">
-            <IconComponent className="w-32 h-32" />
+          <div className="absolute -right-4 -bottom-4 opacity-15 pointer-events-none">
+            <motion.img
+              src={iconSrc}
+              alt={celengan.name}
+              className="w-44 h-44 object-contain"
+              animate={{
+                y: [0, -8, 0],
+                rotate: [0, 2, -2, 0]
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
           </div>
 
           <div className="flex items-start justify-between relative z-10">
-            <div className="bg-white/20 p-3 rounded-2xl">
-              <IconComponent className="w-7 h-7 text-white" />
+            <div className="w-14 h-14 flex items-center justify-center">
+              <motion.img
+                src={iconSrc}
+                alt={celengan.name}
+                className="w-12 h-12 object-contain"
+                animate={{
+                  y: [0, -5, 0]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
             </div>
             <span className="bg-white/25 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase">
               {pct}% Terkumpul
@@ -360,25 +421,25 @@ export function CelenganDetailPage() {
                 <label className="text-[10px] font-bold uppercase text-slate-400">Nominal Tabungan (Rupiah)</label>
                 <div className="relative">
                   <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">Rp</span>
-                  <input
-                    type="number"
+                  <Input
+                    type="text"
                     required
-                    placeholder="Contoh: 1000000"
+                    placeholder="Contoh: 1.000.000"
                     value={transactionAmount}
-                    onChange={(e) => setTransactionAmount(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-3 text-sm font-bold focus:outline-none focus:border-[#e0542c] text-slate-800"
+                    onChange={(e) => setTransactionAmount(formatThousands(e.target.value))}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-3 text-sm font-bold focus-visible:ring-[#e0542c]/20 text-slate-800 text-left"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase text-slate-400">Catatan (Opsional)</label>
-                <input
+                <Input
                   type="text"
                   placeholder="Setoran celengan..."
                   value={transactionDesc}
                   onChange={(e) => setTransactionDesc(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#e0542c] text-slate-800"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus-visible:ring-[#e0542c]/20 text-slate-800"
                 />
               </div>
 
@@ -413,13 +474,13 @@ export function CelenganDetailPage() {
                 <label className="text-[10px] font-bold uppercase text-slate-400">Nominal Penarikan (Rupiah)</label>
                 <div className="relative">
                   <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">Rp</span>
-                  <input
-                    type="number"
+                  <Input
+                    type="text"
                     required
-                    placeholder="Contoh: 500000"
+                    placeholder="Contoh: 500.000"
                     value={transactionAmount}
-                    onChange={(e) => setTransactionAmount(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-3 text-sm font-bold focus:outline-none focus:border-red-500"
+                    onChange={(e) => setTransactionAmount(formatThousands(e.target.value))}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-3 text-sm font-bold focus-visible:ring-red-500/20 text-slate-800 text-left"
                   />
                 </div>
                 <span className="text-[10px] text-slate-400 font-medium">
@@ -429,12 +490,12 @@ export function CelenganDetailPage() {
 
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase text-slate-400">Keperluan Penarikan (Opsional)</label>
-                <input
+                <Input
                   type="text"
                   placeholder="Kebutuhan mendadak..."
                   value={transactionDesc}
                   onChange={(e) => setTransactionDesc(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus-visible:ring-red-500/20 text-slate-850"
                 />
               </div>
 

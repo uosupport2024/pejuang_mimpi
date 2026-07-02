@@ -20,7 +20,7 @@ import { AnnouncementPage } from "@/features/announcement";
 import { OrganizationPage } from "@/features/organization";
 
 // Feature page imports (Mobile)
-import { SangkarPage, CelenganDetailPage, CelenganAddPage } from "@/features/sangkar";
+import { SangkarPage, CelenganDetailPage, CelenganAddPage, LokerDetailPage } from "@/features/sangkar";
 import { TunasPage } from "@/features/tunas";
 import { AyamkuPage } from "@/features/ayamku";
 import { PakanPage } from "../../../features/pakan";
@@ -42,9 +42,10 @@ interface MainContainerProps {
     izin?: number;
   };
   onLogout: () => void;
+  onUpdateUser?: (user: any) => void;
 }
 
-export function MainContainer({ user, onLogout }: MainContainerProps) {
+export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerProps) {
   const { currentRoute } = useRouter();
 
   // Desktop Page Router
@@ -97,11 +98,13 @@ export function MainContainer({ user, onLogout }: MainContainerProps) {
       case "MobilePakan":
         return <PakanPage user={user} />;
       case "MobileProfile":
-        return <SarangPage user={user} onLogout={onLogout} />;
+        return <SarangPage user={user} onLogout={onLogout} onUpdateUser={onUpdateUser} />;
       case "MobileCelenganDetail":
         return <CelenganDetailPage />;
       case "MobileCelenganAdd":
         return <CelenganAddPage />;
+      case "MobileLokerDetail":
+        return <LokerDetailPage />;
       default:
         return <SangkarPage user={user} />;
     }

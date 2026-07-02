@@ -99,30 +99,30 @@ export function ProfileMenu({
           </span>
 
           {/* Stacking the individual borderless cards under the group header */}
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {section.items.map((item, itemIdx) => {
               const IconComp = item.icon;
               return (
                 <div
                   key={itemIdx}
-                  className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden"
+                  className="bg-white rounded-[24px] border border-gray-100/70 shadow-xs overflow-hidden"
                 >
                   <button
                     onClick={item.action}
-                    className="w-full flex items-center justify-between p-3.5 hover:bg-zinc-50/45 transition-colors cursor-pointer text-left"
+                    className="w-full flex items-center justify-between p-4 hover:bg-zinc-50/50 transition-colors cursor-pointer text-left"
                   >
                     <div className="flex items-center gap-3">
                       {/* Flat round icon bg wrapper */}
-                      <div className="w-8.5 h-8.5 rounded-full bg-zinc-100/70 flex items-center justify-center text-zinc-550 shrink-0">
-                        <IconComp className="w-4 h-4" />
+                      <div className="w-9 h-9 rounded-full bg-zinc-100/70 flex items-center justify-center text-zinc-600 shrink-0">
+                        <IconComp className="w-4.5 h-4.5" />
                       </div>
 
                       <div className="flex flex-col">
-                        <span className="text-xs font-bold text-zinc-850">
+                        <span className="text-xs font-bold text-zinc-800">
                           {item.name}
                         </span>
                         {item.sublabel && (
-                          <span className="text-[9px] text-zinc-400 font-bold mt-0.5 leading-none">
+                          <span className="text-[9.5px] text-[#e0542c] font-semibold mt-0.5 leading-none">
                             {item.sublabel}
                           </span>
                         )}
@@ -130,7 +130,7 @@ export function ProfileMenu({
                     </div>
 
                     <ChevronRight
-                      className={`w-4 h-4 text-zinc-350 transition-transform ${(item as any).isActive ? "rotate-90 text-[#e0542c]" : ""
+                      className={`w-4 h-4 text-zinc-400 transition-transform ${(item as any).isActive ? "rotate-90 text-[#e0542c]" : ""
                         }`}
                     />
                   </button>
@@ -147,15 +147,15 @@ export function ProfileMenu({
           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block text-left px-1.5">
             Sesi
           </span>
-          <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden">
+          <div className="bg-white rounded-[24px] border border-gray-100/70 shadow-xs overflow-hidden">
             <button
               onClick={onLogout}
-              className="w-full flex items-center justify-between p-3.5 hover:bg-rose-50/20 transition-colors cursor-pointer text-left"
+              className="w-full flex items-center justify-between p-4 hover:bg-rose-50/10 transition-colors cursor-pointer text-left"
             >
               <div className="flex items-center gap-3">
                 {/* Soft flat red round icon container */}
-                <div className="w-8.5 h-8.5 rounded-full bg-rose-50 flex items-center justify-center text-rose-500 shrink-0">
-                  <LogOut className="w-4 h-4" />
+                <div className="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center text-rose-500 shrink-0">
+                  <LogOut className="w-4.5 h-4.5" />
                 </div>
                 <span className="text-xs font-bold text-rose-600">
                   Keluar Akun

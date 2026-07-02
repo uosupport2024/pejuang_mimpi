@@ -10,6 +10,7 @@ import {
   withdrawCelengan,
   deleteCelengan
 } from "../api/celengan";
+import { parseThousands } from "@/shared/utils/format";
 
 export function useCelengans() {
   const [celengans, setCelengans] = useState<Celengan[]>([]);
@@ -147,11 +148,11 @@ export function useAddCelengan() {
   const { navigate } = useRouter();
   const [name, setName] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
-  const [icon, setIcon] = useState("rumah");
+  const [icon, setIcon] = useState("impianbelimotor");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const submit = async () => {
-    const amountNum = parseFloat(targetAmount);
+    const amountNum = parseThousands(targetAmount);
     if (!name.trim()) {
       toast.error("Nama celengan tidak boleh kosong!");
       return false;
