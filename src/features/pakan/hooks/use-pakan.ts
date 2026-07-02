@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import type { JobOpening } from "../types/pakan.type";
+import { fetchLokers } from "../api/loker";
 
 const BASE_MOCK_JOBS: JobOpening[] = [
   { id: "1", position: "Frontend Developer", company: "PT Finexy Digital Corp", location: "Jakarta Selatan • Hybrid", salary: "Rp 6,5 - 9,0 jt", category: "tech", jobType: "Full-time", workplace: "Hybrid", salaryMin: 6.5, salaryMax: 9.0 },
@@ -31,21 +32,29 @@ for (let batch = 0; batch < 4; batch++) {
 
 export function usePakan() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [visibleCount, setVisibleCount] = useState(6);
+  const [jobs, setJobs] = useState<JobOpening[]>([]);
+  const [page, setPage] = useState(1);
+  const [isServerActive, setIsServerActive] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(5);
 
   // Active filters applied to the listing
   const [activeJobTypes, setActiveJobTypes] = useState<string[]>([]);
   const [activeWorkplaces, setActiveWorkplaces] = useState<string[]>([]);
   const [activeCategories, setActiveCategories] = useState<string[]>([]);
   const [activeMinSalary, setActiveMinSalary] = useState<number>(0);
+  const [activeProvinces, setActiveProvinces] = useState<{ id: string; name: string }[]>([]);
+  const [activeCities, setActiveCities] = useState<string[]>([]);
 
   // Temporary/draft filters (inside the modal/drawer)
   const [tempJobTypes, setTempJobTypes] = useState<string[]>([]);
   const [tempWorkplaces, setTempWorkplaces] = useState<string[]>([]);
   const [tempCategories, setTempCategories] = useState<string[]>([]);
   const [tempMinSalary, setTempMinSalary] = useState<number>(0);
+  const [tempProvinces, setTempProvinces] = useState<{ id: string; name: string }[]>([]);
+  const [tempCities, setTempCities] = useState<string[]>([]);
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -55,8 +64,75 @@ export function usePakan() {
     setTempWorkplaces(activeWorkplaces);
     setTempCategories(activeCategories);
     setTempMinSalary(activeMinSalary);
+    setTempProvinces(activeProvinces);
+    setTempCities(activeCities);
     setIsFilterOpen(true);
-  }, [activeJobTypes, activeWorkplaces, activeCategories, activeMinSalary]);
+  }, [activeJobTypes, activeWorkplaces, activeCategories, activeMinSalary, activeProvinces, activeCities]);
+
+  // Load jobs from backend API dynamically
+  const loadJobs = useCallback(async (pageNum: number, isAppend: boolean) => {
+    try {
+      if (pageNum === 1 && !isAppend) {
+        setIsLoading(true);
+      } else {
+        setIsLoadingMore(true);
+      }
+
+      // Map UI filters to backend API job_type values
+      let apiJobType: string | undefined = undefined;
+      if (activeWorkplaces.includes("Remote")) {
+        apiJobType = "remote";
+      } else if (activeWorkplaces.includes("Hybrid")) {
+        apiJobType = "hybrid";
+      } else if (activeWorkplaces.includes("On-site")) {
+        apiJobType = undefined;
+      } else if (activeJobTypes.includes("Part-time")) {
+        apiJobType = "paruh_waktu";
+      } else if (activeJobTypes.includes("Full-time")) {
+        apiJobType = "purna_waktu";
+      }
+
+      // Scale minimum salary by 1,000,000 for database compatibility
+      const apiSalaryMin = activeMinSalary > 0 ? activeMinSalary * 1_000_000 : undefined;
+
+      // Map city filter to API search query 'q' if no search string is inputted
+      let apiQ = searchQuery;
+      if (!apiQ && activeCities.length > 0) {
+        apiQ = activeCities[0];
+      }
+
+      const res = await fetchLokers({
+        q: apiQ,
+        page: pageNum,
+        per_page: 5,
+        job_type: apiJobType,
+        salary_min: apiSalaryMin,
+      });
+
+      setIsServerActive(true);
+      if (isAppend) {
+        setJobs(prev => [...prev, ...res.data]);
+      } else {
+        setJobs(res.data);
+      }
+      setHasMore(pageNum < res.last_page);
+    } catch (err) {
+      console.warn("Backend API not reachable, using fallback mock jobs.", err);
+      setIsServerActive(false);
+      if (!isAppend) {
+        setJobs(EXTENDED_MOCK_JOBS);
+      }
+    } finally {
+      setIsLoading(false);
+      setIsLoadingMore(false);
+    }
+  }, [searchQuery, activeJobTypes, activeWorkplaces, activeMinSalary]);
+
+  // Trigger initial load when search or filter parameters change
+  useEffect(() => {
+    setPage(1);
+    loadJobs(1, false);
+  }, [searchQuery, activeJobTypes, activeWorkplaces, activeCategories, activeMinSalary, activeCities, loadJobs]);
 
   // Reset all filters (either draft or active)
   const resetFilters = useCallback(() => {
@@ -64,6 +140,8 @@ export function usePakan() {
     setTempWorkplaces([]);
     setTempCategories([]);
     setTempMinSalary(0);
+    setTempProvinces([]);
+    setTempCities([]);
   }, []);
 
   // Apply drafted filters
@@ -72,12 +150,14 @@ export function usePakan() {
     setActiveWorkplaces(tempWorkplaces);
     setActiveCategories(tempCategories);
     setActiveMinSalary(tempMinSalary);
+    setActiveProvinces(tempProvinces);
+    setActiveCities(tempCities);
     setIsFilterOpen(false);
-  }, [tempJobTypes, tempWorkplaces, tempCategories, tempMinSalary]);
+  }, [tempJobTypes, tempWorkplaces, tempCategories, tempMinSalary, tempProvinces, tempCities]);
 
   // Compute live match count based on temporary/draft filters (shows count on Terapkan button)
   const tempFilteredCount = useMemo(() => {
-    return EXTENDED_MOCK_JOBS.filter((job) => {
+    return jobs.filter((job) => {
       // 1. Search query filter
       const matchesSearch =
         job.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -97,13 +177,26 @@ export function usePakan() {
       // 5. Min Salary filter
       if (tempMinSalary > 0 && job.salaryMin < tempMinSalary) return false;
 
+      // 6. City/Location filter
+      if (tempCities.length > 0) {
+        const matchesCity = tempCities.some(city => 
+          job.location.toLowerCase().includes(city.toLowerCase()) ||
+          city.toLowerCase().includes(job.location.toLowerCase())
+        );
+        if (!matchesCity) return false;
+      }
+
       return true;
     }).length;
-  }, [searchQuery, tempJobTypes, tempWorkplaces, tempCategories, tempMinSalary]);
+  }, [jobs, searchQuery, tempJobTypes, tempWorkplaces, tempCategories, tempMinSalary]);
 
   // Active filtered jobs to render in UI
   const filteredJobs = useMemo(() => {
-    return EXTENDED_MOCK_JOBS.filter((job) => {
+    if (isServerActive) {
+      // Server already applied search & type queries, return accumulated jobs directly
+      return jobs;
+    }
+    return jobs.filter((job) => {
       // 1. Search query filter
       const matchesSearch =
         job.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -123,35 +216,55 @@ export function usePakan() {
       // 5. Min Salary filter
       if (activeMinSalary > 0 && job.salaryMin < activeMinSalary) return false;
 
+      // 6. City/Location filter
+      if (activeCities.length > 0) {
+        const matchesCity = activeCities.some(city => 
+          job.location.toLowerCase().includes(city.toLowerCase()) ||
+          city.toLowerCase().includes(job.location.toLowerCase())
+        );
+        if (!matchesCity) return false;
+      }
+
       return true;
     });
-  }, [searchQuery, activeJobTypes, activeWorkplaces, activeCategories, activeMinSalary]);
+  }, [jobs, searchQuery, activeJobTypes, activeWorkplaces, activeCategories, activeMinSalary, activeCities, isServerActive]);
 
-  // Reset pagination when search query or active filters change
+  // Reset pagination when search query or active filters change (for client side fallback)
   useEffect(() => {
-    setVisibleCount(6);
-    setHasMore(filteredJobs.length > 6);
-  }, [searchQuery, activeJobTypes, activeWorkplaces, activeCategories, activeMinSalary, filteredJobs.length]);
+    if (!isServerActive) {
+      setVisibleCount(5);
+      setHasMore(filteredJobs.length > 5);
+    }
+  }, [searchQuery, activeJobTypes, activeWorkplaces, activeCategories, activeMinSalary, activeCities, filteredJobs.length, isServerActive]);
 
   const loadMore = useCallback(() => {
-    if (isLoadingMore || !hasMore) return;
+    if (isLoading || isLoadingMore || !hasMore) return;
 
-    setIsLoadingMore(true);
-    setTimeout(() => {
-      setVisibleCount((prev) => {
-        const nextCount = prev + 6;
-        if (nextCount >= filteredJobs.length) {
-          setHasMore(false);
-        }
-        return nextCount;
-      });
-      setIsLoadingMore(false);
-    }, 1200);
-  }, [isLoadingMore, hasMore, filteredJobs.length]);
+    if (isServerActive) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      loadJobs(nextPage, true);
+    } else {
+      setIsLoadingMore(true);
+      setTimeout(() => {
+        setVisibleCount((prev) => {
+          const nextCount = prev + 5;
+          if (nextCount >= filteredJobs.length) {
+            setHasMore(false);
+          }
+          return nextCount;
+        });
+        setIsLoadingMore(false);
+      }, 1000);
+    }
+  }, [isLoading, isLoadingMore, hasMore, isServerActive, page, loadJobs, filteredJobs.length]);
 
   const displayedJobs = useMemo(() => {
+    if (isServerActive) {
+      return filteredJobs;
+    }
     return filteredJobs.slice(0, visibleCount);
-  }, [filteredJobs, visibleCount]);
+  }, [filteredJobs, visibleCount, isServerActive]);
 
   // Helper selectors for draft filters
   const toggleTempJobType = useCallback((type: string) => {
@@ -172,11 +285,29 @@ export function usePakan() {
     );
   }, []);
 
+  const toggleTempCity = useCallback((city: string) => {
+    setTempCities((prev) =>
+      prev.includes(city) ? prev.filter((c) => c !== city) : [...prev, city]
+    );
+  }, []);
+
+  const toggleTempProvince = useCallback((province: { id: string; name: string }) => {
+    setTempProvinces((prev) => {
+      const exists = prev.some((p) => p.id === province.id);
+      if (exists) {
+        return prev.filter((p) => p.id !== province.id);
+      } else {
+        return [...prev, province];
+      }
+    });
+  }, []);
+
   return {
     searchQuery,
     setSearchQuery,
     filteredJobs: displayedJobs,
     totalJobsCount: filteredJobs.length,
+    isLoading,
     isLoadingMore,
     hasMore,
     loadMore,
@@ -196,6 +327,10 @@ export function usePakan() {
     toggleTempWorkplace,
     tempCategories,
     toggleTempCategory,
+    tempProvinces,
+    toggleTempProvince,
+    tempCities,
+    toggleTempCity,
     tempMinSalary,
     setTempMinSalary,
   };

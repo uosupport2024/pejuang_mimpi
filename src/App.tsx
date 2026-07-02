@@ -20,6 +20,7 @@ interface UserProfile {
   gaji_pokok?: number;
   lembur?: number;
   izin?: number;
+  status?: string;
 }
 
 interface AppContentProps {
@@ -27,9 +28,10 @@ interface AppContentProps {
   isInitializing: boolean;
   handleLoginSuccess: (response: LoginResponse) => void;
   handleLogout: () => void;
+  onUpdateUser: (user: UserProfile) => void;
 }
 
-function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout }: AppContentProps) {
+function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout, onUpdateUser }: AppContentProps) {
   const { currentRoute, navigate } = useRouter();
 
   // Redirect and route guards based on login session and path
@@ -48,7 +50,9 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout 
                             currentRoute === "MobileAyamku" ||
                             currentRoute === "MobilePakan" || 
                             currentRoute === "MobileProfile" ||
-                            currentRoute === "MobileCelenganDetail";
+                            currentRoute === "MobileCelenganDetail" ||
+                            currentRoute === "MobileCelenganAdd" ||
+                            currentRoute === "MobileLokerDetail";
 
       if (session.user.role === "Administrator") {
         // Administrator role must stay on desktop routes
@@ -78,7 +82,7 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout 
     return null;
   }
 
-  return <MainContainer user={session.user} onLogout={handleLogout} />;
+  return <MainContainer user={session.user} onLogout={handleLogout} onUpdateUser={onUpdateUser} />;
 }
 
 function App() {
@@ -126,6 +130,7 @@ function App() {
         gaji_pokok: response.user.gaji_pokok,
         lembur: response.user.lembur,
         izin: response.user.izin,
+        status: response.user.status,
       }
 
       // Save token and profile in cookies (not localStorage)
@@ -137,6 +142,11 @@ function App() {
         user: userProfile,
       })
     }
+  }
+
+  const handleUpdateUser = (updatedUser: UserProfile) => {
+    setSession(prev => prev ? { ...prev, user: updatedUser } : null)
+    setCookie("user_profile", JSON.stringify(updatedUser))
   }
 
   const handleLogout = () => {
@@ -153,6 +163,7 @@ function App() {
         isInitializing={isInitializing}
         handleLoginSuccess={handleLoginSuccess}
         handleLogout={handleLogout}
+        onUpdateUser={handleUpdateUser}
       />
       <Toaster position="top-center" richColors />
     </RouterProvider>

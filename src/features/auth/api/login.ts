@@ -40,6 +40,7 @@ export async function login(email: string, password: string): Promise<LoginRespo
           gaji_pokok: json.data.user.gaji_pokok,
           lembur: json.data.user.lembur,
           izin: json.data.user.izin,
+          status: json.data.user.status,
         },
       }
     }
@@ -66,6 +67,7 @@ export async function login(email: string, password: string): Promise<LoginRespo
           name: "Admin Pejuang Mimpi",
           email: "admin@pejuangmimpi.com",
           role: "Administrator",
+          status: "active",
         },
       }
     }
@@ -88,6 +90,7 @@ export async function login(email: string, password: string): Promise<LoginRespo
           gaji_pokok: 4440000,
           lembur: 15000,
           izin: 92500,
+          status: "active",
         },
       }
     }

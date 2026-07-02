@@ -3,6 +3,7 @@ import logoWhite from "@/assets/logo/logo-white.png";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { useHeaderBanner } from "../hooks/use-header-banner";
 import type { SangkarUser } from "../types/sangkar.type";
+import { motion } from "motion/react";
 
 interface HeaderBannerProps {
   user: SangkarUser;
@@ -27,16 +28,16 @@ export function HeaderBanner({ user }: HeaderBannerProps) {
           className="absolute inset-0 opacity-15 pointer-events-none"
           style={{
             backgroundImage: `url(${patternBg})`,
-            backgroundSize: "150px 150px",
-            backgroundRepeat: "repeat"
+            backgroundSize: "180px 180px",
+            backgroundRepeat: "repeat",
           }}
         />
 
-        {/* Content with Logo + Greeting & Name on left, Date & Time on right */}
-        <div className="flex justify-between items-center z-10 relative mb-3.5">
-          {/* Left: Logo & User Info */}
-          <div className="flex items-center gap-3.5">
-            <img src={logoWhite} alt="Logo" className="w-12 h-12 object-contain" />
+        {/* Top Section */}
+        <div className="flex justify-between items-center z-10 mb-5">
+          {/* Left: App Logo & User Details */}
+          <div className="flex items-center gap-3">
+            <img src={logoWhite} alt="Pejuang Mimpi" className="w-9 h-9 object-contain" />
             <div className="flex flex-col text-left">
               <span className="text-[10px] font-bold tracking-wider uppercase text-white/90 leading-none">Selamat Bekerja</span>
               <span className="text-lg font-bold tracking-tight text-white mt-1.5 leading-none">{user.name}</span>
@@ -54,9 +55,22 @@ export function HeaderBanner({ user }: HeaderBannerProps) {
         <div className="z-10 relative flex flex-col text-left">
           <span className="text-xs font-semibold text-white/80 tracking-wide mb-1.5">Total Kekayaan Kamu</span>
           <div className="flex items-center gap-1.5 -mt-0.5">
-            <span className="text-2xl font-bold tracking-tight">
+            <motion.span
+              className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-[#fee279] to-white"
+              style={{
+                backgroundSize: "200% auto",
+              }}
+              animate={{
+                backgroundPosition: ["0% 50%", "200% 50%"],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+            >
               {showBalance ? formatRupiah(7000000) : "Rp ••••••••"}
-            </span>
+            </motion.span>
             <button
               type="button"
               onClick={() => setShowBalance(!showBalance)}

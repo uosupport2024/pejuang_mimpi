@@ -26,11 +26,13 @@ export function MobileLayout({ children }: MobileLayoutProps) {
   return (
     <div className="w-full min-h-screen bg-zinc-950 flex justify-center font-sans antialiased overflow-hidden">
       {/* Clean centered mobile view (no device chassis frame, full screen height) */}
-      <div className="w-full max-w-[480px] h-screen bg-[#F7F3EB] shadow-2xl flex flex-col relative overflow-hidden">
+      <div className="w-full max-w-[480px] h-[100dvh] bg-[#F7F3EB] shadow-2xl flex flex-col relative overflow-hidden">
         
         {/* Scrollable Main Content */}
-        <div className="flex-1 overflow-y-auto pt-6 pb-20 px-5">
+        <div className="flex-1 overflow-y-auto pt-6 px-5">
           {children}
+          {/* Spacer to guarantee scrolling clearance of bottom navigation */}
+          <div className="h-32 w-full shrink-0" />
         </div>
 
         {/* Flat Bottom Tab Navigation Bar */}
