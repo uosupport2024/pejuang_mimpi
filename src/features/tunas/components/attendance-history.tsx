@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { MapPin } from "lucide-react";
-import { toast } from "sonner";
 import { THEME_COLORS } from "@/shared/constants/colors";
 import { fetchJadwalHistoryAPI } from "../api/absensi";
+import { useRouter } from "@/shared/router/router";
 
 type AttendanceStatus = "Early" | "On Time" | "Late";
 
@@ -53,6 +53,7 @@ const calculateTotalHours = (checkIn: string, checkOut: string): string => {
 };
 
 export function AttendanceHistory() {
+  const { navigate } = useRouter();
   const [historyList, setHistoryList] = useState<HistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const isFetched = useRef(false);
@@ -146,7 +147,7 @@ export function AttendanceHistory() {
         </span>
         <button
           type="button"
-          onClick={() => toast.info("Membuka riwayat absensi lengkap...")}
+          onClick={() => navigate("MobileHistory")}
           style={{ color: THEME_COLORS.hex.navBg }}
           className="text-[10px] font-bold cursor-pointer hover:opacity-75"
         >

@@ -278,6 +278,11 @@ export function MobileAbsensiPage() {
       return;
     }
 
+    if (isTooEarlyForShift) {
+      toast.error("Absensi masuk baru dibuka 2 jam sebelum shift dimulai.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const imageFile = dataURLtoFile(capturedImage, `selfie_${Date.now()}.jpg`);
@@ -333,6 +338,32 @@ export function MobileAbsensiPage() {
   // lock_location is enforced only for check-in (absen masuk) when value is '1' or 1
   const isLocationLocked = todayJadwal ? (parseInt(todayJadwal.lock_location) === 1) : true;
   const isOutsideRadius = !isCheckOut && isLocationLocked && distance !== null && distance > allowedRadius;
+
+  // Check if current time is more than 2 hours before shift start time (for check-in)
+  const isTooEarlyForShift = (() => {
+    if (isCheckOut) return false;
+    if (!todayJadwal) return false;
+    const shiftObj = todayJadwal.Shift || todayJadwal.shift;
+    if (!shiftObj || !shiftObj.jam_masuk) return false;
+
+    const [sH, sM] = shiftObj.jam_masuk.split(":").map(Number);
+    if (isNaN(sH) || isNaN(sM)) return false;
+
+    const now = new Date();
+    const nowH = now.getHours();
+    const nowM = now.getMinutes();
+
+    const shiftStartMins = sH * 60 + sM;
+    const nowMins = nowH * 60 + nowM;
+
+    let diffBefore = shiftStartMins - nowMins;
+    // Adjust for crossover midnight
+    if (diffBefore < 0 && Math.abs(diffBefore) > 12 * 60) {
+      diffBefore += 24 * 60;
+    }
+
+    return diffBefore > 0 && diffBefore > 120;
+  })();
 
   return (
     <div className="space-y-4">
@@ -421,8 +452,8 @@ export function MobileAbsensiPage() {
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={!capturedImage || isSubmitting || isOutsideRadius || !todayJadwal}
-                className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] ${!capturedImage || isOutsideRadius || !todayJadwal
+                disabled={!capturedImage || isSubmitting || isOutsideRadius || !todayJadwal || isTooEarlyForShift}
+                className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] ${!capturedImage || isOutsideRadius || !todayJadwal || isTooEarlyForShift
                   ? "bg-zinc-200 text-zinc-400 cursor-not-allowed border border-zinc-300/40"
                   : "bg-[#e0542c] hover:bg-[#c23f1b] text-white shadow-xs cursor-pointer"
                   }`}
@@ -431,6 +462,8 @@ export function MobileAbsensiPage() {
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                 ) : !todayJadwal ? (
                   <span>No Shift</span>
+                ) : isTooEarlyForShift ? (
+                  <span>Belum Buka</span>
                 ) : isOutsideRadius ? (
                   <span>Luar Radius</span>
                 ) : (
