@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { MapPin, ArrowLeft, Briefcase, Clock, Bookmark } from "lucide-react";
+import { useRouter } from "@/shared/router/router";
 import { toast } from "sonner";
 import logoWhite from "@/assets/logo/logo-white.png";
 import patternBg from "@/assets/bg/pattern-background.png";
@@ -82,7 +83,8 @@ function PakanLokerSubPage() {
 }
 
 export function TunasPage({ user }: TunasPageProps) {
-  const { clockInTime, clockOutTime, isCheckedIn, handleClockPress, dayName, dateString, locationName } = useTunas();
+  const { navigate } = useRouter();
+  const { clockInTime, clockOutTime, isCheckedIn, dayName, dateString, locationName } = useTunas();
   const [activeView, setActiveView] = useState<"dashboard" | "pakan">("dashboard");
 
   // Greeting helper based on time of day
@@ -216,7 +218,9 @@ export function TunasPage({ user }: TunasPageProps) {
         {/* Capsule Button (Right Column) */}
         <button
           type="button"
-          onClick={handleClockPress}
+          onClick={() => {
+            navigate("MobileAbsensi");
+          }}
           className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wide transition-all active:scale-95 cursor-pointer shadow-xs flex items-center gap-1.5 ${isCheckedIn && clockOutTime !== "--:--"
             ? "bg-white/10 text-white/40 cursor-not-allowed"
             : "bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white shadow-[#e0542c]/15"

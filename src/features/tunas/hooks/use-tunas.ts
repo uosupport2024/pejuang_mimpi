@@ -1,11 +1,47 @@
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
+import { useState, useEffect, useRef } from "react";
+import { fetchProfileAPI } from "../api/absensi";
 
 export function useTunas() {
   const [clockInTime, setClockInTime] = useState<string>("--:--");
   const [clockOutTime, setClockOutTime] = useState<string>("--:--");
-  const [isCheckedIn, setIsCheckedIn] = useState(false);
+  const [isCheckedIn, setIsCheckedIn] = useState<boolean>(false);
   const [locationName, setLocationName] = useState<string>("Mencari Lokasi...");
+  const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+
+  const isFetched = useRef(false);
+
+  const loadUserAttendanceStatus = async () => {
+    try {
+      const profile = await fetchProfileAPI();
+      if (profile && profile.today_schedule) {
+        const schedule = profile.today_schedule;
+        if (schedule.jam_absen) {
+          setClockInTime(schedule.jam_absen.substring(0, 5));
+          setIsCheckedIn(true);
+        } else {
+          setClockInTime("--:--");
+          setIsCheckedIn(false);
+        }
+        if (schedule.jam_pulang) {
+          setClockOutTime(schedule.jam_pulang.substring(0, 5));
+        } else {
+          setClockOutTime("--:--");
+        }
+      } else {
+        setClockInTime("--:--");
+        setClockOutTime("--:--");
+        setIsCheckedIn(false);
+      }
+    } catch (err) {
+      console.error("Failed to load attendance status from profile API:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (isFetched.current) return;
+    isFetched.current = true;
+    loadUserAttendanceStatus();
+  }, []);
 
   useEffect(() => {
     if (!navigator.geolocation) {
@@ -16,6 +52,7 @@ export function useTunas() {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
+        setCoords({ latitude, longitude });
         try {
           const res = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
@@ -29,7 +66,6 @@ export function useTunas() {
           if (res.ok) {
             const data = await res.json();
             const address = data.address || {};
-            // Extract the most specific location name available
             const displayLoc =
               address.suburb ||
               address.village ||
@@ -64,26 +100,6 @@ export function useTunas() {
     );
   }, []);
 
-  const handleClockPress = () => {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString("id-ID", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false
-    });
-
-    if (!isCheckedIn) {
-      setClockInTime(timeString);
-      setIsCheckedIn(true);
-      toast.success(`Berhasil Clock-In pada pukul ${timeString}`);
-    } else if (clockOutTime === "--:--") {
-      setClockOutTime(timeString);
-      toast.success(`Berhasil Clock-Out pada pukul ${timeString}`);
-    } else {
-      toast.error("Anda sudah menyelesaikan absensi shift hari ini.");
-    }
-  };
-
   const formatRupiah = (val?: number) => {
     if (val === undefined) return "Rp 0";
     return "Rp " + val.toLocaleString("id-ID");
@@ -101,10 +117,11 @@ export function useTunas() {
     clockInTime,
     clockOutTime,
     isCheckedIn,
-    handleClockPress,
+    refreshAttendanceStatus: loadUserAttendanceStatus,
     formatRupiah,
     dayName,
     dateString,
     locationName,
+    coords,
   };
 }

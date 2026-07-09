@@ -1,16 +1,5 @@
-import { getCookie } from "@/shared/utils/cookies";
 import type { JobOpening } from "../types/pakan.type";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://attandance-pot.test/api/v1";
-
-function getHeaders() {
-  const token = getCookie("auth_token");
-  return {
-    "Content-Type": "application/json",
-    "Accept": "application/json",
-    ...(token ? { "Authorization": `Bearer ${token}` } : {}),
-  };
-}
+import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
 
 export async function fetchLokers(params?: {
   q?: string;

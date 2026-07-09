@@ -21,7 +21,7 @@ import { OrganizationPage } from "@/features/organization";
 
 // Feature page imports (Mobile)
 import { SangkarPage, CelenganDetailPage, CelenganAddPage, LokerDetailPage } from "@/features/sangkar";
-import { TunasPage } from "@/features/tunas";
+import { TunasPage, MobileAbsensiPage } from "@/features/tunas";
 import { AyamkuPage } from "@/features/ayamku";
 import { PakanPage } from "../../../features/pakan";
 import { SarangPage } from "../../../features/sarang";
@@ -105,6 +105,8 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <CelenganAddPage />;
       case "MobileLokerDetail":
         return <LokerDetailPage />;
+      case "MobileAbsensi":
+        return <MobileAbsensiPage />;
       default:
         return <SangkarPage user={user} />;
     }

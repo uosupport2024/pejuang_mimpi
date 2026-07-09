@@ -1,16 +1,5 @@
-import { getCookie } from "@/shared/utils/cookies";
 import type { SarangUser } from "../types/sarang.type";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://attendance.portotalents.com/api/v1";
-
-function getHeaders() {
-  const token = getCookie("auth_token");
-  return {
-    "Content-Type": "application/json",
-    "Accept": "application/json",
-    ...(token ? { "Authorization": `Bearer ${token}` } : {}),
-  };
-}
+import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
 
 /**
  * Connects to backend API to update profile information.
