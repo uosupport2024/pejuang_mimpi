@@ -29,10 +29,10 @@ export function LeaveForm({ hook }: LeaveFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-5 shadow-lg shadow-zinc-100 border border-zinc-100/80 flex flex-col gap-5 text-left">
+    <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-5 shadow-lg shadow-zinc-100 border border-zinc-100/80 flex flex-col gap-4 text-left">
       {/* Employee Name (Dropdown / Select) */}
-      <div className="relative">
-        <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wide">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
           Nama Pegawai
         </label>
         <select
@@ -45,8 +45,8 @@ export function LeaveForm({ hook }: LeaveFormProps) {
       </div>
 
       {/* Jenis Cuti / Izin (Dropdown / Select) */}
-      <div className="relative">
-        <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wide">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
           Jenis Cuti / Izin
         </label>
         <select
@@ -63,8 +63,8 @@ export function LeaveForm({ hook }: LeaveFormProps) {
       </div>
 
       {/* Tanggal Mulai */}
-      <div className="relative">
-        <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wide">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
           Tanggal Mulai
         </label>
         <Input
@@ -76,8 +76,8 @@ export function LeaveForm({ hook }: LeaveFormProps) {
       </div>
 
       {/* Tanggal Akhir */}
-      <div className="relative">
-        <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wide">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
           Tanggal Akhir
         </label>
         <Input
@@ -89,24 +89,29 @@ export function LeaveForm({ hook }: LeaveFormProps) {
       </div>
 
       {/* Custom File Upload Input */}
-      <div className="flex items-center border border-zinc-200 rounded-xl overflow-hidden h-12 text-xs">
-        <label className="bg-zinc-100 hover:bg-zinc-200 text-zinc-700 px-4 py-3.5 font-bold cursor-pointer border-r border-zinc-200 shrink-0 select-none active:scale-95 transition-all">
-          Choose File
-          <input
-            type="file"
-            accept="image/*,application/pdf"
-            onChange={handleFileChange}
-            className="hidden"
-          />
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+          Unggah Dokumen (Opsional)
         </label>
-        <span className="px-3 text-zinc-500 font-medium truncate flex-1">
-          {fileName || "No file chosen"}
-        </span>
+        <div className="flex items-center border border-zinc-200 rounded-xl overflow-hidden h-12 text-xs bg-white">
+          <label className="bg-zinc-100 hover:bg-zinc-200 text-zinc-700 px-4 py-3.5 font-bold cursor-pointer border-r border-zinc-200 shrink-0 select-none active:scale-95 transition-all">
+            Choose File
+            <input
+              type="file"
+              accept="image/*,application/pdf"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </label>
+          <span className="px-3 text-zinc-500 font-medium truncate flex-1">
+            {fileName || "No file chosen"}
+          </span>
+        </div>
       </div>
 
       {/* Alasan Cuti */}
-      <div className="relative">
-        <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wide">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
           Alasan Cuti
         </label>
         <textarea
@@ -121,7 +126,7 @@ export function LeaveForm({ hook }: LeaveFormProps) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className={`w-full py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border-0 flex items-center justify-center gap-2 ${
+        className={`w-full py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border-0 flex items-center justify-center gap-2 mt-2 ${
           isSubmitting
             ? "bg-zinc-200 text-zinc-400 cursor-not-allowed shadow-none"
             : "bg-[#e0542c] hover:bg-[#c23f1b] text-white shadow-md shadow-[#e0542c]/15 active:scale-[0.98] cursor-pointer"
