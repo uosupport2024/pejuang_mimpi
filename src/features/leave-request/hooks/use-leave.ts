@@ -2,9 +2,19 @@ import { useState, useEffect, useRef } from "react";
 import { fetchCutiHistoryAPI, postCutiRequestAPI } from "../api/leave";
 import { toast } from "sonner";
 
-export function useLeave(user: any) {
+export function useLeave(user: any, initialSelectedType?: string | null) {
+  const mapTypeToName = (type?: string | null) => {
+    switch (type) {
+      case "cuti": return "Cuti Tahunan";
+      case "lainnya": return "Izin Lainnya";
+      case "telat": return "Izin Telat";
+      case "pulang_cepat": return "Izin Pulang Cepat";
+      default: return "Cuti Tahunan";
+    }
+  };
+
   const [namaPegawai, setNamaPegawai] = useState(user?.name || "Ade Muchtar");
-  const [jenisCuti, setJenisCuti] = useState("Cuti Tahunan");
+  const [jenisCuti, setJenisCuti] = useState(mapTypeToName(initialSelectedType));
   const [tanggalMulai, setTanggalMulai] = useState("");
   const [tanggalAkhir, setTanggalAkhir] = useState("");
   const [alasanCuti, setAlasanCuti] = useState("");

@@ -240,7 +240,7 @@ export function AbsensiCard({
               disabled={selectedType === null}
               onClick={() => {
                 setIsModalOpen(false);
-                navigate("MobileLeaveRequest");
+                navigate("MobileLeaveRequest", { selectedType });
               }}
               className={`w-full py-2.5 rounded-xl text-[10.5px] font-bold uppercase tracking-wider transition-all border-0 flex items-center justify-center gap-2 ${
                 selectedType === null

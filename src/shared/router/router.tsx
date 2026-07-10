@@ -93,7 +93,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
 
 interface RouterContextType {
   currentRoute: RouteType;
-  navigate: (route: RouteType) => void;
+  navigate: (route: RouteType, state?: any) => void;
 }
 
 const RouterContext = createContext<RouterContextType | undefined>(undefined);
@@ -109,9 +109,9 @@ function RouterInnerProvider({ children }: { children: ReactNode }) {
 
   const currentRoute = PATH_TO_ROUTE[resolvedPath] || "Dashboard";
 
-  const navigate = (route: RouteType) => {
+  const navigate = (route: RouteType, state?: any) => {
     const path = ROUTE_TO_PATH[route] || "/dashboard";
-    navigateFn(path);
+    navigateFn(path, { state });
   };
 
   return (

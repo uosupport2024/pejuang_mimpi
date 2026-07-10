@@ -50,9 +50,10 @@ export function LeaveForm({ hook }: LeaveFormProps) {
           Jenis Cuti / Izin
         </label>
         <select
+          disabled
           value={jenisCuti}
           onChange={(e) => setJenisCuti(e.target.value)}
-          className="flex h-12 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#e0542c]/50 cursor-pointer"
+          className="flex h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-500 font-semibold focus:outline-none focus:ring-2 focus:ring-[#e0542c]/50 disabled:cursor-not-allowed"
         >
           <option value="Cuti Tahunan">Cuti Tahunan</option>
           <option value="Izin Lainnya">Izin Lainnya</option>

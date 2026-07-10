@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import { ArrowLeft, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
 import { useLeave } from "../hooks/use-leave";
@@ -11,7 +12,9 @@ interface LeaveRequestPageProps {
 
 export function LeaveRequestPage({ user }: LeaveRequestPageProps) {
   const { navigate } = useRouter();
-  const hook = useLeave(user);
+  const location = useLocation();
+  const selectedType = location.state?.selectedType;
+  const hook = useLeave(user, selectedType);
   
   const {
     historyList,
