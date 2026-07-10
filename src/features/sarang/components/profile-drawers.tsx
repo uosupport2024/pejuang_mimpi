@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Check, Loader2, Calendar, FileText, Download, Mail, ShieldAlert, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { X, Check, Loader2, FileText, Download, Mail, ShieldAlert, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import type { SarangUser } from "../types/sarang.type";
 import { fetchJadwalHistoryAPI } from "@/features/tunas/api/absensi";
 

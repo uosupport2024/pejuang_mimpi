@@ -60,11 +60,6 @@ export function ProfileMenu({
           sublabel: "Shift Pagi (08:00 - 17:00)",
           action: () => onMenuClick("Jadwal & Shift Kerja"),
         },
-        {
-          name: "Dokumen Kontrak",
-          icon: FileText,
-          action: () => onMenuClick("Dokumen Kontrak"),
-        },
       ],
     },
     {
