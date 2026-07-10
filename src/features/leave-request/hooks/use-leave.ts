@@ -92,7 +92,6 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
     setIsSubmitting(true);
     try {
       const formData = new FormData();
-      formData.append("user_id", user.id.toString());
       formData.append("nama_cuti", jenisCuti);
       formData.append("alasan_cuti", alasanCuti);
       const startStr = tanggalMulai ? tanggalMulai.toLocaleDateString("en-CA") : "";
