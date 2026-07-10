@@ -96,6 +96,43 @@ export function TunasPage({ user }: TunasPageProps) {
     return "Selamat Malam";
   };
 
+  // Helper to determine if button should wiggle (1 hour before shift start or if user is late)
+  const shouldWiggleButton = () => {
+    if (isCheckedIn) return false;
+    
+    const shiftMasuk = profileData?.shift?.jam_masuk; // e.g. "23:00"
+    if (!shiftMasuk) return true; // fallback to true if no shift is defined
+
+    try {
+      const [shiftHour, shiftMinute] = shiftMasuk.split(":").map(Number);
+      const now = new Date();
+      
+      // Create Date object for the shift today
+      const shiftDate = new Date(now);
+      shiftDate.setHours(shiftHour, shiftMinute, 0, 0);
+
+      // Handle midnight boundary differences safely
+      let diffMs = shiftDate.getTime() - now.getTime();
+      
+      if (diffMs < -43200000) {
+        // Shift is tomorrow early morning
+        shiftDate.setDate(shiftDate.getDate() + 1);
+        diffMs = shiftDate.getTime() - now.getTime();
+      } else if (diffMs > 43200000) {
+        // Shift was yesterday late night
+        shiftDate.setDate(shiftDate.getDate() - 1);
+        diffMs = shiftDate.getTime() - now.getTime();
+      }
+
+      // Wiggle if current time is within 1 hour (3,600,000 ms) before the shift start time,
+      // or if they are late (up to 10 hours late)
+      return diffMs <= 3600000 && diffMs > -36000000;
+    } catch (err) {
+      console.error("Error parsing shift time for wiggle:", err);
+      return true;
+    }
+  };
+
   if (activeView === "pakan") {
     return (
       <div className="space-y-4">
@@ -196,7 +233,7 @@ export function TunasPage({ user }: TunasPageProps) {
 
       {/* Horizontal Clock In / Out & Action Card (Style matching user screenshot, no border) */}
       <div className={`w-full bg-[#1e2a4a] text-white p-5 rounded-3xl shadow-lg transition-all duration-300 flex flex-col ${
-        !isCheckedIn 
+        shouldWiggleButton() 
           ? "border border-[#e0542c]/45 shadow-[0_0_15px_rgba(224,84,44,0.18)]" 
           : "border border-white/5 shadow-[#1e2a4a]/20"
       }`}>
@@ -247,7 +284,7 @@ export function TunasPage({ user }: TunasPageProps) {
               isCheckedIn && clockOutTime !== "--:--"
                 ? "bg-white/10 text-white/40 cursor-not-allowed"
                 : "bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white shadow-[#e0542c]/15"
-            } ${!isCheckedIn ? "animate-wiggle" : ""}`}
+            } ${shouldWiggleButton() ? "animate-wiggle" : ""}`}
             disabled={isCheckedIn && clockOutTime !== "--:--"}
           >
             {!(isCheckedIn && clockOutTime !== "--:--") && <Clock className="w-3.5 h-3.5 text-white/90" />}
