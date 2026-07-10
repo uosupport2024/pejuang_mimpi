@@ -32,7 +32,7 @@ export function LeaveForm({ hook }: LeaveFormProps) {
     <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-5 shadow-lg shadow-zinc-100 border border-zinc-100/80 flex flex-col gap-4 text-left">
       {/* Employee Name (Disabled Text Input) */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+        <label className="text-[10px] font-medium uppercase text-zinc-500 tracking-wider opacity-100">
           Nama Pegawai
         </label>
         <Input
@@ -44,7 +44,7 @@ export function LeaveForm({ hook }: LeaveFormProps) {
 
       {/* Jenis Cuti / Izin (Disabled Text Input) */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+        <label className="text-[10px] font-medium uppercase text-zinc-500 tracking-wider opacity-100">
           Jenis Cuti / Izin
         </label>
         <Input
@@ -56,7 +56,7 @@ export function LeaveForm({ hook }: LeaveFormProps) {
 
       {/* Tanggal Mulai */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+        <label className="text-[10px] font-medium uppercase text-zinc-500 tracking-wider opacity-100">
           Tanggal Mulai
         </label>
         <Input
@@ -69,7 +69,7 @@ export function LeaveForm({ hook }: LeaveFormProps) {
 
       {/* Tanggal Akhir */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+        <label className="text-[10px] font-medium uppercase text-zinc-500 tracking-wider opacity-100">
           Tanggal Akhir
         </label>
         <Input
@@ -82,7 +82,7 @@ export function LeaveForm({ hook }: LeaveFormProps) {
 
       {/* Custom File Upload Input */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+        <label className="text-[10px] font-medium uppercase text-zinc-500 tracking-wider opacity-100">
           Unggah Dokumen (Opsional)
         </label>
         <div className="flex items-center border border-zinc-200 rounded-xl overflow-hidden h-12 text-xs bg-white">
@@ -103,7 +103,7 @@ export function LeaveForm({ hook }: LeaveFormProps) {
 
       {/* Alasan Cuti */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+        <label className="text-[10px] font-medium uppercase text-zinc-500 tracking-wider opacity-100">
           Alasan Cuti
         </label>
         <textarea

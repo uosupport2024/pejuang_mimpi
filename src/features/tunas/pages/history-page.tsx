@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ArrowLeft, MapPin, RefreshCw, ChevronDown, Search } from "lucide-react";
+import { ArrowLeft, MapPin, RefreshCw, ChevronDown, Search, Calendar } from "lucide-react";
 import { DateRangePicker } from "@/shared/components/ui/date-range-picker";
 import { useRouter } from "@/shared/router/router";
 import { toast } from "sonner";
@@ -184,11 +184,7 @@ export function MobileHistoryPage() {
     loadHistory(next, startDate, endDate, selectedShiftId, true);
   };
 
-  const rangeLabel = startDate && endDate
-    ? `${formatDisplay(startDate)}  –  ${formatDisplay(endDate)}`
-    : startDate
-    ? `${formatDisplay(startDate)}  –  ...`
-    : "Pilih Rentang Tanggal";
+
 
   const selectedShift = shifts.find(s => s.id === selectedShiftId);
 
