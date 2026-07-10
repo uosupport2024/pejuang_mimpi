@@ -23,7 +23,7 @@ function BaseProfileDrawer({ isOpen, onClose, title, children }: BaseDrawerProps
       />
 
       {/* Slide-up bottom drawer */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto bg-white rounded-t-[32px] shadow-2xl z-50 flex flex-col max-h-[85vh] overflow-hidden animate-slide-up text-left">
+      <div className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto bg-white rounded-t-[32px] shadow-2xl z-50 flex flex-col min-h-[60vh] max-h-[85vh] overflow-hidden animate-slide-up text-left">
         {/* Top Drag bar */}
         <div className="w-12 h-1 bg-zinc-200 rounded-full mx-auto my-3 shrink-0" />
 
