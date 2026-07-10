@@ -1,6 +1,5 @@
-import React from "react";
 import { Input } from "@/shared/components/ui/input";
-import { RefreshCw, Calendar as CalendarIcon } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 
 interface LeaveFormProps {
   hook: any;
@@ -10,7 +9,6 @@ export function LeaveForm({ hook }: LeaveFormProps) {
   const {
     namaPegawai,
     jenisCuti,
-    setJenisCuti,
     tanggalMulai,
     setTanggalMulai,
     tanggalAkhir,

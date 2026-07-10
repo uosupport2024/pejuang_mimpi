@@ -45,8 +45,7 @@ const indonesianMonths = [
 
 const formatDate = (date: Date) => date.toLocaleDateString("en-CA");
 
-const formatDisplay = (d: Date) =>
-  `${d.getDate().toString().padStart(2, "0")} ${indonesianMonths[d.getMonth()]} ${d.getFullYear()}`;
+
 
 const calcTotalHours = (ci: string, co: string): string => {
   const [inH, inM] = ci.split(":").map(Number);
