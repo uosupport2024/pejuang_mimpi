@@ -195,7 +195,11 @@ export function TunasPage({ user }: TunasPageProps) {
       </div>
 
       {/* Horizontal Clock In / Out & Action Card (Style matching user screenshot, no border) */}
-      <div className="w-full bg-[#1e2a4a] text-white p-5 rounded-3xl shadow-lg shadow-[#1e2a4a]/20 flex flex-col">
+      <div className={`w-full bg-[#1e2a4a] text-white p-5 rounded-3xl shadow-lg transition-all duration-300 flex flex-col ${
+        !isCheckedIn 
+          ? "border border-[#e0542c]/40 shadow-[0_0_15px_rgba(224,84,44,0.15)]" 
+          : "border border-white/5 shadow-[#1e2a4a]/20"
+      }`}>
         {/* Top: Job & Office Location */}
         <div className="flex justify-between items-center w-full border-b border-white/10 pb-3 mb-3 text-left">
           <div className="flex flex-col">
@@ -211,6 +215,14 @@ export function TunasPage({ user }: TunasPageProps) {
             </span>
           </div>
         </div>
+
+        {/* Notice Banner if not Checked In */}
+        {!isCheckedIn && (
+          <div className="flex items-center gap-2 px-3.5 py-2 mb-3.5 bg-[#e0542c]/10 border border-[#e0542c]/20 rounded-xl text-[9px] text-[#ff7e5a] font-bold tracking-wide uppercase select-none animate-pulse">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#e0542c] shrink-0" />
+            <span>Penting: Anda belum absen masuk hari ini!</span>
+          </div>
+        )}
 
         {/* Bottom: Clock Times & Action Button */}
         <div className="flex items-center justify-between gap-4 w-full">
