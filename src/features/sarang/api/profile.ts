@@ -39,19 +39,23 @@ export async function updateProfileOnBackend(data: Partial<SarangUser>): Promise
 /**
  * Connects to backend API to change user password.
  */
-export async function changePasswordOnBackend(password: string): Promise<boolean> {
+export async function changePasswordOnBackend(currentPassword: string, newPassword: string): Promise<boolean> {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
-      method: "POST",
+    const response = await fetch(`${API_BASE_URL}/profile/password`, {
+      method: "PUT",
       headers: getHeaders(),
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({
+        current_password: currentPassword,
+        new_password: newPassword,
+      }),
     });
 
     if (!response.ok) {
-      const altRes = await fetch(`${API_BASE_URL}/change-password`, {
+      // Fallback path
+      const altRes = await fetch(`${API_BASE_URL}/auth/change-password`, {
         method: "POST",
         headers: getHeaders(),
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ password: newPassword }),
       });
       return altRes.ok;
     }

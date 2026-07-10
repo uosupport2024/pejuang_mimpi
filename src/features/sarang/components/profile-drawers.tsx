@@ -244,16 +244,18 @@ export function EditPayrollDrawer({ isOpen, onClose, user, onSave }: EditPayroll
 interface ChangePasswordDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (password: string) => Promise<boolean>;
+  onSave: (currentPassword: string, newPassword: string) => Promise<boolean>;
 }
 
 export function ChangePasswordDrawer({ isOpen, onClose, onSave }: ChangePasswordDrawerProps) {
+  const [oldPassword, setOldPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    setOldPassword("");
     setPassword("");
     setConfirmPassword("");
     setError("");
@@ -261,8 +263,12 @@ export function ChangePasswordDrawer({ isOpen, onClose, onSave }: ChangePassword
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!oldPassword) {
+      setError("Password lama wajib diisi.");
+      return;
+    }
     if (password !== confirmPassword) {
-      setError("Konfirmasi password tidak cocok.");
+      setError("Konfirmasi password baru tidak cocok.");
       return;
     }
     if (password.length < 6) {
@@ -273,11 +279,11 @@ export function ChangePasswordDrawer({ isOpen, onClose, onSave }: ChangePassword
     try {
       setIsSaving(true);
       setError("");
-      const success = await onSave(password);
+      const success = await onSave(oldPassword, password);
       if (success) {
         onClose();
       } else {
-        setError("Gagal mengganti password pada server.");
+        setError("Gagal mengganti password. Periksa kembali password lama Anda.");
       }
     } finally {
       setIsSaving(false);
@@ -292,6 +298,18 @@ export function ChangePasswordDrawer({ isOpen, onClose, onSave }: ChangePassword
             {error}
           </div>
         )}
+
+        <div className="space-y-1.5">
+          <label className="text-zinc-500 block">Password Lama</label>
+          <input
+            type="password"
+            required
+            placeholder="Masukkan password lama"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-[#e0542c] focus:bg-white transition-colors"
+          />
+        </div>
 
         <div className="space-y-1.5">
           <label className="text-zinc-500 block">Password Baru</label>

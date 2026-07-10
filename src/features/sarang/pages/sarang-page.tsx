@@ -61,9 +61,9 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
     }
   };
 
-  const handleSavePassword = async (password: string) => {
+  const handleSavePassword = async (currentPassword: string, newPassword: string) => {
     try {
-      const success = await changePasswordOnBackend(password);
+      const success = await changePasswordOnBackend(currentPassword, newPassword);
       if (success) {
         toast.success("Password berhasil diganti!");
         return true;
