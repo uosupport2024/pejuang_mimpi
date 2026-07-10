@@ -25,6 +25,7 @@ import { TunasPage, MobileAbsensiPage, MobileHistoryPage } from "@/features/tuna
 import { AyamkuPage } from "@/features/ayamku";
 import { PakanPage } from "../../../features/pakan";
 import { SarangPage } from "../../../features/sarang";
+import { LeaveRequestPage } from "@/features/leave-request";
 
 interface MainContainerProps {
   user: {
@@ -109,6 +110,8 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <MobileAbsensiPage />;
       case "MobileHistory":
         return <MobileHistoryPage />;
+      case "MobileLeaveRequest":
+        return <LeaveRequestPage user={user} />;
       default:
         return <SangkarPage user={user} />;
     }

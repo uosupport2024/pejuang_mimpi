@@ -7,12 +7,14 @@ export function useTunas() {
   const [isCheckedIn, setIsCheckedIn] = useState<boolean>(false);
   const [locationName, setLocationName] = useState<string>("Mencari Lokasi...");
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [profileData, setProfileData] = useState<any>(null);
 
   const isFetched = useRef(false);
 
   const loadUserAttendanceStatus = async () => {
     try {
       const profile = await fetchProfileAPI();
+      setProfileData(profile);
       if (profile && profile.today_schedule) {
         const schedule = profile.today_schedule;
         if (schedule.jam_absen) {
@@ -123,5 +125,6 @@ export function useTunas() {
     dateString,
     locationName,
     coords,
+    profileData,
   };
 }

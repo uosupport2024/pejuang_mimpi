@@ -54,7 +54,8 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout,
                             currentRoute === "MobileCelenganAdd" ||
                             currentRoute === "MobileLokerDetail" ||
                             currentRoute === "MobileAbsensi" ||
-                            currentRoute === "MobileHistory";
+                            currentRoute === "MobileHistory" ||
+                            currentRoute === "MobileLeaveRequest";
 
       if (session.user.role === "Administrator") {
         // Administrator role must stay on desktop routes

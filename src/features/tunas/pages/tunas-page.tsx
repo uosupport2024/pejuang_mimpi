@@ -84,7 +84,7 @@ function PakanLokerSubPage() {
 
 export function TunasPage({ user }: TunasPageProps) {
   const { navigate } = useRouter();
-  const { clockInTime, clockOutTime, isCheckedIn, dayName, dateString, locationName } = useTunas();
+  const { clockInTime, clockOutTime, isCheckedIn, dayName, dateString, locationName, profileData } = useTunas();
   const [activeView, setActiveView] = useState<"dashboard" | "pakan">("dashboard");
 
   // Greeting helper based on time of day
@@ -237,7 +237,12 @@ export function TunasPage({ user }: TunasPageProps) {
       </div>
 
       {/* Attendance card */}
-      <AbsensiCard />
+      <AbsensiCard
+        izinCuti={profileData?.izin_cuti}
+        izinLainnya={profileData?.izin_lainnya}
+        izinTelat={profileData?.izin_telat}
+        izinPulangCepat={profileData?.izin_pulang_cepat}
+      />
 
       {/* Services Grid Menu */}
       <MenuGrid />
