@@ -26,6 +26,7 @@ import { AyamkuPage } from "@/features/ayamku";
 import { PakanPage } from "../../../features/pakan";
 import { SarangPage } from "../../../features/sarang";
 import { LeaveRequestPage } from "@/features/leave-request";
+import { IdCardPage } from "@/features/id-card";
 
 interface MainContainerProps {
   user: {
@@ -112,6 +113,8 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <MobileHistoryPage />;
       case "MobileLeaveRequest":
         return <LeaveRequestPage user={user} />;
+      case "MobileIdCard":
+        return <IdCardPage user={user} />;
       default:
         return <SangkarPage user={user} />;
     }

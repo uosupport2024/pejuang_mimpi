@@ -29,7 +29,8 @@ export type RouteType =
   | "MobileLokerDetail"
   | "MobileAbsensi"
   | "MobileHistory"
-  | "MobileLeaveRequest";
+  | "MobileLeaveRequest"
+  | "MobileIdCard";
 
 export const ROUTE_TO_PATH: Record<RouteType, string> = {
   Dashboard: "/dashboard",
@@ -59,6 +60,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   MobileAbsensi: "/mobile/absensi",
   MobileHistory: "/mobile/history",
   MobileLeaveRequest: "/mobile/leave-request",
+  MobileIdCard: "/mobile/id-card",
 };
 
 export const PATH_TO_ROUTE: Record<string, RouteType> = {
@@ -89,6 +91,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/mobile/absensi": "MobileAbsensi",
   "/mobile/history": "MobileHistory",
   "/mobile/leave-request": "MobileLeaveRequest",
+  "/mobile/id-card": "MobileIdCard",
 };
 
 interface RouterContextType {

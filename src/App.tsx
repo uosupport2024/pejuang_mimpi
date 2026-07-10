@@ -55,7 +55,8 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout,
                             currentRoute === "MobileLokerDetail" ||
                             currentRoute === "MobileAbsensi" ||
                             currentRoute === "MobileHistory" ||
-                            currentRoute === "MobileLeaveRequest";
+                            currentRoute === "MobileLeaveRequest" ||
+                            currentRoute === "MobileIdCard";
 
       if (session.user.role === "Administrator") {
         // Administrator role must stay on desktop routes

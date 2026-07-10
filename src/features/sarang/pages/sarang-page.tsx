@@ -14,6 +14,7 @@ import {
   TermsAndPrivacyDrawer,
 } from "../components/profile-drawers";
 import patternBg from "@/assets/bg/pattern-background.png";
+import { useRouter } from "@/shared/router/router";
 import { Button } from "@/shared/components/ui/button";
 import { Logout } from "@solar-icons/react";
 import {
@@ -31,6 +32,7 @@ import {
 
 export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
   const { goBack } = useSarang();
+  const { navigate } = useRouter();
 
   // State for controlling drawers
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
@@ -250,6 +252,23 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
               <div>
                 <p className="text-xs font-bold text-zinc-800">Dokumen Kontrak PKWT</p>
                 <p className="text-[9.5px] text-zinc-400 font-semibold mt-0.5">Lihat berkas & masa berlaku</p>
+              </div>
+            </div>
+            <ChevronRight className="w-4.5 h-4.5 text-zinc-400" />
+          </div>
+
+          {/* Digital Employee ID Card */}
+          <div
+            onClick={() => navigate("MobileIdCard")}
+            className="bg-white rounded-[24px] border border-gray-100/70 p-4 shadow-xs text-left flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#e0542c]/10 flex items-center justify-center text-[#e0542c] shrink-0 shadow-xs shadow-[#e0542c]/5">
+                <CreditCard className="w-4.5 h-4.5" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-zinc-800">Kartu Pegawai Digital</p>
+                <p className="text-[9.5px] text-zinc-400 font-semibold mt-0.5">Lihat kartu identitas pegawai</p>
               </div>
             </div>
             <ChevronRight className="w-4.5 h-4.5 text-zinc-400" />
