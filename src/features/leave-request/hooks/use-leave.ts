@@ -130,13 +130,20 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
     setFileName("");
   };
 
+  const changeTanggalMulai = (date: Date | null) => {
+    setTanggalMulai(date);
+    if (date && tanggalAkhir && date > tanggalAkhir) {
+      setTanggalAkhir(null);
+    }
+  };
+
   return {
     namaPegawai,
     setNamaPegawai,
     jenisCuti,
     setJenisCuti,
     tanggalMulai,
-    setTanggalMulai,
+    setTanggalMulai: changeTanggalMulai,
     tanggalAkhir,
     setTanggalAkhir,
     alasanCuti,

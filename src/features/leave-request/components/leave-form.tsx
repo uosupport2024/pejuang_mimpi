@@ -65,6 +65,7 @@ export function LeaveForm({ hook }: LeaveFormProps) {
           value={tanggalMulai}
           onChange={setTanggalMulai}
           placeholder="Pilih Tanggal Mulai"
+          minDate={new Date()}
         />
       </div>
 
@@ -77,7 +78,7 @@ export function LeaveForm({ hook }: LeaveFormProps) {
           value={tanggalAkhir}
           onChange={setTanggalAkhir}
           placeholder="Pilih Tanggal Akhir"
-          minDate={tanggalMulai ?? undefined}
+          minDate={tanggalMulai || new Date()}
         />
       </div>
 
