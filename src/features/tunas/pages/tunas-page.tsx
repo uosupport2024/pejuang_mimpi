@@ -101,32 +101,26 @@ export function TunasPage({ user }: TunasPageProps) {
     if (isCheckedIn) return false;
     
     const shiftMasuk = profileData?.shift?.jam_masuk; // e.g. "23:00"
-    if (!shiftMasuk) return true; // fallback to true if no shift is defined
+    if (!shiftMasuk) return true;
 
     try {
       const [shiftHour, shiftMinute] = shiftMasuk.split(":").map(Number);
       const now = new Date();
       
-      // Create Date object for the shift today
-      const shiftDate = new Date(now);
-      shiftDate.setHours(shiftHour, shiftMinute, 0, 0);
-
-      // Handle midnight boundary differences safely
-      let diffMs = shiftDate.getTime() - now.getTime();
-      
-      if (diffMs < -43200000) {
-        // Shift is tomorrow early morning
-        shiftDate.setDate(shiftDate.getDate() + 1);
-        diffMs = shiftDate.getTime() - now.getTime();
-      } else if (diffMs > 43200000) {
-        // Shift was yesterday late night
-        shiftDate.setDate(shiftDate.getDate() - 1);
-        diffMs = shiftDate.getTime() - now.getTime();
+      // Determine the exact shift date if backend provides the date
+      let shiftDate: Date;
+      if (profileData?.today_schedule?.tanggal) {
+        shiftDate = new Date(`${profileData.today_schedule.tanggal}T${shiftMasuk}`);
+      } else {
+        shiftDate = new Date(now);
+        shiftDate.setHours(shiftHour, shiftMinute, 0, 0);
       }
 
+      const diffMs = shiftDate.getTime() - now.getTime();
+
       // Wiggle if current time is within 1 hour (3,600,000 ms) before the shift start time,
-      // or if they are late (up to 10 hours late)
-      return diffMs <= 3600000 && diffMs > -36000000;
+      // or if they are late (shift started but within a reasonable 8 hour shift duration window)
+      return diffMs <= 3600000 && diffMs > -28800000;
     } catch (err) {
       console.error("Error parsing shift time for wiggle:", err);
       return true;
