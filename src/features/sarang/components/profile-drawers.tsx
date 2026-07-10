@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { X, Check, Loader2, Mail, ShieldAlert, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { X, Check, Loader2, Mail, ShieldAlert, ChevronLeft, ChevronRight, Clock, Search, ChevronDown } from "lucide-react";
 import type { SarangUser } from "../types/sarang.type";
 import { fetchJadwalHistoryAPI } from "@/features/tunas/api/absensi";
+import { INDONESIAN_BANKS, type BankItem } from "../constants/banks";
 
 interface BaseDrawerProps {
   isOpen: boolean;
@@ -172,13 +173,46 @@ interface EditPayrollDrawerProps {
 }
 
 export function EditPayrollDrawer({ isOpen, onClose, user, onSave }: EditPayrollDrawerProps) {
-  const [bank, setBank] = useState(user.bank || "Mandiri");
+  const [bank, setBank] = useState(user.bank || "Bank Mandiri");
   const [rekening, setRekening] = useState(user.rekening || "");
   const [isSaving, setIsSaving] = useState(false);
 
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isOpenDropdown, setIsOpenDropdown] = useState(false);
+  const [banksList, setBanksList] = useState<BankItem[]>(INDONESIAN_BANKS);
+
+  // Try to fetch newest list from a public sandbox/open API on mount/open
   useEffect(() => {
-    setBank(user.bank || "Mandiri");
-    setRekening(user.rekening || "");
+    if (isOpen) {
+      setBank(user.bank || "Bank Mandiri");
+      setRekening(user.rekening || "");
+      setSearchQuery("");
+      setIsOpenDropdown(false);
+
+      // Fetch from Flip's sandbox list of banks or other open APIs
+      fetch("https://raw.githubusercontent.com/mul14/bank-code-list/master/data/bank.json")
+        .then((res) => {
+          if (!res.ok) throw new Error();
+          return res.json();
+        })
+        .then((data) => {
+          // Normalize array mapping
+          if (Array.isArray(data)) {
+            const mapped = data.map((b: any) => ({
+              name: b.name || b.nama,
+              code: b.code || b.sandi || "",
+            }));
+            if (mapped.length > 0) {
+              setBanksList(mapped);
+            }
+          }
+        })
+        .catch(() => {
+          // Fallback to static INDONESIAN_BANKS
+          setBanksList(INDONESIAN_BANKS);
+        });
+    }
   }, [user, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -192,25 +226,77 @@ export function EditPayrollDrawer({ isOpen, onClose, user, onSave }: EditPayroll
     }
   };
 
+  // Filter bank list by search query
+  const filteredBanks = banksList.filter((b) =>
+    b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    b.code.includes(searchQuery)
+  );
+
   return (
     <BaseProfileDrawer isOpen={isOpen} onClose={onClose} title="Rekening Payroll">
       <form onSubmit={handleSubmit} className="space-y-4 text-xs font-semibold text-zinc-700">
-        <div className="space-y-1.5">
+        
+        {/* Searchable Bank Input Dropdown */}
+        <div className="space-y-1.5 relative text-left">
           <label className="text-zinc-500 block">Nama Bank</label>
-          <select
-            value={bank}
-            onChange={(e) => setBank(e.target.value)}
-            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-[#e0542c] focus:bg-white transition-colors"
-          >
-            <option value="Mandiri">Bank Mandiri</option>
-            <option value="BCA">Bank Central Asia (BCA)</option>
-            <option value="BRI">Bank Rakyat Indonesia (BRI)</option>
-            <option value="BNI">Bank Negara Indonesia (BNI)</option>
-            <option value="BSI">Bank Syariah Indonesia (BSI)</option>
-          </select>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsOpenDropdown(!isOpenDropdown)}
+              className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl flex items-center justify-between focus:outline-none focus:border-[#e0542c] focus:bg-white transition-colors cursor-pointer text-zinc-700"
+            >
+              <span>{bank || "Pilih Bank"}</span>
+              <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform ${isOpenDropdown ? "rotate-180" : ""}`} />
+            </button>
+
+            {/* Dropdown Container */}
+            {isOpenDropdown && (
+              <div className="absolute top-[44px] left-0 right-0 bg-white border border-zinc-200 rounded-2xl shadow-lg z-50 p-2 space-y-2 max-h-60 overflow-hidden flex flex-col">
+                <div className="relative shrink-0">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                  <input
+                    type="text"
+                    placeholder="Cari bank..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full h-9 pl-9 pr-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-[#e0542c] text-xs"
+                    autoFocus
+                  />
+                </div>
+
+                <div className="overflow-y-auto flex-1 space-y-0.5 pr-1">
+                  {filteredBanks.length > 0 ? (
+                    filteredBanks.map((b) => (
+                      <button
+                        key={`${b.code}-${b.name}`}
+                        type="button"
+                        onClick={() => {
+                          setBank(b.name);
+                          setIsOpenDropdown(false);
+                          setSearchQuery("");
+                        }}
+                        className={`w-full px-3 py-2 rounded-xl flex items-center justify-between text-left hover:bg-zinc-50 cursor-pointer transition-colors ${
+                          bank === b.name ? "bg-orange-50 text-[#e0542c]" : "text-zinc-700"
+                        }`}
+                      >
+                        <span className="font-bold truncate text-[11px]">{b.name}</span>
+                        <span className="text-[10px] bg-zinc-100 text-zinc-500 px-1.5 py-0.5 rounded font-mono select-none">
+                          {b.code}
+                        </span>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="text-center py-4 text-zinc-400 font-bold">
+                      Bank tidak ditemukan
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-1.5 text-left">
           <label className="text-zinc-500 block">Nomor Rekening</label>
           <input
             type="text"

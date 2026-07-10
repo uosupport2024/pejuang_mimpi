@@ -1,15 +1,20 @@
+import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import logoWhite from "@/assets/logo/logo-white.png";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { useHeaderBanner } from "../hooks/use-header-banner";
 import type { SangkarUser } from "../types/sangkar.type";
+import type { Celengan } from "../types/celengan";
 import { motion } from "motion/react";
+import { animate } from "motion";
 
 interface HeaderBannerProps {
   user: SangkarUser;
+  celengans: Celengan[];
+  loading: boolean;
 }
 
-export function HeaderBanner({ user }: HeaderBannerProps) {
+export function HeaderBanner({ user, celengans, loading }: HeaderBannerProps) {
   const {
     currentTime,
     showBalance,
@@ -18,6 +23,43 @@ export function HeaderBanner({ user }: HeaderBannerProps) {
     formatTime,
     formatRupiah,
   } = useHeaderBanner();
+
+  const totalWealth = Array.isArray(celengans)
+    ? celengans.reduce((sum, c) => sum + (c.current_amount || 0), 0)
+    : 0;
+
+  const targetIncome = 3500000;
+
+  const [animatedWealth, setAnimatedWealth] = useState(0);
+  const [animatedIncome, setAnimatedIncome] = useState(0);
+
+  // Wealth animation
+  useEffect(() => {
+    if (loading) {
+      setAnimatedWealth(0);
+      return;
+    }
+    const controls = animate(0, totalWealth, {
+      duration: 1.2,
+      ease: "easeOut",
+      onUpdate: (value) => setAnimatedWealth(Math.round(value)),
+    });
+    return () => controls.stop();
+  }, [totalWealth, loading]);
+
+  // Income animation
+  useEffect(() => {
+    if (loading) {
+      setAnimatedIncome(0);
+      return;
+    }
+    const controls = animate(0, targetIncome, {
+      duration: 1.2,
+      ease: "easeOut",
+      onUpdate: (value) => setAnimatedIncome(Math.round(value)),
+    });
+    return () => controls.stop();
+  }, [loading]);
 
   return (
     <div className="-mt-6 -mx-5 relative">
@@ -69,7 +111,7 @@ export function HeaderBanner({ user }: HeaderBannerProps) {
                 ease: "linear",
               }}
             >
-              {showBalance ? formatRupiah(7000000) : "Rp ••••••••"}
+              {showBalance ? formatRupiah(animatedWealth) : "Rp ••••••••"}
             </motion.span>
             <button
               type="button"
@@ -90,7 +132,7 @@ export function HeaderBanner({ user }: HeaderBannerProps) {
           <div className="flex justify-between items-center text-xs">
             <span className="font-semibold text-white/80">Bulan ini akan mendapatkan</span>
             <span className="font-bold text-right bg-orange-500 text-white px-2 py-0.5 rounded-full text-sm">
-              {showBalance ? formatRupiah(3500000) : "Rp ••••••••"}
+              {showBalance ? formatRupiah(animatedIncome) : "Rp ••••••••"}
             </span>
           </div>
         </div>
