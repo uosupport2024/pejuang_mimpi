@@ -119,6 +119,11 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
     }
   };
 
+  const clearFile = () => {
+    setFile(null);
+    setFileName("");
+  };
+
   return {
     namaPegawai,
     setNamaPegawai,
@@ -133,6 +138,7 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
     file,
     fileName,
     handleFileChange,
+    clearFile,
     isSubmitting,
     submitLeaveRequest,
     
