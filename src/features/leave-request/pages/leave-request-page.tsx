@@ -1,9 +1,10 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { ArrowLeft, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
 import { useLeave } from "../hooks/use-leave";
 import { LeaveForm } from "../components/leave-form";
+import { DateRangePicker } from "@/shared/components/ui/date-range-picker";
 import patternBg from "@/assets/bg/pattern-background.png";
 
 interface LeaveRequestPageProps {
@@ -22,16 +23,9 @@ export function LeaveRequestPage({ user }: LeaveRequestPageProps) {
     fetchHistory,
     currentPage,
     totalPages,
-    startDateFilter,
-    setStartDateFilter,
-    endDateFilter,
-    setEndDateFilter,
+    dateRange,
+    handleRangeChange,
   } = hook;
-
-  const handleFilterSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchHistory(1);
-  };
 
   return (
     <div className="space-y-4 pb-12">
@@ -75,30 +69,14 @@ export function LeaveRequestPage({ user }: LeaveRequestPageProps) {
         </h3>
 
         {/* Date Filter Panel */}
-        <form onSubmit={handleFilterSearch} className="flex items-center gap-2 mt-3">
-          <div className="relative flex-1">
-            <input
-              type="date"
-              value={startDateFilter}
-              onChange={(e) => setStartDateFilter(e.target.value)}
-              className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#e0542c]/50"
-            />
-          </div>
-          <div className="relative flex-1">
-            <input
-              type="date"
-              value={endDateFilter}
-              onChange={(e) => setEndDateFilter(e.target.value)}
-              className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-800 font-semibold focus:outline-none focus:ring-2 focus:ring-[#e0542c]/50"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-10 h-10 rounded-xl bg-[#e0542c] hover:bg-[#c23f1b] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#e0542c]/10 active:scale-95 transition-all cursor-pointer border-0"
-          >
-            <Search className="w-4 h-4" />
-          </button>
-        </form>
+        <div className="mt-3 relative z-30">
+          <DateRangePicker
+            startDate={dateRange[0]}
+            endDate={dateRange[1]}
+            onChange={handleRangeChange}
+            maxDate={new Date()}
+          />
+        </div>
 
         {/* History Table/List */}
         {isLoadingHistory ? (

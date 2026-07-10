@@ -28,13 +28,15 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Filters
-  const [startDateFilter, setStartDateFilter] = useState("");
-  const [endDateFilter, setEndDateFilter] = useState("");
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
 
-  const fetchHistory = async (page = 1) => {
+  const fetchHistory = async (page = 1, currentRange = dateRange) => {
     setIsLoadingHistory(true);
     try {
-      const data = await fetchCutiHistoryAPI(startDateFilter, endDateFilter, page);
+      const [start, end] = currentRange;
+      const startStr = start ? start.toLocaleDateString("en-CA") : "";
+      const endStr = end ? end.toLocaleDateString("en-CA") : "";
+      const data = await fetchCutiHistoryAPI(startStr, endStr, page);
       setHistoryList(data.data || []);
       setTotalPages(data.last_page || 1);
       setCurrentPage(data.current_page || 1);
@@ -43,6 +45,14 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
       toast.error("Gagal mengambil riwayat cuti");
     } finally {
       setIsLoadingHistory(false);
+    }
+  };
+
+  const handleRangeChange = (range: [Date | null, Date | null]) => {
+    setDateRange(range);
+    const [s, e] = range;
+    if (s && e) {
+      fetchHistory(1, range);
     }
   };
 
@@ -130,9 +140,7 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
     fetchHistory,
     currentPage,
     totalPages,
-    startDateFilter,
-    setStartDateFilter,
-    endDateFilter,
-    setEndDateFilter,
+    dateRange,
+    handleRangeChange,
   };
 }
