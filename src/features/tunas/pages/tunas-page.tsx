@@ -164,6 +164,11 @@ export function TunasPage({ user }: TunasPageProps) {
                 <span className="text-lg font-bold tracking-tight text-white mt-1.5 leading-none">
                   {user.name}
                 </span>
+                <span className="text-[9.5px] font-semibold text-white/70 mt-2 leading-none flex items-center gap-1.5">
+                  <span>{profileData?.jabatan?.nama_jabatan || "Operasional"}</span>
+                  <span className="text-white/30">•</span>
+                  <span>{profileData?.lokasi?.nama_lokasi || "Kantor Pusat"}</span>
+                </span>
               </div>
             </div>
 
