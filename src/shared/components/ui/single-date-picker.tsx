@@ -41,7 +41,7 @@ export function SingleDatePicker({
             className="w-full h-12 flex items-center gap-2 bg-white border border-zinc-200 rounded-xl px-3.5 text-left hover:border-[#e0542c]/40 transition-colors cursor-pointer min-w-0"
           >
             <Calendar className="w-4 h-4 text-zinc-400 shrink-0" />
-            <span className="text-xs font-semibold text-zinc-700 truncate leading-none">{displayLabel}</span>
+            <span className="text-xs font-semibold text-zinc-700 truncate leading-normal">{displayLabel}</span>
           </button>
         }
       />

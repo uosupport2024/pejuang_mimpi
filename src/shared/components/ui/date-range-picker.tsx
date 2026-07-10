@@ -47,7 +47,7 @@ export function DateRangePicker({
             className="w-full h-[38px] flex items-center gap-2 bg-white border border-zinc-200 rounded-xl px-3 text-left hover:border-[#1e2a4a]/40 transition-colors cursor-pointer min-w-0"
           >
             <Calendar className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-            <span className="text-[10px] font-semibold text-zinc-700 truncate leading-none">{rangeLabel}</span>
+            <span className="text-[10px] font-semibold text-zinc-700 truncate leading-normal">{rangeLabel}</span>
           </button>
         }
       />
