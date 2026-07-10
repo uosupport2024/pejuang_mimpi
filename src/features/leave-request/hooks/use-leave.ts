@@ -15,8 +15,8 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
 
   const [namaPegawai, setNamaPegawai] = useState(user?.name || "Ade Muchtar");
   const [jenisCuti, setJenisCuti] = useState(mapTypeToName(initialSelectedType));
-  const [tanggalMulai, setTanggalMulai] = useState("");
-  const [tanggalAkhir, setTanggalAkhir] = useState("");
+  const [tanggalMulai, setTanggalMulai] = useState<Date | null>(null);
+  const [tanggalAkhir, setTanggalAkhir] = useState<Date | null>(null);
   const [alasanCuti, setAlasanCuti] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
@@ -89,8 +89,10 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
       formData.append("user_id", user.id.toString());
       formData.append("nama_cuti", jenisCuti);
       formData.append("alasan_cuti", alasanCuti);
-      formData.append("tanggal_mulai", tanggalMulai);
-      formData.append("tanggal_akhir", tanggalAkhir);
+      const startStr = tanggalMulai ? tanggalMulai.toLocaleDateString("en-CA") : "";
+      const endStr = tanggalAkhir ? tanggalAkhir.toLocaleDateString("en-CA") : "";
+      formData.append("tanggal_mulai", startStr);
+      formData.append("tanggal_akhir", endStr);
       if (file) {
         formData.append("foto_cuti", file);
       }
@@ -99,8 +101,8 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
       toast.success("Permintaan cuti berhasil diajukan!");
       
       // Reset form
-      setTanggalMulai("");
-      setTanggalAkhir("");
+      setTanggalMulai(null);
+      setTanggalAkhir(null);
       setAlasanCuti("");
       setFile(null);
       setFileName("");

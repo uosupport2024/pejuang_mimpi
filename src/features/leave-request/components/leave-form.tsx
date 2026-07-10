@@ -1,4 +1,5 @@
 import { Input } from "@/shared/components/ui/input";
+import { SingleDatePicker } from "@/shared/components/ui/single-date-picker";
 import { RefreshCw } from "lucide-react";
 
 interface LeaveFormProps {
@@ -36,7 +37,7 @@ export function LeaveForm({ hook }: LeaveFormProps) {
         <Input
           disabled
           value={namaPegawai}
-          className="h-12 rounded-xl text-xs text-zinc-400 bg-zinc-100/70 border-zinc-200/80 font-bold cursor-not-allowed select-none opacity-85"
+          className="h-12 rounded-xl text-xs text-zinc-700 bg-zinc-100/70 border-zinc-200/80 font-bold cursor-not-allowed select-none opacity-85"
         />
       </div>
 
@@ -48,7 +49,7 @@ export function LeaveForm({ hook }: LeaveFormProps) {
         <Input
           disabled
           value={jenisCuti}
-          className="h-12 rounded-xl text-xs text-zinc-400 bg-zinc-100/70 border-zinc-200/80 font-bold cursor-not-allowed select-none opacity-85"
+          className="h-12 rounded-xl text-xs text-zinc-700 bg-zinc-100/70 border-zinc-200/80 font-bold cursor-not-allowed select-none opacity-85"
         />
       </div>
 
@@ -57,11 +58,10 @@ export function LeaveForm({ hook }: LeaveFormProps) {
         <label className="text-[10px] font-medium uppercase text-zinc-500 tracking-wider opacity-100">
           Tanggal Mulai
         </label>
-        <Input
-          type="date"
+        <SingleDatePicker
           value={tanggalMulai}
-          onChange={(e) => setTanggalMulai(e.target.value)}
-          className="h-12 rounded-xl text-xs text-zinc-800 border-zinc-200 bg-white font-semibold focus-visible:ring-[#e0542c]/50"
+          onChange={setTanggalMulai}
+          placeholder="Pilih Tanggal Mulai"
         />
       </div>
 
@@ -70,11 +70,11 @@ export function LeaveForm({ hook }: LeaveFormProps) {
         <label className="text-[10px] font-medium uppercase text-zinc-500 tracking-wider opacity-100">
           Tanggal Akhir
         </label>
-        <Input
-          type="date"
+        <SingleDatePicker
           value={tanggalAkhir}
-          onChange={(e) => setTanggalAkhir(e.target.value)}
-          className="h-12 rounded-xl text-xs text-zinc-800 border-zinc-200 bg-white font-semibold focus-visible:ring-[#e0542c]/50"
+          onChange={setTanggalAkhir}
+          placeholder="Pilih Tanggal Akhir"
+          minDate={tanggalMulai ?? undefined}
         />
       </div>
 
