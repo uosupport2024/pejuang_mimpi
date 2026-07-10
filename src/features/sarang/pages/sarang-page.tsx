@@ -101,7 +101,7 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
 
       {/* Warning banner if payroll account is not set */}
       {!user.rekening && (
-        <div className="flex items-start gap-3 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/15 text-left text-xs font-semibold text-zinc-700 animate-pulse">
+        <div className="flex items-start gap-3 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/15 text-left text-xs font-semibold text-zinc-700">
           <ShieldAlert className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <h4 className="font-bold text-zinc-900 text-sm">Rekening Payroll Belum Diatur</h4>
