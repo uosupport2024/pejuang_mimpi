@@ -4,7 +4,6 @@ import {
   CreditCard,
   Briefcase,
   Clock,
-  FileText,
   HelpCircle,
   ShieldAlert,
   ChevronRight,

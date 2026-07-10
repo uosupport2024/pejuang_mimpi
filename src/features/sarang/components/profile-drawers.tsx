@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Check, Loader2, FileText, Download, Mail, ShieldAlert, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { X, Check, Loader2, Mail, ShieldAlert, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import type { SarangUser } from "../types/sarang.type";
 import { fetchJadwalHistoryAPI } from "@/features/tunas/api/absensi";
 
@@ -367,7 +367,7 @@ export function JadwalShiftDrawer({ isOpen, onClose }: { isOpen: boolean; onClos
   const loadMonthSchedules = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
-    
+
     // First day and last day of month YYYY-MM-DD
     const startDate = `${year}-${String(month + 1).padStart(2, "0")}-01`;
     const lastDay = new Date(year, month + 1, 0).getDate();
@@ -480,13 +480,12 @@ export function JadwalShiftDrawer({ isOpen, onClose }: { isOpen: boolean; onClos
         key={`day-${day}`}
         type="button"
         onClick={() => setSelectedDate(new Date(year, month, day))}
-        className={`w-8.5 h-8.5 rounded-full flex flex-col items-center justify-center relative cursor-pointer font-bold transition-all text-xs active:scale-90 ${
-          isDaySelected
+        className={`w-8.5 h-8.5 rounded-full flex flex-col items-center justify-center relative cursor-pointer font-bold transition-all text-xs active:scale-90 ${isDaySelected
             ? "bg-[#1e2a4a] text-white"
             : isDayToday
               ? "bg-[#e0542c]/10 text-[#e0542c] border border-[#e0542c]/30"
               : "text-zinc-700 hover:bg-zinc-100"
-        }`}
+          }`}
       >
         <span className="leading-none">{day}</span>
         {dotColor && !isDaySelected && (
@@ -630,32 +629,6 @@ export function JadwalShiftDrawer({ isOpen, onClose }: { isOpen: boolean; onClos
   );
 }
 
-// 5. Dokumen Kontrak Drawer
-export function ContractDrawer({ isOpen, onClose, user }: { isOpen: boolean; onClose: () => void; user: SarangUser }) {
-  return (
-    <BaseProfileDrawer isOpen={isOpen} onClose={onClose} title="Dokumen Kontrak">
-      <div className="space-y-4 text-xs font-semibold">
-        <div className="bg-[#F7F3EB] border border-[#e2dcd0] p-4 rounded-2xl flex items-start gap-3">
-          <FileText className="w-8 h-8 text-[#e0542c] mt-0.5 shrink-0" />
-          <div className="space-y-1">
-            <p className="font-bold text-zinc-900 text-sm">Kontrak Kerja Karyawan Waktu Tertentu (PKWT)</p>
-            <p className="text-[10px] text-zinc-500">Status: <span className="text-emerald-600">Aktif</span></p>
-            <p className="text-[10px] text-zinc-500">Tanggal Mulai: {user.tgl_join || "2025-04-14"}</p>
-          </div>
-        </div>
-
-        <button
-          onClick={() => {}}
-          className="w-full h-11 bg-white border border-[#e0542c] text-[#e0542c] hover:bg-[#e0542c]/5 rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-xs"
-        >
-          <Download className="w-4 h-4" />
-          <span>Unduh Salinan Kontrak (PDF)</span>
-        </button>
-      </div>
-    </BaseProfileDrawer>
-  );
-}
-
 // 6. Pusat Bantuan & Kontak Drawer
 export function HelpCenterDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   return (
@@ -711,17 +684,15 @@ export function TermsAndPrivacyDrawer({ isOpen, onClose }: { isOpen: boolean; on
         <div className="grid grid-cols-2 p-1 bg-zinc-100 rounded-xl shrink-0">
           <button
             onClick={() => setActiveTab("privacy")}
-            className={`py-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer ${
-              activeTab === "privacy" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-500 hover:text-zinc-800"
-            }`}
+            className={`py-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer ${activeTab === "privacy" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-500 hover:text-zinc-800"
+              }`}
           >
             Kebijakan Privasi
           </button>
           <button
             onClick={() => setActiveTab("terms")}
-            className={`py-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer ${
-              activeTab === "terms" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-500 hover:text-zinc-800"
-            }`}
+            className={`py-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer ${activeTab === "terms" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-500 hover:text-zinc-800"
+              }`}
           >
             Syarat & Ketentuan
           </button>
