@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { fetchCutiHistoryAPI, postCutiRequestAPI } from "../api/leave";
 import { toast } from "sonner";
 
@@ -36,8 +36,13 @@ export function useLeave(user: any) {
     }
   };
 
+  const fetchedRef = useRef(false);
+
   useEffect(() => {
-    fetchHistory();
+    if (!fetchedRef.current) {
+      fetchedRef.current = true;
+      fetchHistory();
+    }
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
