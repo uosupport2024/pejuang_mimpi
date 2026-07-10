@@ -106,7 +106,7 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
           <div className="space-y-1">
             <h4 className="font-bold text-zinc-900 text-sm">Rekening Payroll Belum Diatur</h4>
             <p className="text-[10px] text-zinc-500 leading-normal">
-              Anda belum mengatur rekening bank untuk penggajian. Segera hubungi HRD atau atur rekening Anda melalui menu Rekening Payroll di bawah untuk menghindari keterlambatan pembayaran gaji.
+              Rekening bank untuk penggajian belum diatur. Silakan atur nomor rekening Anda melalui menu di bawah.
             </p>
           </div>
         </div>
