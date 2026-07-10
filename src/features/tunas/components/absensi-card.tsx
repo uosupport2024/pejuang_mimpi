@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Calendar, Clock, FileText, LogOut, X } from "lucide-react";
 import { THEME_COLORS } from "@/shared/constants/colors";
-import { toast } from "sonner";
 import { useRouter } from "@/shared/router/router";
 
 interface AbsensiCardProps {
