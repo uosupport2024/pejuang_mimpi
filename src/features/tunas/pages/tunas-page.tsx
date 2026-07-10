@@ -164,11 +164,6 @@ export function TunasPage({ user }: TunasPageProps) {
                 <span className="text-lg font-bold tracking-tight text-white mt-1.5 leading-none">
                   {user.name}
                 </span>
-                <span className="text-[9.5px] font-semibold text-white/70 mt-2 leading-none flex items-center gap-1.5">
-                  <span>{profileData?.jabatan?.nama_jabatan || "Operasional"}</span>
-                  <span className="text-white/30">•</span>
-                  <span>{profileData?.lokasi?.nama_lokasi || "Kantor Pusat"}</span>
-                </span>
               </div>
             </div>
 
@@ -200,45 +195,64 @@ export function TunasPage({ user }: TunasPageProps) {
       </div>
 
       {/* Horizontal Clock In / Out & Action Card (Style matching user screenshot, no border) */}
-      <div className="w-full bg-[#1e2a4a] text-white p-4.5 px-5 rounded-3xl shadow-lg shadow-[#1e2a4a]/20 flex items-center justify-between gap-4">
-        {/* Times Info (Left Column) */}
-        <div className="flex items-center gap-8 text-left">
-          {/* Clock In */}
+      <div className="w-full bg-[#1e2a4a] text-white p-5 rounded-3xl shadow-lg shadow-[#1e2a4a]/20 flex flex-col">
+        {/* Top: Job & Office Location */}
+        <div className="flex justify-between items-center w-full border-b border-white/10 pb-3 mb-3 text-left">
           <div className="flex flex-col">
-            <span className="text-[10px] text-white/60 font-bold uppercase tracking-wider leading-none">Masuk</span>
-            <span className="text-sm font-bold text-white mt-2 leading-none">
-              {clockInTime === "--:--" ? "--" : clockInTime}
+            <span className="text-[7.5px] uppercase text-white/50 font-bold tracking-wider leading-none">Divisi Kerja</span>
+            <span className="text-xs font-bold text-white mt-1 leading-none">
+              {profileData?.jabatan?.nama_jabatan || "Operasional"}
             </span>
           </div>
-
-          {/* Clock Out */}
-          <div className="flex flex-col">
-            <span className="text-[10px] text-white/60 font-bold uppercase tracking-wider leading-none">Pulang</span>
-            <span className="text-sm font-bold text-white mt-2 leading-none">
-              {clockOutTime === "--:--" ? "--" : clockOutTime}
+          <div className="flex flex-col items-end">
+            <span className="text-[7.5px] uppercase text-white/50 font-bold tracking-wider leading-none">Lokasi Kantor</span>
+            <span className="text-xs font-bold text-[#fee279] mt-1 leading-none uppercase">
+              {profileData?.lokasi?.nama_lokasi || "Kantor Pusat"}
             </span>
           </div>
         </div>
 
-        {/* Capsule Button (Right Column) */}
-        <button
-          type="button"
-          onClick={() => {
-            navigate("MobileAbsensi");
-          }}
-          className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wide transition-all active:scale-95 cursor-pointer shadow-xs flex items-center gap-1.5 ${isCheckedIn && clockOutTime !== "--:--"
-            ? "bg-white/10 text-white/40 cursor-not-allowed"
-            : "bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white shadow-[#e0542c]/15"
-            }`}
-          disabled={isCheckedIn && clockOutTime !== "--:--"}
-        >
-          {!(isCheckedIn && clockOutTime !== "--:--") && <Clock className="w-3.5 h-3.5 text-white/90" />}
-          {!isCheckedIn
-            ? "Masuk"
-            : clockOutTime === "--:--"
-              ? "Keluar"
-              : "Selesai"}
-        </button>
+        {/* Bottom: Clock Times & Action Button */}
+        <div className="flex items-center justify-between gap-4 w-full">
+          {/* Times Info (Left Column) */}
+          <div className="flex items-center gap-8 text-left">
+            {/* Clock In */}
+            <div className="flex flex-col">
+              <span className="text-[10px] text-white/60 font-bold uppercase tracking-wider leading-none">Masuk</span>
+              <span className="text-sm font-bold text-white mt-2 leading-none">
+                {clockInTime === "--:--" ? "--" : clockInTime}
+              </span>
+            </div>
+
+            {/* Clock Out */}
+            <div className="flex flex-col">
+              <span className="text-[10px] text-white/60 font-bold uppercase tracking-wider leading-none">Pulang</span>
+              <span className="text-sm font-bold text-white mt-2 leading-none">
+                {clockOutTime === "--:--" ? "--" : clockOutTime}
+              </span>
+            </div>
+          </div>
+
+          {/* Capsule Button (Right Column) */}
+          <button
+            type="button"
+            onClick={() => {
+              navigate("MobileAbsensi");
+            }}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wide transition-all active:scale-95 cursor-pointer shadow-xs flex items-center gap-1.5 ${isCheckedIn && clockOutTime !== "--:--"
+              ? "bg-white/10 text-white/40 cursor-not-allowed"
+              : "bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white shadow-[#e0542c]/15"
+              }`}
+            disabled={isCheckedIn && clockOutTime !== "--:--"}
+          >
+            {!(isCheckedIn && clockOutTime !== "--:--") && <Clock className="w-3.5 h-3.5 text-white/90" />}
+            {!isCheckedIn
+              ? "Masuk"
+              : clockOutTime === "--:--"
+                ? "Keluar"
+                : "Selesai"}
+          </button>
+        </div>
       </div>
 
       {/* Attendance card */}
