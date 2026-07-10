@@ -30,36 +30,28 @@ export function LeaveForm({ hook }: LeaveFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-5 shadow-lg shadow-zinc-100 border border-zinc-100/80 flex flex-col gap-4 text-left">
-      {/* Employee Name (Dropdown / Select) */}
+      {/* Employee Name (Disabled Text Input) */}
       <div className="flex flex-col gap-1.5">
         <label className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
           Nama Pegawai
         </label>
-        <select
+        <Input
           disabled
           value={namaPegawai}
-          className="flex h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-500 font-semibold focus:outline-none focus:ring-2 focus:ring-[#e0542c]/50 disabled:cursor-not-allowed"
-        >
-          <option value={namaPegawai}>{namaPegawai}</option>
-        </select>
+          className="h-12 rounded-xl text-xs text-zinc-400 bg-zinc-100/70 border-zinc-200/80 font-bold cursor-not-allowed select-none opacity-85"
+        />
       </div>
 
-      {/* Jenis Cuti / Izin (Dropdown / Select) */}
+      {/* Jenis Cuti / Izin (Disabled Text Input) */}
       <div className="flex flex-col gap-1.5">
         <label className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
           Jenis Cuti / Izin
         </label>
-        <select
+        <Input
           disabled
           value={jenisCuti}
-          onChange={(e) => setJenisCuti(e.target.value)}
-          className="flex h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-500 font-semibold focus:outline-none focus:ring-2 focus:ring-[#e0542c]/50 disabled:cursor-not-allowed"
-        >
-          <option value="Cuti Tahunan">Cuti Tahunan</option>
-          <option value="Izin Lainnya">Izin Lainnya</option>
-          <option value="Izin Telat">Izin Telat</option>
-          <option value="Izin Pulang Cepat">Izin Pulang Cepat</option>
-        </select>
+          className="h-12 rounded-xl text-xs text-zinc-400 bg-zinc-100/70 border-zinc-200/80 font-bold cursor-not-allowed select-none opacity-85"
+        />
       </div>
 
       {/* Tanggal Mulai */}
