@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Input } from "@/shared/components/ui/input";
 import { SingleDatePicker } from "@/shared/components/ui/single-date-picker";
 import { RefreshCw, Upload, FileText, X } from "lucide-react";
@@ -7,6 +8,7 @@ interface LeaveFormProps {
 }
 
 export function LeaveForm({ hook }: LeaveFormProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const {
     namaPegawai,
     jenisCuti,
@@ -85,51 +87,48 @@ export function LeaveForm({ hook }: LeaveFormProps) {
           Unggah Dokumen (Opsional)
         </label>
         
-        <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-4.5 text-center cursor-pointer transition-all ${
-          fileName 
-            ? "border-[#e0542c]/30 bg-[#e0542c]/2" 
-            : "border-zinc-200 bg-zinc-50/50 hover:bg-zinc-50 hover:border-zinc-300"
-        }`}>
-          <input
-            type="file"
-            accept="image/*,application/pdf"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-          
-          {fileName ? (
-            <div className="flex items-center gap-3 w-full justify-between">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-9 h-9 rounded-xl bg-[#e0542c]/10 text-[#e0542c] flex items-center justify-center shrink-0">
-                  <FileText className="w-5 h-5" />
-                </div>
-                <div className="flex flex-col text-left min-w-0">
-                  <span className="text-xs font-bold text-zinc-800 truncate">{fileName}</span>
-                  <span className="text-[9.5px] text-zinc-400 font-semibold mt-0.5">File berhasil dipilih</span>
-                </div>
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept="image/*,application/pdf"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+        
+        {fileName ? (
+          <div className="flex items-center justify-between border-2 border-dashed border-[#e0542c]/30 bg-[#e0542c]/2 rounded-2xl p-4 transition-all">
+            <div 
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-3 min-w-0 cursor-pointer flex-1"
+            >
+              <div className="w-10 h-10 rounded-xl bg-[#e0542c]/10 text-[#e0542c] flex items-center justify-center shrink-0">
+                <FileText className="w-5.5 h-5.5" />
               </div>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  clearFile();
-                }}
-                className="p-1.5 hover:bg-zinc-100 active:scale-95 rounded-full transition-all text-zinc-400 hover:text-zinc-600 border border-zinc-200/50 flex items-center justify-center cursor-pointer"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center py-1">
-              <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400 mb-2">
-                <Upload className="w-5 h-5" />
+              <div className="flex flex-col text-left min-w-0">
+                <span className="text-xs font-bold text-zinc-800 truncate">{fileName}</span>
+                <span className="text-[9.5px] text-zinc-400 font-semibold mt-0.5">File berhasil dipilih</span>
               </div>
-              <span className="text-xs font-bold text-zinc-700">Pilih dokumen atau foto</span>
-              <span className="text-[9.5px] text-zinc-400 font-semibold mt-1">PNG, JPG, atau PDF (Maks. 10MB)</span>
             </div>
-          )}
-        </label>
+            <button
+              type="button"
+              onClick={clearFile}
+              className="w-8 h-8 rounded-full hover:bg-[#e0542c]/10 active:scale-95 transition-all text-zinc-400 hover:text-[#e0542c] border border-zinc-200/60 bg-white flex items-center justify-center shrink-0 cursor-pointer shadow-xs"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <div 
+            onClick={() => fileInputRef.current?.click()}
+            className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-200 bg-zinc-50/50 hover:bg-zinc-50 hover:border-zinc-300 rounded-2xl py-5 px-4 text-center cursor-pointer transition-all"
+          >
+            <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400 mb-2">
+              <Upload className="w-5 h-5" />
+            </div>
+            <span className="text-xs font-bold text-zinc-700">Pilih dokumen atau foto</span>
+            <span className="text-[9.5px] text-zinc-400 font-semibold mt-1">PNG, JPG, atau PDF (Maks. 2MB)</span>
+          </div>
+        )}
       </div>
 
       {/* Alasan Cuti */}

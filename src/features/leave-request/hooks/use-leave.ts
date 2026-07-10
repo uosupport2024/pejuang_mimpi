@@ -68,6 +68,12 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFile = e.target.files[0];
+      const maxSizeBytes = 2 * 1024 * 1024; // 2MB
+      if (selectedFile.size > maxSizeBytes) {
+        toast.error("Ukuran file maksimal adalah 2MB.");
+        e.target.value = "";
+        return;
+      }
       setFile(selectedFile);
       setFileName(selectedFile.name);
     }
