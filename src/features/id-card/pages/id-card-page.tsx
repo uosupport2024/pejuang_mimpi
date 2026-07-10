@@ -170,7 +170,7 @@ export function IdCardPage({ user }: IdCardPageProps) {
         />
         <div className="relative z-10 flex items-center px-6 pt-7 pb-6 gap-3.5">
           <button
-            onClick={() => navigate("MobileProfile")}
+            onClick={() => navigate("MobileLumbung")}
             className="p-2 hover:bg-white/10 active:scale-95 rounded-full transition-all cursor-pointer text-white border border-white/10 bg-white/5 backdrop-blur-xs"
           >
             <ArrowLeft className="w-5 h-5" />
