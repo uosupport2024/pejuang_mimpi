@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import { ArrowLeft, Mail, Phone, Calendar, User, ShieldCheck, Download } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
+import { fetchProfileAPI } from "@/features/tunas/api/absensi";
 import patternBg from "@/assets/bg/pattern-background.png";
 
 interface IdCardPageProps {
@@ -8,6 +10,16 @@ interface IdCardPageProps {
 
 export function IdCardPage({ user }: IdCardPageProps) {
   const { navigate } = useRouter();
+  const [profile, setProfile] = useState<any>(user);
+
+  // Fetch full user profile details on mount
+  useEffect(() => {
+    fetchProfileAPI()
+      .then(data => {
+        if (data) setProfile(data);
+      })
+      .catch(err => console.error("Failed to load profile for ID Card", err));
+  }, []);
 
   // Format Join Date
   const formatJoinDate = (dateStr?: string) => {
@@ -49,8 +61,8 @@ export function IdCardPage({ user }: IdCardPageProps) {
       .toUpperCase();
   };
 
-  const employeeName = user?.name || "Ade Muchtar";
-  const employeeId = user?.id || "46";
+  const employeeName = profile?.name || user?.name || "Ade Muchtar";
+  const employeeId = profile?.id || user?.id || "46";
   const initials = getInitials(employeeName);
 
   // Client-side HTML5 Canvas PNG Downloader
@@ -121,15 +133,24 @@ export function IdCardPage({ user }: IdCardPageProps) {
     // 6. Employee Details
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 20px sans-serif";
-    ctx.fillText(employeeName.toUpperCase(), 165, 155);
+    ctx.fillText(employeeName.toUpperCase(), 165, 142);
 
     ctx.fillStyle = "#fee279";
-    ctx.font = "bold 13px sans-serif";
-    ctx.fillText(user?.role === "Administrator" ? "ADMIN" : "STAFF", 165, 182);
-
-    ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
     ctx.font = "bold 12px sans-serif";
-    ctx.fillText(`ID: EMP-${String(employeeId).padStart(4, "0")}`, 165, 208);
+    const roleName = profile?.role === "Administrator" ? "ADMIN" : "STAFF";
+    ctx.fillText(`${roleName}  •  ID: EMP-${String(employeeId).padStart(4, "0")}`, 165, 168);
+
+    // Office & Division labels
+    ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+    ctx.font = "bold 8px sans-serif";
+    ctx.fillText("KANTOR", 165, 202);
+    ctx.fillText("DIVISI", 300, 202);
+
+    // Office & Division values
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 11px sans-serif";
+    ctx.fillText(profile?.lokasi?.nama_lokasi || "Kantor Pusat", 165, 222);
+    ctx.fillText(profile?.jabatan?.nama_jabatan || "Operasional", 300, 222);
 
     // 7. Footer: Join Date
     ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
@@ -138,7 +159,7 @@ export function IdCardPage({ user }: IdCardPageProps) {
 
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 12px sans-serif";
-    ctx.fillText(formatJoinDate(user?.tgl_join), 40, 320);
+    ctx.fillText(formatJoinDate(profile?.tgl_join), 40, 320);
 
     // 8. Barcode lines
     ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
@@ -217,8 +238,8 @@ export function IdCardPage({ user }: IdCardPageProps) {
             <div className="flex items-center gap-4 relative z-10 my-auto">
               {/* Photo */}
               <div className="w-[72px] h-[72px] rounded-2xl border-2 border-white/20 bg-white/5 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
-                {user?.foto_karyawan ? (
-                  <img src={user.foto_karyawan} alt="Foto" className="w-full h-full object-cover" />
+                {profile?.foto_karyawan ? (
+                  <img src={profile.foto_karyawan} alt="Foto" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-tr from-[#e0542c] to-[#fee279] text-white flex items-center justify-center text-xl font-black select-none">
                     {initials}
@@ -227,16 +248,35 @@ export function IdCardPage({ user }: IdCardPageProps) {
               </div>
 
               {/* Text Info */}
-              <div className="flex flex-col min-w-0 text-left">
+              <div className="flex flex-col min-w-0 text-left flex-1">
                 <h2 className="text-sm font-extrabold text-white tracking-wide uppercase truncate leading-snug">
                   {employeeName}
                 </h2>
-                <p className="text-[10px] font-bold text-[#fee279] uppercase tracking-wider mt-0.5">
-                  {user?.role === "Administrator" ? "Admin" : "Staff"}
-                </p>
-                <p className="text-[9px] font-bold font-mono text-white/60 tracking-widest mt-1">
-                  ID: EMP-{String(employeeId).padStart(4, "0")}
-                </p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-[9px] font-extrabold text-[#fee279] uppercase tracking-wider">
+                    {profile?.role === "Administrator" ? "Admin" : "Staff"}
+                  </span>
+                  <span className="text-white/30">•</span>
+                  <span className="text-[9px] font-bold font-mono text-white/60 tracking-widest">
+                    ID: {String(employeeId).padStart(4, "0")}
+                  </span>
+                </div>
+                
+                {/* Office & Division Info */}
+                <div className="grid grid-cols-2 gap-x-3 mt-2 border-t border-white/10 pt-2">
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[6.5px] uppercase text-white/40 font-bold tracking-wider leading-none">Kantor</span>
+                    <span className="text-[9px] font-bold text-white/95 truncate leading-tight mt-1">
+                      {profile?.lokasi?.nama_lokasi || "Kantor Pusat"}
+                    </span>
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[6.5px] uppercase text-white/40 font-bold tracking-wider leading-none">Divisi</span>
+                    <span className="text-[9px] font-bold text-white/95 truncate leading-tight mt-1">
+                      {profile?.jabatan?.nama_jabatan || "Operasional"}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -247,7 +287,7 @@ export function IdCardPage({ user }: IdCardPageProps) {
                   TANGGAL BERGABUNG
                 </p>
                 <p className="text-[9px] font-bold text-white/90 leading-none mt-1">
-                  {formatJoinDate(user?.tgl_join)}
+                  {formatJoinDate(profile?.tgl_join)}
                 </p>
               </div>
 
@@ -296,7 +336,7 @@ export function IdCardPage({ user }: IdCardPageProps) {
                 <Mail className="w-3.5 h-3.5 text-[#fee279] shrink-0" />
                 <div className="flex flex-col min-w-0 text-left">
                   <span className="text-[6px] font-bold uppercase text-white/40 tracking-wider leading-none">Email</span>
-                  <span className="text-[9px] font-semibold truncate text-white/90 leading-tight mt-0.5">{user?.email || "ademuchtar027@gmail.com"}</span>
+                  <span className="text-[9px] font-semibold truncate text-white/90 leading-tight mt-0.5">{profile?.email || "ademuchtar027@gmail.com"}</span>
                 </div>
               </div>
 
@@ -305,7 +345,7 @@ export function IdCardPage({ user }: IdCardPageProps) {
                 <Phone className="w-3.5 h-3.5 text-[#fee279] shrink-0" />
                 <div className="flex flex-col min-w-0 text-left">
                   <span className="text-[6px] font-bold uppercase text-white/40 tracking-wider leading-none">Telepon</span>
-                  <span className="text-[9px] font-semibold truncate text-white/90 leading-tight mt-0.5">{user?.telepon || "081296390911"}</span>
+                  <span className="text-[9px] font-semibold truncate text-white/90 leading-tight mt-0.5">{profile?.telepon || "081296390911"}</span>
                 </div>
               </div>
 
@@ -314,7 +354,7 @@ export function IdCardPage({ user }: IdCardPageProps) {
                 <Calendar className="w-3.5 h-3.5 text-[#fee279] shrink-0" />
                 <div className="flex flex-col min-w-0 text-left">
                   <span className="text-[6px] font-bold uppercase text-white/40 tracking-wider leading-none">Tanggal Lahir</span>
-                  <span className="text-[9px] font-semibold truncate text-white/90 leading-tight mt-0.5">{formatBirthDate(user?.tgl_lahir)}</span>
+                  <span className="text-[9px] font-semibold truncate text-white/90 leading-tight mt-0.5">{formatBirthDate(profile?.tgl_lahir)}</span>
                 </div>
               </div>
 
@@ -324,7 +364,7 @@ export function IdCardPage({ user }: IdCardPageProps) {
                 <div className="flex flex-col min-w-0 text-left">
                   <span className="text-[6px] font-bold uppercase text-white/40 tracking-wider leading-none">Personal</span>
                   <span className="text-[9px] font-semibold truncate text-white/90 leading-tight mt-0.5">
-                    {user?.gender || "Laki-Laki"} • {formatMaritalStatus(user?.status_nikah)}
+                    {profile?.gender || "Laki-Laki"} • {formatMaritalStatus(profile?.status_nikah)}
                   </span>
                 </div>
               </div>
