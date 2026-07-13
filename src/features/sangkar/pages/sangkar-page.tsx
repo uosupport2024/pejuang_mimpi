@@ -12,7 +12,7 @@ export function SangkarPage({ user }: SangkarPageProps) {
   return (
     <div className="space-y-4">
       {/* Collapsible Header Banner Wrapper */}
-      <HeaderBanner user={user} />
+      <HeaderBanner user={user} celengans={celengans} loading={loading} />
 
       {/* Daily Motivation quote */}
       <MotivationQuote />

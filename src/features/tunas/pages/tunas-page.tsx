@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { MapPin, ArrowLeft, Briefcase, Clock, Bookmark } from "lucide-react";
+import { useRouter } from "@/shared/router/router";
 import { toast } from "sonner";
 import logoWhite from "@/assets/logo/logo-white.png";
 import patternBg from "@/assets/bg/pattern-background.png";
@@ -82,7 +83,8 @@ function PakanLokerSubPage() {
 }
 
 export function TunasPage({ user }: TunasPageProps) {
-  const { clockInTime, clockOutTime, isCheckedIn, handleClockPress, dayName, dateString, locationName } = useTunas();
+  const { navigate } = useRouter();
+  const { clockInTime, clockOutTime, isCheckedIn, dayName, dateString, locationName, profileData } = useTunas();
   const [activeView, setActiveView] = useState<"dashboard" | "pakan">("dashboard");
 
   // Greeting helper based on time of day
@@ -92,6 +94,37 @@ export function TunasPage({ user }: TunasPageProps) {
     if (hour < 15) return "Selamat Siang";
     if (hour < 19) return "Selamat Sore";
     return "Selamat Malam";
+  };
+
+  // Helper to determine if button should wiggle (1 hour before shift start or if user is late)
+  const shouldWiggleButton = () => {
+    if (isCheckedIn) return false;
+    
+    const shiftMasuk = profileData?.shift?.jam_masuk; // e.g. "23:00"
+    if (!shiftMasuk) return true;
+
+    try {
+      const [shiftHour, shiftMinute] = shiftMasuk.split(":").map(Number);
+      const now = new Date();
+      
+      // Determine the exact shift date if backend provides the date
+      let shiftDate: Date;
+      if (profileData?.today_schedule?.tanggal) {
+        shiftDate = new Date(`${profileData.today_schedule.tanggal}T${shiftMasuk}`);
+      } else {
+        shiftDate = new Date(now);
+        shiftDate.setHours(shiftHour, shiftMinute, 0, 0);
+      }
+
+      const diffMs = shiftDate.getTime() - now.getTime();
+
+      // Wiggle if current time is within 1 hour (3,600,000 ms) before the shift start time,
+      // or if they are late (shift started but within a reasonable 8 hour shift duration window)
+      return diffMs <= 3600000 && diffMs > -28800000;
+    } catch (err) {
+      console.error("Error parsing shift time for wiggle:", err);
+      return true;
+    }
   };
 
   if (activeView === "pakan") {
@@ -193,47 +226,78 @@ export function TunasPage({ user }: TunasPageProps) {
       </div>
 
       {/* Horizontal Clock In / Out & Action Card (Style matching user screenshot, no border) */}
-      <div className="w-full bg-[#1e2a4a] text-white p-4.5 px-5 rounded-3xl shadow-lg shadow-[#1e2a4a]/20 flex items-center justify-between gap-4">
-        {/* Times Info (Left Column) */}
-        <div className="flex items-center gap-8 text-left">
-          {/* Clock In */}
+      <div className={`w-full bg-[#1e2a4a] text-white p-5 rounded-3xl shadow-lg transition-all duration-300 flex flex-col ${
+        shouldWiggleButton() 
+          ? "border border-[#e0542c]/45 shadow-[0_0_15px_rgba(224,84,44,0.18)]" 
+          : "border border-white/5 shadow-[#1e2a4a]/20"
+      }`}>
+        {/* Top: Job & Office Location */}
+        <div className="flex justify-between items-center w-full border-b border-white/10 pb-3 mb-3 text-left">
           <div className="flex flex-col">
-            <span className="text-[10px] text-white/60 font-bold uppercase tracking-wider leading-none">Masuk</span>
-            <span className="text-sm font-bold text-white mt-2 leading-none">
-              {clockInTime === "--:--" ? "--" : clockInTime}
+            <span className="text-[7.5px] uppercase text-white/50 font-bold tracking-wider leading-none">Divisi Kerja</span>
+            <span className="text-xs font-bold text-white mt-1 leading-none">
+              {profileData?.jabatan?.nama_jabatan || "Operasional"}
             </span>
           </div>
-
-          {/* Clock Out */}
-          <div className="flex flex-col">
-            <span className="text-[10px] text-white/60 font-bold uppercase tracking-wider leading-none">Pulang</span>
-            <span className="text-sm font-bold text-white mt-2 leading-none">
-              {clockOutTime === "--:--" ? "--" : clockOutTime}
+          <div className="flex flex-col items-end">
+            <span className="text-[7.5px] uppercase text-white/50 font-bold tracking-wider leading-none">Lokasi Kantor</span>
+            <span className="text-xs font-bold text-[#fee279] mt-1 leading-none uppercase">
+              {profileData?.lokasi?.nama_lokasi || "Kantor Pusat"}
             </span>
           </div>
         </div>
 
-        {/* Capsule Button (Right Column) */}
-        <button
-          type="button"
-          onClick={handleClockPress}
-          className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wide transition-all active:scale-95 cursor-pointer shadow-xs flex items-center gap-1.5 ${isCheckedIn && clockOutTime !== "--:--"
-            ? "bg-white/10 text-white/40 cursor-not-allowed"
-            : "bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white shadow-[#e0542c]/15"
-            }`}
-          disabled={isCheckedIn && clockOutTime !== "--:--"}
-        >
-          {!(isCheckedIn && clockOutTime !== "--:--") && <Clock className="w-3.5 h-3.5 text-white/90" />}
-          {!isCheckedIn
-            ? "Masuk"
-            : clockOutTime === "--:--"
-              ? "Keluar"
-              : "Selesai"}
-        </button>
+        {/* Bottom: Clock Times & Action Button */}
+        <div className="flex items-center justify-between gap-4 w-full">
+          {/* Times Info (Left Column) */}
+          <div className="flex items-center gap-8 text-left">
+            {/* Clock In */}
+            <div className="flex flex-col">
+              <span className="text-[10px] text-white/60 font-bold uppercase tracking-wider leading-none">Masuk</span>
+              <span className="text-sm font-bold text-white mt-2 leading-none">
+                {clockInTime === "--:--" ? "--" : clockInTime}
+              </span>
+            </div>
+
+            {/* Clock Out */}
+            <div className="flex flex-col">
+              <span className="text-[10px] text-white/60 font-bold uppercase tracking-wider leading-none">Pulang</span>
+              <span className="text-sm font-bold text-white mt-2 leading-none">
+                {clockOutTime === "--:--" ? "--" : clockOutTime}
+              </span>
+            </div>
+          </div>
+
+          {/* Capsule Button (Right Column) */}
+          <button
+            type="button"
+            onClick={() => {
+              navigate("MobileAbsensi");
+            }}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wide transition-all active:scale-95 cursor-pointer shadow-xs flex items-center gap-1.5 ${
+              isCheckedIn && clockOutTime !== "--:--"
+                ? "bg-white/10 text-white/40 cursor-not-allowed"
+                : "bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white shadow-[#e0542c]/15"
+            } ${shouldWiggleButton() ? "animate-wiggle" : ""}`}
+            disabled={isCheckedIn && clockOutTime !== "--:--"}
+          >
+            {!(isCheckedIn && clockOutTime !== "--:--") && <Clock className="w-3.5 h-3.5 text-white/90" />}
+            {!isCheckedIn
+              ? "Masuk"
+              : clockOutTime === "--:--"
+                ? "Keluar"
+                : "Selesai"}
+          </button>
+        </div>
       </div>
 
       {/* Attendance card */}
-      <AbsensiCard />
+      <AbsensiCard
+        izinCuti={profileData?.izin_cuti}
+        izinLainnya={profileData?.izin_lainnya}
+        izinTelat={profileData?.izin_telat}
+        izinPulangCepat={profileData?.izin_pulang_cepat}
+      />
 
       {/* Services Grid Menu */}
       <MenuGrid />

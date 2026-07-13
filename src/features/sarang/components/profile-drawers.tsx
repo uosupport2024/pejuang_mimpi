@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { X, Check, Loader2, Calendar, FileText, Download, Mail, ShieldAlert } from "lucide-react";
+import { X, Check, Loader2, Mail, ShieldAlert, ChevronLeft, ChevronRight, Clock, Search, ChevronDown } from "lucide-react";
 import type { SarangUser } from "../types/sarang.type";
+import { fetchJadwalHistoryAPI } from "@/features/tunas/api/absensi";
+import { INDONESIAN_BANKS, type BankItem } from "../constants/banks";
 
 interface BaseDrawerProps {
   isOpen: boolean;
@@ -21,7 +23,7 @@ function BaseProfileDrawer({ isOpen, onClose, title, children }: BaseDrawerProps
       />
 
       {/* Slide-up bottom drawer */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto bg-white rounded-t-[32px] shadow-2xl z-50 flex flex-col max-h-[85vh] overflow-hidden animate-slide-up text-left">
+      <div className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto bg-white rounded-t-[32px] shadow-2xl z-50 flex flex-col min-h-[60vh] max-h-[85vh] overflow-hidden animate-slide-up text-left">
         {/* Top Drag bar */}
         <div className="w-12 h-1 bg-zinc-200 rounded-full mx-auto my-3 shrink-0" />
 
@@ -171,13 +173,46 @@ interface EditPayrollDrawerProps {
 }
 
 export function EditPayrollDrawer({ isOpen, onClose, user, onSave }: EditPayrollDrawerProps) {
-  const [bank, setBank] = useState(user.bank || "Mandiri");
+  const [bank, setBank] = useState(user.bank || "Bank Mandiri");
   const [rekening, setRekening] = useState(user.rekening || "");
   const [isSaving, setIsSaving] = useState(false);
 
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isOpenDropdown, setIsOpenDropdown] = useState(false);
+  const [banksList, setBanksList] = useState<BankItem[]>(INDONESIAN_BANKS);
+
+  // Try to fetch newest list from a public sandbox/open API on mount/open
   useEffect(() => {
-    setBank(user.bank || "Mandiri");
-    setRekening(user.rekening || "");
+    if (isOpen) {
+      setBank(user.bank || "Bank Mandiri");
+      setRekening(user.rekening || "");
+      setSearchQuery("");
+      setIsOpenDropdown(false);
+
+      // Fetch from Flip's sandbox list of banks or other open APIs
+      fetch("https://raw.githubusercontent.com/mul14/bank-code-list/master/data/bank.json")
+        .then((res) => {
+          if (!res.ok) throw new Error();
+          return res.json();
+        })
+        .then((data) => {
+          // Normalize array mapping
+          if (Array.isArray(data)) {
+            const mapped = data.map((b: any) => ({
+              name: b.name || b.nama,
+              code: b.code || b.sandi || "",
+            }));
+            if (mapped.length > 0) {
+              setBanksList(mapped);
+            }
+          }
+        })
+        .catch(() => {
+          // Fallback to static INDONESIAN_BANKS
+          setBanksList(INDONESIAN_BANKS);
+        });
+    }
   }, [user, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -191,25 +226,77 @@ export function EditPayrollDrawer({ isOpen, onClose, user, onSave }: EditPayroll
     }
   };
 
+  // Filter bank list by search query
+  const filteredBanks = banksList.filter((b) =>
+    b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    b.code.includes(searchQuery)
+  );
+
   return (
     <BaseProfileDrawer isOpen={isOpen} onClose={onClose} title="Rekening Payroll">
       <form onSubmit={handleSubmit} className="space-y-4 text-xs font-semibold text-zinc-700">
-        <div className="space-y-1.5">
+        
+        {/* Searchable Bank Input Dropdown */}
+        <div className="space-y-1.5 relative text-left">
           <label className="text-zinc-500 block">Nama Bank</label>
-          <select
-            value={bank}
-            onChange={(e) => setBank(e.target.value)}
-            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-[#e0542c] focus:bg-white transition-colors"
-          >
-            <option value="Mandiri">Bank Mandiri</option>
-            <option value="BCA">Bank Central Asia (BCA)</option>
-            <option value="BRI">Bank Rakyat Indonesia (BRI)</option>
-            <option value="BNI">Bank Negara Indonesia (BNI)</option>
-            <option value="BSI">Bank Syariah Indonesia (BSI)</option>
-          </select>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsOpenDropdown(!isOpenDropdown)}
+              className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl flex items-center justify-between focus:outline-none focus:border-[#e0542c] focus:bg-white transition-colors cursor-pointer text-zinc-700"
+            >
+              <span>{bank || "Pilih Bank"}</span>
+              <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform ${isOpenDropdown ? "rotate-180" : ""}`} />
+            </button>
+
+            {/* Dropdown Container */}
+            {isOpenDropdown && (
+              <div className="absolute top-[44px] left-0 right-0 bg-white border border-zinc-200 rounded-2xl shadow-lg z-50 p-2 space-y-2 max-h-60 overflow-hidden flex flex-col">
+                <div className="relative shrink-0">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                  <input
+                    type="text"
+                    placeholder="Cari bank..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full h-9 pl-9 pr-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-[#e0542c] text-xs"
+                    autoFocus
+                  />
+                </div>
+
+                <div className="overflow-y-auto flex-1 space-y-0.5 pr-1">
+                  {filteredBanks.length > 0 ? (
+                    filteredBanks.map((b) => (
+                      <button
+                        key={`${b.code}-${b.name}`}
+                        type="button"
+                        onClick={() => {
+                          setBank(b.name);
+                          setIsOpenDropdown(false);
+                          setSearchQuery("");
+                        }}
+                        className={`w-full px-3 py-2 rounded-xl flex items-center justify-between text-left hover:bg-zinc-50 cursor-pointer transition-colors ${
+                          bank === b.name ? "bg-orange-50 text-[#e0542c]" : "text-zinc-700"
+                        }`}
+                      >
+                        <span className="font-bold truncate text-[11px]">{b.name}</span>
+                        <span className="text-[10px] bg-zinc-100 text-zinc-500 px-1.5 py-0.5 rounded font-mono select-none">
+                          {b.code}
+                        </span>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="text-center py-4 text-zinc-400 font-bold">
+                      Bank tidak ditemukan
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-1.5 text-left">
           <label className="text-zinc-500 block">Nomor Rekening</label>
           <input
             type="text"
@@ -244,16 +331,18 @@ export function EditPayrollDrawer({ isOpen, onClose, user, onSave }: EditPayroll
 interface ChangePasswordDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (password: string) => Promise<boolean>;
+  onSave: (currentPassword: string, newPassword: string) => Promise<boolean>;
 }
 
 export function ChangePasswordDrawer({ isOpen, onClose, onSave }: ChangePasswordDrawerProps) {
+  const [oldPassword, setOldPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    setOldPassword("");
     setPassword("");
     setConfirmPassword("");
     setError("");
@@ -261,8 +350,12 @@ export function ChangePasswordDrawer({ isOpen, onClose, onSave }: ChangePassword
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!oldPassword) {
+      setError("Password lama wajib diisi.");
+      return;
+    }
     if (password !== confirmPassword) {
-      setError("Konfirmasi password tidak cocok.");
+      setError("Konfirmasi password baru tidak cocok.");
       return;
     }
     if (password.length < 6) {
@@ -273,11 +366,11 @@ export function ChangePasswordDrawer({ isOpen, onClose, onSave }: ChangePassword
     try {
       setIsSaving(true);
       setError("");
-      const success = await onSave(password);
+      const success = await onSave(oldPassword, password);
       if (success) {
         onClose();
       } else {
-        setError("Gagal mengganti password pada server.");
+        setError("Gagal mengganti password. Periksa kembali password lama Anda.");
       }
     } finally {
       setIsSaving(false);
@@ -292,6 +385,18 @@ export function ChangePasswordDrawer({ isOpen, onClose, onSave }: ChangePassword
             {error}
           </div>
         )}
+
+        <div className="space-y-1.5">
+          <label className="text-zinc-500 block">Password Lama</label>
+          <input
+            type="password"
+            required
+            placeholder="Masukkan password lama"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-[#e0542c] focus:bg-white transition-colors"
+          />
+        </div>
 
         <div className="space-y-1.5">
           <label className="text-zinc-500 block">Password Baru</label>
@@ -338,59 +443,273 @@ export function ChangePasswordDrawer({ isOpen, onClose, onSave }: ChangePassword
 
 // 4. Jadwal & Shift Kerja Drawer
 export function JadwalShiftDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"];
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [schedules, setSchedules] = useState<Record<string, any>>({});
+  const [todayShift, setTodayShift] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Load schedules for the current viewed month
+  const loadMonthSchedules = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+
+    // First day and last day of month YYYY-MM-DD
+    const startDate = `${year}-${String(month + 1).padStart(2, "0")}-01`;
+    const lastDay = new Date(year, month + 1, 0).getDate();
+    const endDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+
+    setIsLoading(true);
+    fetchJadwalHistoryAPI(1, 50, startDate, endDate)
+      .then((data) => {
+        const schedMap: Record<string, any> = {};
+        if (Array.isArray(data)) {
+          data.forEach((item: any) => {
+            if (item.tanggal) {
+              schedMap[item.tanggal] = item;
+            }
+          });
+        }
+        setSchedules(schedMap);
+
+        // Find today's shift
+        const todayStr = new Date().toLocaleDateString("sv-SE"); // sv-SE returns YYYY-MM-DD
+        if (schedMap[todayStr]) {
+          setTodayShift(schedMap[todayStr]);
+        } else {
+          setTodayShift(null);
+        }
+      })
+      .catch((err) => console.error("Failed to load month schedules:", err))
+      .finally(() => setIsLoading(false));
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      const now = new Date();
+      setCurrentDate(now);
+      setSelectedDate(now);
+      loadMonthSchedules(now);
+    }
+  }, [isOpen]);
+
+  const prevMonth = () => {
+    const prev = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+    setCurrentDate(prev);
+    loadMonthSchedules(prev);
+  };
+
+  const nextMonth = () => {
+    const next = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+    setCurrentDate(next);
+    loadMonthSchedules(next);
+  };
+
+  // Calendar math
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const firstDayOfWeek = new Date(year, month, 1).getDay();
+  const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
+
+  // Helper to match dates
+  const getDateString = (day: number) => {
+    return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  };
+
+  const isToday = (day: number) => {
+    const today = new Date();
+    return (
+      day === today.getDate() &&
+      month === today.getMonth() &&
+      year === today.getFullYear()
+    );
+  };
+
+  const isSelected = (day: number) => {
+    return (
+      day === selectedDate.getDate() &&
+      month === selectedDate.getMonth() &&
+      year === selectedDate.getFullYear()
+    );
+  };
+
+  // Determine shift dot color
+  const getShiftColorClass = (shiftMasuk?: string) => {
+    if (!shiftMasuk) return null;
+    const hour = parseInt(shiftMasuk.split(":")[0]);
+    if (hour >= 5 && hour < 14) {
+      return "bg-emerald-500"; // Morning Shift
+    }
+    if (hour >= 14 && hour < 22) {
+      return "bg-[#e0542c]"; // Evening Shift
+    }
+    return "bg-indigo-500"; // Night Shift
+  };
+
+  // Generate cells
+  const dayCells = [];
+  // 1. Previous month padding spacers
+  for (let i = 0; i < firstDayOfWeek; i++) {
+    dayCells.push(<div key={`empty-${i}`} className="w-8.5 h-8.5" />);
+  }
+  // 2. Actual days
+  for (let day = 1; day <= totalDaysInMonth; day++) {
+    const dateStr = getDateString(day);
+    const daySchedule = schedules[dateStr];
+    const shift = daySchedule?.shift;
+    const dotColor = shift ? getShiftColorClass(shift.jam_masuk) : null;
+    const isDayToday = isToday(day);
+    const isDaySelected = isSelected(day);
+
+    dayCells.push(
+      <button
+        key={`day-${day}`}
+        type="button"
+        onClick={() => setSelectedDate(new Date(year, month, day))}
+        className={`w-8.5 h-8.5 rounded-full flex flex-col items-center justify-center relative cursor-pointer font-bold transition-all text-xs active:scale-90 ${isDaySelected
+            ? "bg-[#1e2a4a] text-white"
+            : isDayToday
+              ? "bg-[#e0542c]/10 text-[#e0542c] border border-[#e0542c]/30"
+              : "text-zinc-700 hover:bg-zinc-100"
+          }`}
+      >
+        <span className="leading-none">{day}</span>
+        {dotColor && !isDaySelected && (
+          <span className={`w-1 h-1 rounded-full absolute bottom-1 ${dotColor}`} />
+        )}
+      </button>
+    );
+  }
+
+  // Selected date schedule details
+  const selectedDateStr = selectedDate.toLocaleDateString("sv-SE");
+  const selectedSchedule = schedules[selectedDateStr];
+
   return (
     <BaseProfileDrawer isOpen={isOpen} onClose={onClose} title="Jadwal & Shift Kerja">
-      <div className="space-y-4 text-xs">
-        <div className="bg-[#1e2a4a] text-white p-4 rounded-2xl flex items-center gap-3">
-          <Calendar className="w-8 h-8 text-[#e0542c]" />
-          <div>
-            <p className="font-bold text-sm">Shift Pagi Utama</p>
-            <p className="text-[10px] text-zinc-300">Jam Kerja: 08:00 - 17:00 (WIB)</p>
+      <div className="space-y-4 text-xs font-semibold">
+        {/* Today's Shift Card */}
+        <div className="space-y-1.5 text-left">
+          <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider block">Shift Hari Ini</span>
+          <div className="bg-[#1e2a4a] text-white p-4.5 rounded-2xl flex items-center justify-between shadow-xs border border-white/5">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#e0542c]/10 flex items-center justify-center text-[#e0542c] shrink-0">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-extrabold text-sm text-white">
+                  {todayShift?.shift?.nama_shift || "Tidak Ada Shift"}
+                </p>
+                <p className="text-[10px] text-zinc-400 mt-1 font-bold">
+                  {todayShift?.shift
+                    ? `Jam Kerja: ${todayShift.shift.jam_masuk.substring(0, 5)} - ${todayShift.shift.jam_keluar.substring(0, 5)} (WIB)`
+                    : "Libur / Hari Bebas"}
+                </p>
+              </div>
+            </div>
+            {todayShift?.lokasi?.nama_lokasi && (
+              <span className="text-[8.5px] font-extrabold tracking-wide uppercase px-2 py-1 bg-white/10 rounded-md text-white/90">
+                {todayShift.lokasi.nama_lokasi}
+              </span>
+            )}
           </div>
         </div>
 
-        <div className="space-y-2">
-          <span className="font-bold text-zinc-500 uppercase tracking-wide block">Rincian Hari Kerja</span>
-          <div className="divide-y divide-zinc-100 bg-zinc-50 rounded-2xl border border-zinc-150 overflow-hidden">
-            {days.map((day) => (
-              <div key={day} className="flex justify-between items-center px-4 py-3 font-semibold">
-                <span className="text-zinc-700">{day}</span>
-                <span className="text-[#e0542c]">08:00 - 17:00</span>
+        {/* Calendar Card Container */}
+        <div className="bg-zinc-50 border border-zinc-150 p-4 rounded-2xl text-left space-y-3">
+          {/* Calendar Month Header */}
+          <div className="flex justify-between items-center px-1">
+            <span className="text-sm font-black text-zinc-800 uppercase tracking-wide">
+              {currentDate.toLocaleDateString("id-ID", { month: "long", year: "numeric" })}
+            </span>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={prevMonth}
+                className="p-1.5 bg-white border border-zinc-200 rounded-lg hover:bg-zinc-50 cursor-pointer active:scale-95 transition-all text-zinc-600"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={nextMonth}
+                className="p-1.5 bg-white border border-zinc-200 rounded-lg hover:bg-zinc-50 cursor-pointer active:scale-95 transition-all text-zinc-600"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Calendar Grid */}
+          <div className="space-y-2">
+            {/* Weekday titles */}
+            <div className="grid grid-cols-7 gap-1 text-center font-extrabold text-[9px] text-zinc-400 uppercase tracking-widest pb-1 border-b border-zinc-100">
+              {["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"].map((d) => (
+                <div key={d} className="py-1">
+                  {d}
+                </div>
+              ))}
+            </div>
+
+            {/* Calendar Days */}
+            {isLoading ? (
+              <div className="h-36 flex items-center justify-center">
+                <Loader2 className="w-6 h-6 animate-spin text-[#e0542c]" />
               </div>
-            ))}
-            <div className="flex justify-between items-center px-4 py-3 font-semibold bg-zinc-100/50">
-              <span className="text-zinc-400">Sabtu & Minggu</span>
-              <span className="text-zinc-400">Libur Akhir Pekan</span>
+            ) : (
+              <div className="grid grid-cols-7 gap-y-1.5 justify-items-center">
+                {dayCells}
+              </div>
+            )}
+          </div>
+
+          {/* Color Legend */}
+          <div className="pt-2 border-t border-zinc-100 flex items-center justify-start gap-4 text-[9px] font-bold text-zinc-400 uppercase tracking-wide">
+            <div className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <span>Shift Pagi</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#e0542c]" />
+              <span>Shift Sore</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              <span>Shift Malam</span>
             </div>
           </div>
         </div>
-      </div>
-    </BaseProfileDrawer>
-  );
-}
 
-// 5. Dokumen Kontrak Drawer
-export function ContractDrawer({ isOpen, onClose, user }: { isOpen: boolean; onClose: () => void; user: SarangUser }) {
-  return (
-    <BaseProfileDrawer isOpen={isOpen} onClose={onClose} title="Dokumen Kontrak">
-      <div className="space-y-4 text-xs font-semibold">
-        <div className="bg-[#F7F3EB] border border-[#e2dcd0] p-4 rounded-2xl flex items-start gap-3">
-          <FileText className="w-8 h-8 text-[#e0542c] mt-0.5 shrink-0" />
-          <div className="space-y-1">
-            <p className="font-bold text-zinc-900 text-sm">Kontrak Kerja Karyawan Waktu Tertentu (PKWT)</p>
-            <p className="text-[10px] text-zinc-500">Status: <span className="text-emerald-600">Aktif</span></p>
-            <p className="text-[10px] text-zinc-500">Tanggal Mulai: {user.tgl_join || "2025-04-14"}</p>
+        {/* Selected Date Details */}
+        <div className="space-y-1.5 text-left pt-1">
+          <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider block">
+            Detail Shift terpilih: {selectedDate.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+          </span>
+          <div className="bg-zinc-50 border border-zinc-150 p-4.5 rounded-2xl space-y-3">
+            {selectedSchedule ? (
+              <div className="space-y-2">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="font-extrabold text-zinc-800 text-sm">{selectedSchedule.shift.nama_shift}</h4>
+                    <p className="text-[10.5px] font-bold text-[#e0542c] mt-1 flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{selectedSchedule.shift.jam_masuk.substring(0, 5)} - {selectedSchedule.shift.jam_keluar.substring(0, 5)} WIB</span>
+                    </p>
+                  </div>
+                  {selectedSchedule.lokasi?.nama_lokasi && (
+                    <span className="text-[8px] font-extrabold tracking-wide uppercase px-2 py-1 bg-zinc-200 text-zinc-600 rounded-md">
+                      {selectedSchedule.lokasi.nama_lokasi}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="text-zinc-400 text-xs font-bold text-center py-2 uppercase tracking-wide select-none">
+                Hari Libur (Tidak Ada Jadwal Shift)
+              </div>
+            )}
           </div>
         </div>
-
-        <button
-          onClick={() => {}}
-          className="w-full h-11 bg-white border border-[#e0542c] text-[#e0542c] hover:bg-[#e0542c]/5 rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-xs"
-        >
-          <Download className="w-4 h-4" />
-          <span>Unduh Salinan Kontrak (PDF)</span>
-        </button>
       </div>
     </BaseProfileDrawer>
   );
@@ -451,17 +770,15 @@ export function TermsAndPrivacyDrawer({ isOpen, onClose }: { isOpen: boolean; on
         <div className="grid grid-cols-2 p-1 bg-zinc-100 rounded-xl shrink-0">
           <button
             onClick={() => setActiveTab("privacy")}
-            className={`py-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer ${
-              activeTab === "privacy" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-500 hover:text-zinc-800"
-            }`}
+            className={`py-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer ${activeTab === "privacy" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-500 hover:text-zinc-800"
+              }`}
           >
             Kebijakan Privasi
           </button>
           <button
             onClick={() => setActiveTab("terms")}
-            className={`py-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer ${
-              activeTab === "terms" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-500 hover:text-zinc-800"
-            }`}
+            className={`py-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer ${activeTab === "terms" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-500 hover:text-zinc-800"
+              }`}
           >
             Syarat & Ketentuan
           </button>

@@ -1,7 +1,5 @@
 import type { LoginResponse } from "../types/login.type"
-
-// Fetch the API Base URL from Vite's environment configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://attandance-pot.test/api"
+import { API_BASE_URL } from "@/shared/utils/api"
 
 /**
  * Connects to the login API using the base URL configured in .env.

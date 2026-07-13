@@ -26,7 +26,11 @@ export type RouteType =
   | "MobileProfile"
   | "MobileCelenganDetail"
   | "MobileCelenganAdd"
-  | "MobileLokerDetail";
+  | "MobileLokerDetail"
+  | "MobileAbsensi"
+  | "MobileHistory"
+  | "MobileLeaveRequest"
+  | "MobileIdCard";
 
 export const ROUTE_TO_PATH: Record<RouteType, string> = {
   Dashboard: "/dashboard",
@@ -53,6 +57,10 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   MobileCelenganDetail: "/mobile/celengan",
   MobileCelenganAdd: "/mobile/celengan/add",
   MobileLokerDetail: "/mobile/loker",
+  MobileAbsensi: "/mobile/absensi",
+  MobileHistory: "/mobile/history",
+  MobileLeaveRequest: "/mobile/leave-request",
+  MobileIdCard: "/mobile/id-card",
 };
 
 export const PATH_TO_ROUTE: Record<string, RouteType> = {
@@ -80,11 +88,15 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/mobile/celengan": "MobileCelenganDetail",
   "/mobile/celengan/add": "MobileCelenganAdd",
   "/mobile/loker": "MobileLokerDetail",
+  "/mobile/absensi": "MobileAbsensi",
+  "/mobile/history": "MobileHistory",
+  "/mobile/leave-request": "MobileLeaveRequest",
+  "/mobile/id-card": "MobileIdCard",
 };
 
 interface RouterContextType {
   currentRoute: RouteType;
-  navigate: (route: RouteType) => void;
+  navigate: (route: RouteType, state?: any) => void;
 }
 
 const RouterContext = createContext<RouterContextType | undefined>(undefined);
@@ -100,9 +112,9 @@ function RouterInnerProvider({ children }: { children: ReactNode }) {
 
   const currentRoute = PATH_TO_ROUTE[resolvedPath] || "Dashboard";
 
-  const navigate = (route: RouteType) => {
+  const navigate = (route: RouteType, state?: any) => {
     const path = ROUTE_TO_PATH[route] || "/dashboard";
-    navigateFn(path);
+    navigateFn(path, { state });
   };
 
   return (

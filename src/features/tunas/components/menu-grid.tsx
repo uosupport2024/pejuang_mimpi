@@ -9,23 +9,26 @@ import {
   Widget
 } from "@solar-icons/react";
 import { toast } from "sonner";
-
-const MENU_ITEMS = [
-  { label: "Kartu Pegawai", icon: User, action: () => toast.info("Membuka Kartu Pegawai...") },
-  { label: "Reimbust", icon: Bill, action: () => toast.info("Membuka menu Reimbust...") },
-  { label: "Dinas Luar", icon: MapPoint, action: () => toast.info("Membuka menu Dinas Luar...") },
-  { label: "Penugasan", icon: ClipboardList, action: () => toast.info("Membuka menu Penugasan...") },
-  { label: "Request Location", icon: Compass, action: () => toast.info("Membuka menu Request Location...") },
-  { label: "Ganti Password", icon: KeyMinimalistic, action: () => toast.info("Membuka menu Ganti Password...") },
-  { label: "Pegawai", icon: UsersGroupRounded, action: () => toast.info("Membuka daftar Pegawai...") },
-  { label: "Lainnya", icon: Widget, action: () => toast.info("Membuka menu lainnya...") },
-];
+import { useRouter } from "@/shared/router/router";
 
 export function MenuGrid() {
-  const row1 = MENU_ITEMS.slice(0, 4);
-  const row2 = MENU_ITEMS.slice(4, 8);
+  const { navigate } = useRouter();
 
-  const renderItem = (item: typeof MENU_ITEMS[0], index: number) => {
+  const menuItems = [
+    { label: "Kartu Pegawai", icon: User, action: () => navigate("MobileIdCard") },
+    { label: "Reimbust", icon: Bill, action: () => toast.info("Membuka menu Reimbust...") },
+    { label: "Dinas Luar", icon: MapPoint, action: () => toast.info("Membuka menu Dinas Luar...") },
+    { label: "Penugasan", icon: ClipboardList, action: () => toast.info("Membuka menu Penugasan...") },
+    { label: "Request Location", icon: Compass, action: () => toast.info("Membuka menu Request Location...") },
+    { label: "Ganti Password", icon: KeyMinimalistic, action: () => toast.info("Membuka menu Ganti Password...") },
+    { label: "Pegawai", icon: UsersGroupRounded, action: () => toast.info("Membuka daftar Pegawai...") },
+    { label: "Lainnya", icon: Widget, action: () => toast.info("Membuka menu lainnya...") },
+  ];
+
+  const row1 = menuItems.slice(0, 4);
+  const row2 = menuItems.slice(4, 8);
+
+  const renderItem = (item: typeof menuItems[0], index: number) => {
     const Icon = item.icon;
     return (
       <button
