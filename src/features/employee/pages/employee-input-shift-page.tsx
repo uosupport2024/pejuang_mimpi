@@ -323,7 +323,7 @@ export function EmployeeInputShiftPage() {
                 id="lock_location"
                 checked={lockLocation}
                 onChange={(e) => setLockLocation(e.target.checked)}
-                className="mt-0.5 w-4 h-4 accent-[#e0542c] text-[#e0542c] border-gray-300 rounded-md focus:ring-offset-0 focus:ring-1 focus:ring-[#e0542c] cursor-pointer"
+                className="mt-0.5 w-4.5 h-4.5 rounded border-2 border-[#e0542c] bg-white checked:bg-[#e0542c] checked:border-[#e0542c] cursor-pointer appearance-none flex items-center justify-center after:content-['✓'] after:text-[10px] after:font-extrabold after:text-white after:hidden checked:after:block transition-all focus:outline-none shrink-0"
               />
               <div className="flex flex-col text-left">
                 <label htmlFor="lock_location" className="text-xs font-bold text-gray-800 cursor-pointer select-none">
