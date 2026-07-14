@@ -3,8 +3,8 @@ import { DashboardLayout } from "./dashboard-layout";
 import { MobileLayout } from "./mobile-layout";
 
 // Feature page imports (Desktop)
-import { DashboardPage } from "@/features/dashboard";
-import { EmployeePage, EmployeeAddPage, EmployeeEditPage } from "@/features/employee";
+import { DashboardPage, ProfilePage } from "@/features/dashboard";
+import { EmployeePage, EmployeeAddPage, EmployeeEditPage, EmployeeInputShiftPage } from "@/features/employee";
 import { AttendancePage, TodayAttendancePage } from "@/features/attendance";
 import { LeavePage } from "@/features/leave";
 import { PayrollPage, PayrollHistoryPage } from "@/features/payroll";
@@ -25,7 +25,7 @@ import { TunasPage, MobileAbsensiPage, MobileHistoryPage, MobileLemburAbsensiPag
 import { AyamkuPage } from "@/features/ayamku";
 import { PakanPage } from "../../../features/pakan";
 import { SarangPage } from "../../../features/sarang";
-import { LeaveRequestPage } from "@/features/leave-request";
+import { LeaveRequestPage, LeaveHistoryPage } from "@/features/leave-request";
 import { IdCardPage } from "@/features/id-card";
 
 interface MainContainerProps {
@@ -62,6 +62,8 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <EmployeeAddPage />;
       case "EmployeeEdit":
         return <EmployeeEditPage />;
+      case "EmployeeInputShift":
+        return <EmployeeInputShiftPage />;
       case "Attendance":
         return <AttendancePage />;
       case "AttendanceToday":
@@ -98,6 +100,8 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <LocationAddPage />;
       case "LocationEdit":
         return <LocationEditPage />;
+      case "Profile":
+        return <ProfilePage user={user} />;
       default:
         return <DashboardPage />;
     }
@@ -134,6 +138,8 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <MobileHistoryPage />;
       case "MobileLeaveRequest":
         return <LeaveRequestPage user={user} />;
+      case "MobileLeaveHistory":
+        return <LeaveHistoryPage user={user} />;
       case "MobileIdCard":
         return <IdCardPage user={user} />;
       default:

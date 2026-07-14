@@ -35,12 +35,15 @@ export type RouteType =
   | "MobileKoreksiAbsen"
   | "MobileHistory"
   | "MobileLeaveRequest"
+  | "MobileLeaveHistory"
   | "MobileIdCard"
   | "EmployeeAdd"
   | "EmployeeEdit"
+  | "EmployeeInputShift"
   | "Location"
   | "LocationAdd"
-  | "LocationEdit";
+  | "LocationEdit"
+  | "Profile";
 
 export const ROUTE_TO_PATH: Record<RouteType, string> = {
   Dashboard: "/dashboard",
@@ -78,9 +81,12 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   MobileKoreksiAbsen: "/mobile/koreksi-absen",
   MobileHistory: "/mobile/history",
   MobileLeaveRequest: "/mobile/leave-request",
+  MobileLeaveHistory: "/mobile/leave-history",
   MobileIdCard: "/mobile/id-card",
   EmployeeAdd: "/pegawai/tambah",
   EmployeeEdit: "/pegawai/edit",
+  EmployeeInputShift: "/pegawai/shift",
+  Profile: "/profile",
 };
 
 export const PATH_TO_ROUTE: Record<string, RouteType> = {
@@ -119,9 +125,12 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/mobile/koreksi-absen": "MobileKoreksiAbsen",
   "/mobile/history": "MobileHistory",
   "/mobile/leave-request": "MobileLeaveRequest",
+  "/mobile/leave-history": "MobileLeaveHistory",
   "/mobile/id-card": "MobileIdCard",
   "/pegawai/tambah": "EmployeeAdd",
   "/pegawai/edit": "EmployeeEdit",
+  "/pegawai/shift": "EmployeeInputShift",
+  "/profile": "Profile",
 };
 
 interface RouterContextType {

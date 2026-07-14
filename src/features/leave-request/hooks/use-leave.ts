@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { fetchCutiHistoryAPI, postCutiRequestAPI, deleteCutiAPI, updateCutiAPI } from "../api/leave";
 import { toast } from "sonner";
+import { useRouter } from "@/shared/router/router";
 
 export function useLeave(user: any, initialSelectedType?: string | null) {
+  const { navigate } = useRouter();
   const mapTypeToName = (type?: string | null) => {
     switch (type) {
       case "cuti": return "Cuti Tahunan";
@@ -188,6 +190,9 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
       
       // Reload history
       fetchHistory(1);
+
+      // Redirect to history page
+      navigate("MobileLeaveHistory");
       
       if (onSuccess) onSuccess();
     } catch (err: any) {

@@ -60,6 +60,7 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout,
                             currentRoute === "MobileKoreksiAbsen" ||
                             currentRoute === "MobileHistory" ||
                             currentRoute === "MobileLeaveRequest" ||
+                            currentRoute === "MobileLeaveHistory" ||
                             currentRoute === "MobileIdCard";
 
       if (session.user.role === "Administrator") {

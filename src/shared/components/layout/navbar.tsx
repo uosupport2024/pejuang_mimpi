@@ -1,6 +1,7 @@
 import { Bell, HelpCircle, ChevronDown, User, Lock, LogOut } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
+import { useRouter } from "@/shared/router/router";
 
 interface NavbarProps {
   user: {
@@ -11,6 +12,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ user, onLogout }: NavbarProps) {
+  const { navigate } = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -61,6 +63,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
         announcement: "Announcement",
         divisi: "Divisi",
         lokasi: "Lokasi",
+        profile: "Profil Saya",
       };
 
       const lastSegment = segments[segments.length - 1];
@@ -157,7 +160,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
           {isOpen && (
             <div className="absolute right-0 mt-1.5 w-44 bg-white border border-gray-100 rounded-xl shadow-md z-50 py-1 transition-all">
               <button
-                onClick={() => { setIsOpen(false); alert("Fitur Profile segera hadir!"); }}
+                onClick={() => { setIsOpen(false); navigate("Profile"); }}
                 className="w-full flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors cursor-pointer text-left"
               >
                 <User className="w-3.5 h-3.5 text-gray-400" />

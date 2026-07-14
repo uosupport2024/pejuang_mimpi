@@ -19,7 +19,7 @@ export function MenuGrid() {
     { label: "Pengajuan Absen", icon: Calendar, action: () => navigate("MobileKoreksiAbsen") },
     { label: "Kartu Pegawai", icon: User, action: () => navigate("MobileIdCard") },
     { label: "Riwayat Absen", icon: History, action: () => navigate("MobileHistory") },
-    { label: "Riwayat Izin", icon: DocumentText, action: () => navigate("MobileLeaveRequest") },
+    { label: "Riwayat Izin", icon: DocumentText, action: () => navigate("MobileLeaveHistory") },
     { label: "Riwayat Lembur", icon: Refresh, action: () => navigate("MobileLemburHistory") },
     { label: "Kinerja", icon: MedalStar, action: () => toast.info("Membuka menu Kinerja...") },
     { label: "Perusahaan", icon: Buildings, action: () => toast.info("Membuka profil Perusahaan...") },
