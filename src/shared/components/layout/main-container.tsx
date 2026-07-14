@@ -3,14 +3,13 @@ import { DashboardLayout } from "./dashboard-layout";
 import { MobileLayout } from "./mobile-layout";
 
 // Feature page imports (Desktop)
-import { DashboardPage } from "@/features/dashboard";
-import { EmployeePage } from "@/features/employee";
-import { AttendancePage } from "@/features/attendance";
+import { DashboardPage, ProfilePage } from "@/features/dashboard";
+import { EmployeePage, EmployeeAddPage, EmployeeEditPage, EmployeeInputShiftPage } from "@/features/employee";
+import { AttendancePage, TodayAttendancePage } from "@/features/attendance";
 import { LeavePage } from "@/features/leave";
-import { PayrollPage } from "@/features/payroll";
+import { PayrollPage, PayrollHistoryPage } from "@/features/payroll";
 import { OvertimePage } from "@/features/overtime";
 import { ShiftPage } from "@/features/shift";
-import { ReimbursementPage } from "@/features/reimbursement";
 import { RecruitmentPage } from "@/features/recruitment";
 import { OnboardingPage } from "@/features/onboarding";
 import { AppraisalPage } from "@/features/appraisal";
@@ -18,14 +17,15 @@ import { TrainingPage } from "@/features/training";
 import { DocumentPage } from "@/features/document";
 import { AnnouncementPage } from "@/features/announcement";
 import { OrganizationPage } from "@/features/organization";
+import { LocationPage, LocationAddPage, LocationEditPage } from "@/features/location";
 
 // Feature page imports (Mobile)
 import { SangkarPage, CelenganDetailPage, CelenganAddPage, LokerDetailPage } from "@/features/sangkar";
-import { TunasPage, MobileAbsensiPage, MobileHistoryPage } from "@/features/tunas";
+import { TunasPage, MobileAbsensiPage, MobileHistoryPage, MobileLemburAbsensiPage, MobileLemburHistoryPage, MobileKoreksiAbsenPage, KoreksiAbsenApprovalPage } from "@/features/tunas";
 import { AyamkuPage } from "@/features/ayamku";
 import { PakanPage } from "../../../features/pakan";
 import { SarangPage } from "../../../features/sarang";
-import { LeaveRequestPage } from "@/features/leave-request";
+import { LeaveRequestPage, LeaveHistoryPage } from "@/features/leave-request";
 import { IdCardPage } from "@/features/id-card";
 
 interface MainContainerProps {
@@ -33,6 +33,7 @@ interface MainContainerProps {
     name: string;
     role: string;
     email: string;
+    is_admin?: string;
     telepon?: string;
     gender?: string;
     tgl_join?: string;
@@ -57,18 +58,28 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <DashboardPage />;
       case "Employee":
         return <EmployeePage />;
+      case "EmployeeAdd":
+        return <EmployeeAddPage />;
+      case "EmployeeEdit":
+        return <EmployeeEditPage />;
+      case "EmployeeInputShift":
+        return <EmployeeInputShiftPage />;
       case "Attendance":
         return <AttendancePage />;
+      case "AttendanceToday":
+        return <TodayAttendancePage />;
       case "Leave":
         return <LeavePage />;
       case "Payroll":
         return <PayrollPage />;
+      case "PayrollHistory":
+        return <PayrollHistoryPage />;
       case "Overtime":
         return <OvertimePage />;
       case "Shift":
         return <ShiftPage />;
-      case "Reimbursement":
-        return <ReimbursementPage />;
+      case "KoreksiAbsenApproval":
+        return <KoreksiAbsenApprovalPage />;
       case "Recruitment":
         return <RecruitmentPage />;
       case "Onboarding":
@@ -83,6 +94,14 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <AnnouncementPage />;
       case "Organization":
         return <OrganizationPage />;
+      case "Location":
+        return <LocationPage />;
+      case "LocationAdd":
+        return <LocationAddPage />;
+      case "LocationEdit":
+        return <LocationEditPage />;
+      case "Profile":
+        return <ProfilePage user={user} />;
       default:
         return <DashboardPage />;
     }
@@ -109,10 +128,18 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <LokerDetailPage />;
       case "MobileAbsensi":
         return <MobileAbsensiPage />;
+      case "MobileLemburAbsensi":
+        return <MobileLemburAbsensiPage />;
+      case "MobileLemburHistory":
+        return <MobileLemburHistoryPage />;
+      case "MobileKoreksiAbsen":
+        return <MobileKoreksiAbsenPage />;
       case "MobileHistory":
         return <MobileHistoryPage />;
       case "MobileLeaveRequest":
         return <LeaveRequestPage user={user} />;
+      case "MobileLeaveHistory":
+        return <LeaveHistoryPage user={user} />;
       case "MobileIdCard":
         return <IdCardPage user={user} />;
       default:

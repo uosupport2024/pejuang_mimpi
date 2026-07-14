@@ -1,6 +1,7 @@
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Calendar } from "lucide-react";
+import { cn } from "@/shared/lib/utils";
 
 const indonesianMonths = [
   "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
@@ -15,22 +16,24 @@ interface DateRangePickerProps {
   endDate: Date | null;
   onChange: (range: [Date | null, Date | null]) => void;
   maxDate?: Date;
+  className?: string;
 }
 
 export function DateRangePicker({
   startDate,
   endDate,
   onChange,
-  maxDate
+  maxDate,
+  className
 }: DateRangePickerProps) {
   const rangeLabel = startDate && endDate
     ? `${formatDisplay(startDate)}  –  ${formatDisplay(endDate)}`
     : startDate
-    ? `${formatDisplay(startDate)}  –  ...`
-    : "Pilih Rentang Tanggal";
+      ? `${formatDisplay(startDate)}  –  ...`
+      : "Pilih Rentang Tanggal";
 
   return (
-    <div className="w-full relative">
+    <div className={cn("w-full", className)}>
       <DatePicker
         selectsRange
         startDate={startDate ?? undefined}
@@ -44,17 +47,18 @@ export function DateRangePicker({
         customInput={
           <button
             type="button"
-            className="w-full h-[38px] flex items-center gap-2 bg-white border border-zinc-200 rounded-xl px-3 text-left hover:border-[#1e2a4a]/40 transition-colors cursor-pointer min-w-0"
+            className="w-full h-9 box-border flex items-center gap-2 bg-zinc-50 border border-gray-200 rounded-lg px-3.5 text-left hover:border-[#e0542c]/50 focus:outline-none focus:ring-1 focus:ring-[#e0542c] focus:border-[#e0542c] transition-all cursor-pointer min-w-0"
           >
-            <Calendar className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-            <span className="text-[10px] font-semibold text-zinc-700 truncate leading-normal">{rangeLabel}</span>
+            <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+            <span className="text-xs font-medium text-gray-700 truncate leading-normal">{rangeLabel}</span>
           </button>
         }
       />
-      
+
       {/* Include the custom premium styles */}
       <style>{`
-        .react-datepicker-wrapper { width: 100%; }
+        .react-datepicker-wrapper { width: 100%; display: block; }
+        .react-datepicker-wrapper > div { width: 100%; }
         .react-datepicker-popper { z-index: 9999 !important; }
         
         .react-datepicker {

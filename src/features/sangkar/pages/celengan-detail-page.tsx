@@ -19,6 +19,7 @@ import { formatThousands, parseThousands } from "@/shared/utils/format";
 import { Input } from "@/shared/components/ui/input";
 import { getChickenIcon } from "@/shared/utils/icons";
 import { motion } from "motion/react";
+import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
 
 export function CelenganDetailPage() {
   const { navigate } = useRouter();
@@ -92,10 +93,15 @@ export function CelenganDetailPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!celengan) return;
-    if (!confirm(`Apakah Anda yakin ingin menghapus celengan "${celengan.name}"?`)) return;
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
 
+  const handleDelete = () => {
+    if (!celengan) return;
+    setShowDeleteConfirmModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setShowDeleteConfirmModal(false);
     try {
       await remove();
     } catch (error) {
@@ -509,6 +515,19 @@ export function CelenganDetailPage() {
             </form>
           </div>
         </div>
+      )}
+
+      {celengan && (
+        <ConfirmationModal
+          isOpen={showDeleteConfirmModal}
+          onClose={() => setShowDeleteConfirmModal(false)}
+          onConfirm={handleConfirmDelete}
+          title="Hapus Celengan?"
+          message={`Apakah Anda yakin ingin menghapus celengan "${celengan.name}"?`}
+          variant="danger"
+          confirmText="Hapus"
+          cancelText="Batal"
+        />
       )}
     </div>
   );

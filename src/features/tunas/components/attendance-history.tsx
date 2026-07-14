@@ -4,7 +4,7 @@ import { THEME_COLORS } from "@/shared/constants/colors";
 import { fetchJadwalHistoryAPI } from "../api/absensi";
 import { useRouter } from "@/shared/router/router";
 
-type AttendanceStatus = "Early" | "On Time" | "Late";
+type AttendanceStatus = "Early" | "On Time" | "Late" | "Absent" | "Permit" | "Holiday";
 
 interface HistoryItem {
   day: number;
@@ -26,8 +26,20 @@ const cardStyles: Record<AttendanceStatus, { bgClass: string; shadowClass: strin
     shadowClass: "shadow-lg shadow-[#7FA46D]/15",
   },
   Late: {
-    bgClass: `bg-gradient-to-br ${THEME_COLORS.celengan.motor.gradient}`,
-    shadowClass: "shadow-lg shadow-[#F25C2A]/15",
+    bgClass: `bg-gradient-to-br ${THEME_COLORS.celengan.laptopBaru.gradient}`, // Yellow/Gold for Late
+    shadowClass: "shadow-lg shadow-[#F2B233]/15",
+  },
+  Absent: {
+    bgClass: "bg-gradient-to-br from-[#e0542c] to-[#c23f1b]", // Red/Orange for Alpa (Absent)
+    shadowClass: "shadow-lg shadow-[#e0542c]/20",
+  },
+  Permit: {
+    bgClass: "bg-gradient-to-br from-amber-500 to-amber-600", // Amber for Sakit/Izin/Cuti
+    shadowClass: "shadow-lg shadow-amber-500/15",
+  },
+  Holiday: {
+    bgClass: "bg-gradient-to-br from-slate-400 to-slate-500", // Slate for Libur
+    shadowClass: "shadow-lg shadow-slate-400/15",
   },
 };
 
@@ -76,7 +88,7 @@ export function AttendanceHistory() {
         const endDate = formatDate(today);
 
         const rawData = await fetchJadwalHistoryAPI(1, 10, startDate, endDate);
-        
+
         // Filter on frontend to safeguard against unfiltered backend responses
         const filteredData = (rawData || []).filter((item: any) => {
           if (!item.tanggal) return false;
@@ -100,7 +112,16 @@ export function AttendanceHistory() {
 
           // Determine status: Late if telat > 0, otherwise default to On Time (or Early if they clocked in early)
           let status: AttendanceStatus = "On Time";
-          if (item.telat && parseFloat(item.telat) > 0) {
+          if (checkIn === "--:--" && checkOut === "--:--") {
+            const statusAbsen = item.status_absen || "";
+            if (statusAbsen === "Sakit" || statusAbsen === "Izin Masuk" || statusAbsen === "Izin" || statusAbsen === "Cuti") {
+              status = "Permit";
+            } else if (statusAbsen === "Libur") {
+              status = "Holiday";
+            } else {
+              status = "Absent";
+            }
+          } else if (item.telat && parseFloat(item.telat) > 0) {
             status = "Late";
           } else if (checkIn !== "--:--") {
             const shiftObj = item.Shift || item.shift;
@@ -206,9 +227,19 @@ export function AttendanceHistory() {
                 <div className="flex-1 min-w-0 flex flex-col text-left justify-center py-4.5 pl-4 pr-4">
                   {/* Times Row */}
                   <div className="flex items-center gap-1.5 text-sm font-bold text-white leading-none">
-                    <span>{item.checkIn}</span>
-                    <span className="text-white/60 font-semibold">—</span>
-                    <span>{item.checkOut}</span>
+                    {item.status === "Absent" ? (
+                      <span>Alpa</span>
+                    ) : item.status === "Permit" ? (
+                      <span>Izin / Sakit / Cuti</span>
+                    ) : item.status === "Holiday" ? (
+                      <span>Hari Libur</span>
+                    ) : (
+                      <>
+                        <span>{item.checkIn}</span>
+                        <span className="text-white/60 font-semibold">—</span>
+                        <span>{item.checkOut}</span>
+                      </>
+                    )}
                   </div>
 
                   {/* Location Row */}
@@ -221,7 +252,9 @@ export function AttendanceHistory() {
                 {/* Right Column: Total Work Hours Glass Badge */}
                 <div className="flex items-center pr-4 shrink-0">
                   <div className="flex flex-col items-center justify-center bg-white/20 border border-white/10 rounded-xl px-2.5 py-1.5 min-w-[56px] shrink-0 text-center">
-                    <span className="text-[11px] font-bold leading-none text-white">{item.totalHours}</span>
+                    <span className="text-[11px] font-bold leading-none text-white">
+                      {["Absent", "Permit", "Holiday"].includes(item.status) ? "-" : item.totalHours}
+                    </span>
                     <span className="text-[7.5px] font-bold uppercase mt-1 leading-none text-white/80 tracking-wider">Jam</span>
                   </div>
                 </div>

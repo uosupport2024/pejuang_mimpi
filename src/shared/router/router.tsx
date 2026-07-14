@@ -6,11 +6,13 @@ export type RouteType =
   | "Dashboard"
   | "Employee"
   | "Attendance"
+  | "AttendanceToday"
   | "Leave"
   | "Payroll"
+  | "PayrollHistory"
   | "Overtime"
   | "Shift"
-  | "Reimbursement"
+  | "KoreksiAbsenApproval"
   | "Recruitment"
   | "Onboarding"
   | "Appraisal"
@@ -28,26 +30,42 @@ export type RouteType =
   | "MobileCelenganAdd"
   | "MobileLokerDetail"
   | "MobileAbsensi"
+  | "MobileLemburAbsensi"
+  | "MobileLemburHistory"
+  | "MobileKoreksiAbsen"
   | "MobileHistory"
   | "MobileLeaveRequest"
-  | "MobileIdCard";
+  | "MobileLeaveHistory"
+  | "MobileIdCard"
+  | "EmployeeAdd"
+  | "EmployeeEdit"
+  | "EmployeeInputShift"
+  | "Location"
+  | "LocationAdd"
+  | "LocationEdit"
+  | "Profile";
 
 export const ROUTE_TO_PATH: Record<RouteType, string> = {
   Dashboard: "/dashboard",
-  Employee: "/employee",
-  Attendance: "/attendance",
-  Leave: "/leave",
-  Payroll: "/payroll",
+  Employee: "/pegawai",
+  Attendance: "/absensi",
+  AttendanceToday: "/absensi-hari-ini",
+  Leave: "/cuti",
+  Payroll: "/keuangan",
+  PayrollHistory: "/keuangan/riwayat",
   Overtime: "/overtime",
   Shift: "/shift",
-  Reimbursement: "/reimbursement",
+  KoreksiAbsenApproval: "/persetujuan-absen",
   Recruitment: "/recruitment",
   Onboarding: "/onboarding",
   Appraisal: "/appraisal",
   Training: "/training",
   Document: "/document",
   Announcement: "/announcement",
-  Organization: "/organization",
+  Organization: "/divisi",
+  Location: "/lokasi",
+  LocationAdd: "/lokasi/tambah",
+  LocationEdit: "/lokasi/edit",
   Login: "/auth/login",
   MobileHome: "/mobile/home",
   MobileLumbung: "/mobile/lumbung",
@@ -58,27 +76,40 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   MobileCelenganAdd: "/mobile/celengan/add",
   MobileLokerDetail: "/mobile/loker",
   MobileAbsensi: "/mobile/absensi",
+  MobileLemburAbsensi: "/mobile/lembur",
+  MobileLemburHistory: "/mobile/lembur/history",
+  MobileKoreksiAbsen: "/mobile/koreksi-absen",
   MobileHistory: "/mobile/history",
   MobileLeaveRequest: "/mobile/leave-request",
+  MobileLeaveHistory: "/mobile/leave-history",
   MobileIdCard: "/mobile/id-card",
+  EmployeeAdd: "/pegawai/tambah",
+  EmployeeEdit: "/pegawai/edit",
+  EmployeeInputShift: "/pegawai/shift",
+  Profile: "/profile",
 };
 
 export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/dashboard": "Dashboard",
-  "/employee": "Employee",
-  "/attendance": "Attendance",
-  "/leave": "Leave",
-  "/payroll": "Payroll",
+  "/pegawai": "Employee",
+  "/absensi": "Attendance",
+  "/absensi-hari-ini": "AttendanceToday",
+  "/cuti": "Leave",
+  "/keuangan": "Payroll",
+  "/keuangan/riwayat": "PayrollHistory",
   "/overtime": "Overtime",
   "/shift": "Shift",
-  "/reimbursement": "Reimbursement",
+  "/persetujuan-absen": "KoreksiAbsenApproval",
   "/recruitment": "Recruitment",
   "/onboarding": "Onboarding",
   "/appraisal": "Appraisal",
   "/training": "Training",
   "/document": "Document",
   "/announcement": "Announcement",
-  "/organization": "Organization",
+  "/divisi": "Organization",
+  "/lokasi": "Location",
+  "/lokasi/tambah": "LocationAdd",
+  "/lokasi/edit": "LocationEdit",
   "/auth/login": "Login",
   "/mobile/home": "MobileHome",
   "/mobile/lumbung": "MobileLumbung",
@@ -89,9 +120,17 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/mobile/celengan/add": "MobileCelenganAdd",
   "/mobile/loker": "MobileLokerDetail",
   "/mobile/absensi": "MobileAbsensi",
+  "/mobile/lembur": "MobileLemburAbsensi",
+  "/mobile/lembur/history": "MobileLemburHistory",
+  "/mobile/koreksi-absen": "MobileKoreksiAbsen",
   "/mobile/history": "MobileHistory",
   "/mobile/leave-request": "MobileLeaveRequest",
+  "/mobile/leave-history": "MobileLeaveHistory",
   "/mobile/id-card": "MobileIdCard",
+  "/pegawai/tambah": "EmployeeAdd",
+  "/pegawai/edit": "EmployeeEdit",
+  "/pegawai/shift": "EmployeeInputShift",
+  "/profile": "Profile",
 };
 
 interface RouterContextType {
