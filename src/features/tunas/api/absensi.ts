@@ -163,11 +163,6 @@ export async function postOvertimePulangAPI(id: number | string, payload: FormDa
   }
   multipartHeaders["Accept"] = "application/json";
 
-  // Standard Laravel PUT Multipart Workaround:
-  // Standard Laravel cannot parse multipart form data via PUT requests out-of-the-box.
-  // To bypass this, we append _method = PUT to the FormData payload and issue the request using a POST method.
-  payload.append("_method", "PUT");
-
   const response = await fetch(`${API_BASE_URL}/overtime/pulang/${id}`, {
     method: "POST",
     headers: multipartHeaders,

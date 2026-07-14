@@ -110,6 +110,13 @@ export function MobileKoreksiAbsenPage() {
   const [selectedDeleteId, setSelectedDeleteId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Toggle notes state
+  const [expandedNotes, setExpandedNotes] = useState<Record<number, boolean>>({});
+
+  const toggleNotes = (id: number) => {
+    setExpandedNotes((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
   const loadHistory = useCallback(async (targetPage: number, append = false) => {
     setIsLoadingHistory(true);
     try {
@@ -355,7 +362,10 @@ export function MobileKoreksiAbsenPage() {
 
                 return (
                   <div key={idx} className="flex flex-col gap-2">
-                    <div className={`flex items-stretch rounded-2xl transition-all duration-200 text-white overflow-hidden ${bgClass}`}>
+                    <div 
+                      onClick={() => toggleNotes(item.id)}
+                      className={`flex items-stretch rounded-2xl transition-all duration-200 text-white overflow-hidden cursor-pointer select-none ${bgClass}`}
+                    >
                       {/* Left Column: Full-height Translucent Date Badge */}
                       <div className="w-16 bg-white/15 flex flex-col items-center justify-center shrink-0">
                         <span className="text-xl font-bold leading-none text-white">{item.day}</span>
@@ -389,7 +399,10 @@ export function MobileKoreksiAbsenPage() {
                         {item.status === "Pending" && (
                           <button
                             type="button"
-                            onClick={() => openDeleteModal(item.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openDeleteModal(item.id);
+                            }}
                             className="p-1.5 bg-white/15 hover:bg-white/25 border border-white/10 rounded-lg text-white transition-colors cursor-pointer"
                             title="Batalkan Pengajuan"
                           >
@@ -401,7 +414,13 @@ export function MobileKoreksiAbsenPage() {
 
                     {/* Admin notes panel - rendered beneath card */}
                     {item.notes && (
-                      <div className="mx-2 px-3.5 py-2.5 bg-zinc-50 border border-zinc-150 rounded-b-xl -mt-3 pt-4 text-left text-zinc-700">
+                      <div 
+                        className={`mx-2 bg-zinc-50 border border-zinc-150 border-t-0 rounded-b-xl -mt-3 text-left text-zinc-700 transition-all duration-300 ease-in-out overflow-hidden ${
+                          expandedNotes[item.id]
+                            ? "max-h-40 opacity-100 px-3.5 py-2.5 pt-4"
+                            : "max-h-0 opacity-0 px-3.5 py-0 border-none"
+                        }`}
+                      >
                         <span className="text-[8px] text-zinc-400 font-extrabold uppercase tracking-wider block">Catatan Admin</span>
                         <p className="text-[10.5px] font-semibold mt-0.5 leading-relaxed">{item.notes}</p>
                         {item.approvedByName && (

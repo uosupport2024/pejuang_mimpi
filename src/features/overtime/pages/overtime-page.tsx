@@ -64,6 +64,7 @@ export function OvertimePage() {
       return `${year}-${month}-${day}`;
     })(),
     lokasi: "",
+    status: "",
     q: "",
   });
 
@@ -96,6 +97,7 @@ export function OvertimePage() {
         akhir: customFilters.akhir,
         page: String(page),
         ...(customFilters.lokasi && { lokasi: customFilters.lokasi }),
+        ...(customFilters.status && { status: customFilters.status }),
         ...(customFilters.q && { q: customFilters.q }),
       });
 
@@ -139,6 +141,10 @@ export function OvertimePage() {
 
   const handleLocationChange = (locId: string) => {
     setFilters((prev) => ({ ...prev, lokasi: locId === "all" ? "" : locId }));
+  };
+
+  const handleStatusChange = (statusVal: string) => {
+    setFilters((prev) => ({ ...prev, status: statusVal === "all" ? "" : statusVal }));
   };
 
   const handleDateRangeChange = (range: [Date | null, Date | null]) => {
@@ -430,6 +436,37 @@ export function OvertimePage() {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Status Select */}
+            <div className="w-full sm:w-[150px] shrink-0">
+              <Select value={filters.status || "all"} onValueChange={(val) => handleStatusChange(val || "all")}>
+                <SelectTrigger className="w-full h-9 box-border px-3 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#e0542c] focus:border-[#e0542c] text-gray-700 font-medium flex items-center justify-between cursor-pointer shadow-none">
+                  <SelectValue>
+                    {filters.status === ""
+                      ? "Semua Status"
+                      : filters.status === "Pending"
+                      ? "Pending"
+                      : filters.status === "Approved"
+                      ? "Disetujui"
+                      : "Ditolak"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-gray-200 rounded-lg shadow-md p-1 min-w-[130px]">
+                  <SelectItem value="all" className="text-xs text-gray-700 hover:bg-zinc-50 py-1.5 px-3 rounded-md cursor-pointer flex items-center gap-2">
+                    Semua Status
+                  </SelectItem>
+                  <SelectItem value="Pending" className="text-xs text-gray-700 hover:bg-zinc-50 py-1.5 px-3 rounded-md cursor-pointer flex items-center gap-2">
+                    Pending
+                  </SelectItem>
+                  <SelectItem value="Approved" className="text-xs text-gray-700 hover:bg-zinc-50 py-1.5 px-3 rounded-md cursor-pointer flex items-center gap-2">
+                    Disetujui
+                  </SelectItem>
+                  <SelectItem value="Rejected" className="text-xs text-gray-700 hover:bg-zinc-50 py-1.5 px-3 rounded-md cursor-pointer flex items-center gap-2">
+                    Ditolak
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -498,12 +535,41 @@ export function OvertimePage() {
               </button>
             </div>
             <form onSubmit={handleApprovalSubmit} className="p-5 space-y-4">
-              <div className="text-xs text-gray-500 space-y-1 bg-zinc-50 p-3 rounded-lg border border-gray-100">
-                <p><span className="font-bold text-gray-700">Pegawai:</span> {approvalModalItem.name}</p>
-                <p><span className="font-bold text-gray-700">Tanggal:</span> {approvalModalItem.tanggal}</p>
-                <p><span className="font-bold text-gray-700">Total Lembur:</span> {approvalModalItem.total_lembur_formatted}</p>
+              <div className="bg-amber-50/70 border border-amber-100/80 rounded-xl p-4 space-y-2.5">
+                {/* Pegawai */}
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Pegawai</span>
+                  <span className="text-xs font-bold text-gray-800 leading-tight">{approvalModalItem.name}</span>
+                </div>
+
+                {/* Tanggal */}
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Tanggal</span>
+                  <span className="text-xs font-bold text-gray-800 leading-tight">
+                    {new Date(approvalModalItem.tanggal).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric"
+                    })}
+                  </span>
+                </div>
+
+                {/* Total Lembur */}
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Total Lembur</span>
+                  <span className="inline-flex items-center w-fit bg-teal-50 border border-teal-100 text-teal-700 px-2 py-0.5 rounded-lg text-xs font-black leading-none mt-0.5">
+                    {approvalModalItem.total_lembur_formatted}
+                  </span>
+                </div>
+
+                {/* Catatan Pegawai */}
                 {approvalModalItem.notes && (
-                  <p><span className="font-bold text-gray-700">Catatan Pegawai:</span> {approvalModalItem.notes}</p>
+                  <div className="flex flex-col gap-0.5 pt-2 border-t border-amber-150/40">
+                    <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Catatan Pegawai</span>
+                    <p className="text-xs text-gray-650 font-semibold leading-relaxed mt-0.5">
+                      "{approvalModalItem.notes}"
+                    </p>
+                  </div>
                 )}
               </div>
 
