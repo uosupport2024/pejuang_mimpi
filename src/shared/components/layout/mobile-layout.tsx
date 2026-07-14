@@ -23,6 +23,12 @@ export function MobileLayout({ children }: MobileLayoutProps) {
 
   const activeIndex = getRouteIndex();
 
+  const isTabRoute = currentRoute === "MobileHome" || 
+                     currentRoute === "MobileLumbung" || 
+                     currentRoute === "MobileAyamku" || 
+                     currentRoute === "MobilePakan" || 
+                     currentRoute === "MobileProfile";
+
   return (
     <div className="w-full min-h-screen bg-zinc-950 flex justify-center font-sans antialiased overflow-hidden">
       {/* Clean centered mobile view (no device chassis frame, full screen height) */}
@@ -32,11 +38,12 @@ export function MobileLayout({ children }: MobileLayoutProps) {
         <div className="flex-1 overflow-y-auto pt-6 px-5">
           {children}
           {/* Spacer to guarantee scrolling clearance of bottom navigation */}
-          <div className="h-32 w-full shrink-0" />
+          {isTabRoute && <div className="h-32 w-full shrink-0" />}
         </div>
 
         {/* Flat Bottom Tab Navigation Bar */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-[#1e2a4a] flex items-center z-40 border-t border-white/5 px-2">
+        {isTabRoute && (
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-[#1e2a4a] flex items-center z-40 border-t border-white/5 px-2">
           
           <div className="relative w-full grid grid-cols-5 items-center justify-items-center">
             
@@ -110,6 +117,7 @@ export function MobileLayout({ children }: MobileLayoutProps) {
 
           </div>
         </div>
+      )}
       </div>
     </div>
   );

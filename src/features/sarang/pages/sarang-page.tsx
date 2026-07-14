@@ -9,17 +9,16 @@ import {
   EditPayrollDrawer,
   ChangePasswordDrawer,
   JadwalShiftDrawer,
-  ContractDrawer,
   HelpCenterDrawer,
   TermsAndPrivacyDrawer,
 } from "../components/profile-drawers";
 import patternBg from "@/assets/bg/pattern-background.png";
+import { useRouter } from "@/shared/router/router";
 import { Button } from "@/shared/components/ui/button";
 import { Logout } from "@solar-icons/react";
 import {
   CreditCard,
   Clock,
-  FileText,
   Lock,
   HelpCircle,
   ShieldAlert,
@@ -31,13 +30,13 @@ import {
 
 export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
   const { goBack } = useSarang();
+  const { navigate } = useRouter();
 
   // State for controlling drawers
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isEditPayrollOpen, setIsEditPayrollOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isJadwalShiftOpen, setIsJadwalShiftOpen] = useState(false);
-  const [isContractOpen, setIsContractOpen] = useState(false);
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
   const [isTermsAndPrivacyOpen, setIsTermsAndPrivacyOpen] = useState(false);
 
@@ -59,9 +58,9 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
     }
   };
 
-  const handleSavePassword = async (password: string) => {
+  const handleSavePassword = async (currentPassword: string, newPassword: string) => {
     try {
-      const success = await changePasswordOnBackend(password);
+      const success = await changePasswordOnBackend(currentPassword, newPassword);
       if (success) {
         toast.success("Password berhasil diganti!");
         return true;
@@ -99,6 +98,19 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
         onBack={goBack}
         onNotificationClick={() => toast.info("Membuka Kotak Masuk Notifikasi...")}
       />
+
+      {/* Warning banner if payroll account is not set */}
+      {!user.rekening && (
+        <div className="flex items-start gap-3 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/15 text-left text-xs font-semibold text-zinc-700">
+          <ShieldAlert className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <h4 className="font-bold text-zinc-900 text-sm">Rekening Payroll Belum Diatur</h4>
+            <p className="text-[10px] text-zinc-500 leading-normal">
+              Rekening bank untuk penggajian belum diatur. Silakan atur nomor rekening Anda melalui menu di bawah.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ATM Card: Payroll Account Info (If present) */}
       {user.rekening && (
@@ -238,18 +250,18 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
             <ChevronRight className="w-4.5 h-4.5 text-zinc-400" />
           </div>
 
-          {/* Contract document */}
+          {/* Digital Employee ID Card */}
           <div
-            onClick={() => setIsContractOpen(true)}
+            onClick={() => navigate("MobileIdCard")}
             className="bg-white rounded-[24px] border border-gray-100/70 p-4 shadow-xs text-left flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#f2b233] flex items-center justify-center text-white shrink-0 shadow-xs shadow-[#f2b233]/10">
-                <FileText className="w-4.5 h-4.5" />
+              <div className="w-9 h-9 rounded-full bg-[#e0542c]/10 flex items-center justify-center text-[#e0542c] shrink-0 shadow-xs shadow-[#e0542c]/5">
+                <CreditCard className="w-4.5 h-4.5" />
               </div>
               <div>
-                <p className="text-xs font-bold text-zinc-800">Dokumen Kontrak PKWT</p>
-                <p className="text-[9.5px] text-zinc-400 font-semibold mt-0.5">Lihat berkas & masa berlaku</p>
+                <p className="text-xs font-bold text-zinc-800">Kartu Pegawai Digital</p>
+                <p className="text-[9.5px] text-zinc-400 font-semibold mt-0.5">Lihat kartu identitas pegawai</p>
               </div>
             </div>
             <ChevronRight className="w-4.5 h-4.5 text-zinc-400" />
@@ -353,12 +365,6 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
       <JadwalShiftDrawer
         isOpen={isJadwalShiftOpen}
         onClose={() => setIsJadwalShiftOpen(false)}
-      />
-
-      <ContractDrawer
-        isOpen={isContractOpen}
-        onClose={() => setIsContractOpen(false)}
-        user={user}
       />
 
       <HelpCenterDrawer
