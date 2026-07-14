@@ -12,7 +12,7 @@ export type RouteType =
   | "PayrollHistory"
   | "Overtime"
   | "Shift"
-  | "Reimbursement"
+  | "KoreksiAbsenApproval"
   | "Recruitment"
   | "Onboarding"
   | "Appraisal"
@@ -32,6 +32,7 @@ export type RouteType =
   | "MobileAbsensi"
   | "MobileLemburAbsensi"
   | "MobileLemburHistory"
+  | "MobileKoreksiAbsen"
   | "MobileHistory"
   | "MobileLeaveRequest"
   | "MobileIdCard"
@@ -51,7 +52,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   PayrollHistory: "/keuangan/riwayat",
   Overtime: "/overtime",
   Shift: "/shift",
-  Reimbursement: "/reimbursement",
+  KoreksiAbsenApproval: "/persetujuan-absen",
   Recruitment: "/recruitment",
   Onboarding: "/onboarding",
   Appraisal: "/appraisal",
@@ -74,6 +75,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   MobileAbsensi: "/mobile/absensi",
   MobileLemburAbsensi: "/mobile/lembur",
   MobileLemburHistory: "/mobile/lembur/history",
+  MobileKoreksiAbsen: "/mobile/koreksi-absen",
   MobileHistory: "/mobile/history",
   MobileLeaveRequest: "/mobile/leave-request",
   MobileIdCard: "/mobile/id-card",
@@ -91,7 +93,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/keuangan/riwayat": "PayrollHistory",
   "/overtime": "Overtime",
   "/shift": "Shift",
-  "/reimbursement": "Reimbursement",
+  "/persetujuan-absen": "KoreksiAbsenApproval",
   "/recruitment": "Recruitment",
   "/onboarding": "Onboarding",
   "/appraisal": "Appraisal",
@@ -114,6 +116,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/mobile/absensi": "MobileAbsensi",
   "/mobile/lembur": "MobileLemburAbsensi",
   "/mobile/lembur/history": "MobileLemburHistory",
+  "/mobile/koreksi-absen": "MobileKoreksiAbsen",
   "/mobile/history": "MobileHistory",
   "/mobile/leave-request": "MobileLeaveRequest",
   "/mobile/id-card": "MobileIdCard",

@@ -57,6 +57,7 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout,
                             currentRoute === "MobileAbsensi" ||
                             currentRoute === "MobileLemburAbsensi" ||
                             currentRoute === "MobileLemburHistory" ||
+                            currentRoute === "MobileKoreksiAbsen" ||
                             currentRoute === "MobileHistory" ||
                             currentRoute === "MobileLeaveRequest" ||
                             currentRoute === "MobileIdCard";

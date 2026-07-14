@@ -10,7 +10,6 @@ import { LeavePage } from "@/features/leave";
 import { PayrollPage, PayrollHistoryPage } from "@/features/payroll";
 import { OvertimePage } from "@/features/overtime";
 import { ShiftPage } from "@/features/shift";
-import { ReimbursementPage } from "@/features/reimbursement";
 import { RecruitmentPage } from "@/features/recruitment";
 import { OnboardingPage } from "@/features/onboarding";
 import { AppraisalPage } from "@/features/appraisal";
@@ -22,7 +21,7 @@ import { LocationPage, LocationAddPage, LocationEditPage } from "@/features/loca
 
 // Feature page imports (Mobile)
 import { SangkarPage, CelenganDetailPage, CelenganAddPage, LokerDetailPage } from "@/features/sangkar";
-import { TunasPage, MobileAbsensiPage, MobileHistoryPage, MobileLemburAbsensiPage, MobileLemburHistoryPage } from "@/features/tunas";
+import { TunasPage, MobileAbsensiPage, MobileHistoryPage, MobileLemburAbsensiPage, MobileLemburHistoryPage, MobileKoreksiAbsenPage, KoreksiAbsenApprovalPage } from "@/features/tunas";
 import { AyamkuPage } from "@/features/ayamku";
 import { PakanPage } from "../../../features/pakan";
 import { SarangPage } from "../../../features/sarang";
@@ -77,8 +76,8 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <OvertimePage />;
       case "Shift":
         return <ShiftPage />;
-      case "Reimbursement":
-        return <ReimbursementPage />;
+      case "KoreksiAbsenApproval":
+        return <KoreksiAbsenApprovalPage />;
       case "Recruitment":
         return <RecruitmentPage />;
       case "Onboarding":
@@ -129,6 +128,8 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <MobileLemburAbsensiPage />;
       case "MobileLemburHistory":
         return <MobileLemburHistoryPage />;
+      case "MobileKoreksiAbsen":
+        return <MobileKoreksiAbsenPage />;
       case "MobileHistory":
         return <MobileHistoryPage />;
       case "MobileLeaveRequest":

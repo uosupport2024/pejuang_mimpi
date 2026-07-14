@@ -272,6 +272,19 @@ export function AbsensiCard({
               <span>Pengajuan Izin</span>
             </button>
 
+            {/* Request Correction (Lupa Absen) Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsModalOpen(false);
+                navigate("MobileKoreksiAbsen");
+              }}
+              className="w-full py-2.5 mt-2 rounded-xl text-[10.5px] font-bold uppercase tracking-wider transition-all border border-zinc-200 hover:bg-zinc-50 active:scale-[0.98] cursor-pointer bg-white text-zinc-650 flex items-center justify-center gap-2"
+            >
+              <Clock className="w-3.5 h-3.5" />
+              <span>Lupa Absen? Ajukan Koreksi</span>
+            </button>
+
           </div>
         </div>,
         document.body

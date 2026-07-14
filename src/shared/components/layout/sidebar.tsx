@@ -1,12 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "@/shared/router/router";
 import logoImg from "@/assets/logo/POT–Pejuang_Mimpi–Logo.png";
 import { menuItems } from "@/shared/router/menu";
+import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
 
 
 export function Sidebar() {
   const { currentRoute, navigate } = useRouter();
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
+  const [pendingCount, setPendingCount] = useState(0);
+
+  const fetchPendingCount = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/koreksi-absen?status=Pending&per_page=1`, {
+        method: "GET",
+        headers: getHeaders(),
+      });
+      if (response.ok) {
+        const json = await response.json();
+        setPendingCount(json.data?.total || 0);
+      }
+    } catch (err) {
+      console.error("Failed to fetch pending koreksi count:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPendingCount();
+
+    const handleUpdate = () => {
+      fetchPendingCount();
+    };
+
+    window.addEventListener("koreksi-approval-updated", handleUpdate);
+    return () => {
+      window.removeEventListener("koreksi-approval-updated", handleUpdate);
+    };
+  }, [fetchPendingCount]);
 
   const toggleDropdown = (name: string) => {
     setOpenDropdowns((prev) => {
@@ -84,12 +114,12 @@ export function Sidebar() {
                               <span>{item.name}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                              {item.badge && (
+                              {((item.name === "Pengajuan" && pendingCount > 0) || item.badge) && (
                                 <span className={`px-2 py-0.5 rounded-md text-[9px] font-semibold ${isAnySubActive
                                   ? "bg-white/20 text-white"
                                   : "bg-rose-500/10 text-rose-600"
                                   }`}>
-                                  {item.badge}
+                                  {item.name === "Pengajuan" && pendingCount > 0 ? pendingCount : item.badge}
                                 </span>
                               )}
                               <svg
@@ -106,7 +136,7 @@ export function Sidebar() {
                               </svg>
                             </div>
                           </button>
-
+ 
                           {/* Sub-items */}
                           {isOpen && (
                             <div className="pl-9 pr-2 py-0.5 space-y-0.5 transition-all">
@@ -117,12 +147,20 @@ export function Sidebar() {
                                     key={sub.name}
                                     type="button"
                                     onClick={() => navigate(sub.route)}
-                                    className={`w-full flex items-center px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer ${isSubActive
+                                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer ${isSubActive
                                       ? "text-[#e0542c] font-bold bg-[#e0542c]/5"
                                       : "text-gray-400 hover:text-gray-700 hover:bg-gray-50"
                                       }`}
                                   >
-                                    {sub.name}
+                                    <span>{sub.name}</span>
+                                    {sub.route === "KoreksiAbsenApproval" && pendingCount > 0 && (
+                                      <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold ${isSubActive
+                                        ? "bg-[#e0542c]/20 text-[#e0542c]"
+                                        : "bg-rose-500/10 text-rose-600"
+                                        }`}>
+                                        {pendingCount}
+                                      </span>
+                                    )}
                                   </button>
                                 );
                               })}

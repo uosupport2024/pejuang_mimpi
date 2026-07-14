@@ -16,7 +16,7 @@ export function MenuGrid() {
 
   const menuItems = [
     { label: "Payroll", icon: Dollar, action: () => navigate("PayrollHistory") },
-    { label: "Pengajuan Absen", icon: Calendar, action: () => navigate("MobileAbsensi") },
+    { label: "Pengajuan Absen", icon: Calendar, action: () => navigate("MobileKoreksiAbsen") },
     { label: "Kartu Pegawai", icon: User, action: () => navigate("MobileIdCard") },
     { label: "Riwayat Absen", icon: History, action: () => navigate("MobileHistory") },
     { label: "Riwayat Izin", icon: DocumentText, action: () => navigate("MobileLeaveRequest") },

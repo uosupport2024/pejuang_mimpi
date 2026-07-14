@@ -63,7 +63,7 @@ export const menuItems: MenuItem[] = [
     group: "Layanan",
     subItems: [
       { name: "Cuti & Izin", route: "Leave" },
-      { name: "Reimbursement", route: "Reimbursement" }
+      { name: "Absensi", route: "KoreksiAbsenApproval" }
     ]
   }
 ];
