@@ -30,6 +30,8 @@ export type RouteType =
   | "MobileCelenganAdd"
   | "MobileLokerDetail"
   | "MobileAbsensi"
+  | "MobileLemburAbsensi"
+  | "MobileLemburHistory"
   | "MobileHistory"
   | "MobileLeaveRequest"
   | "MobileIdCard"
@@ -70,6 +72,8 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   MobileCelenganAdd: "/mobile/celengan/add",
   MobileLokerDetail: "/mobile/loker",
   MobileAbsensi: "/mobile/absensi",
+  MobileLemburAbsensi: "/mobile/lembur",
+  MobileLemburHistory: "/mobile/lembur/history",
   MobileHistory: "/mobile/history",
   MobileLeaveRequest: "/mobile/leave-request",
   MobileIdCard: "/mobile/id-card",
@@ -108,6 +112,8 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/mobile/celengan/add": "MobileCelenganAdd",
   "/mobile/loker": "MobileLokerDetail",
   "/mobile/absensi": "MobileAbsensi",
+  "/mobile/lembur": "MobileLemburAbsensi",
+  "/mobile/lembur/history": "MobileLemburHistory",
   "/mobile/history": "MobileHistory",
   "/mobile/leave-request": "MobileLeaveRequest",
   "/mobile/id-card": "MobileIdCard",

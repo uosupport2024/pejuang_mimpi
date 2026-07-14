@@ -1,12 +1,12 @@
 import {
   User,
-  Bill,
-  MapPoint,
-  ClipboardList,
-  Compass,
-  KeyMinimalistic,
-  UsersGroupRounded,
-  Widget
+  Calendar,
+  History,
+  Dollar,
+  DocumentText,
+  Refresh,
+  MedalStar,
+  Buildings
 } from "@solar-icons/react";
 import { toast } from "sonner";
 import { useRouter } from "@/shared/router/router";
@@ -15,14 +15,14 @@ export function MenuGrid() {
   const { navigate } = useRouter();
 
   const menuItems = [
+    { label: "Payroll", icon: Dollar, action: () => navigate("PayrollHistory") },
+    { label: "Pengajuan Absen", icon: Calendar, action: () => navigate("MobileAbsensi") },
     { label: "Kartu Pegawai", icon: User, action: () => navigate("MobileIdCard") },
-    { label: "Reimbust", icon: Bill, action: () => toast.info("Membuka menu Reimbust...") },
-    { label: "Dinas Luar", icon: MapPoint, action: () => toast.info("Membuka menu Dinas Luar...") },
-    { label: "Penugasan", icon: ClipboardList, action: () => toast.info("Membuka menu Penugasan...") },
-    { label: "Request Location", icon: Compass, action: () => toast.info("Membuka menu Request Location...") },
-    { label: "Ganti Password", icon: KeyMinimalistic, action: () => toast.info("Membuka menu Ganti Password...") },
-    { label: "Pegawai", icon: UsersGroupRounded, action: () => toast.info("Membuka daftar Pegawai...") },
-    { label: "Lainnya", icon: Widget, action: () => toast.info("Membuka menu lainnya...") },
+    { label: "Riwayat Absen", icon: History, action: () => navigate("MobileHistory") },
+    { label: "Riwayat Izin", icon: DocumentText, action: () => navigate("MobileLeaveRequest") },
+    { label: "Riwayat Lembur", icon: Refresh, action: () => navigate("MobileLemburHistory") },
+    { label: "Kinerja", icon: MedalStar, action: () => toast.info("Membuka menu Kinerja...") },
+    { label: "Perusahaan", icon: Buildings, action: () => toast.info("Membuka profil Perusahaan...") },
   ];
 
   const row1 = menuItems.slice(0, 4);

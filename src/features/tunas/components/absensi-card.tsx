@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Calendar, Clock, FileText, LogOut, X } from "lucide-react";
+import { Calendar, Clock, FileText, LogOut, X, HeartPulse } from "lucide-react";
 import { THEME_COLORS } from "@/shared/constants/colors";
 import { useRouter } from "@/shared/router/router";
 
@@ -9,15 +9,18 @@ interface AbsensiCardProps {
   izinLainnya?: number;
   izinTelat?: number;
   izinPulangCepat?: number;
+  izinSakit?: number;
+  totalLemburBulanIni?: number;
 }
 
-type SelectedLeaveType = "cuti" | "lainnya" | "telat" | "pulang_cepat";
+type SelectedLeaveType = "cuti" | "lainnya" | "telat" | "pulang_cepat" | "sakit";
 
 export function AbsensiCard({
   izinCuti = 12,
   izinLainnya = 12,
   izinTelat = 12,
   izinPulangCepat = 12,
+  totalLemburBulanIni = 0,
 }: AbsensiCardProps) {
   const { navigate } = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -56,7 +59,11 @@ export function AbsensiCard({
         </button>
 
         {/* Card 2: Lembur (Padi Kemakmuran / Yellow Gradient) — RIGHT aligned */}
-        <div className={`bg-gradient-to-br ${THEME_COLORS.celengan.laptopBaru.gradient} text-white p-3.5 rounded-2xl shadow-md shadow-[#F2B233]/15 flex flex-col text-right justify-between min-h-[90px] transition-all hover:scale-[1.01] hover:shadow-lg`}>
+        <button
+          type="button"
+          onClick={() => navigate("MobileLemburAbsensi")}
+          className={`bg-gradient-to-br ${THEME_COLORS.celengan.laptopBaru.gradient} text-white p-3.5 rounded-2xl shadow-md shadow-[#F2B233]/15 flex flex-col text-right justify-between min-h-[90px] w-full transition-all active:scale-[0.98] hover:shadow-lg cursor-pointer border-0`}
+        >
           <div className="flex items-start gap-2 flex-row-reverse">
             <div className="w-7 h-7 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
               <Clock className="w-3.5 h-3.5" />
@@ -69,10 +76,10 @@ export function AbsensiCard({
             </div>
           </div>
           <div className="mt-2.5 flex items-baseline gap-0.5 justify-end text-white">
-            <span className="text-lg font-bold leading-none tracking-tight">20</span>
+            <span className="text-lg font-bold leading-none tracking-tight">{totalLemburBulanIni}</span>
             <span className="text-[8.5px] text-white/80 font-bold uppercase">Jam</span>
           </div>
-        </div>
+        </button>
       </div>
 
       {/* Premium Bottom Sheet Modal inside React Portal */}
@@ -109,17 +116,15 @@ export function AbsensiCard({
               <button
                 type="button"
                 onClick={() => setSelectedType(selectedType === "cuti" ? null : "cuti")}
-                className={`flex flex-col gap-2 justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${
-                  selectedType === "cuti"
-                    ? `bg-gradient-to-br ${THEME_COLORS.celengan.rumah.gradient} text-white shadow-md shadow-[#7FA46D]/15 border-0`
-                    : "bg-[#7FA46D]/5 border-2 border-[#7FA46D]/30 text-[#516b46] hover:bg-[#7FA46D]/8"
-                }`}
+                className={`flex flex-col gap-2 justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${selectedType === "cuti"
+                  ? `bg-gradient-to-br ${THEME_COLORS.celengan.rumah.gradient} text-white shadow-md shadow-[#7FA46D]/15 border-0`
+                  : "bg-[#7FA46D]/5 border-2 border-[#7FA46D]/30 text-[#516b46] hover:bg-[#7FA46D]/8"
+                  }`}
               >
                 <div className="flex items-center gap-1.5">
                   <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                      selectedType === "cuti" ? "bg-white/20 text-white" : "bg-[#7FA46D]/10 text-[#516b46]"
-                    }`}
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${selectedType === "cuti" ? "bg-white/20 text-white" : "bg-[#7FA46D]/10 text-[#516b46]"
+                      }`}
                   >
                     <Calendar className="w-3.5 h-3.5" />
                   </div>
@@ -141,17 +146,15 @@ export function AbsensiCard({
               <button
                 type="button"
                 onClick={() => setSelectedType(selectedType === "lainnya" ? null : "lainnya")}
-                className={`flex flex-col gap-2 justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${
-                  selectedType === "lainnya"
-                    ? `bg-gradient-to-br ${THEME_COLORS.celengan.liburanBali.gradient} text-white shadow-md shadow-[#5C8A90]/15 border-0`
-                    : "bg-[#5C8A90]/5 border-2 border-[#5C8A90]/30 text-[#3b595d] hover:bg-[#5C8A90]/8"
-                }`}
+                className={`flex flex-col gap-2 justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${selectedType === "lainnya"
+                  ? `bg-gradient-to-br ${THEME_COLORS.celengan.liburanBali.gradient} text-white shadow-md shadow-[#5C8A90]/15 border-0`
+                  : "bg-[#5C8A90]/5 border-2 border-[#5C8A90]/30 text-[#3b595d] hover:bg-[#5C8A90]/8"
+                  }`}
               >
                 <div className="flex items-center gap-1.5">
                   <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                      selectedType === "lainnya" ? "bg-white/20 text-white" : "bg-[#5C8A90]/10 text-[#3b595d]"
-                    }`}
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${selectedType === "lainnya" ? "bg-white/20 text-white" : "bg-[#5C8A90]/10 text-[#3b595d]"
+                      }`}
                   >
                     <FileText className="w-3.5 h-3.5" />
                   </div>
@@ -173,17 +176,15 @@ export function AbsensiCard({
               <button
                 type="button"
                 onClick={() => setSelectedType(selectedType === "telat" ? null : "telat")}
-                className={`flex flex-col gap-2 justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${
-                  selectedType === "telat"
-                    ? `bg-gradient-to-br ${THEME_COLORS.celengan.laptopBaru.gradient} text-white shadow-md shadow-[#F2B233]/15 border-0`
-                    : "bg-[#F2B233]/5 border-2 border-[#F2B233]/40 text-[#916715] hover:bg-[#F2B233]/8"
-                }`}
+                className={`flex flex-col gap-2 justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${selectedType === "telat"
+                  ? `bg-gradient-to-br ${THEME_COLORS.celengan.laptopBaru.gradient} text-white shadow-md shadow-[#F2B233]/15 border-0`
+                  : "bg-[#F2B233]/5 border-2 border-[#F2B233]/40 text-[#916715] hover:bg-[#F2B233]/8"
+                  }`}
               >
                 <div className="flex items-center gap-1.5">
                   <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                      selectedType === "telat" ? "bg-white/20 text-white" : "bg-[#F2B233]/12 text-[#916715]"
-                    }`}
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${selectedType === "telat" ? "bg-white/20 text-white" : "bg-[#F2B233]/12 text-[#916715]"
+                      }`}
                   >
                     <Clock className="w-3.5 h-3.5" />
                   </div>
@@ -205,17 +206,15 @@ export function AbsensiCard({
               <button
                 type="button"
                 onClick={() => setSelectedType(selectedType === "pulang_cepat" ? null : "pulang_cepat")}
-                className={`flex flex-col gap-2 justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${
-                  selectedType === "pulang_cepat"
-                    ? `bg-gradient-to-br ${THEME_COLORS.celengan.motor.gradient} text-white shadow-md shadow-[#F25C2A]/15 border-0`
-                    : "bg-[#F25C2A]/5 border-2 border-[#F25C2A]/30 text-[#C54117] hover:bg-[#F25C2A]/8"
-                }`}
+                className={`flex flex-col gap-2 justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${selectedType === "pulang_cepat"
+                  ? `bg-gradient-to-br ${THEME_COLORS.celengan.motor.gradient} text-white shadow-md shadow-[#F25C2A]/15 border-0`
+                  : "bg-[#F25C2A]/5 border-2 border-[#F25C2A]/30 text-[#C54117] hover:bg-[#F25C2A]/8"
+                  }`}
               >
                 <div className="flex items-center gap-1.5">
                   <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                      selectedType === "pulang_cepat" ? "bg-white/20 text-white" : "bg-[#F25C2A]/10 text-[#C54117]"
-                    }`}
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${selectedType === "pulang_cepat" ? "bg-white/20 text-white" : "bg-[#F25C2A]/10 text-[#C54117]"
+                      }`}
                   >
                     <LogOut className="w-3.5 h-3.5" />
                   </div>
@@ -232,6 +231,28 @@ export function AbsensiCard({
                   </span>
                 </div>
               </button>
+
+              {/* Type 5: Izin Sakit */}
+              <button
+                type="button"
+                onClick={() => setSelectedType(selectedType === "sakit" ? null : "sakit")}
+                className={`col-span-2 flex flex-row items-center justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${selectedType === "sakit"
+                  ? `bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-md shadow-rose-500/15 border-0`
+                  : "bg-rose-500/5 border-2 border-rose-500/30 text-rose-600 hover:bg-rose-500/8"
+                  }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${selectedType === "sakit" ? "bg-white/20 text-white" : "bg-rose-500/10 text-rose-600"
+                      }`}
+                  >
+                    <HeartPulse className="w-3.5 h-3.5" />
+                  </div>
+                  <span className={`text-[10px] font-bold leading-tight ${selectedType === "sakit" ? "text-white" : "text-rose-600"}`}>
+                    Izin Sakit
+                  </span>
+                </div>
+              </button>
             </div>
 
             {/* Request Permission Button */}
@@ -242,11 +263,10 @@ export function AbsensiCard({
                 setIsModalOpen(false);
                 navigate("MobileLeaveRequest", { selectedType });
               }}
-              className={`w-full py-2.5 rounded-xl text-[10.5px] font-bold uppercase tracking-wider transition-all border-0 flex items-center justify-center gap-2 ${
-                selectedType === null
-                  ? "bg-zinc-200 text-zinc-400 cursor-not-allowed shadow-none"
-                  : "bg-[#e0542c] hover:bg-[#c23f1b] text-white shadow-md shadow-[#e0542c]/15 active:scale-[0.98] cursor-pointer"
-              }`}
+              className={`w-full py-2.5 rounded-xl text-[10.5px] font-bold uppercase tracking-wider transition-all border-0 flex items-center justify-center gap-2 ${selectedType === null
+                ? "bg-zinc-200 text-zinc-400 cursor-not-allowed shadow-none"
+                : "bg-[#e0542c] hover:bg-[#c23f1b] text-white shadow-md shadow-[#e0542c]/15 active:scale-[0.98] cursor-pointer"
+                }`}
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>Pengajuan Izin</span>

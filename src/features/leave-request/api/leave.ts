@@ -39,3 +39,40 @@ export async function postCutiRequestAPI(payload: FormData) {
   }
   return await response.json();
 }
+
+export async function deleteCutiAPI(id: number) {
+  const response = await fetch(`${API_BASE_URL}/cuti/${id}`, {
+    method: "DELETE",
+    headers: getHeaders(),
+  });
+
+  if (!response.ok) {
+    const errorJson = await response.json().catch(() => ({}));
+    throw new Error(errorJson.message || "Gagal membatalkan pengajuan cuti");
+  }
+  return await response.json();
+}
+
+export async function updateCutiAPI(id: number, payload: FormData) {
+  const headers = getHeaders();
+  const multipartHeaders: Record<string, string> = {};
+  if (headers["Authorization"]) {
+    multipartHeaders["Authorization"] = headers["Authorization"];
+  }
+  multipartHeaders["Accept"] = "application/json";
+
+  // Laravel multipart workaround for PUT requests
+  payload.append("_method", "PUT");
+
+  const response = await fetch(`${API_BASE_URL}/cuti/${id}`, {
+    method: "POST",
+    headers: multipartHeaders,
+    body: payload,
+  });
+
+  if (!response.ok) {
+    const errorJson = await response.json().catch(() => ({}));
+    throw new Error(errorJson.message || "Gagal memperbarui pengajuan cuti");
+  }
+  return await response.json();
+}

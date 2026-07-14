@@ -22,7 +22,7 @@ import { LocationPage, LocationAddPage, LocationEditPage } from "@/features/loca
 
 // Feature page imports (Mobile)
 import { SangkarPage, CelenganDetailPage, CelenganAddPage, LokerDetailPage } from "@/features/sangkar";
-import { TunasPage, MobileAbsensiPage, MobileHistoryPage } from "@/features/tunas";
+import { TunasPage, MobileAbsensiPage, MobileHistoryPage, MobileLemburAbsensiPage, MobileLemburHistoryPage } from "@/features/tunas";
 import { AyamkuPage } from "@/features/ayamku";
 import { PakanPage } from "../../../features/pakan";
 import { SarangPage } from "../../../features/sarang";
@@ -125,6 +125,10 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <LokerDetailPage />;
       case "MobileAbsensi":
         return <MobileAbsensiPage />;
+      case "MobileLemburAbsensi":
+        return <MobileLemburAbsensiPage />;
+      case "MobileLemburHistory":
+        return <MobileLemburHistoryPage />;
       case "MobileHistory":
         return <MobileHistoryPage />;
       case "MobileLeaveRequest":

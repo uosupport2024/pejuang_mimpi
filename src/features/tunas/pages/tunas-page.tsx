@@ -1,15 +1,13 @@
 import { useState } from "react";
-import { MapPin, ArrowLeft, Briefcase, Clock, Bookmark } from "lucide-react";
+import { ArrowLeft, Briefcase, Clock, Bookmark } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
 import { toast } from "sonner";
 import logoWhite from "@/assets/logo/logo-white.png";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { AbsensiCard } from "../components/absensi-card";
 import { MenuGrid } from "../components/menu-grid";
-// import { KehadiranHeatmap } from "../components/kehadiran-heatmap";
 import { AttendanceHistory } from "../components/attendance-history";
 import { useTunas } from "../hooks/use-tunas";
-// import { THEME_COLORS } from "@/shared/constants/colors";
 import type { TunasPageProps } from "../types/tunas.type";
 import { PakanLokerList } from "../../pakan/components/pakan-list";
 import { usePakan } from "../../pakan/hooks/use-pakan";
@@ -84,7 +82,7 @@ function PakanLokerSubPage() {
 
 export function TunasPage({ user }: TunasPageProps) {
   const { navigate } = useRouter();
-  const { clockInTime, clockOutTime, isCheckedIn, dayName, dateString, locationName, profileData } = useTunas();
+  const { clockInTime, clockOutTime, isCheckedIn, dayName, dateString, profileData } = useTunas();
   const [activeView, setActiveView] = useState<"dashboard" | "pakan">("dashboard");
 
   // Greeting helper based on time of day
@@ -99,14 +97,14 @@ export function TunasPage({ user }: TunasPageProps) {
   // Helper to determine if button should wiggle (1 hour before shift start or if user is late)
   const shouldWiggleButton = () => {
     if (isCheckedIn) return false;
-    
+
     const shiftMasuk = profileData?.shift?.jam_masuk; // e.g. "23:00"
     if (!shiftMasuk) return true;
 
     try {
       const [shiftHour, shiftMinute] = shiftMasuk.split(":").map(Number);
       const now = new Date();
-      
+
       // Determine the exact shift date if backend provides the date
       let shiftDate: Date;
       if (profileData?.today_schedule?.tanggal) {
@@ -218,19 +216,18 @@ export function TunasPage({ user }: TunasPageProps) {
               {dayName}, {dateString}
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 text-white text-[9px] font-bold tracking-wide uppercase max-w-[180px] shadow-xs">
-              <MapPin className="w-3 h-3 text-white/90 shrink-0" />
-              <span className="truncate">{locationName}</span>
+              <Briefcase className="w-3 h-3 text-white/90 shrink-0" />
+              <span className="truncate">{profileData?.tenant?.name || "POT Tenant"}</span>
             </span>
           </div>
         </div>
       </div>
 
       {/* Horizontal Clock In / Out & Action Card (Style matching user screenshot, no border) */}
-      <div className={`w-full bg-[#1e2a4a] text-white p-5 rounded-3xl shadow-lg transition-all duration-300 flex flex-col ${
-        shouldWiggleButton() 
-          ? "border border-[#e0542c]/45 shadow-[0_0_15px_rgba(224,84,44,0.18)]" 
-          : "border border-white/5 shadow-[#1e2a4a]/20"
-      }`}>
+      <div className={`w-full bg-[#1e2a4a] text-white p-5 rounded-3xl shadow-lg transition-all duration-300 flex flex-col ${shouldWiggleButton()
+        ? "border border-[#e0542c]/45 shadow-[0_0_15px_rgba(224,84,44,0.18)]"
+        : "border border-white/5 shadow-[#1e2a4a]/20"
+        }`}>
         {/* Top: Job & Office Location */}
         <div className="flex justify-between items-center w-full border-b border-white/10 pb-3 mb-3 text-left">
           <div className="flex flex-col">
@@ -274,11 +271,10 @@ export function TunasPage({ user }: TunasPageProps) {
             onClick={() => {
               navigate("MobileAbsensi");
             }}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wide transition-all active:scale-95 cursor-pointer shadow-xs flex items-center gap-1.5 ${
-              isCheckedIn && clockOutTime !== "--:--"
-                ? "bg-white/10 text-white/40 cursor-not-allowed"
-                : "bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white shadow-[#e0542c]/15"
-            } ${shouldWiggleButton() ? "animate-wiggle" : ""}`}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wide transition-all active:scale-95 cursor-pointer shadow-xs flex items-center gap-1.5 ${isCheckedIn && clockOutTime !== "--:--"
+              ? "bg-white/10 text-white/40 cursor-not-allowed"
+              : "bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white shadow-[#e0542c]/15"
+              } ${shouldWiggleButton() ? "animate-wiggle" : ""}`}
             disabled={isCheckedIn && clockOutTime !== "--:--"}
           >
             {!(isCheckedIn && clockOutTime !== "--:--") && <Clock className="w-3.5 h-3.5 text-white/90" />}
@@ -297,15 +293,13 @@ export function TunasPage({ user }: TunasPageProps) {
         izinLainnya={profileData?.izin_lainnya}
         izinTelat={profileData?.izin_telat}
         izinPulangCepat={profileData?.izin_pulang_cepat}
+        izinSakit={profileData?.izin_sakit}
+        totalLemburBulanIni={profileData?.total_lembur_bulan_ini}
       />
 
       {/* Services Grid Menu */}
       <MenuGrid />
 
-      {/* Heatmap Statistic - Hidden for now */}
-      {/* <KehadiranHeatmap /> */}
-
-      {/* Attendance History */}
       <AttendanceHistory />
     </div>
   );

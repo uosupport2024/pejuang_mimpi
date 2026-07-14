@@ -55,6 +55,8 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout,
                             currentRoute === "MobileCelenganAdd" ||
                             currentRoute === "MobileLokerDetail" ||
                             currentRoute === "MobileAbsensi" ||
+                            currentRoute === "MobileLemburAbsensi" ||
+                            currentRoute === "MobileLemburHistory" ||
                             currentRoute === "MobileHistory" ||
                             currentRoute === "MobileLeaveRequest" ||
                             currentRoute === "MobileIdCard";

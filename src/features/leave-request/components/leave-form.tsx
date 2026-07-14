@@ -23,6 +23,10 @@ export function LeaveForm({ hook }: LeaveFormProps) {
     clearFile,
     isSubmitting,
     submitLeaveRequest,
+    
+    // Edit mode props
+    isEditMode,
+    cancelEdit,
   } = hook;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -31,7 +35,7 @@ export function LeaveForm({ hook }: LeaveFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-5 shadow-lg shadow-zinc-100 border border-zinc-100/80 flex flex-col gap-4 text-left">
+    <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-5 border border-zinc-100/80 flex flex-col gap-4 text-left">
       {/* Employee Name (Disabled Text Input) */}
       <div className="flex flex-col gap-1.5">
         <label className="text-[10px] font-medium uppercase text-zinc-500 tracking-wider opacity-100">
@@ -59,46 +63,48 @@ export function LeaveForm({ hook }: LeaveFormProps) {
       {/* Tanggal Mulai */}
       <div className="flex flex-col gap-1.5">
         <label className="text-[10px] font-medium uppercase text-zinc-500 tracking-wider opacity-100">
-          Tanggal Mulai
+          {isEditMode ? "Tanggal Cuti / Izin" : "Tanggal Mulai"}
         </label>
         <SingleDatePicker
           value={tanggalMulai}
           onChange={setTanggalMulai}
-          placeholder="Pilih Tanggal Mulai"
+          placeholder={isEditMode ? "Pilih Tanggal" : "Pilih Tanggal Mulai"}
           minDate={new Date()}
         />
       </div>
 
-      {/* Tanggal Akhir */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-medium uppercase text-zinc-500 tracking-wider opacity-100">
-          Tanggal Akhir
-        </label>
-        <SingleDatePicker
-          value={tanggalAkhir}
-          onChange={setTanggalAkhir}
-          placeholder="Pilih Tanggal Akhir"
-          minDate={tanggalMulai || new Date()}
-        />
-      </div>
+      {/* Tanggal Akhir (Hidden in Edit Mode) */}
+      {!isEditMode && (
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[10px] font-medium uppercase text-zinc-500 tracking-wider opacity-100">
+            Tanggal Akhir
+          </label>
+          <SingleDatePicker
+            value={tanggalAkhir}
+            onChange={setTanggalAkhir}
+            placeholder="Pilih Tanggal Akhir"
+            minDate={tanggalMulai || new Date()}
+          />
+        </div>
+      )}
 
       {/* Custom File Upload Input (Modern Card Style) */}
       <div className="flex flex-col gap-1.5">
         <label className="text-[10px] font-medium uppercase text-zinc-500 tracking-wider opacity-100">
           Unggah Dokumen (Opsional)
         </label>
-        
+
         <input
           type="file"
           ref={fileInputRef}
-          accept="image/*,application/pdf"
+          accept=".jpg,.jpeg,.webp"
           onChange={handleFileChange}
           className="hidden"
         />
-        
+
         {fileName ? (
           <div className="flex items-center justify-between border-2 border-dashed border-[#e0542c]/30 bg-[#e0542c]/2 rounded-2xl p-4 transition-all">
-            <div 
+            <div
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center gap-3 min-w-0 cursor-pointer flex-1"
             >
@@ -119,7 +125,7 @@ export function LeaveForm({ hook }: LeaveFormProps) {
             </button>
           </div>
         ) : (
-          <div 
+          <div
             onClick={() => fileInputRef.current?.click()}
             className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-200 bg-zinc-50/50 hover:bg-zinc-50 hover:border-zinc-300 rounded-2xl py-5 px-4 text-center cursor-pointer transition-all"
           >
@@ -127,7 +133,7 @@ export function LeaveForm({ hook }: LeaveFormProps) {
               <Upload className="w-5 h-5" />
             </div>
             <span className="text-xs font-bold text-zinc-700">Pilih dokumen atau foto</span>
-            <span className="text-[9.5px] text-zinc-400 font-semibold mt-1">PNG, JPG, atau PDF (Maks. 2MB)</span>
+            <span className="text-[9.5px] text-zinc-400 font-semibold mt-1">JPG, JPEG, atau WEBP (Maks. 2MB)</span>
           </div>
         )}
       </div>
@@ -145,22 +151,32 @@ export function LeaveForm({ hook }: LeaveFormProps) {
         />
       </div>
 
-      {/* Submit Button */}
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className={`w-full py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border-0 flex items-center justify-center gap-2 mt-2 ${
-          isSubmitting
-            ? "bg-zinc-200 text-zinc-400 cursor-not-allowed shadow-none"
-            : "bg-[#e0542c] hover:bg-[#c23f1b] text-white shadow-md shadow-[#e0542c]/15 active:scale-[0.98] cursor-pointer"
-        }`}
-      >
-        {isSubmitting ? (
-          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-        ) : (
-          <span>Submit</span>
+      {/* Action Buttons */}
+      <div className="flex gap-3 mt-2">
+        {isEditMode && (
+          <button
+            type="button"
+            onClick={cancelEdit}
+            className="flex-1 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-500 active:scale-[0.98] cursor-pointer"
+          >
+            Batal
+          </button>
         )}
-      </button>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className={`flex-1 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border-0 flex items-center justify-center gap-2 ${isSubmitting
+              ? "bg-zinc-200 text-zinc-400 cursor-not-allowed shadow-none"
+              : "bg-[#e0542c] hover:bg-[#c23f1b] text-white shadow-md shadow-[#e0542c]/15 active:scale-[0.98] cursor-pointer"
+            }`}
+        >
+          {isSubmitting ? (
+            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <span>{isEditMode ? "Simpan" : "Submit"}</span>
+          )}
+        </button>
+      </div>
     </form>
   );
 }

@@ -76,6 +76,11 @@ interface ProfileData {
   lokasi_id: number;
   today_schedule?: any;
   shift?: any;
+  tenant?: {
+    id: number;
+    name: string;
+    slug?: string;
+  };
 }
 
 interface LokasiData {
@@ -443,7 +448,7 @@ export function MobileAbsensiPage() {
                 {profile.name}
               </span>
               <span className="text-[10px] text-zinc-500 mt-1 leading-none truncate font-medium">
-                {lokasiDetail?.nama_lokasi || "Menghubungkan Lokasi..."}
+                {profile.tenant?.name || "POT Tenant"}
               </span>
             </div>
 

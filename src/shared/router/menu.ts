@@ -45,7 +45,7 @@ export const menuItems: MenuItem[] = [
       { name: "Absensi Hari Ini", route: "AttendanceToday" }
     ]
   },
-  { name: "Overtime", route: "Overtime", icon: ClockCircle, group: "Operasional" },
+  { name: "Lembur", route: "Overtime", icon: ClockCircle, group: "Operasional" },
 
   // Layanan Group
   {
@@ -54,7 +54,7 @@ export const menuItems: MenuItem[] = [
     group: "Layanan",
     subItems: [
       { name: "Rekap Data", route: "Payroll" },
-      { name: "History", route: "PayrollHistory" }
+      { name: "Riwayat", route: "PayrollHistory" }
     ]
   },
   {
