@@ -1,5 +1,6 @@
-import { Search, Bell, HelpCircle, ChevronDown, User, Lock, LogOut } from "lucide-react";
+import { Bell, HelpCircle, ChevronDown, User, Lock, LogOut } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useLocation, Link } from "react-router-dom";
 
 interface NavbarProps {
   user: {
@@ -12,6 +13,8 @@ interface NavbarProps {
 export function Navbar({ user, onLogout }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+  const pathname = location.pathname;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -24,19 +27,103 @@ export function Navbar({ user, onLogout }: NavbarProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Generate page title and breadcrumbs dynamically
+  const getHeaderInfo = () => {
+    const segments = pathname.split("/").filter(Boolean);
+    const capitalize = (s: string) => {
+      if (!s) return "";
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    };
+
+    let title = "Dashboard";
+    const breadcrumbs = [
+      { label: "Home", path: "/dashboard" }
+    ];
+
+    if (segments.length > 0) {
+      const pathMap: Record<string, string> = {
+        dashboard: "Dashboard",
+        pegawai: "Pegawai",
+        tambah: "Tambah Pegawai",
+        edit: "Edit Pegawai",
+        absensi: "Absensi",
+        "absensi-hari-ini": "Absensi Hari Ini",
+        cuti: "Cuti & Izin",
+        keuangan: "Keuangan",
+        overtime: "Overtime",
+        shift: "Shift",
+        reimbursement: "Reimbursement",
+        recruitment: "Recruitment",
+        onboarding: "Onboarding",
+        appraisal: "Appraisal",
+        training: "Training",
+        document: "Document",
+        announcement: "Announcement",
+        divisi: "Divisi",
+        lokasi: "Lokasi",
+      };
+
+      const lastSegment = segments[segments.length - 1];
+      if (segments.includes("pegawai") && segments.includes("tambah")) {
+        title = "Tambah Pegawai";
+      } else if (segments.includes("pegawai") && segments.includes("edit")) {
+        title = "Edit Pegawai";
+      } else if (segments.includes("lokasi") && segments.includes("tambah")) {
+        title = "Tambah Lokasi";
+      } else if (segments.includes("lokasi") && segments.includes("edit")) {
+        title = "Edit Lokasi";
+      } else {
+        title = pathMap[lastSegment] || capitalize(lastSegment);
+      }
+
+      let currentPath = "";
+      segments.forEach((seg) => {
+        currentPath += `/${seg}`;
+        let label = pathMap[seg] || capitalize(seg);
+        if (seg === "tambah") label = "Tambah";
+        if (seg === "edit") label = "Edit";
+        breadcrumbs.push({
+          label,
+          path: currentPath
+        });
+      });
+    } else {
+      breadcrumbs.push({ label: "Dashboard", path: "/dashboard" });
+    }
+
+    return { title, breadcrumbs };
+  };
+
+  const { title, breadcrumbs } = getHeaderInfo();
+
   return (
     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      {/* Search input in the middle */}
-      <div className="relative w-full max-w-md">
-        <Search className="absolute left-4 inset-y-0 my-auto w-4.5 h-4.5 text-gray-400" />
-        <input
-          type="text"
-          placeholder="Search product"
-          className="w-full pl-11 pr-12 py-2 bg-white border border-transparent rounded-full text-xs placeholder:text-gray-400 text-gray-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#e0542c]/10 focus:border-[#e0542c]"
-        />
-        <span className="absolute right-4 inset-y-0 my-auto h-fit text-[10px] text-gray-400 font-mono select-none">
-          K ⌘
-        </span>
+      {/* Title & Breadcrumbs on the left */}
+      <div className="flex flex-col text-left">
+        {/* Page Title */}
+        <h1 className="text-lg font-extrabold text-gray-800 tracking-tight leading-tight">
+          {title}
+        </h1>
+        {/* Breadcrumbs (under title) */}
+        <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 select-none mt-0.5">
+          {breadcrumbs.map((crumb, idx) => (
+            <div key={idx} className="flex items-center gap-1.5">
+              {idx === breadcrumbs.length - 1 ? (
+                <span className="text-gray-400">{crumb.label}</span>
+              ) : (
+                <Link
+                  to={crumb.path}
+                  className="hover:text-[#e0542c] transition-colors cursor-pointer"
+                >
+                  {crumb.label}
+                </Link>
+              )}
+              {idx < breadcrumbs.length - 1 && (
+                <span className="text-gray-300 font-normal">/</span>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Profile widget and icons */}
@@ -98,4 +185,3 @@ export function Navbar({ user, onLogout }: NavbarProps) {
     </div>
   );
 }
-

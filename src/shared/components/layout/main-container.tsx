@@ -4,10 +4,10 @@ import { MobileLayout } from "./mobile-layout";
 
 // Feature page imports (Desktop)
 import { DashboardPage } from "@/features/dashboard";
-import { EmployeePage } from "@/features/employee";
+import { EmployeePage, EmployeeAddPage, EmployeeEditPage } from "@/features/employee";
 import { AttendancePage } from "@/features/attendance";
 import { LeavePage } from "@/features/leave";
-import { PayrollPage } from "@/features/payroll";
+import { PayrollPage, PayrollHistoryPage } from "@/features/payroll";
 import { OvertimePage } from "@/features/overtime";
 import { ShiftPage } from "@/features/shift";
 import { ReimbursementPage } from "@/features/reimbursement";
@@ -18,6 +18,7 @@ import { TrainingPage } from "@/features/training";
 import { DocumentPage } from "@/features/document";
 import { AnnouncementPage } from "@/features/announcement";
 import { OrganizationPage } from "@/features/organization";
+import { LocationPage, LocationAddPage, LocationEditPage } from "@/features/location";
 
 // Feature page imports (Mobile)
 import { SangkarPage, CelenganDetailPage, CelenganAddPage, LokerDetailPage } from "@/features/sangkar";
@@ -33,6 +34,7 @@ interface MainContainerProps {
     name: string;
     role: string;
     email: string;
+    is_admin?: string;
     telepon?: string;
     gender?: string;
     tgl_join?: string;
@@ -57,12 +59,19 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <DashboardPage />;
       case "Employee":
         return <EmployeePage />;
+      case "EmployeeAdd":
+        return <EmployeeAddPage />;
+      case "EmployeeEdit":
+        return <EmployeeEditPage />;
       case "Attendance":
+      case "AttendanceToday":
         return <AttendancePage />;
       case "Leave":
         return <LeavePage />;
       case "Payroll":
         return <PayrollPage />;
+      case "PayrollHistory":
+        return <PayrollHistoryPage />;
       case "Overtime":
         return <OvertimePage />;
       case "Shift":
@@ -83,6 +92,12 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <AnnouncementPage />;
       case "Organization":
         return <OrganizationPage />;
+      case "Location":
+        return <LocationPage />;
+      case "LocationAdd":
+        return <LocationAddPage />;
+      case "LocationEdit":
+        return <LocationEditPage />;
       default:
         return <DashboardPage />;
     }

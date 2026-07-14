@@ -6,8 +6,10 @@ export type RouteType =
   | "Dashboard"
   | "Employee"
   | "Attendance"
+  | "AttendanceToday"
   | "Leave"
   | "Payroll"
+  | "PayrollHistory"
   | "Overtime"
   | "Shift"
   | "Reimbursement"
@@ -30,14 +32,21 @@ export type RouteType =
   | "MobileAbsensi"
   | "MobileHistory"
   | "MobileLeaveRequest"
-  | "MobileIdCard";
+  | "MobileIdCard"
+  | "EmployeeAdd"
+  | "EmployeeEdit"
+  | "Location"
+  | "LocationAdd"
+  | "LocationEdit";
 
 export const ROUTE_TO_PATH: Record<RouteType, string> = {
   Dashboard: "/dashboard",
-  Employee: "/employee",
-  Attendance: "/attendance",
-  Leave: "/leave",
-  Payroll: "/payroll",
+  Employee: "/pegawai",
+  Attendance: "/absensi",
+  AttendanceToday: "/absensi-hari-ini",
+  Leave: "/cuti",
+  Payroll: "/keuangan",
+  PayrollHistory: "/keuangan/riwayat",
   Overtime: "/overtime",
   Shift: "/shift",
   Reimbursement: "/reimbursement",
@@ -47,7 +56,10 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   Training: "/training",
   Document: "/document",
   Announcement: "/announcement",
-  Organization: "/organization",
+  Organization: "/divisi",
+  Location: "/lokasi",
+  LocationAdd: "/lokasi/tambah",
+  LocationEdit: "/lokasi/edit",
   Login: "/auth/login",
   MobileHome: "/mobile/home",
   MobileLumbung: "/mobile/lumbung",
@@ -61,14 +73,18 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   MobileHistory: "/mobile/history",
   MobileLeaveRequest: "/mobile/leave-request",
   MobileIdCard: "/mobile/id-card",
+  EmployeeAdd: "/pegawai/tambah",
+  EmployeeEdit: "/pegawai/edit",
 };
 
 export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/dashboard": "Dashboard",
-  "/employee": "Employee",
-  "/attendance": "Attendance",
-  "/leave": "Leave",
-  "/payroll": "Payroll",
+  "/pegawai": "Employee",
+  "/absensi": "Attendance",
+  "/absensi-hari-ini": "AttendanceToday",
+  "/cuti": "Leave",
+  "/keuangan": "Payroll",
+  "/keuangan/riwayat": "PayrollHistory",
   "/overtime": "Overtime",
   "/shift": "Shift",
   "/reimbursement": "Reimbursement",
@@ -78,7 +94,10 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/training": "Training",
   "/document": "Document",
   "/announcement": "Announcement",
-  "/organization": "Organization",
+  "/divisi": "Organization",
+  "/lokasi": "Location",
+  "/lokasi/tambah": "LocationAdd",
+  "/lokasi/edit": "LocationEdit",
   "/auth/login": "Login",
   "/mobile/home": "MobileHome",
   "/mobile/lumbung": "MobileLumbung",
@@ -92,6 +111,8 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/mobile/history": "MobileHistory",
   "/mobile/leave-request": "MobileLeaveRequest",
   "/mobile/id-card": "MobileIdCard",
+  "/pegawai/tambah": "EmployeeAdd",
+  "/pegawai/edit": "EmployeeEdit",
 };
 
 interface RouterContextType {

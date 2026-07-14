@@ -328,3 +328,67 @@ main:hover::-webkit-scrollbar-thumb {
 .animate-wiggle {
   animation: wiggle 1.2s ease-in-out infinite;
 }
+
+/* Limit all font weights to maximum 500 (font-medium) in the admin dashboard */
+.admin-dashboard h1,
+.admin-dashboard h2,
+.admin-dashboard h3,
+.admin-dashboard h4,
+.admin-dashboard h5,
+.admin-dashboard h6,
+.admin-dashboard th,
+.admin-dashboard strong,
+.admin-dashboard b,
+.admin-dashboard .font-semibold,
+.admin-dashboard .font-bold,
+.admin-dashboard .font-extrabold,
+.admin-dashboard .font-black {
+  font-weight: 500 !important;
+}
+
+.admin-dashboard .font-normal {
+  font-weight: 400 !important;
+}
+
+.admin-dashboard .font-medium {
+  font-weight: 500 !important;
+}
+
+.admin-dashboard .font-light {
+  font-weight: 300 !important;
+}
+
+.admin-dashboard .font-thin {
+  font-weight: 100 !important;
+}
+
+/* Hide local page headings & subtitles in the admin dashboard layout */
+.admin-dashboard main h1.text-2xl.font-bold,
+.admin-dashboard main h1.text-xl.font-bold,
+.admin-dashboard main div.flex.items-center.gap-3.pt-2 > div {
+  display: none !important;
+}
+
+/* Prevent scrollbars from shrinking content width and causing layout shifts */
+.admin-dashboard main,
+.admin-dashboard aside {
+  scrollbar-gutter: stable;
+}
+
+/* Style sidebar scrollbar to be thin and beautiful, avoiding layout shift while maintaining equal padding */
+.sidebar-scrollbar {
+  scrollbar-width: thin;
+}
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background: #e4e4e7;
+  border-radius: 9999px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}

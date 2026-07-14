@@ -6,6 +6,7 @@ export interface LoginResponse {
     name: string;
     email: string;
     role: string;
+    is_admin?: string;
     telepon?: string;
     gender?: string;
     tgl_join?: string;

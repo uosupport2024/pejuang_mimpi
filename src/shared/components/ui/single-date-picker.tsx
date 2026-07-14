@@ -15,13 +15,15 @@ interface SingleDatePickerProps {
   onChange: (date: Date | null) => void;
   placeholder?: string;
   minDate?: Date;
+  maxDate?: Date;
 }
 
 export function SingleDatePicker({
   value,
   onChange,
   placeholder = "Pilih Tanggal",
-  minDate
+  minDate,
+  maxDate
 }: SingleDatePickerProps) {
   const displayLabel = value ? formatDisplay(value) : placeholder;
 
@@ -32,16 +34,18 @@ export function SingleDatePicker({
         onChange={onChange}
         dateFormat="dd MMM yyyy"
         minDate={minDate}
+        maxDate={maxDate}
         showMonthDropdown
         showYearDropdown
         dropdownMode="select"
+        wrapperClassName="w-full"
         customInput={
           <button
             type="button"
-            className="w-full h-12 flex items-center gap-2 bg-white border border-zinc-200 rounded-xl px-3.5 text-left hover:border-[#e0542c]/40 transition-colors cursor-pointer min-w-0"
+            className="w-full h-9 flex items-center gap-2 bg-zinc-50 border border-gray-200 rounded-lg px-3 text-left hover:bg-zinc-100/50 transition-colors cursor-pointer min-w-0"
           >
-            <Calendar className="w-4 h-4 text-zinc-400 shrink-0" />
-            <span className="text-xs font-semibold text-zinc-700 truncate leading-normal">{displayLabel}</span>
+            <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+            <span className="text-xs font-medium text-gray-700 truncate leading-normal">{displayLabel}</span>
           </button>
         }
       />

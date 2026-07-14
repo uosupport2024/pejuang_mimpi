@@ -1,45 +1,69 @@
 import {
-  Widget,
   UsersGroupRounded,
-  Calendar,
-  DocumentText,
-  Dollar,
-  ClockCircle,
   Refresh,
-  Bill,
-  Case,
-  Rocket,
-  MedalStar,
-  Book,
-  Bell,
-  Structure
+  Structure,
+  MapPoint,
+  Calendar,
+  ClockCircle,
+  Dollar,
+  DocumentText,
+  Widget2
 } from "@solar-icons/react";
 import type { RouteType } from "./router";
 
+export interface SubMenuItem {
+  name: string;
+  route: RouteType;
+}
+
 export interface MenuItem {
-  name: RouteType;
+  name: string;
+  route?: RouteType;
   icon: any;
-  group: "Menu" | "Management";
-  badge: string | null;
+  group: "Utama" | "Data Master" | "Operasional" | "Layanan";
+  badge?: string | null;
+  subItems?: SubMenuItem[];
 }
 
 export const menuItems: MenuItem[] = [
-  // Menu Group
-  { name: "Dashboard", icon: Widget, group: "Menu", badge: null },
-  { name: "Employee", icon: UsersGroupRounded, group: "Menu", badge: null },
-  { name: "Attendance", icon: Calendar, group: "Menu", badge: "20" },
-  { name: "Leave", icon: DocumentText, group: "Menu", badge: null },
-  { name: "Payroll", icon: Dollar, group: "Menu", badge: null },
-  { name: "Overtime", icon: ClockCircle, group: "Menu", badge: null },
-  { name: "Shift", icon: Refresh, group: "Menu", badge: null },
-  { name: "Reimbursement", icon: Bill, group: "Menu", badge: null },
-  
-  // Management Group
-  { name: "Recruitment", icon: Case, group: "Management", badge: "99+" },
-  { name: "Onboarding", icon: Rocket, group: "Management", badge: null },
-  { name: "Appraisal", icon: MedalStar, group: "Management", badge: null },
-  { name: "Training", icon: Book, group: "Management", badge: null },
-  { name: "Document", icon: DocumentText, group: "Management", badge: null },
-  { name: "Announcement", icon: Bell, group: "Management", badge: null },
-  { name: "Organization", icon: Structure, group: "Management", badge: null }
+  // Utama Group
+  { name: "Dashboard", route: "Dashboard", icon: Widget2, group: "Utama" },
+
+  // Data Master Group
+  { name: "Pegawai", route: "Employee", icon: UsersGroupRounded, group: "Data Master" },
+  { name: "Shift", route: "Shift", icon: Refresh, group: "Data Master" },
+  { name: "Divisi", route: "Organization", icon: Structure, group: "Data Master" },
+  { name: "Lokasi", route: "Location", icon: MapPoint, group: "Data Master" },
+
+  // Operasional Group
+  {
+    name: "Absensi",
+    icon: Calendar,
+    group: "Operasional",
+    subItems: [
+      { name: "Rekap Data", route: "Attendance" },
+      { name: "Absensi Hari Ini", route: "AttendanceToday" }
+    ]
+  },
+  { name: "Overtime", route: "Overtime", icon: ClockCircle, group: "Operasional" },
+
+  // Layanan Group
+  {
+    name: "Keuangan",
+    icon: Dollar,
+    group: "Layanan",
+    subItems: [
+      { name: "Rekap Data", route: "Payroll" },
+      { name: "History", route: "PayrollHistory" }
+    ]
+  },
+  {
+    name: "Pengajuan",
+    icon: DocumentText,
+    group: "Layanan",
+    subItems: [
+      { name: "Cuti & Izin", route: "Leave" },
+      { name: "Reimbursement", route: "Reimbursement" }
+    ]
+  }
 ];

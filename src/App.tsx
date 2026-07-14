@@ -11,6 +11,7 @@ interface UserProfile {
   name: string;
   email: string;
   role: string;
+  is_admin?: string;
   telepon?: string;
   gender?: string;
   tgl_join?: string;
@@ -125,6 +126,7 @@ function App() {
         name: response.user.name,
         email: response.user.email,
         role: response.user.role,
+        is_admin: response.user.is_admin,
         telepon: response.user.telepon,
         gender: response.user.gender,
         tgl_join: response.user.tgl_join,

@@ -51,7 +51,7 @@ export function DashboardPage() {
         <h1 className="text-2xl font-bold tracking-tight text-gray-900">
           Sales Overview
         </h1>
-        <button className="flex items-center gap-2.5 px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-600 shadow-xs hover:bg-gray-50 transition-colors cursor-pointer self-start sm:self-auto">
+        <button className="flex items-center gap-2.5 px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 shadow-xs hover:bg-gray-50 transition-colors cursor-pointer self-start sm:self-auto">
           <Calendar className="w-4 h-4 text-gray-400" />
           April 10, 2026 - May 11, 2026
           <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
