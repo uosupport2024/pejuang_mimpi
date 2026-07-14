@@ -9,19 +9,30 @@ export function Sidebar() {
   const { currentRoute, navigate } = useRouter();
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
   const [pendingCount, setPendingCount] = useState(0);
+  const [pendingCutiCount, setPendingCutiCount] = useState(0);
 
   const fetchPendingCount = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/koreksi-absen?status=Pending&per_page=1`, {
+      const koreksiPromise = fetch(`${API_BASE_URL}/koreksi-absen?status=Pending&per_page=1`, {
         method: "GET",
         headers: getHeaders(),
-      });
-      if (response.ok) {
-        const json = await response.json();
-        setPendingCount(json.data?.total || 0);
+      }).then((r) => (r.ok ? r.json() : null));
+
+      const cutiPromise = fetch(`${API_BASE_URL}/cuti/admin?status=Pending&per_page=1`, {
+        method: "GET",
+        headers: getHeaders(),
+      }).then((r) => (r.ok ? r.json() : null));
+
+      const [koreksiJson, cutiJson] = await Promise.all([koreksiPromise, cutiPromise]);
+
+      if (koreksiJson) {
+        setPendingCount(koreksiJson.data?.total || 0);
+      }
+      if (cutiJson) {
+        setPendingCutiCount(cutiJson.data?.total || 0);
       }
     } catch (err) {
-      console.error("Failed to fetch pending koreksi count:", err);
+      console.error("Failed to fetch pending counts:", err);
     }
   }, []);
 
@@ -114,12 +125,12 @@ export function Sidebar() {
                               <span>{item.name}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                              {((item.name === "Pengajuan" && pendingCount > 0) || item.badge) && (
+                              {((item.name === "Pengajuan" && (pendingCount + pendingCutiCount) > 0) || item.badge) && (
                                 <span className={`px-2 py-0.5 rounded-md text-[9px] font-semibold ${isAnySubActive
                                   ? "bg-white/20 text-white"
                                   : "bg-rose-500/10 text-rose-600"
                                   }`}>
-                                  {item.name === "Pengajuan" && pendingCount > 0 ? pendingCount : item.badge}
+                                  {item.name === "Pengajuan" && (pendingCount + pendingCutiCount) > 0 ? (pendingCount + pendingCutiCount) : item.badge}
                                 </span>
                               )}
                               <svg
@@ -159,6 +170,14 @@ export function Sidebar() {
                                         : "bg-rose-500/10 text-rose-600"
                                         }`}>
                                         {pendingCount}
+                                      </span>
+                                    )}
+                                    {sub.route === "Leave" && pendingCutiCount > 0 && (
+                                      <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold ${isSubActive
+                                        ? "bg-[#e0542c]/20 text-[#e0542c]"
+                                        : "bg-rose-500/10 text-rose-600"
+                                        }`}>
+                                        {pendingCutiCount}
                                       </span>
                                     )}
                                   </button>
