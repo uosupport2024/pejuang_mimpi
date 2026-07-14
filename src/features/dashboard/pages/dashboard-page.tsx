@@ -65,6 +65,7 @@ export function DashboardPage() {
       value: stats.masuk.toString(),
       icon: CheckCircle,
       badgeStyle: "bg-emerald-500/10 text-emerald-600",
+      borderColor: "border-l-emerald-500",
       subtext: "Pegawai hadir hari ini",
     },
     {
@@ -72,6 +73,7 @@ export function DashboardPage() {
       value: stats.alfa.toString(),
       icon: XCircle,
       badgeStyle: "bg-rose-500/10 text-rose-600",
+      borderColor: "border-l-rose-500",
       subtext: "Absen tanpa keterangan",
     },
     {
@@ -79,6 +81,7 @@ export function DashboardPage() {
       value: stats.sakit.toString(),
       icon: Activity,
       badgeStyle: "bg-amber-500/10 text-amber-600",
+      borderColor: "border-l-amber-500",
       subtext: "Pegawai dengan surat sakit",
     },
     {
@@ -86,6 +89,7 @@ export function DashboardPage() {
       value: stats.izin.toString(),
       icon: FileText,
       badgeStyle: "bg-blue-500/10 text-blue-600",
+      borderColor: "border-l-blue-500",
       subtext: "Pegawai dengan persetujuan izin",
     },
   ];
@@ -267,13 +271,14 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Overview Title & Date/Location picker */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-          Ringkasan Kehadiran
-        </h1>
+      {/* Top Filter Bar Card */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border border-gray-200 rounded-2xl p-4 shadow-xs">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-[#e0542c]" />
+          <span className="text-xs font-black text-gray-700 uppercase tracking-wider">Filter Dashboard</span>
+        </div>
         
-        <div className="flex flex-wrap items-center gap-3 self-start sm:self-auto">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Location Dropdown */}
           <div className="relative">
             <select
@@ -312,30 +317,33 @@ export function DashboardPage() {
         {statCards.map((card, i) => {
           const Icon = card.icon;
           return (
-            <div key={i} className="p-4 bg-white border border-gray-200 rounded-2xl shadow-xs">
-              <div className="flex justify-between items-center">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">{card.title}</span>
-                <div className={`p-1.5 rounded-lg ${card.badgeStyle} flex items-center justify-center shrink-0`}>
-                  <Icon className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-1 flex items-baseline">
-                <span className="text-2xl font-black text-gray-900 tracking-tight leading-tight">
+            <div
+              key={i}
+              className={`p-5 bg-white border border-gray-200 border-l-4 ${card.borderColor} rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default`}
+            >
+              <div className="space-y-1 text-left">
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider block">
+                  {card.title}
+                </span>
+                <span className="text-3xl font-black text-gray-900 tracking-tight leading-none block">
                   {loading ? "..." : card.value}
                 </span>
+                <span className="text-[9.5px] text-gray-400 font-semibold block leading-tight">
+                  {card.subtext}
+                </span>
               </div>
-              <span className="text-[9.5px] text-gray-400 font-semibold mt-0.5 block leading-none">
-                {card.subtext}
-              </span>
+              <div className={`w-12 h-12 rounded-xl ${card.badgeStyle} flex items-center justify-center shrink-0`}>
+                <Icon className="w-5.5 h-5.5" />
+              </div>
             </div>
           );
         })}
       </div>
 
-      {/* Middle Charts Grid */}
+      {/* Middle Charts Grid (Symmetrical 50% / 50% split) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Chart 1: Attendance Analytics (2/3 width) */}
-        <div className="lg:col-span-7 p-6 bg-white border border-gray-200 rounded-2xl flex flex-col justify-between shadow-xs relative">
+        {/* Chart 1: Attendance Analytics (1/2 width) */}
+        <div className="lg:col-span-6 p-6 bg-white border border-gray-200 rounded-2xl flex flex-col justify-between shadow-xs relative">
           <div className="flex justify-between items-center mb-6">
             <span className="text-sm font-bold text-gray-900">Statistik Kehadiran Mingguan</span>
             <button className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-[10px] font-bold text-gray-500 cursor-pointer">
@@ -345,9 +353,9 @@ export function DashboardPage() {
           </div>
 
           {/* Interactive Apex Bar Chart */}
-          <div className="relative w-full min-h-[200px]">
+          <div className="relative w-full h-[180px]">
             {loading ? (
-              <div className="h-48 w-full flex items-center justify-center text-xs text-gray-400">
+              <div className="h-[180px] w-full flex items-center justify-center text-xs text-gray-400">
                 Memuat grafik...
               </div>
             ) : (
@@ -355,15 +363,15 @@ export function DashboardPage() {
                 options={chart1Options}
                 series={chart1Series}
                 type="bar"
-                height={200}
+                height={180}
                 width="100%"
               />
             )}
           </div>
         </div>
 
-        {/* Chart 2: Presence vs Alfa comparison (1/3 width) */}
-        <div className="lg:col-span-5 p-6 bg-white border border-gray-200 rounded-2xl flex flex-col justify-between shadow-xs">
+        {/* Chart 2: Presence vs Alfa comparison (1/2 width) */}
+        <div className="lg:col-span-6 p-6 bg-white border border-gray-200 rounded-2xl flex flex-col justify-between shadow-xs">
           <div>
             <div className="flex justify-between items-start">
               <div>
@@ -384,9 +392,9 @@ export function DashboardPage() {
           </div>
 
           {/* Stacked Bar Apex Chart */}
-          <div className="relative w-full min-h-[150px] mt-4">
+          <div className="relative w-full h-[180px]">
             {loading ? (
-              <div className="h-36 w-full flex items-center justify-center text-xs text-gray-400">
+              <div className="h-[180px] w-full flex items-center justify-center text-xs text-gray-400">
                 Memuat grafik...
               </div>
             ) : (
@@ -394,7 +402,7 @@ export function DashboardPage() {
                 options={chart2Options}
                 series={chart2Series}
                 type="bar"
-                height={150}
+                height={180}
                 width="100%"
               />
             )}
@@ -402,17 +410,15 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* Bottom Grid for Approvals & Birthday Calendar */}
+      {/* Bottom Grid for Approvals & Birthday Calendar (Symmetrical 50% / 50% split) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Pending Approval Izin Card (2/3 width) */}
-        <div className="lg:col-span-8 p-6 bg-white border border-gray-200 rounded-2xl shadow-xs space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h3 className="text-sm font-bold text-gray-900">Pending Approval Izin</h3>
-              <p className="text-[10px] text-gray-400 mt-0.5">
-                Daftar 10 pengajuan izin dan cuti karyawan tertua yang memerlukan persetujuan
-              </p>
-            </div>
+        {/* Pending Approval Izin Card (1/2 width - lg:col-span-6) */}
+        <div className="lg:col-span-6 p-6 bg-white border border-gray-200 rounded-2xl shadow-xs space-y-4 text-left">
+          <div>
+            <h3 className="text-sm font-bold text-gray-900">Pending Approval Izin</h3>
+            <p className="text-[10px] text-gray-400 mt-0.5">
+              Daftar 10 pengajuan izin dan cuti karyawan tertua yang memerlukan persetujuan
+            </p>
           </div>
 
           {/* Table data */}
@@ -420,7 +426,7 @@ export function DashboardPage() {
             <table className="w-full text-left text-xs font-semibold">
               <thead>
                 <tr className="border-b border-gray-100 text-gray-400">
-                  <th className="py-3 px-4 w-12">
+                  <th className="py-3 px-3 w-10">
                     <input
                       type="checkbox"
                       checked={pendingLeaves.length > 0 && selectedIds.length === pendingLeaves.length}
@@ -428,32 +434,29 @@ export function DashboardPage() {
                       className="w-4.5 h-4.5 rounded border border-[#e0542c] bg-white checked:bg-[#e0542c] checked:border-[#e0542c] cursor-pointer appearance-none flex items-center justify-center after:content-['✓'] after:text-[10px] after:font-extrabold after:text-white after:hidden checked:after:block transition-all focus:outline-none focus:ring-1 focus:ring-[#e0542c]/30"
                     />
                   </th>
-                  <th className="py-3 px-4">ID</th>
-                  <th className="py-3 px-4">Nama Pegawai</th>
-                  <th className="py-3 px-4">Tipe Izin</th>
-                  <th className="py-3 px-4">Tanggal Pengajuan</th>
-                  <th className="py-3 px-4">Alasan</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 text-center">Aksi</th>
+                  <th className="py-3 px-3">Pegawai</th>
+                  <th className="py-3 px-3">Pengajuan</th>
+                  <th className="py-3 px-3">Alasan</th>
+                  <th className="py-3 px-3 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {loading ? (
                   <tr>
-                    <td colSpan={8} className="py-8 text-center text-gray-400">
+                    <td colSpan={5} className="py-8 text-center text-gray-400">
                       Memuat data pengajuan...
                     </td>
                   </tr>
                 ) : pendingLeaves.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="py-8 text-center text-gray-400">
+                    <td colSpan={5} className="py-8 text-center text-gray-400">
                       Tidak ada pengajuan izin pending.
                     </td>
                   </tr>
                 ) : (
                   pendingLeaves.map((item: any) => (
-                    <tr key={item.id} className="text-gray-800 hover:bg-zinc-50/50 transition-colors">
-                      <td className="py-4 px-4">
+                    <tr key={item.id} className="text-gray-885 hover:bg-zinc-50/50 transition-colors">
+                      <td className="py-4 px-3">
                         <input
                           type="checkbox"
                           checked={selectedIds.includes(item.id)}
@@ -461,37 +464,31 @@ export function DashboardPage() {
                           className="w-4.5 h-4.5 rounded border border-[#e0542c] bg-white checked:bg-[#e0542c] checked:border-[#e0542c] cursor-pointer appearance-none flex items-center justify-center after:content-['✓'] after:text-[10px] after:font-extrabold after:text-white after:hidden checked:after:block transition-all focus:outline-none focus:ring-1 focus:ring-[#e0542c]/30"
                         />
                       </td>
-                      <td className="py-4 px-4 text-[#e0542c]">#{item.id}</td>
-                      <td className="py-4 px-4">
-                        <div className="font-bold text-gray-900">{item.User?.name || "Pegawai"}</div>
-                        <div className="text-[10px] text-gray-400 font-semibold">{item.User?.email || "—"}</div>
+                      <td className="py-4 px-3">
+                        <div className="font-bold text-gray-900 leading-tight">{item.User?.name || "Pegawai"}</div>
+                        <div className="text-[10px] text-gray-400 font-semibold mt-0.5">{item.User?.email || "—"}</div>
                       </td>
-                      <td className="py-4 px-4">
-                        <span className="px-2 py-0.5 bg-zinc-50 border border-zinc-200 text-zinc-700 rounded-md text-[10px] font-bold">
+                      <td className="py-4 px-3">
+                        <span className="px-2 py-0.5 bg-zinc-50 border border-zinc-200 text-zinc-700 rounded-md text-[9px] font-bold block w-max">
                           {item.nama_cuti || "Izin"}
                         </span>
-                      </td>
-                      <td className="py-4 px-4 text-gray-500 font-medium">
-                        {item.tanggal
-                          ? new Date(item.tanggal).toLocaleDateString("id-ID", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            })
-                          : "—"}
-                      </td>
-                      <td className="py-4 px-4 text-gray-500 font-medium max-w-[200px] truncate">
-                        {item.alasan_cuti || "—"}
-                      </td>
-                      <td className="py-4 px-4">
-                        <span className="px-2.5 py-0.5 bg-amber-50 text-amber-700 border border-amber-100 rounded-full text-[10px] font-extrabold uppercase tracking-wide">
-                          Pending
+                        <span className="text-[10px] text-gray-400 font-semibold block mt-1">
+                          {item.tanggal
+                            ? new Date(item.tanggal).toLocaleDateString("id-ID", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })
+                            : "—"}
                         </span>
                       </td>
-                      <td className="py-4 px-4 text-center">
+                      <td className="py-4 px-3 text-gray-500 font-medium max-w-[120px] truncate">
+                        {item.alasan_cuti || "—"}
+                      </td>
+                      <td className="py-4 px-3 text-center">
                         <button
                           onClick={() => navigate("Leave")}
-                          className="px-3 py-1 bg-[#e0542c] hover:bg-[#c84420] text-white rounded-lg text-[10px] font-bold transition-all cursor-pointer border-0"
+                          className="px-3 py-1 bg-[#e0542c] hover:bg-[#c84420] text-white rounded-lg text-[10px] font-bold transition-all cursor-pointer border-0 shadow-sm hover:shadow"
                         >
                           Proses
                         </button>
@@ -504,8 +501,8 @@ export function DashboardPage() {
           </div>
         </div>
 
-        {/* Ulang Tahun Bulan Ini Mini Calendar Card (1/3 width) */}
-        <div className="lg:col-span-4 p-6 bg-white border border-gray-200 rounded-2xl shadow-xs flex flex-col justify-between">
+        {/* Ulang Tahun Bulan Ini Mini Calendar Card (1/2 width - lg:col-span-6) */}
+        <div className="lg:col-span-6 p-6 bg-white border border-gray-200 rounded-2xl shadow-xs space-y-4 text-left">
           <div>
             <div className="flex justify-between items-center mb-4">
               <div>
@@ -515,90 +512,92 @@ export function DashboardPage() {
               <div className="text-xl">🎂</div>
             </div>
 
-            {/* Calendar Grid Header */}
-            <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-gray-400 mb-2">
-              <span>M</span>
-              <span>S</span>
-              <span>S</span>
-              <span>R</span>
-              <span>K</span>
-              <span>J</span>
-              <span>S</span>
-            </div>
+            {/* Split layout: Calendar Grid (Left) & Birthday List (Right) */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+              {/* Calendar Grid (Left - 5 cols) */}
+              <div className="md:col-span-5 bg-zinc-50/50 p-3 rounded-2xl border border-zinc-100">
+                {/* Calendar Grid Header */}
+                <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-gray-400 mb-2">
+                  <span>M</span>
+                  <span>S</span>
+                  <span>S</span>
+                  <span>R</span>
+                  <span>K</span>
+                  <span>J</span>
+                  <span>S</span>
+                </div>
 
-            {/* Calendar Grid Body */}
-            <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-bold">
-              {getDaysInMonth().map((day, idx) => {
-                if (day === null) {
-                  return <div key={`empty-${idx}`} />;
-                }
-
-                const dayBirthdays = getBirthdaysForDay(day);
-                const hasBirthday = dayBirthdays.length > 0;
-                const isToday = day === new Date().getDate();
-
-                return (
-                  <div
-                    key={`day-${day}`}
-                    className={`h-7 w-7 rounded-full flex items-center justify-center mx-auto relative group ${
-                      hasBirthday
-                        ? "bg-[#e0542c]/10 text-[#e0542c] font-black border border-[#e0542c]/30 cursor-pointer"
-                        : isToday
-                        ? "bg-zinc-100 text-gray-900 border border-gray-300"
-                        : "text-gray-600 hover:bg-zinc-50"
-                    }`}
-                    title={
-                      hasBirthday
-                        ? `Ulang Tahun: ${dayBirthdays.map((e: any) => e.name).join(", ")}`
-                        : undefined
+                {/* Calendar Grid Body */}
+                <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-bold">
+                  {getDaysInMonth().map((day, idx) => {
+                    if (day === null) {
+                      return <div key={`empty-${idx}`} className="h-7 w-7" />;
                     }
-                  >
-                    <span>{day}</span>
-                    {hasBirthday && (
-                      <span className="absolute bottom-0.5 w-1 h-1 rounded-full bg-[#e0542c]" />
-                    )}
 
-                    {/* Simple Custom Tooltip on Hover */}
-                    {hasBirthday && (
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-50 w-max max-w-[150px] bg-gray-900 text-white text-[9px] font-bold rounded-lg px-2 py-1 shadow-md leading-tight text-center">
-                        {dayBirthdays.map((e: any) => e.name).join(", ")}
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-gray-900 rotate-45 -mt-[3px]"></div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+                    const dayBirthdays = getBirthdaysForDay(day);
+                    const hasBirthday = dayBirthdays.length > 0;
+                    const isToday = day === new Date().getDate();
 
-          {/* Birthday list below calendar */}
-          <div className="mt-6 border-t border-gray-100 pt-4 flex-1">
-            <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider block mb-2">Daftar Ulang Tahun</span>
-            <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
-              {loading ? (
-                <div className="text-center text-[10px] text-gray-400 py-4">Memuat data...</div>
-              ) : birthdayList.length === 0 ? (
-                <div className="text-center text-[10px] text-gray-400 py-4">Tidak ada yang berulang tahun.</div>
-              ) : (
-                birthdayList.map((emp: any) => {
-                  const birthDay = new Date(emp.tgl_lahir).getDate();
-                  const initials = emp.name.substring(0, 2).toUpperCase();
-                  return (
-                    <div key={emp.id} className="flex items-center gap-2 p-1.5 hover:bg-zinc-50 rounded-xl transition-colors">
-                      <div className="w-7 h-7 rounded-full bg-[#e0542c]/10 text-[#e0542c] font-black flex items-center justify-center text-[10px] shrink-0">
-                        {initials}
+                    return (
+                      <div
+                        key={`day-${day}`}
+                        className={`h-7 w-7 rounded-full flex items-center justify-center mx-auto relative group ${
+                          hasBirthday
+                            ? "bg-[#e0542c] text-white font-black cursor-pointer shadow-sm shadow-[#e0542c]/20"
+                            : isToday
+                            ? "bg-zinc-200 text-gray-900 border border-zinc-300"
+                            : "text-gray-600 hover:bg-zinc-100"
+                        }`}
+                        title={
+                          hasBirthday
+                            ? `Ulang Tahun: ${dayBirthdays.map((e: any) => e.name).join(", ")}`
+                            : undefined
+                        }
+                      >
+                        <span>{day}</span>
+                        {/* Custom Tooltip on Hover */}
+                        {hasBirthday && (
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-50 w-max max-w-[150px] bg-gray-900 text-white text-[9px] font-bold rounded-lg px-2 py-1 shadow-md leading-tight text-center">
+                            {dayBirthdays.map((e: any) => e.name).join(", ")}
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-gray-900 rotate-45 -mt-[3px]"></div>
+                          </div>
+                        )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[11px] font-bold text-gray-800 truncate">{emp.name}</div>
-                        <div className="text-[9px] text-gray-400 font-semibold truncate">{emp.email || "—"}</div>
-                      </div>
-                      <span className="text-[9px] font-bold text-[#e0542c] bg-[#e0542c]/5 px-2 py-0.5 rounded-full shrink-0">
-                        🎂 {birthDay} {new Date().toLocaleDateString("id-ID", { month: "short" })}
-                      </span>
-                    </div>
-                  );
-                })
-              )}
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Birthday list (Right - 7 cols) */}
+              <div className="md:col-span-7 space-y-2">
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider block mb-1">Daftar Karyawan</span>
+                <div className="space-y-1.5 max-h-[175px] overflow-y-auto pr-1">
+                  {loading ? (
+                    <div className="text-center text-[10px] text-gray-400 py-4">Memuat data...</div>
+                  ) : birthdayList.length === 0 ? (
+                    <div className="text-center text-[10px] text-gray-400 py-4">Tidak ada yang berulang tahun bulan ini.</div>
+                  ) : (
+                    birthdayList.map((emp: any) => {
+                      const birthDay = new Date(emp.tgl_lahir).getDate();
+                      const initials = emp.name.substring(0, 2).toUpperCase();
+                      return (
+                        <div key={emp.id} className="flex items-center gap-2.5 p-1.5 hover:bg-zinc-50 rounded-xl transition-colors border border-transparent hover:border-gray-100">
+                          <div className="w-7 h-7 rounded-full bg-[#e0542c]/10 text-[#e0542c] font-black flex items-center justify-center text-[10px] shrink-0">
+                            {initials}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[11px] font-bold text-gray-800 truncate">{emp.name}</div>
+                            <div className="text-[9px] text-gray-400 font-semibold truncate">{emp.email || "—"}</div>
+                          </div>
+                          <span className="text-[9px] font-bold text-[#e0542c] bg-[#e0542c]/5 px-2 py-0.5 rounded-full shrink-0">
+                            🎂 {birthDay} {new Date().toLocaleDateString("id-ID", { month: "short" })}
+                          </span>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
