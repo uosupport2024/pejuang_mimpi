@@ -5,7 +5,7 @@ import { MobileLayout } from "./mobile-layout";
 // Feature page imports (Desktop)
 import { DashboardPage } from "@/features/dashboard";
 import { EmployeePage, EmployeeAddPage, EmployeeEditPage } from "@/features/employee";
-import { AttendancePage } from "@/features/attendance";
+import { AttendancePage, TodayAttendancePage } from "@/features/attendance";
 import { LeavePage } from "@/features/leave";
 import { PayrollPage, PayrollHistoryPage } from "@/features/payroll";
 import { OvertimePage } from "@/features/overtime";
@@ -64,8 +64,9 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
       case "EmployeeEdit":
         return <EmployeeEditPage />;
       case "Attendance":
-      case "AttendanceToday":
         return <AttendancePage />;
+      case "AttendanceToday":
+        return <TodayAttendancePage />;
       case "Leave":
         return <LeavePage />;
       case "Payroll":

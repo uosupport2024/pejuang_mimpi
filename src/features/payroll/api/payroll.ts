@@ -6,6 +6,7 @@ export interface RekapItem {
   jabatan_nama: string;
   gaji_harian: number;
   total_hari_kerja: number;
+  total_hadir: number;
   sakit: number;
   izin_masuk: number;
   sakit_dan_izin: number;

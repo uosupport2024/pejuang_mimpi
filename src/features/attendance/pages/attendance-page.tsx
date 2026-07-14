@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { Download, User, Clock, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Download, User, Clock, AlertTriangle, CheckCircle2, LayoutGrid, List } from "lucide-react";
 import { toast } from "sonner";
 import { fetchLocations, type BackendLocation } from "@/features/location/api/location";
 import { type RekapItem } from "../../payroll/api/payroll";
 import { DateRangePicker } from "@/shared/components/ui/date-range-picker";
 import { Magnifier, DocumentText, InfoCircle } from "@solar-icons/react";
+import { ReusableTable, type ColumnDef } from "@/shared/components/ui/reusable-table";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -29,6 +31,7 @@ export function AttendancePage() {
   const [loading, setLoading] = useState(true);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [downloadingEndpoint, setDownloadingEndpoint] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"card" | "list">("list");
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -100,7 +103,7 @@ export function AttendancePage() {
       }
 
       const res = await response.json();
-      if (res.success && res.data) {
+      if (res.code === 200 && res.data) {
         const paginatedData = res.data;
         setRekapItems(paginatedData.data || []);
         setCurrentPage(paginatedData.current_page || 1);
@@ -245,11 +248,144 @@ export function AttendancePage() {
   const totalAbsences = rekapItems.reduce((acc, curr) => acc + (curr.sakit_dan_izin || 0), 0);
   const averageAttendanceRate = rekapItems.length > 0 
     ? rekapItems.reduce((acc, curr) => {
-        const worked = curr.total_hari_kerja - (curr.sakit_dan_izin || 0);
+        const worked = curr.total_hadir ?? 0;
         const rate = curr.total_hari_kerja > 0 ? (worked / curr.total_hari_kerja) * 100 : 100;
         return acc + rate;
       }, 0) / rekapItems.length
     : 100;
+
+  const sortedItems = [...rekapItems].sort((a, b) => {
+    const totalWorkedA = a.total_hadir ?? 0;
+    const rateA = a.total_hari_kerja > 0 ? (totalWorkedA / a.total_hari_kerja) * 100 : 100;
+    
+    const totalWorkedB = b.total_hadir ?? 0;
+    const rateB = b.total_hari_kerja > 0 ? (totalWorkedB / b.total_hari_kerja) * 100 : 100;
+    
+    return rateB - rateA;
+  });
+
+  const columns: ColumnDef<RekapItem>[] = [
+    {
+      header: "Pegawai",
+      className: "w-[30%] text-left",
+      cell: (row) => (
+        <div className="flex flex-col justify-center min-w-0">
+          <h4 className="text-xs font-bold text-gray-800 truncate">{row.name}</h4>
+          <span className="text-[10px] text-[#5C8A90] font-medium mt-0.5 block">
+            {row.jabatan_nama}
+          </span>
+        </div>
+      ),
+      skeleton: () => (
+        <div className="flex flex-col justify-center gap-1.5 min-w-0">
+          <Skeleton className="h-3 w-28 rounded" />
+          <Skeleton className="h-2 w-16 rounded" />
+        </div>
+      ),
+    },
+    {
+      header: "Total Hadir",
+      className: "w-[15%] text-left pl-[22px]",
+      cell: (row) => {
+        const totalWorked = row.total_hadir ?? 0;
+        return (
+          <div className="flex items-center gap-2 shrink-0">
+            <CheckCircle2 size={14} className="text-[#7FA46D]" />
+            <span className="text-xs font-bold text-gray-700">{totalWorked} / {row.total_hari_kerja} Hari</span>
+          </div>
+        );
+      },
+      skeleton: () => (
+        <div className="flex items-center gap-2 shrink-0 pl-1">
+          <Skeleton className="w-3.5 h-3.5 rounded-full shrink-0" />
+          <Skeleton className="h-3.5 w-16 rounded" />
+        </div>
+      ),
+    },
+    {
+      header: "Lembur",
+      className: "w-[15%] text-left pl-[22px]",
+      cell: (row) => (
+        <div className="flex items-center gap-2 shrink-0">
+          <Clock size={14} className="text-[#F2B233]" />
+          <span className="text-xs font-bold text-gray-700">{row.jam_lembur}j {row.menit_lembur}m</span>
+        </div>
+      ),
+      skeleton: () => (
+        <div className="flex items-center gap-2 shrink-0 pl-1">
+          <Skeleton className="w-3.5 h-3.5 rounded-full shrink-0" />
+          <Skeleton className="h-3.5 w-12 rounded" />
+        </div>
+      ),
+    },
+    {
+      header: "Ketidakhadiran",
+      className: "w-[15%] text-left pl-[22px]",
+      cell: (row) => (
+        <div className="flex items-center gap-2 shrink-0">
+          <AlertTriangle size={14} className={row.sakit_dan_izin > 0 ? "text-[#e0542c]" : "text-gray-350"} />
+          <span className={`text-xs font-bold ${row.sakit_dan_izin > 0 ? "text-[#e0542c]" : "text-gray-700"}`}>
+            {row.sakit_dan_izin} Hari
+          </span>
+        </div>
+      ),
+      skeleton: () => (
+        <div className="flex items-center gap-2 shrink-0 pl-1">
+          <Skeleton className="w-3.5 h-3.5 rounded-full shrink-0" />
+          <Skeleton className="h-3.5 w-10 rounded" />
+        </div>
+      ),
+    },
+    {
+      header: "Skor Kehadiran",
+      className: "w-[25%] text-right pr-4",
+      cell: (row) => {
+        const totalWorked = row.total_hadir ?? 0;
+        const attendanceRate = row.total_hari_kerja > 0 ? (totalWorked / row.total_hari_kerja) * 100 : 100;
+
+        let rateColor = "text-[#7FA46D]";
+        let barColor = "bg-[#7FA46D]";
+        let statusLabel = "Sangat Baik";
+        let badgeColor = "bg-[#7FA46D]/10 text-[#516b46] border-[#7FA46D]/20";
+
+        if (attendanceRate < 90 && attendanceRate >= 75) {
+          rateColor = "text-[#F2B233]";
+          barColor = "bg-[#F2B233]";
+          statusLabel = "Cukup Baik";
+          badgeColor = "bg-[#F2B233]/12 text-[#916715] border-[#F2B233]/20";
+        } else if (attendanceRate < 75) {
+          rateColor = "text-[#e0542c]";
+          barColor = "bg-[#e0542c]";
+          statusLabel = "Perlu Evaluasi";
+          badgeColor = "bg-[#e0542c]/10 text-[#c23f1b] border-[#e0542c]/20";
+        }
+
+        return (
+          <div className="flex items-center justify-end gap-4 shrink-0">
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-extrabold ${rateColor}`}>{attendanceRate.toFixed(0)}%</span>
+              <div className="w-16 h-1.5 bg-zinc-150 rounded-full overflow-hidden shrink-0">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+                  style={{ width: `${Math.min(100, Math.max(0, attendanceRate))}%` }}
+                />
+              </div>
+            </div>
+            <span className={`text-[9px] font-bold border rounded-md px-2.5 py-1 text-center min-w-[80px] shrink-0 ${badgeColor}`}>
+              {statusLabel}
+            </span>
+          </div>
+        );
+      },
+      skeleton: () => (
+        <div className="flex items-center justify-end gap-3.5 shrink-0">
+          <Skeleton className="h-3 w-8 rounded" />
+          <Skeleton className="h-1.5 w-16 rounded-full shrink-0" />
+          <Skeleton className="h-6 w-20 rounded shrink-0" />
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="w-full space-y-6">
@@ -362,131 +498,210 @@ export function AttendancePage() {
               </div>
             </div>
 
-            {/* Export Trigger Button */}
-            <button
-              type="button"
-              onClick={() => setIsExportModalOpen(true)}
-              className="w-full sm:w-auto h-9 px-4 flex items-center justify-center gap-2 bg-[#e0542c] hover:bg-[#c23f1b] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-xs active:scale-98"
-            >
-              <DocumentText size={16} className="text-[#fee279]" />
-              <span>Export Rekap</span>
-            </button>
+            {/* View Mode Toggle & Export Button */}
+            <div className="flex items-center gap-3 w-full sm:w-auto shrink-0">
+              {/* Toggle Buttons */}
+              <div className="flex items-center bg-zinc-100 p-0.5 rounded-lg shrink-0 h-9 box-border">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("list")}
+                  className={`w-8 h-8 flex items-center justify-center rounded-md transition-all cursor-pointer ${
+                    viewMode === "list"
+                      ? "bg-[#5C8A90] text-white shadow-xs"
+                      : "text-gray-400 hover:text-gray-600"
+                  }`}
+                  title="Tampilan List"
+                >
+                  <List size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("card")}
+                  className={`w-8 h-8 flex items-center justify-center rounded-md transition-all cursor-pointer ${
+                    viewMode === "card"
+                      ? "bg-[#5C8A90] text-white shadow-xs"
+                      : "text-gray-400 hover:text-gray-600"
+                  }`}
+                  title="Tampilan Card"
+                >
+                  <LayoutGrid size={16} />
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsExportModalOpen(true)}
+                className="flex-1 sm:flex-initial h-9 px-4 flex items-center justify-center gap-2 bg-[#e0542c] hover:bg-[#c23f1b] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-xs active:scale-98"
+              >
+                <DocumentText size={16} className="text-[#fee279]" />
+                <span>Export Rekap</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Card-Grid Layout representing the rekap data */}
+        {/* Card-Grid or List Layout representing the rekap data */}
         <div className="p-6 bg-zinc-50/30">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 space-y-4">
-              <svg className="animate-spin h-8 w-8 text-[#e0542c]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <span className="text-xs font-medium text-gray-500">Memuat data rekap absensi...</span>
-            </div>
-          ) : rekapItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <AlertTriangle className="w-10 h-10 text-gray-300 mb-3" />
-              <h3 className="text-sm font-bold text-gray-700">Tidak Ada Data</h3>
-              <p className="text-xs text-gray-400 max-w-xs mt-1">Tidak ditemukan log rekapitulasi kehadiran berdasarkan filter yang dipilih.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-              {rekapItems.map((item) => {
-                const totalWorked = item.total_hari_kerja - (item.sakit_dan_izin || 0);
-                const attendanceRate = item.total_hari_kerja > 0 ? (totalWorked / item.total_hari_kerja) * 100 : 100;
-                
-                // Get name initials for avatar
-                const initials = item.name
-                  .split(" ")
-                  .slice(0, 2)
-                  .map((n) => n[0])
-                  .join("")
-                  .toUpperCase();
-
-                // Style indicators
-                let rateColor = "text-[#7FA46D]";
-                let barColor = "bg-[#7FA46D]";
-                let statusLabel = "Sangat Baik";
-                let badgeColor = "bg-[#7FA46D]/10 text-[#516b46] border-[#7FA46D]/20";
-
-                if (attendanceRate < 90 && attendanceRate >= 75) {
-                  rateColor = "text-[#F2B233]";
-                  barColor = "bg-[#F2B233]";
-                  statusLabel = "Cukup Baik";
-                  badgeColor = "bg-[#F2B233]/12 text-[#916715] border-[#F2B233]/20";
-                } else if (attendanceRate < 75) {
-                  rateColor = "text-[#e0542c]";
-                  barColor = "bg-[#e0542c]";
-                  statusLabel = "Perlu Evaluasi";
-                  badgeColor = "bg-[#e0542c]/10 text-[#c23f1b] border-[#e0542c]/20";
-                }
-
-                return (
-                  <div
-                    key={item.id}
-                    className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between"
-                  >
-                    {/* Header Card */}
+          {viewMode === "card" ? (
+            loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                {Array.from({ length: 6 }).map((_, idx) => (
+                  <div key={idx} className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between space-y-6 animate-pulse">
                     <div className="space-y-4">
-                      <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-[#e0542c]/10 text-[#e0542c] font-bold text-xs flex items-center justify-center shrink-0">
-                            {initials}
-                          </div>
-                          <div className="min-w-0">
-                            <h4 className="text-xs font-bold text-gray-800 truncate">{item.name}</h4>
-                            <span className="text-[9px] text-[#5C8A90] bg-[#5C8A90]/10 border border-[#5C8A90]/20 rounded-md px-1.5 py-0.5 mt-1 inline-block font-semibold">
-                              {item.jabatan_nama}
-                            </span>
+                          <div className="w-10 h-10 rounded-xl bg-zinc-100 shrink-0" />
+                          <div className="space-y-2">
+                            <div className="h-3 w-28 bg-zinc-100 rounded" />
+                            <div className="h-2 w-16 bg-zinc-100 rounded" />
                           </div>
                         </div>
-                        <span className={`text-[9px] font-bold border rounded-md px-2 py-0.5 shrink-0 ${badgeColor}`}>
-                          {statusLabel}
-                        </span>
+                        <div className="h-5 w-20 bg-zinc-100 rounded-md" />
                       </div>
-
-                      {/* Visual Progress Bar */}
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between text-[10px]">
-                          <span className="text-gray-400 font-semibold">Skor Kehadiran</span>
-                          <span className={`font-extrabold ${rateColor}`}>{attendanceRate.toFixed(0)}%</span>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <div className="h-2.5 w-16 bg-zinc-100 rounded" />
+                          <div className="h-2.5 w-8 bg-zinc-100 rounded" />
                         </div>
-                        <div className="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-500 ${barColor}`}
-                            style={{ width: `${Math.min(100, Math.max(0, attendanceRate))}%` }}
-                          />
-                        </div>
+                        <div className="w-full h-1.5 bg-zinc-100 rounded-full" />
                       </div>
                     </div>
-
-                    {/* Stats Metrics Block */}
-                    <div className="grid grid-cols-3 gap-2 border-t border-gray-100 pt-4 mt-4 text-center">
-                      <div className="space-y-0.5">
-                        <span className="text-[9px] text-gray-400 block">Total Hadir</span>
-                        <span className="text-xs font-bold text-gray-700">{totalWorked} / {item.total_hari_kerja}</span>
+                    <div className="grid grid-cols-3 gap-2 border-t border-gray-100 pt-4 text-center">
+                      <div className="space-y-2">
+                        <div className="h-2 w-12 bg-zinc-100 rounded mx-auto" />
+                        <div className="h-3 w-8 bg-zinc-100 rounded mx-auto" />
                       </div>
-                      <div className="space-y-0.5 border-x border-gray-100">
-                        <span className="text-[9px] text-gray-400 block">Lembur</span>
-                        <span className="text-xs font-bold text-gray-700">{item.jam_lembur}j {item.menit_lembur}m</span>
+                      <div className="space-y-2 border-x border-gray-100">
+                        <div className="h-2 w-12 bg-zinc-100 rounded mx-auto" />
+                        <div className="h-3 w-8 bg-zinc-100 rounded mx-auto" />
                       </div>
-                      <div className="space-y-0.5">
-                        <span className="text-[9px] text-gray-400 block">Sakit / Izin</span>
-                        <span className={`text-xs font-bold ${item.sakit_dan_izin > 0 ? "text-[#e0542c]" : "text-gray-750"}`}>
-                          {item.sakit_dan_izin} Hari
-                        </span>
+                      <div className="space-y-2">
+                        <div className="h-2 w-12 bg-zinc-100 rounded mx-auto" />
+                        <div className="h-3 w-8 bg-zinc-100 rounded mx-auto" />
                       </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                ))}
+              </div>
+            ) : rekapItems.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <AlertTriangle className="w-10 h-10 text-gray-300 mb-3" />
+                <h3 className="text-sm font-bold text-gray-700">Tidak Ada Data</h3>
+                <p className="text-xs text-gray-400 max-w-xs mt-1">Tidak ditemukan log rekapitulasi kehadiran berdasarkan filter yang dipilih.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                {sortedItems.map((item) => {
+                  const totalWorked = item.total_hadir ?? 0;
+                  const attendanceRate = item.total_hari_kerja > 0 ? (totalWorked / item.total_hari_kerja) * 100 : 100;
+                  
+                  // Get name initials for avatar
+                  const initials = item.name
+                    .split(" ")
+                    .slice(0, 2)
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase();
+
+                  // Style indicators
+                  let rateColor = "text-[#7FA46D]";
+                  let barColor = "bg-[#7FA46D]";
+                  let statusLabel = "Sangat Baik";
+                  let badgeColor = "bg-[#7FA46D]/10 text-[#516b46] border-[#7FA46D]/20";
+
+                  if (attendanceRate < 90 && attendanceRate >= 75) {
+                    rateColor = "text-[#F2B233]";
+                    barColor = "bg-[#F2B233]";
+                    statusLabel = "Cukup Baik";
+                    badgeColor = "bg-[#F2B233]/12 text-[#916715] border-[#F2B233]/20";
+                  } else if (attendanceRate < 75) {
+                    rateColor = "text-[#e0542c]";
+                    barColor = "bg-[#e0542c]";
+                    statusLabel = "Perlu Evaluasi";
+                    badgeColor = "bg-[#e0542c]/10 text-[#c23f1b] border-[#e0542c]/20";
+                  }
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                    >
+                      {/* Header Card */}
+                      <div className="space-y-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-[#e0542c]/10 text-[#e0542c] font-bold text-xs flex items-center justify-center shrink-0">
+                              {initials}
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="text-xs font-bold text-gray-800 truncate">{item.name}</h4>
+                              <span className="text-[10px] text-[#5C8A90] font-medium mt-0.5 block">
+                                {item.jabatan_nama}
+                              </span>
+                            </div>
+                          </div>
+                          <span className={`text-[9px] font-bold border rounded-md px-2 py-0.5 shrink-0 ${badgeColor}`}>
+                            {statusLabel}
+                          </span>
+                        </div>
+
+                        {/* Visual Progress Bar */}
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-[10px]">
+                            <span className="text-gray-400 font-semibold">Skor Kehadiran</span>
+                            <span className={`font-extrabold ${rateColor}`}>{attendanceRate.toFixed(0)}%</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+                              style={{ width: `${Math.min(100, Math.max(0, attendanceRate))}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Stats Metrics Block */}
+                      <div className="grid grid-cols-3 gap-2 border-t border-gray-100 pt-4 mt-4 text-center">
+                        <div className="space-y-0.5">
+                          <span className="text-[9px] text-gray-400 block">Total Hadir</span>
+                          <span className="text-xs font-bold text-gray-700">{totalWorked} / {item.total_hari_kerja}</span>
+                        </div>
+                        <div className="space-y-0.5 border-x border-gray-100">
+                          <span className="text-[9px] text-gray-400 block">Lembur</span>
+                          <span className="text-xs font-bold text-gray-700">{item.jam_lembur}j {item.menit_lembur}m</span>
+                        </div>
+                        <div className="space-y-0.5">
+                          <span className="text-[9px] text-gray-400 block">Sakit / Izin</span>
+                          <span className={`text-xs font-bold ${item.sakit_dan_izin > 0 ? "text-[#e0542c]" : "text-gray-750"}`}>
+                            {item.sakit_dan_izin} Hari
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )
+          ) : (
+            <ReusableTable
+              columns={columns}
+              data={loading ? [] : sortedItems}
+              loading={loading}
+              showSearch={false}
+              showPagination={true}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              onPageChange={handlePageChange}
+              className="border-none shadow-none p-0 bg-transparent rounded-none"
+              rowClassName="hover:bg-zinc-50/30"
+              emptyMessage="Tidak ada data rekapitulasi."
+            />
           )}
         </div>
 
-        {/* Pagination Controls */}
-        {!loading && totalPages > 1 && (
+        {/* Pagination Controls for Card View */}
+        {!loading && totalPages > 1 && viewMode === "card" && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-100 px-6 py-4 bg-white">
             <div className="text-[11px] text-gray-500 font-medium">
               Menampilkan <span className="font-semibold text-gray-700">{rekapItems.length}</span> dari{" "}
