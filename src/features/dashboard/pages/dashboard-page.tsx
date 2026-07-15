@@ -509,7 +509,6 @@ export function DashboardPage() {
                 <h3 className="text-sm font-bold text-gray-900">Ulang Tahun Bulan Ini</h3>
                 <p className="text-[10px] text-gray-400 mt-0.5">{currentMonthName}</p>
               </div>
-              <div className="text-xl">🎂</div>
             </div>
 
             {/* Split layout: Calendar Grid (Left) & Birthday List (Right) */}
@@ -543,10 +542,10 @@ export function DashboardPage() {
                         key={`day-${day}`}
                         className={`h-7 w-7 rounded-full flex items-center justify-center mx-auto relative group ${
                           hasBirthday
-                            ? "bg-[#e0542c] text-white font-black cursor-pointer shadow-sm shadow-[#e0542c]/20"
+                            ? "text-[#e0542c] font-black cursor-pointer hover:bg-orange-50"
                             : isToday
-                            ? "bg-zinc-200 text-gray-900 border border-zinc-300"
-                            : "text-gray-600 hover:bg-zinc-100"
+                            ? "bg-zinc-100 text-gray-900 border border-zinc-200"
+                            : "text-gray-600 hover:bg-zinc-50"
                         }`}
                         title={
                           hasBirthday
@@ -587,10 +586,9 @@ export function DashboardPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="text-[11px] font-bold text-gray-800 truncate">{emp.name}</div>
-                            <div className="text-[9px] text-gray-400 font-semibold truncate">{emp.email || "—"}</div>
                           </div>
                           <span className="text-[9px] font-bold text-[#e0542c] bg-[#e0542c]/5 px-2 py-0.5 rounded-full shrink-0">
-                            🎂 {birthDay} {new Date().toLocaleDateString("id-ID", { month: "short" })}
+                            {birthDay} {new Date().toLocaleDateString("id-ID", { month: "short" })}
                           </span>
                         </div>
                       );
