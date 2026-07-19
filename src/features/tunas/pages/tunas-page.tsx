@@ -435,7 +435,7 @@ function PakanLokerSubPage({
           <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-zinc-400 mb-5">Status Rekrutmen</h4>
 
           {/* Vertical Stepper Timeline */}
-          <div className="space-y-6 relative pl-10 text-left">
+          <div className="space-y-6 relative pl-0 text-left">
             {/* Connecting Vertical Line */}
             <div className="absolute left-[13px] top-3.5 bottom-3.5 w-[2px] bg-zinc-200" />
             
@@ -497,7 +497,7 @@ function PakanLokerSubPage({
               return (
                 <div key={idx} className="flex gap-4 items-start relative z-10">
                   {/* Step Indicator Circle */}
-                  <div className={`w-[28px] h-[28px] rounded-full flex items-center justify-center border transition-all duration-300 absolute left-0 ${circleColor} shrink-0`}>
+                  <div className={`w-[28px] h-[28px] rounded-full flex items-center justify-center border transition-all duration-300 ${circleColor} shrink-0 z-10`}>
                     {isCompleted ? <CheckCircle2 className="w-3.5 h-3.5" /> : stepIcon}
                   </div>
                   
