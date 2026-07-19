@@ -151,7 +151,7 @@ const MOCK_JOBS_DETAIL = [
   }
 ];
 
-export async function fetchLokerDetail(id: string | number): Promise<JobOpening & { description: string }> {
+export async function fetchLokerDetail(id: string | number): Promise<JobOpening & { description: string; isApplied?: boolean }> {
   const mockItem = MOCK_JOBS_DETAIL.find(item => item.id === String(id));
   if (mockItem) {
     return mockItem as any;
@@ -231,7 +231,8 @@ export async function fetchLokerDetail(id: string | number): Promise<JobOpening 
         workplace,
         salaryMin: sMin / 1_000_000,
         salaryMax: sMax / 1_000_000,
-        description: item.description || "Tidak ada deskripsi pekerjaan."
+        description: item.description || "Tidak ada deskripsi pekerjaan.",
+        isApplied: !!item.is_applied || !!item.applied || (Array.isArray(item.applies) && item.applies.length > 0) || (Array.isArray(item.apply) && item.apply.length > 0) || (Array.isArray(item.applications) && item.applications.length > 0)
       };
     }
     throw new Error(json.message || "Failed to parse loker detail response");
@@ -241,13 +242,28 @@ export async function fetchLokerDetail(id: string | number): Promise<JobOpening 
   }
 }
 
-export async function applyLoker(id: string | number): Promise<boolean> {
+export async function applyLoker(id: string | number, note?: string): Promise<boolean> {
   const response = await fetch(`${API_BASE_URL}/loker/${id}/apply`, {
     method: "POST",
-    headers: getHeaders(),
+    headers: {
+      ...getHeaders(),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ note: note || null }),
   });
 
   if (!response.ok) throw new Error("Failed to apply for job");
   const json = await response.json();
   return json.code === 200 || json.code === 201;
+}
+
+export async function fetchMyApplications(): Promise<any[]> {
+  const response = await fetch(`${API_BASE_URL}/loker/my-applications`, {
+    method: "GET",
+    headers: getHeaders(),
+  });
+
+  if (!response.ok) throw new Error("Failed to fetch applied jobs");
+  const json = await response.json();
+  return json.data || json || [];
 }

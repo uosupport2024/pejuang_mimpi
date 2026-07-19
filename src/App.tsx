@@ -3,6 +3,7 @@ import { LoginPage } from "@/features/auth"
 import { MainContainer } from "@/shared/components/layout/main-container"
 import type { LoginResponse } from "@/features/auth"
 import { Toaster } from "@/shared/components/ui/sonner"
+import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal"
 import { setCookie, getCookie, eraseCookie } from "@/shared/utils/cookies"
 
 import { RouterProvider, useRouter } from "@/shared/router/router"
@@ -100,6 +101,8 @@ function App() {
     user: UserProfile;
   } | null>(null)
 
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+
   // isInitializing=true until we've attempted to read cookies
   const [isInitializing, setIsInitializing] = useState(true)
 
@@ -160,10 +163,15 @@ function App() {
   }
 
   const handleLogout = () => {
+    setShowLogoutConfirm(true)
+  }
+
+  const executeLogout = () => {
     // Clear cookies
     eraseCookie("auth_token")
     eraseCookie("user_profile")
     setSession(null)
+    setShowLogoutConfirm(false)
   }
 
   return (
@@ -176,6 +184,16 @@ function App() {
         onUpdateUser={handleUpdateUser}
       />
       <Toaster position="top-center" richColors />
+      <ConfirmationModal
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={executeLogout}
+        title="Konfirmasi Keluar"
+        message="Apakah Anda yakin ingin keluar dari akun ini?"
+        confirmText="Ya, Keluar"
+        cancelText="Batal"
+        variant="danger"
+      />
     </RouterProvider>
   )
 }

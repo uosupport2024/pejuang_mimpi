@@ -19,6 +19,8 @@ export function LokerDetailPage() {
   const [isApplied, setIsApplied] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [activeTab, setActiveTab] = useState<"description" | "company" | "reviews">("description");
+  const [showNoteModal, setShowNoteModal] = useState(false);
+  const [note, setNote] = useState("");
 
   useEffect(() => {
     if (!idParam) {
@@ -31,6 +33,7 @@ export function LokerDetailPage() {
         setLoading(true);
         const data = await fetchLokerDetail(idParam!);
         setLoker(data);
+        setIsApplied(!!data.isApplied);
 
         try {
           const recsRes = await fetchLokers({ per_page: 5 });
@@ -82,12 +85,13 @@ export function LokerDetailPage() {
     loadData();
   }, [idParam, navigate]);
 
-  const handleApply = async () => {
+  const handleApply = async (noteValue?: string) => {
     if (!idParam || isApplied) return;
 
     try {
       setIsApplying(true);
-      const success = await applyLoker(idParam);
+      setShowNoteModal(false);
+      const success = await applyLoker(idParam, noteValue);
       if (success) {
         setIsApplied(true);
         toast.success("Berhasil mengirimkan lamaran pekerjaan!");
@@ -215,7 +219,7 @@ export function LokerDetailPage() {
       </div>
 
       {/* Main Body Content Container */}
-      <div className="p-5 space-y-5">
+      <div className="p-5 space-y-5 pb-36">
         {/* Google-like Simple Header Block */}
         <div className="flex gap-4 items-center mb-1">
           <div className="w-12 h-12 bg-white border border-zinc-200/80 rounded-full flex items-center justify-center font-black text-sm text-zinc-700 shadow-xs shrink-0 select-none">
@@ -359,9 +363,9 @@ export function LokerDetailPage() {
       </div>
 
       {/* Floating Sticky apply button wrapper */}
-      <div className="fixed bottom-16 left-0 right-0 px-5 py-4 bg-gradient-to-t from-white via-white to-transparent pointer-events-none z-30">
+      <div className="fixed bottom-4 left-0 right-0 px-5 py-2 bg-gradient-to-t from-white via-white to-transparent pointer-events-none z-30">
         <button
-          onClick={handleApply}
+          onClick={() => setShowNoteModal(true)}
           disabled={isApplying || isApplied}
           className={`w-full max-w-[440px] mx-auto h-12 rounded-full flex items-center justify-center gap-2 text-xs font-extrabold shadow-md active:scale-98 transition-all cursor-pointer pointer-events-auto ${isApplied
             ? "bg-emerald-500 text-white cursor-default"
@@ -378,6 +382,48 @@ export function LokerDetailPage() {
           )}
         </button>
       </div>
+
+      {/* Note input Modal */}
+      {showNoteModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-5 z-50 text-left animate-in fade-in duration-200">
+          <div className="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-xl border border-gray-100 animate-in zoom-in-95 duration-200 pointer-events-auto">
+            <div className="space-y-1">
+              <h3 className="text-sm font-bold text-zinc-900">Catatan Lamaran</h3>
+              <p className="text-[11px] font-medium text-zinc-400">
+                Tambahkan pesan atau catatan singkat untuk lamaran ini (opsional).
+              </p>
+            </div>
+
+            <textarea
+              className="w-full border border-gray-250 rounded-2xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-[#e0542c] focus:border-[#e0542c] text-zinc-750 bg-zinc-50 font-semibold placeholder-zinc-400"
+              placeholder="Tulis pesan atau catatan Anda di sini..."
+              rows={4}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+            />
+
+            <div className="flex gap-2.5 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowNoteModal(false);
+                  setNote(""); // clear
+                }}
+                className="flex-1 h-9 rounded-full border border-gray-200 hover:bg-gray-50 text-xs font-bold text-zinc-500 transition-colors cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => handleApply(note)}
+                className="flex-1 h-9 rounded-full bg-[#e0542c] hover:bg-[#c84620] text-xs font-bold text-white transition-colors cursor-pointer flex items-center justify-center"
+              >
+                Kirim Lamaran
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
