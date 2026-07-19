@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Briefcase, Clock, Bookmark, Calendar, MessageSquare, CheckCircle2, FileText, Search, Trophy, XCircle } from "lucide-react";
+import { ArrowLeft, Briefcase, Clock, Bookmark, Calendar, MessageSquare, CheckCircle2, FileText, Search, Trophy, XCircle, ChevronDown } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
 import { toast } from "sonner";
 import logoWhite from "@/assets/logo/logo-white.png";
@@ -806,6 +806,19 @@ export function TunasPage({ user }: TunasPageProps) {
   const [activeView, setActiveView] = useState<"dashboard" | "pakan">("dashboard");
   const [selectedApplication, setSelectedApplication] = useState<any | null>(null);
   const [showChat, setShowChat] = useState(false);
+  const [selectedTenant, setSelectedTenant] = useState<string>("");
+  const [isTenantDropdownOpen, setIsTenantDropdownOpen] = useState(false);
+  const tenantDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (tenantDropdownRef.current && !tenantDropdownRef.current.contains(event.target as Node)) {
+        setIsTenantDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Greeting helper based on time of day
   const getGreeting = () => {
@@ -901,10 +914,10 @@ export function TunasPage({ user }: TunasPageProps) {
     <div className="space-y-4">
       {/* Header Banner Card - matching the design in Sangkar */}
       <div className="-mt-6 -mx-5 relative mb-4">
-        <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-7 pb-6 relative overflow-hidden">
+        <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-7 pb-6 relative">
           {/* Background Pattern */}
           <div
-            className="absolute inset-0 opacity-15 pointer-events-none"
+            className="absolute inset-0 opacity-15 pointer-events-none rounded-b-[40px] overflow-hidden"
             style={{
               backgroundImage: `url(${patternBg})`,
               backgroundSize: "150px 150px",
@@ -946,10 +959,61 @@ export function TunasPage({ user }: TunasPageProps) {
             <span className="font-semibold text-white/80">
               {dayName}, {dateString}
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 text-white text-[9px] font-bold tracking-wide uppercase max-w-[180px] shadow-xs">
-              <Briefcase className="w-3 h-3 text-white/90 shrink-0" />
-              <span className="truncate">{profileData?.tenant?.name || "POT Tenant"}</span>
-            </span>
+            <div ref={tenantDropdownRef} className="relative z-30">
+              <button
+                type="button"
+                onClick={() => setIsTenantDropdownOpen(!isTenantDropdownOpen)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-white text-[9px] font-bold tracking-wide uppercase max-w-[180px] shadow-xs cursor-pointer select-none transition-all duration-200"
+              >
+                <Briefcase className="w-3 h-3 text-white/90 shrink-0" />
+                <span className="truncate">{selectedTenant || profileData?.tenant?.name || "POT Tenant"}</span>
+                <ChevronDown className={`w-2.5 h-2.5 text-white/80 transition-transform duration-200 ${isTenantDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {isTenantDropdownOpen && (
+                <div className="absolute right-0 mt-1.5 w-48 bg-white border border-gray-100 rounded-xl shadow-md z-50 py-1 transition-all text-left">
+                  <div className="px-3 py-1 text-[8.5px] font-bold uppercase tracking-wider text-gray-400">
+                    Pilih Kantor / Tenant
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedTenant(profileData?.tenant?.name || "POT Tenant");
+                      setIsTenantDropdownOpen(false);
+                      toast.success(`Berhasil berpindah ke ${profileData?.tenant?.name || "POT Tenant"}`);
+                    }}
+                    className={`w-full flex items-center gap-2 px-3 py-2 text-[10px] font-semibold transition-colors cursor-pointer text-left border-y border-transparent ${
+                      (selectedTenant === "" || selectedTenant === (profileData?.tenant?.name || "POT Tenant"))
+                        ? "text-[#e0542c] bg-orange-50/50"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                      (selectedTenant === "" || selectedTenant === (profileData?.tenant?.name || "POT Tenant")) ? "bg-[#e0542c]" : "bg-transparent"
+                    }`} />
+                    <span className="truncate">{profileData?.tenant?.name || "POT Tenant"}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedTenant("Kantor Cabang Sudirman (Dummy)");
+                      setIsTenantDropdownOpen(false);
+                      toast.success("Berhasil berpindah ke Kantor Cabang Sudirman (Dummy)");
+                    }}
+                    className={`w-full flex items-center gap-2 px-3 py-2 text-[10px] font-semibold transition-colors cursor-pointer text-left border-y border-transparent ${
+                      selectedTenant === "Kantor Cabang Sudirman (Dummy)"
+                        ? "text-[#e0542c] bg-orange-50/50"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                      selectedTenant === "Kantor Cabang Sudirman (Dummy)" ? "bg-[#e0542c]" : "bg-transparent"
+                    }`} />
+                    <span className="truncate">Sudirman (Dummy)</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
