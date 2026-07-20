@@ -1,7 +1,8 @@
-import { Bell, HelpCircle, ChevronDown, User, Lock, LogOut } from "lucide-react";
+import { Bell, ChevronDown, User, Lock, LogOut } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useRouter } from "@/shared/router/router";
+import { fetchProfileAPI } from "@/features/tunas/api/absensi";
 
 interface NavbarProps {
   user: {
@@ -17,6 +18,22 @@ export function Navbar({ user, onLogout }: NavbarProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const pathname = location.pathname;
+  const [tenantName, setTenantName] = useState<string>("");
+
+  useEffect(() => {
+    fetchProfileAPI()
+      .then((profile) => {
+        if (profile && profile.tenant && profile.tenant.name) {
+          setTenantName(profile.tenant.name);
+        } else {
+          setTenantName("Pejuang Mimpi");
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load tenant info for navbar:", err);
+        setTenantName("Pejuang Mimpi");
+      });
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -134,9 +151,12 @@ export function Navbar({ user, onLogout }: NavbarProps) {
         <button className="p-2.5 rounded-full bg-white hover:bg-gray-50 border border-transparent text-gray-500 shadow-xs cursor-pointer">
           <Bell className="w-4 h-4" />
         </button>
-        <button className="p-2.5 rounded-full bg-white hover:bg-gray-50 border border-transparent text-gray-500 shadow-xs cursor-pointer">
-          <HelpCircle className="w-4 h-4" />
-        </button>
+        {/* Tenant Information Badge */}
+        {tenantName && (
+          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#7FA46D] text-white text-[10px] font-bold tracking-wide uppercase max-w-[180px] shadow-xs shrink-0 select-none">
+            <span className="truncate">{tenantName}</span>
+          </div>
+        )}
 
         {/* Dropdown Container */}
         <div ref={dropdownRef} className="relative">
