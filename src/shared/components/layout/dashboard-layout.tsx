@@ -47,7 +47,7 @@ export function DashboardLayout({ user, onLogout, children }: DashboardLayoutPro
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         {/* Navbar inside right panel with subtle batik navy styling */}
         <header
-          className={`absolute top-0 left-0 right-0 z-50 shrink-0 transition-all duration-300 bg-[#1e2a4a] text-white border-b border-white/10 px-5 py-1.5 shadow-sm ${
+          className={`sticky top-0 z-40 shrink-0 transition-all duration-300 bg-[#1e2a4a] text-white border-b border-white/10 px-6 py-2 shadow-sm ${
             scrolled ? "bg-opacity-95 backdrop-blur-md shadow-md" : ""
           }`}
         >
@@ -66,8 +66,8 @@ export function DashboardLayout({ user, onLogout, children }: DashboardLayoutPro
           </div>
         </header>
 
-        {/* Content area: renders active page tab */}
-        <main ref={mainRef} className="flex-1 overflow-y-auto px-6 pb-6 pt-[88px] space-y-6">
+        {/* Content area: perfectly balanced 24px (p-6) padding on all 4 sides */}
+        <main ref={mainRef} className="flex-1 overflow-y-auto p-6 space-y-6">
           {children}
         </main>
       </div>

@@ -6,8 +6,7 @@ import {
   XCircle,
   Activity,
   FileText,
-  ArrowRight,
-  UserCheck
+  ArrowRight
 } from "lucide-react";
 import Chart from "react-apexcharts";
 import { fetchAdminDashboardAPI } from "@/features/dashboard/api/dashboard";
@@ -86,9 +85,8 @@ export function DashboardPage() {
 
   // Determine max value dynamically for scaling bar charts
   const maxVal = Math.max(
-    10,
-    ...charts.map((c: any) => Number(c.masuk) + Number(c.alfa)),
-    30
+    totalPegawaiTotal || 5,
+    ...charts.map((c: any) => Number(c.masuk || 0))
   );
 
   const statCards = [
@@ -181,8 +179,7 @@ export function DashboardPage() {
       fontFamily: "Poppins",
       animations: {
         enabled: true,
-        speed: 1000,
-        animateGradually: { enabled: true, delay: 100 }
+        speed: 1000
       }
     },
     plotOptions: {
@@ -190,6 +187,9 @@ export function DashboardPage() {
         borderRadius: 4,
         columnWidth: "45%"
       }
+    },
+    fill: {
+      type: "solid"
     },
     colors: ["#7FA46D"],
     dataLabels: { enabled: false },
@@ -209,14 +209,15 @@ export function DashboardPage() {
     yaxis: {
       min: 0,
       max: maxVal,
-      tickAmount: 5,
+      tickAmount: Math.min(maxVal, 5),
       labels: {
         style: {
           colors: "#9ca3af",
           fontSize: "10px",
           fontWeight: 600,
           fontFamily: "Poppins"
-        }
+        },
+        formatter: (val: number) => `${Math.round(val)}`
       }
     },
     grid: {
@@ -243,8 +244,7 @@ export function DashboardPage() {
 
   const chart2Options: ApexCharts.ApexOptions = {
     chart: {
-      type: "bar",
-      stacked: true,
+      type: "area",
       toolbar: { show: false },
       fontFamily: "Poppins",
       animations: {
@@ -252,13 +252,31 @@ export function DashboardPage() {
         speed: 1000
       }
     },
-    plotOptions: {
-      bar: {
-        borderRadius: 4,
-        columnWidth: "45%"
+    stroke: {
+      curve: "smooth",
+      width: 3.5
+    },
+    fill: {
+      type: "gradient",
+      gradient: {
+        shade: "light",
+        type: "vertical",
+        shadeIntensity: 0.1,
+        opacityFrom: 0.25,
+        opacityTo: 0.02,
+        stops: [0, 95, 100]
       }
     },
     colors: ["#7FA46D", "#e0542c"],
+    markers: {
+      size: 5,
+      colors: ["#ffffff"],
+      strokeColors: ["#7FA46D", "#e0542c"],
+      strokeWidth: 3,
+      hover: {
+        size: 7
+      }
+    },
     dataLabels: { enabled: false },
     xaxis: {
       categories: charts.map((c: any) => c.label),
@@ -298,20 +316,89 @@ export function DashboardPage() {
     },
     tooltip: {
       theme: "light",
-      style: { fontSize: "10px", fontFamily: "Poppins" }
+      style: { fontSize: "10px", fontFamily: "Poppins" },
+      y: {
+        formatter: (val: number) => `${Math.round(val)}%`
+      }
     }
   };
 
   const chart2Series = [
     {
       name: "Masuk",
-      data: charts.map((c: any) => c.masuk)
+      data: charts.map((c: any) => {
+        const dayTotal = (Number(c.masuk) || 0) + (Number(c.alfa) || 0) + (Number(c.sakit) || 0) + (Number(c.izin) || 0) || totalPegawaiTotal || 5;
+        return Math.round(((Number(c.masuk) || 0) / dayTotal) * 100);
+      })
     },
     {
       name: "Alfa",
-      data: charts.map((c: any) => c.alfa)
+      data: charts.map((c: any) => {
+        const dayTotal = (Number(c.masuk) || 0) + (Number(c.alfa) || 0) + (Number(c.sakit) || 0) + (Number(c.izin) || 0) || totalPegawaiTotal || 5;
+        return Math.round(((Number(c.alfa) || 0) / dayTotal) * 100);
+      })
     }
   ];
+
+  const genderData = dashboardData?.gender_demographics || { pria: 3, wanita: 2 };
+
+  const chart3Options: ApexCharts.ApexOptions = {
+    chart: {
+      type: "donut",
+      toolbar: { show: false },
+      fontFamily: "Poppins",
+      animations: {
+        enabled: true,
+        speed: 1000
+      }
+    },
+    colors: ["#1e2a4a", "#e0542c"],
+    labels: ["Pria", "Wanita"],
+    plotOptions: {
+      pie: {
+        donut: {
+          size: "72%",
+          labels: {
+            show: true,
+            total: {
+              show: true,
+              label: "Total Pegawai",
+              fontSize: "10px",
+              fontWeight: "700",
+              color: "#9ca3af",
+              formatter: () => `${totalPegawaiTotal || 5}`
+            },
+            value: {
+              fontSize: "16px",
+              fontWeight: "900",
+              color: "#1f2937",
+              offsetY: 2
+            }
+          }
+        }
+      }
+    },
+    dataLabels: { enabled: false },
+    legend: {
+      show: true,
+      position: "bottom",
+      fontSize: "10px",
+      fontFamily: "Poppins",
+      fontWeight: 600,
+      labels: { colors: "#4b5563" },
+      markers: { size: 8 }
+    },
+    stroke: { width: 2, colors: ["#ffffff"] },
+    tooltip: {
+      theme: "light",
+      style: { fontSize: "10px", fontFamily: "Poppins" },
+      y: {
+        formatter: (val: number) => `${val} Pegawai`
+      }
+    }
+  };
+
+  const chart3Series = [genderData.pria || 3, genderData.wanita || 2];
 
   return (
     <div className="space-y-6">
@@ -398,22 +485,16 @@ export function DashboardPage() {
           {/* Charts Grid Split (50% / 50% within left 8 cols) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Chart 1: Attendance Analytics */}
-            <div className="p-4.5 sm:p-5 bg-white border border-gray-200 rounded-2xl shadow-xs text-left">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <h3 className="text-xs font-black text-gray-900">Statistik Kehadiran Mingguan</h3>
-                  <p className="text-[9.5px] font-bold text-gray-400 mt-0.5">Total pegawai hadir per hari minggu ini</p>
-                </div>
-                <button className="flex items-center gap-1 px-2 py-1 bg-gray-50 border border-gray-200 rounded-lg text-[9.5px] font-bold text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer shrink-0 ml-2">
-                  Minggu Ini
-                  <ChevronDown className="w-3 h-3 text-gray-400" />
-                </button>
+            <div className="p-4.5 sm:p-5 bg-white border border-gray-200 rounded-2xl shadow-xs text-left flex flex-col justify-between h-[275px]">
+              <div className="mb-2">
+                <h3 className="text-xs font-black text-gray-900">Statistik Kehadiran Mingguan</h3>
+                <p className="text-[9.5px] font-bold text-gray-400 mt-0.5">Total pegawai hadir per hari minggu ini</p>
               </div>
 
               {/* Apex Bar Chart */}
-              <div className="relative w-full h-[200px] -mb-2">
+              <div className="relative w-full h-[195px] -mb-2">
                 {loading ? (
-                  <div className="h-[200px] w-full flex items-center justify-center text-xs text-gray-400 font-semibold">
+                  <div className="h-[195px] w-full flex items-center justify-center text-xs text-gray-400 font-semibold">
                     Memuat grafik...
                   </div>
                 ) : (
@@ -421,7 +502,7 @@ export function DashboardPage() {
                     options={chart1Options}
                     series={chart1Series}
                     type="bar"
-                    height={200}
+                    height={195}
                     width="100%"
                   />
                 )}
@@ -429,7 +510,7 @@ export function DashboardPage() {
             </div>
 
             {/* Chart 2: Presence vs Alfa comparison */}
-            <div className="p-4.5 sm:p-5 bg-white border border-gray-200 rounded-2xl shadow-xs text-left">
+            <div className="p-4.5 sm:p-5 bg-white border border-gray-200 rounded-2xl shadow-xs text-left flex flex-col justify-between h-[275px]">
               <div className="flex justify-between items-start mb-2">
                 <div>
                   <h3 className="text-xs font-black text-gray-900">Kehadiran & Alfa</h3>
@@ -445,18 +526,18 @@ export function DashboardPage() {
                 </div>
               </div>
 
-              {/* Stacked Bar Apex Chart */}
-              <div className="relative w-full h-[200px] -mb-2">
+              {/* Apex Area Chart with Subtle Gradient */}
+              <div className="relative w-full h-[195px] -mb-2">
                 {loading ? (
-                  <div className="h-[200px] w-full flex items-center justify-center text-xs text-gray-400 font-semibold">
+                  <div className="h-[195px] w-full flex items-center justify-center text-xs text-gray-400 font-semibold">
                     Memuat grafik...
                   </div>
                 ) : (
                   <Chart
                     options={chart2Options}
                     series={chart2Series}
-                    type="bar"
-                    height={200}
+                    type="area"
+                    height={195}
                     width="100%"
                   />
                 )}
@@ -515,22 +596,32 @@ export function DashboardPage() {
                 },
                 {
                   header: "Pengajuan",
-                  cell: (item: any) => (
-                    <div>
-                      <span className="px-2 py-0.5 bg-zinc-50 border border-zinc-200 text-zinc-700 rounded-md text-[9px] font-bold block w-max">
-                        {item.nama_cuti || "Izin"}
-                      </span>
-                      <span className="text-[10px] text-gray-400 font-semibold block mt-1">
-                        {item.tanggal
-                          ? new Date(item.tanggal).toLocaleDateString("id-ID", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            })
-                          : "—"}
-                      </span>
-                    </div>
-                  ),
+                  cell: (item: any) => {
+                    const name = (item.nama_cuti || "Izin").toLowerCase();
+                    const badgeBg = name.includes("cuti")
+                      ? "bg-[#7FA46D]"
+                      : name.includes("sakit")
+                      ? "bg-[#e0542c]"
+                      : name.includes("telat")
+                      ? "bg-[#F2B233]"
+                      : "bg-[#5C8A90]";
+                    return (
+                      <div>
+                        <span className={`px-2.5 py-0.5 ${badgeBg} text-white rounded-full text-[9px] font-extrabold uppercase shadow-2xs block w-max`}>
+                          {item.nama_cuti || "Izin"}
+                        </span>
+                        <span className="text-[10px] text-gray-400 font-semibold block mt-1">
+                          {item.tanggal
+                            ? new Date(item.tanggal).toLocaleDateString("id-ID", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })
+                            : "—"}
+                        </span>
+                      </div>
+                    );
+                  },
                 },
                 {
                   header: "Alasan",
@@ -558,52 +649,36 @@ export function DashboardPage() {
               loading={loading}
               emptyMessage="Tidak ada pengajuan izin pending."
               showSearch={false}
-              showPagination={false}
+              itemsPerPage={6}
+              showPagination={true}
             />
           </div>
         </div>
 
         {/* Right Column (4 cols): Quick Actions & Birthday Calendar */}
         <div className="lg:col-span-4 space-y-6">
-          {/* Quick Actions Shortcuts Card */}
-          <div className="p-4.5 sm:p-5 bg-white border border-gray-200 rounded-2xl shadow-xs text-left space-y-3">
+          {/* Chart 3: Employee Gender Demographics Donut (Replaces Aksi Cepat) */}
+          <div className="p-4.5 sm:p-5 bg-white border border-gray-200 rounded-2xl shadow-xs text-left flex flex-col justify-between h-[275px]">
             <div>
-              <h3 className="text-xs font-black text-gray-900 uppercase tracking-wider">Aksi Cepat & Navigasi</h3>
-              <p className="text-[9.5px] font-bold text-gray-400 mt-0.5">Akses cepat ke menu operasional utama</p>
+              <h3 className="text-xs font-black text-gray-900 uppercase tracking-wider">Komposisi Gender Pegawai</h3>
+              <p className="text-[9.5px] font-bold text-gray-400 mt-0.5">Rasio perbandingan jumlah pegawai Pria & Wanita</p>
             </div>
-            
-            <div className="grid grid-cols-1 gap-2.5">
-              <button
-                onClick={() => navigate("Employee")}
-                className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 hover:bg-[#e0542c]/5 border border-zinc-100 hover:border-[#e0542c]/20 transition-all cursor-pointer group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#e0542c]/10 text-[#e0542c] font-black flex items-center justify-center shrink-0">
-                    <Calendar className="w-4 h-4" />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-xs font-extrabold text-gray-800 group-hover:text-[#e0542c]">Atur Shift Pegawai</div>
-                    <div className="text-[9.5px] font-bold text-gray-400">Jadwal shift & kalender</div>
-                  </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-[#e0542c] transition-colors" />
-              </button>
 
-              <button
-                onClick={() => navigate("Attendance")}
-                className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 hover:bg-[#5C8A90]/5 border border-zinc-100 hover:border-[#5C8A90]/20 transition-all cursor-pointer group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#5C8A90]/10 text-[#5C8A90] font-black flex items-center justify-center shrink-0">
-                    <UserCheck className="w-4 h-4" />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-xs font-extrabold text-gray-800 group-hover:text-[#5C8A90]">Rekapitulasi Absensi</div>
-                    <div className="text-[9.5px] font-bold text-gray-400">Log kehadiran & jam kerja</div>
-                  </div>
+            {/* Apex Donut Chart */}
+            <div className="relative w-full h-[195px] flex items-center justify-center -mb-1">
+              {loading ? (
+                <div className="h-[195px] w-full flex items-center justify-center text-xs text-gray-400 font-semibold">
+                  Memuat grafik...
                 </div>
-                <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-[#5C8A90] transition-colors" />
-              </button>
+              ) : (
+                <Chart
+                  options={chart3Options}
+                  series={chart3Series}
+                  type="donut"
+                  height={190}
+                  width="100%"
+                />
+              )}
             </div>
           </div>
 

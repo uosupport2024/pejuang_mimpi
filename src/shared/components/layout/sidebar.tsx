@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "@/shared/router/router";
-import logoWhiteImg from "@/assets/logo/logo-white.png";
+import logoWhiteImg from "@/assets/logo/POT–PejuangMimpi–Logo.png";
 import { menuItems } from "@/shared/router/menu";
 import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -127,8 +127,9 @@ export function Sidebar() {
         <img
           src={logoWhiteImg}
           alt="Pejuang Mimpi Logo"
-          className={`object-contain transition-all duration-300 hover:scale-105 shrink-0 ${isCollapsed ? "w-10 h-10" : "h-12 w-auto max-w-[150px]"
-            }`}
+          className={`object-contain transition-all duration-300 hover:scale-105 shrink-0 ${
+            isCollapsed ? "w-9 h-9" : "h-[43px] w-auto max-w-[135px]"
+          }`}
         />
       </div>
 

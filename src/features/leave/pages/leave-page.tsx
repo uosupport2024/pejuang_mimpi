@@ -27,15 +27,15 @@ interface LeaveApprovalItem {
 const getLeaveStyle = (name: string) => {
   const normName = name.toLowerCase();
   if (normName.includes("cuti")) {
-    return "bg-emerald-50 border border-emerald-100 text-emerald-700";
+    return "bg-[#7FA46D] text-white shadow-2xs";
   } else if (normName.includes("sakit")) {
-    return "bg-rose-50 border border-rose-100 text-rose-700";
+    return "bg-[#e0542c] text-white shadow-2xs";
   } else if (normName.includes("telat")) {
-    return "bg-amber-50 border border-amber-100 text-amber-700";
+    return "bg-[#F2B233] text-white shadow-2xs";
   } else if (normName.includes("pulang cepat")) {
-    return "bg-orange-50 border border-orange-100 text-orange-700";
+    return "bg-[#F25C2A] text-white shadow-2xs";
   } else {
-    return "bg-zinc-50 border border-zinc-200 text-zinc-700";
+    return "bg-[#5C8A90] text-white shadow-2xs";
   }
 };
 

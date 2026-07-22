@@ -1,9 +1,10 @@
-import { Bell, ChevronDown, User, Lock, LogOut, FileText, Calendar, Megaphone } from "lucide-react";
+import { Bell, ChevronDown, User, Lock, LogOut, FileText, Calendar, Megaphone, Clock, Building2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useRouter, type RouteType } from "@/shared/router/router";
 import { fetchProfileAPI } from "@/features/tunas/api/absensi";
 import { THEME_COLORS } from "@/shared/constants/colors";
+import { ChangePasswordModal } from "@/shared/components/ui/change-password-modal";
 
 interface NavbarProps {
   user: {
@@ -17,11 +18,41 @@ export function Navbar({ user, onLogout }: NavbarProps) {
   const { navigate } = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const pathname = location.pathname;
   const [tenantName, setTenantName] = useState<string>("");
+
+  // Live Running Time & Date State
+  const [timeState, setTimeState] = useState({
+    date: "",
+    time: "",
+  });
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString("id-ID", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+      const timeStr = now.toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      });
+      setTimeState({ date: dateStr, time: `${timeStr} WIB` });
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const [notifications, setNotifications] = useState<Array<{
     id: number;
@@ -301,15 +332,19 @@ export function Navbar({ user, onLogout }: NavbarProps) {
             </div>
           )}
         </div>
-        {/* Tenant Information Badge (Sawah Pertumbuhan Green) */}
-        {tenantName && (
-          <div
-            style={{ backgroundColor: THEME_COLORS.hex.sawahPertumbuhan }}
-            className="hidden md:flex items-center gap-1 px-3 py-1 rounded-full text-white text-[9px] font-bold tracking-wide uppercase max-w-[160px] shadow-xs shrink-0 select-none border border-white/20"
-          >
-            <span className="truncate">{tenantName}</span>
+        {/* Live Running Date & Clock Widget */}
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/15 shadow-xs text-white select-none shrink-0">
+          <Clock className="w-3.5 h-3.5 text-white/80 shrink-0" />
+          <div className="flex items-center gap-1.5 text-left">
+            <span className="text-[10.5px] font-black text-white tracking-wider font-mono">
+              {timeState.time || "00:00:00 WIB"}
+            </span>
+            <span className="text-white/30 text-xs font-normal">|</span>
+            <span className="text-[9.5px] font-bold text-white/80 tracking-tight">
+              {timeState.date}
+            </span>
           </div>
-        )}
+        </div>
 
         {/* Dropdown Container */}
         <div ref={dropdownRef} className="relative">
@@ -335,22 +370,32 @@ export function Navbar({ user, onLogout }: NavbarProps) {
           {/* Premium Dropdown Menu */}
           {isOpen && (
             <div className="absolute right-0 mt-2.5 w-56 bg-white/95 backdrop-blur-xl border border-zinc-200/60 rounded-2xl shadow-2xl z-50 p-2 text-zinc-800 transition-all animate-in fade-in zoom-in-95 duration-150">
-              {/* User Summary Box (Symmetrical Flex Center) */}
-              <div
-                style={{ backgroundColor: `${THEME_COLORS.hex.leftBg}` }}
-                className="px-3 py-2.5 mb-1.5 rounded-xl border border-[#e0542c]/15 flex items-center gap-3"
-              >
+              {/* User Summary Box (Solid Batik Navy Background) */}
+              <div className="px-3 py-2.5 mb-1.5 rounded-xl bg-[#1e2a4a] text-white flex items-center gap-3 shadow-xs">
                 <div
                   style={{ backgroundColor: THEME_COLORS.hex.primary }}
-                  className="w-9 h-9 rounded-full text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs my-auto"
+                  className="w-9 h-9 rounded-full text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs my-auto ring-2 ring-white/20"
                 >
                   {user.name.split(" ").map((n) => n[0]).join("").toUpperCase()}
                 </div>
-                <div className="min-w-0 flex-1 flex flex-col justify-center text-left my-auto gap-1">
-                  <h5 style={{ color: THEME_COLORS.hex.textDark }} className="text-xs font-bold truncate leading-none">{user.name}</h5>
-                  <p style={{ color: THEME_COLORS.hex.textMuted }} className="text-[10px] font-medium truncate leading-none">{user.role}</p>
+                <div className="min-w-0 flex-1 flex flex-col justify-center text-left my-auto gap-0.5">
+                  <h5 className="text-xs font-extrabold text-white truncate leading-none">{user.name}</h5>
+                  <p className="text-[10px] text-white/70 font-medium truncate leading-none mt-0.5">{user.role}</p>
                 </div>
               </div>
+
+              {/* Tenant / Organization Info Badge (Solid Sawah Pertumbuhan Green Background) */}
+              {tenantName && (
+                <div className="px-3 py-2 mb-2 rounded-xl bg-[#7FA46D] text-white flex items-center justify-between text-left shadow-xs">
+                  <div className="flex items-center gap-1.5">
+                    <Building2 className="w-3.5 h-3.5 text-white" />
+                    <span className="text-[10px] font-extrabold text-white/90 uppercase tracking-wider">Tenant</span>
+                  </div>
+                  <span className="text-[10px] font-black text-white uppercase tracking-wider truncate max-w-[110px]">
+                    {tenantName}
+                  </span>
+                </div>
+              )}
 
               {/* Menu Options with Theme Colors */}
               <button
@@ -367,7 +412,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
               </button>
 
               <button
-                onClick={() => { setIsOpen(false); alert("Fitur Ubah Sandi segera hadir!"); }}
+                onClick={() => { setIsOpen(false); setIsPasswordModalOpen(true); }}
                 className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-medium text-zinc-700 hover:text-[#1f2937] hover:bg-[#F2B233]/10 transition-all cursor-pointer text-left group"
               >
                 <div
@@ -398,6 +443,12 @@ export function Navbar({ user, onLogout }: NavbarProps) {
           )}
         </div>
       </div>
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+      />
     </div>
   );
 }

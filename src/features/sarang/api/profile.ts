@@ -39,7 +39,10 @@ export async function updateProfileOnBackend(data: Partial<SarangUser>): Promise
 /**
  * Connects to backend API to change user password.
  */
-export async function changePasswordOnBackend(currentPassword: string, newPassword: string): Promise<boolean> {
+export async function changePasswordOnBackend(
+  currentPassword: string,
+  newPassword: string
+): Promise<{ success: boolean; message?: string }> {
   try {
     const response = await fetch(`${API_BASE_URL}/profile/password`, {
       method: "PUT",
@@ -50,18 +53,23 @@ export async function changePasswordOnBackend(currentPassword: string, newPasswo
       }),
     });
 
+    const json = await response.json().catch(() => ({}));
+
     if (!response.ok) {
-      // Fallback path
-      const altRes = await fetch(`${API_BASE_URL}/auth/change-password`, {
-        method: "POST",
-        headers: getHeaders(),
-        body: JSON.stringify({ password: newPassword }),
-      });
-      return altRes.ok;
+      return {
+        success: false,
+        message: json.message || "Gagal mengganti kata sandi. Periksa kata sandi lama Anda.",
+      };
     }
-    return response.ok;
+    return {
+      success: true,
+      message: json.message || "Kata sandi berhasil diperbarui!",
+    };
   } catch (err) {
-    console.warn("Backend change password failed or is offline. Using local simulation fallback.", err);
-    return true; // Simulate success
+    console.warn("Backend change password error:", err);
+    return {
+      success: false,
+      message: "Terjadi kesalahan koneksi ke server.",
+    };
   }
 }
