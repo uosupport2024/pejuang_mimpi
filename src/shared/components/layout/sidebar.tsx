@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "@/shared/router/router";
-import logoImg from "@/assets/logo/POT–Pejuang_Mimpi–Logo.png";
+import logoWhiteImg from "@/assets/logo/logo-white.png";
 import { menuItems } from "@/shared/router/menu";
 import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -58,9 +58,12 @@ export function Sidebar() {
       fetchPendingCount();
     };
 
-    window.addEventListener("koreksi-approval-updated", handleUpdate);
+    window.addEventListener("koreksi-absen-updated", handleUpdate);
+    window.addEventListener("cuti-updated", handleUpdate);
+
     return () => {
-      window.removeEventListener("koreksi-approval-updated", handleUpdate);
+      window.removeEventListener("koreksi-absen-updated", handleUpdate);
+      window.removeEventListener("cuti-updated", handleUpdate);
     };
   }, [fetchPendingCount]);
 
@@ -116,26 +119,17 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`bg-[#1e2a4a] text-white flex flex-col py-2 shrink-0 h-screen lg:h-screen overflow-visible transition-all duration-300 ease-in-out relative z-40 select-none ${isCollapsed ? "w-full lg:w-20 px-2.5" : "w-full lg:w-64 pl-4 pr-[11px]"
+      className={`bg-[#1e2a4a] text-white flex flex-col py-3 shrink-0 h-screen lg:h-screen overflow-visible transition-all duration-300 ease-in-out relative z-40 select-none ${isCollapsed ? "w-full lg:w-20 px-2.5" : "w-full lg:w-64 pl-4 pr-[11px]"
         }`}
     >
-      {/* Pejuang Mimpi Brand Logo Header (Aligned in height with top navbar, square when collapsed) */}
-      <div
-        className={`flex items-center mb-3 shrink-0 bg-white/10 border border-white/15 backdrop-blur-md rounded-2xl relative overflow-hidden transition-all duration-300 ${isCollapsed ? "w-11 h-11 p-0 mx-auto justify-center" : "h-12 px-2.5 mx-0.5 justify-start gap-2.5"
-          }`}
-      >
-        <img src={logoImg} alt="Pejuang Mimpi Logo" className="w-8 h-8 object-contain shrink-0 transition-transform duration-300 hover:scale-105" />
-        <div
-          className={`flex flex-col min-w-0 transition-all duration-300 ease-in-out origin-left ${isCollapsed ? "opacity-0 w-0 scale-95 overflow-hidden hidden" : "opacity-100 w-auto scale-100"
+      {/* Pejuang Mimpi Brand Logo Header */}
+      <div className="flex items-center justify-center shrink-0 w-full py-1 transition-all duration-300">
+        <img
+          src={logoWhiteImg}
+          alt="Pejuang Mimpi Logo"
+          className={`object-contain transition-all duration-300 hover:scale-105 shrink-0 ${isCollapsed ? "w-10 h-10" : "h-12 w-auto max-w-[150px]"
             }`}
-        >
-          <span className="text-[12px] font-extrabold tracking-tight text-white leading-tight truncate">
-            Pejuang <span className="text-[#e0542c]">Mimpi</span>
-          </span>
-          <span className="text-[7px] font-bold tracking-widest text-[#fee279] uppercase mt-0.5 truncate">
-            Attendance Core
-          </span>
-        </div>
+        />
       </div>
 
       {/* Menu groups */}
@@ -190,8 +184,8 @@ export function Sidebar() {
                             }
                           }}
                           className={`w-11 h-11 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer relative active:scale-95 ${isActive || isAnySubActive
-                              ? "bg-[#e0542c] text-white shadow-md shadow-[#e0542c]/30"
-                              : "text-white/70 hover:text-white hover:bg-white/10"
+                            ? "bg-[#e0542c] text-white shadow-md shadow-[#e0542c]/30"
+                            : "text-white/70 hover:text-white hover:bg-white/10"
                             }`}
                         >
                           <Icon size={20} weight="Linear" className="shrink-0 transition-transform group-hover:scale-110 duration-200" />
@@ -245,8 +239,8 @@ export function Sidebar() {
                                     navigate(sub.route);
                                   }}
                                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all duration-150 cursor-pointer ${isSubActive
-                                      ? "text-[#fee279] font-bold bg-white/15"
-                                      : "text-white/70 hover:text-white hover:bg-white/10"
+                                    ? "text-[#fee279] font-bold bg-white/15"
+                                    : "text-white/70 hover:text-white hover:bg-white/10"
                                     }`}
                                 >
                                   <span>{sub.name}</span>
@@ -279,8 +273,8 @@ export function Sidebar() {
                           type="button"
                           onClick={() => toggleDropdown(item.name)}
                           className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 cursor-pointer ${isAnySubActive
-                              ? "bg-[#e0542c] text-white shadow-md shadow-[#e0542c]/25 font-semibold"
-                              : "text-white/70 hover:text-white hover:bg-white/10"
+                            ? "bg-[#e0542c] text-white shadow-md shadow-[#e0542c]/25 font-semibold"
+                            : "text-white/70 hover:text-white hover:bg-white/10"
                             }`}
                         >
                           <div className="flex items-center gap-3">
@@ -328,8 +322,8 @@ export function Sidebar() {
                                   type="button"
                                   onClick={() => navigate(sub.route)}
                                   className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition-all duration-150 cursor-pointer ${isSubActive
-                                      ? "text-[#fee279] font-bold bg-white/10"
-                                      : "text-white/60 hover:text-white hover:bg-white/5"
+                                    ? "text-[#fee279] font-bold bg-white/10"
+                                    : "text-white/60 hover:text-white hover:bg-white/5"
                                     }`}
                                 >
                                   <span>{sub.name}</span>
@@ -364,8 +358,8 @@ export function Sidebar() {
                       type="button"
                       onClick={() => item.route && navigate(item.route)}
                       className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 cursor-pointer ${isActive
-                          ? "bg-[#e0542c] text-white shadow-md shadow-[#e0542c]/25 font-semibold"
-                          : "text-white/70 hover:text-white hover:bg-white/10"
+                        ? "bg-[#e0542c] text-white shadow-md shadow-[#e0542c]/25 font-semibold"
+                        : "text-white/70 hover:text-white hover:bg-white/10"
                         }`}
                     >
                       <div className="flex items-center gap-3">
@@ -395,14 +389,14 @@ export function Sidebar() {
           onClick={toggleCollapse}
           type="button"
           className={`flex items-center rounded-xl transition-all duration-200 cursor-pointer active:scale-98 ${isCollapsed
-              ? "w-11 h-11 justify-center mx-auto text-white/70 hover:text-white hover:bg-white/10 relative group"
-              : "w-full justify-between px-3.5 py-2 text-xs font-medium text-white/70 hover:text-white hover:bg-white/10"
+            ? "w-11 h-11 justify-center mx-auto text-white/70 hover:text-white hover:bg-white/10 relative group"
+            : "w-full justify-between px-3.5 py-2 text-xs font-medium text-white/70 hover:text-white hover:bg-white/10"
             }`}
           title={isCollapsed ? "Perluas Sidebar" : "Ciutkan Sidebar"}
         >
           {!isCollapsed ? (
             <>
-              <span className="font-semibold">Collapse</span>
+              <span className="font-semibold">Ciutkan</span>
               <ChevronLeft className="w-4 h-4 text-white/70 transition-transform duration-300 group-hover:-translate-x-0.5" />
             </>
           ) : (
