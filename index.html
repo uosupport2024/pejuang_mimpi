@@ -15,10 +15,19 @@
         await OneSignal.init({
           appId: "8b3fdb5b-f137-41cd-99d7-d99d709bcd7e",
           safari_web_id: "web.onesignal.auto.05737452-6fb0-4a74-aaf2-b68bc5a2ed6a",
+          allowLocalhostAsSecureOrigin: true,
           notifyButton: {
             enable: true,
           },
         });
+        // Prompt for notification permission on load
+        try {
+          if (OneSignal.Notifications) {
+            await OneSignal.Notifications.requestPermission();
+          }
+        } catch (e) {
+          console.warn("OneSignal permission prompt error:", e);
+        }
       });
     </script>
   </head>
