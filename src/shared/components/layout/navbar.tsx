@@ -1,7 +1,7 @@
-import { Bell, ChevronDown, User, Lock, LogOut } from "lucide-react";
+import { Bell, ChevronDown, User, Lock, LogOut, FileText, Calendar, Megaphone } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { useRouter } from "@/shared/router/router";
+import { useRouter, type RouteType } from "@/shared/router/router";
 import { fetchProfileAPI } from "@/features/tunas/api/absensi";
 import { THEME_COLORS } from "@/shared/constants/colors";
 
@@ -16,10 +16,64 @@ interface NavbarProps {
 export function Navbar({ user, onLogout }: NavbarProps) {
   const { navigate } = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const pathname = location.pathname;
   const [tenantName, setTenantName] = useState<string>("");
+
+  const [notifications, setNotifications] = useState<Array<{
+    id: number;
+    title: string;
+    desc: string;
+    time: string;
+    unread: boolean;
+    type: "leave" | "shift" | "announcement";
+    path: RouteType;
+  }>>([
+    {
+      id: 1,
+      title: "Pengajuan Cuti Baru",
+      desc: "Rizky Kautsar mengajukan Izin Cuti Tahunan.",
+      time: "5 menit lalu",
+      unread: true,
+      type: "leave",
+      path: "Leave",
+    },
+    {
+      id: 2,
+      title: "Pembaharuan Shift",
+      desc: "Jadwal Shift Minggu Depan berhasil diperbarui.",
+      time: "1 jam lalu",
+      unread: true,
+      type: "shift",
+      path: "Employee",
+    },
+    {
+      id: 3,
+      title: "Pengumuman Manajemen",
+      desc: "Pengumuman jam operasional khusus telah terbit.",
+      time: "Kemarin",
+      unread: false,
+      type: "announcement",
+      path: "Announcement",
+    },
+  ]);
+
+  const unreadCount = notifications.filter((n) => n.unread).length;
+
+  const markAllRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+  };
+
+  const handleNotifClick = (path: RouteType, id: number) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, unread: false } : n))
+    );
+    setIsNotifOpen(false);
+    navigate(path);
+  };
 
   useEffect(() => {
     fetchProfileAPI()
@@ -36,11 +90,14 @@ export function Navbar({ user, onLogout }: NavbarProps) {
       });
   }, []);
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+      }
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setIsNotifOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -149,9 +206,101 @@ export function Navbar({ user, onLogout }: NavbarProps) {
 
       {/* Profile widget and icons */}
       <div className="flex items-center justify-end gap-2.5 self-end md:self-auto">
-        <button className="p-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white shadow-xs cursor-pointer backdrop-blur-xs transition-colors">
-          <Bell className="w-3.5 h-3.5" />
-        </button>
+        {/* Notification Popover Container */}
+        <div ref={notifRef} className="relative">
+          <button
+            onClick={() => setIsNotifOpen(!isNotifOpen)}
+            className="p-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white shadow-xs cursor-pointer backdrop-blur-xs transition-all relative active:scale-95 flex items-center justify-center"
+            title="Pemberitahuan"
+          >
+            <Bell className="w-3.5 h-3.5" />
+            {unreadCount > 0 && (
+              <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-[#e0542c] ring-2 ring-[#1e2a4a] animate-pulse" />
+            )}
+          </button>
+
+          {/* Premium Notification Popup Dropdown */}
+          {isNotifOpen && (
+            <div className="absolute right-0 mt-2.5 w-80 sm:w-96 bg-white/95 backdrop-blur-xl border border-zinc-200/60 rounded-2xl shadow-2xl z-50 p-3.5 text-zinc-800 transition-all animate-in fade-in zoom-in-95 duration-150 text-left">
+              {/* Popup Header */}
+              <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-zinc-100 px-1">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-xs font-black text-gray-900">Pemberitahuan</h4>
+                  {unreadCount > 0 && (
+                    <span className="px-2 py-0.5 rounded-full bg-[#e0542c]/10 text-[#e0542c] text-[9px] font-black">
+                      {unreadCount} Baru
+                    </span>
+                  )}
+                </div>
+                {unreadCount > 0 && (
+                  <button
+                    onClick={markAllRead}
+                    className="text-[10px] font-bold text-[#5C8A90] hover:text-[#3d5d61] cursor-pointer transition-colors"
+                  >
+                    Tandai Semua Dibaca
+                  </button>
+                )}
+              </div>
+
+              {/* Notification List */}
+              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-0.5">
+                {notifications.length === 0 ? (
+                  <div className="py-6 text-center text-xs font-medium text-gray-400">
+                    Tidak ada pemberitahuan baru.
+                  </div>
+                ) : (
+                  notifications.map((notif) => (
+                    <div
+                      key={notif.id}
+                      onClick={() => handleNotifClick(notif.path, notif.id)}
+                      className={`p-2.5 rounded-xl border transition-all cursor-pointer flex items-start gap-3 ${
+                        notif.unread
+                          ? "bg-[#e0542c]/5 border-[#e0542c]/20 hover:bg-[#e0542c]/10"
+                          : "bg-zinc-50/60 border-zinc-100 hover:bg-zinc-100/80"
+                      }`}
+                    >
+                      <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
+                          notif.type === "leave"
+                            ? "bg-[#e0542c]/10 text-[#e0542c]"
+                            : notif.type === "shift"
+                            ? "bg-[#5C8A90]/10 text-[#5C8A90]"
+                            : "bg-[#F2B233]/10 text-[#F2B233]"
+                        }`}
+                      >
+                        {notif.type === "leave" ? (
+                          <FileText className="w-4 h-4" />
+                        ) : notif.type === "shift" ? (
+                          <Calendar className="w-4 h-4" />
+                        ) : (
+                          <Megaphone className="w-4 h-4" />
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <h5 className="text-[11px] font-extrabold text-gray-900 truncate">
+                            {notif.title}
+                          </h5>
+                          <span className="text-[9px] font-semibold text-gray-400 shrink-0">
+                            {notif.time}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-gray-600 font-medium leading-snug line-clamp-2 mt-0.5">
+                          {notif.desc}
+                        </p>
+                      </div>
+
+                      {notif.unread && (
+                        <span className="w-2 h-2 rounded-full bg-[#e0542c] shrink-0 mt-1.5" />
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
         {/* Tenant Information Badge (Sawah Pertumbuhan Green) */}
         {tenantName && (
           <div
