@@ -391,46 +391,46 @@ export function AttendancePage() {
     <div className="w-full space-y-6">
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Total Karyawan */}
-        <div className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Total Pegawai</span>
-            <span className="text-xl font-extrabold text-gray-800">{totalEmployees} Orang</span>
+        {/* Card 1: Total Pegawai */}
+        <div className="p-4 bg-[#5C8A90] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default">
+          <div className="space-y-1 text-left">
+            <span className="text-[10px] font-extrabold text-white/80 uppercase tracking-wider block">Total Pegawai</span>
+            <span className="text-2xl font-black text-white tracking-tight leading-none block">{totalEmployees} Orang</span>
           </div>
-          <div className="p-3 bg-[#5C8A90]/10 text-[#5C8A90] rounded-xl shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0">
             <User size={20} />
           </div>
         </div>
 
         {/* Card 2: Kehadiran Rata-rata */}
-        <div className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Rata-rata Kehadiran</span>
-            <span className="text-xl font-extrabold text-gray-800">{averageAttendanceRate.toFixed(0)}%</span>
+        <div className="p-4 bg-[#7FA46D] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default">
+          <div className="space-y-1 text-left">
+            <span className="text-[10px] font-extrabold text-white/80 uppercase tracking-wider block">Rata-rata Kehadiran</span>
+            <span className="text-2xl font-black text-white tracking-tight leading-none block">{averageAttendanceRate.toFixed(0)}%</span>
           </div>
-          <div className="p-3 bg-[#7FA46D]/10 text-[#7FA46D] rounded-xl shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0">
             <CheckCircle2 size={20} />
           </div>
         </div>
 
         {/* Card 3: Jam Lembur */}
-        <div className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Total Lembur</span>
-            <span className="text-xl font-extrabold text-gray-800">{totalOvertimeHours} Jam</span>
+        <div className="p-4 bg-[#F2B233] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default">
+          <div className="space-y-1 text-left">
+            <span className="text-[10px] font-extrabold text-white/80 uppercase tracking-wider block">Total Lembur</span>
+            <span className="text-2xl font-black text-white tracking-tight leading-none block">{totalOvertimeHours} Jam</span>
           </div>
-          <div className="p-3 bg-[#F2B233]/10 text-[#F2B233] rounded-xl shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0">
             <Clock size={20} />
           </div>
         </div>
 
         {/* Card 4: Sakit / Izin */}
-        <div className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Total Sakit & Izin</span>
-            <span className="text-xl font-extrabold text-gray-800">{totalAbsences} Hari</span>
+        <div className="p-4 bg-[#e0542c] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default">
+          <div className="space-y-1 text-left">
+            <span className="text-[10px] font-extrabold text-white/80 uppercase tracking-wider block">Total Sakit & Izin</span>
+            <span className="text-2xl font-black text-white tracking-tight leading-none block">{totalAbsences} Hari</span>
           </div>
-          <div className="p-3 bg-[#e0542c]/10 text-[#e0542c] rounded-xl shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0">
             <AlertTriangle size={20} />
           </div>
         </div>

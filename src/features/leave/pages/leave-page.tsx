@@ -148,7 +148,7 @@ export function LeavePage() {
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "Approved":
-        return "bg-emerald-500/10 text-emerald-700 border border-emerald-500/20";
+        return "bg-[#7FA46D] text-white font-bold";
       case "Rejected":
         return "bg-rose-500/10 text-rose-700 border border-rose-500/20";
       default:

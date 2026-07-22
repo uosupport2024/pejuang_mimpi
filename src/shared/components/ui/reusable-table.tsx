@@ -217,13 +217,13 @@ export function ReusableTable<T>({
       {/* Main Table */}
       <div className="overflow-x-auto">
         <Table>
-          <TableHeader>
-            <TableRow className="bg-zinc-50/50 hover:bg-zinc-50/50">
+          <TableHeader className="bg-zinc-50/70">
+            <TableRow className="bg-zinc-50/70 hover:bg-zinc-50/70 border-b border-gray-100">
               {columns.map((column, idx) => (
                 <TableHead
                   key={idx}
                   className={cn(
-                    "py-3.5 px-4 text-xs font-semibold text-gray-500 border-b border-gray-100",
+                    "py-3.5 px-4 text-xs font-bold text-gray-600 border-b border-gray-100",
                     column.className
                   )}
                 >

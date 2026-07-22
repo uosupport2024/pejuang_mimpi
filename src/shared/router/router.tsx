@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, useEffect, type ReactNode } from "react";
 import { BrowserRouter, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -44,6 +44,50 @@ export type RouteType =
   | "LocationAdd"
   | "LocationEdit"
   | "Profile";
+
+export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
+  Dashboard: "Dashboard",
+  Employee: "Pegawai",
+  EmployeeAdd: "Tambah Pegawai",
+  EmployeeEdit: "Edit Pegawai",
+  EmployeeInputShift: "Shift Pegawai",
+  Attendance: "Rekap Absensi",
+  AttendanceToday: "Absensi Hari Ini",
+  Leave: "Cuti & Izin",
+  Payroll: "Rekap Keuangan",
+  PayrollHistory: "Riwayat Keuangan",
+  Overtime: "Lembur",
+  Shift: "Shift",
+  KoreksiAbsenApproval: "Persetujuan Absen",
+  Recruitment: "Rekrutmen",
+  Onboarding: "Onboarding",
+  Appraisal: "Penilaian",
+  Training: "Pelatihan",
+  Document: "Dokumen",
+  Announcement: "Pengumuman",
+  Organization: "Divisi",
+  Location: "Lokasi",
+  LocationAdd: "Tambah Lokasi",
+  LocationEdit: "Edit Lokasi",
+  Login: "Login",
+  Profile: "Profil",
+  MobileHome: "Sangkar",
+  MobileLumbung: "Lumbung",
+  MobileAyamku: "Ayamku",
+  MobilePakan: "Tunas",
+  MobileProfile: "Profil",
+  MobileCelenganDetail: "Detail Sangkar",
+  MobileCelenganAdd: "Tambah Sangkar",
+  MobileLokerDetail: "Detail Loker",
+  MobileAbsensi: "Absensi",
+  MobileLemburAbsensi: "Absen Lembur",
+  MobileLemburHistory: "Riwayat Lembur",
+  MobileKoreksiAbsen: "Koreksi Absen",
+  MobileHistory: "Riwayat",
+  MobileLeaveRequest: "Pengajuan Cuti",
+  MobileLeaveHistory: "Riwayat Cuti",
+  MobileIdCard: "Kartu Identitas",
+};
 
 export const ROUTE_TO_PATH: Record<RouteType, string> = {
   Dashboard: "/dashboard",
@@ -150,6 +194,11 @@ function RouterInnerProvider({ children }: { children: ReactNode }) {
   }
 
   const currentRoute = PATH_TO_ROUTE[resolvedPath] || "Dashboard";
+
+  useEffect(() => {
+    const pageTitle = ROUTE_TITLE_MAP[currentRoute] || "Menu";
+    document.title = `Pejuang Mimpi | ${pageTitle}`;
+  }, [currentRoute]);
 
   const navigate = (route: RouteType, state?: any) => {
     const path = ROUTE_TO_PATH[route] || "/dashboard";

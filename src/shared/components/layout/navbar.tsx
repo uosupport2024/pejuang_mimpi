@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useRouter } from "@/shared/router/router";
 import { fetchProfileAPI } from "@/features/tunas/api/absensi";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface NavbarProps {
   user: {
@@ -117,29 +118,29 @@ export function Navbar({ user, onLogout }: NavbarProps) {
   const { title, breadcrumbs } = getHeaderInfo();
 
   return (
-    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
       {/* Title & Breadcrumbs on the left */}
       <div className="flex flex-col text-left">
         {/* Page Title */}
-        <h1 className="text-lg font-extrabold text-gray-800 tracking-tight leading-tight">
+        <h1 className="text-base font-bold text-white tracking-tight leading-tight drop-shadow-xs">
           {title}
         </h1>
         {/* Breadcrumbs (under title) */}
-        <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 select-none mt-0.5">
+        <div className="flex items-center gap-1.5 text-[10px] font-medium text-white/70 select-none mt-0.5">
           {breadcrumbs.map((crumb, idx) => (
             <div key={idx} className="flex items-center gap-1.5">
               {idx === breadcrumbs.length - 1 ? (
-                <span className="text-gray-400">{crumb.label}</span>
+                <span className="text-white/90 font-semibold">{crumb.label}</span>
               ) : (
                 <Link
                   to={crumb.path}
-                  className="hover:text-[#e0542c] transition-colors cursor-pointer"
+                  className="hover:text-white transition-colors cursor-pointer"
                 >
                   {crumb.label}
                 </Link>
               )}
               {idx < breadcrumbs.length - 1 && (
-                <span className="text-gray-300 font-normal">/</span>
+                <span className="text-white/40 font-normal">/</span>
               )}
             </div>
           ))}
@@ -147,13 +148,16 @@ export function Navbar({ user, onLogout }: NavbarProps) {
       </div>
 
       {/* Profile widget and icons */}
-      <div className="flex items-center justify-end gap-3 self-end md:self-auto">
-        <button className="p-2.5 rounded-full bg-white hover:bg-gray-50 border border-transparent text-gray-500 shadow-xs cursor-pointer">
-          <Bell className="w-4 h-4" />
+      <div className="flex items-center justify-end gap-2.5 self-end md:self-auto">
+        <button className="p-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white shadow-xs cursor-pointer backdrop-blur-xs transition-colors">
+          <Bell className="w-3.5 h-3.5" />
         </button>
-        {/* Tenant Information Badge */}
+        {/* Tenant Information Badge (Sawah Pertumbuhan Green) */}
         {tenantName && (
-          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#7FA46D] text-white text-[10px] font-bold tracking-wide uppercase max-w-[180px] shadow-xs shrink-0 select-none">
+          <div
+            style={{ backgroundColor: THEME_COLORS.hex.sawahPertumbuhan }}
+            className="hidden md:flex items-center gap-1 px-3 py-1 rounded-full text-white text-[9px] font-bold tracking-wide uppercase max-w-[160px] shadow-xs shrink-0 select-none border border-white/20"
+          >
             <span className="truncate">{tenantName}</span>
           </div>
         )}
@@ -162,44 +166,84 @@ export function Navbar({ user, onLogout }: NavbarProps) {
         <div ref={dropdownRef} className="relative">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="flex items-center gap-3 pl-3 border border-gray-100 hover:border-gray-200 bg-white rounded-full py-1.5 pr-4 pl-1.5 shadow-xs cursor-pointer transition-all select-none"
+            className="flex items-center gap-2.5 pl-1 pr-3 py-1 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full border border-white/15 shadow-xs transition-all cursor-pointer select-none text-white active:scale-98"
           >
-            <div className="w-8 h-8 rounded-full bg-[#e0542c] flex items-center justify-center text-white text-xs font-bold shrink-0">
+            <div
+              style={{ backgroundColor: THEME_COLORS.hex.primary }}
+              className="w-7 h-7 rounded-full text-white text-[11px] font-extrabold flex items-center justify-center shrink-0 shadow-xs ring-1 ring-white/20"
+            >
               {user.name.split(" ").map((n) => n[0]).join("").toUpperCase()}
             </div>
-            <div className="text-left hidden sm:flex flex-col justify-center min-w-0">
-              <h4 className="text-xs font-bold text-gray-900 leading-tight truncate">
+            <div className="text-left hidden sm:flex flex-col justify-center min-w-0 gap-0.5 py-0.5">
+              <h4 className="text-[11px] font-bold text-white leading-none truncate max-w-[120px]">
                 {user.name}
               </h4>
-              <p className="text-[10px] text-gray-400 leading-tight mt-0.5">{user.role}</p>
+              <p className="text-[9px] text-white/70 font-medium leading-none">{user.role}</p>
             </div>
-            <ChevronDown className={`w-3.5 h-3.5 text-gray-400 ml-1 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+            <ChevronDown className={`w-3.5 h-3.5 text-white/70 ml-0.5 transition-transform duration-200 ${isOpen ? "rotate-180 text-white" : ""}`} />
           </button>
 
-          {/* Dropdown Menu */}
+          {/* Premium Dropdown Menu */}
           {isOpen && (
-            <div className="absolute right-0 mt-1.5 w-44 bg-white border border-gray-100 rounded-xl shadow-md z-50 py-1 transition-all">
+            <div className="absolute right-0 mt-2.5 w-56 bg-white/95 backdrop-blur-xl border border-zinc-200/60 rounded-2xl shadow-2xl z-50 p-2 text-zinc-800 transition-all animate-in fade-in zoom-in-95 duration-150">
+              {/* User Summary Box (Symmetrical Flex Center) */}
+              <div
+                style={{ backgroundColor: `${THEME_COLORS.hex.leftBg}` }}
+                className="px-3 py-2.5 mb-1.5 rounded-xl border border-[#e0542c]/15 flex items-center gap-3"
+              >
+                <div
+                  style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                  className="w-9 h-9 rounded-full text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs my-auto"
+                >
+                  {user.name.split(" ").map((n) => n[0]).join("").toUpperCase()}
+                </div>
+                <div className="min-w-0 flex-1 flex flex-col justify-center text-left my-auto gap-1">
+                  <h5 style={{ color: THEME_COLORS.hex.textDark }} className="text-xs font-bold truncate leading-none">{user.name}</h5>
+                  <p style={{ color: THEME_COLORS.hex.textMuted }} className="text-[10px] font-medium truncate leading-none">{user.role}</p>
+                </div>
+              </div>
+
+              {/* Menu Options with Theme Colors */}
               <button
                 onClick={() => { setIsOpen(false); navigate("Profile"); }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors cursor-pointer text-left"
+                className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-medium text-zinc-700 hover:text-[#1f2937] hover:bg-[#5C8A90]/10 transition-all cursor-pointer text-left group"
               >
-                <User className="w-3.5 h-3.5 text-gray-400" />
-                Profile
+                <div
+                  style={{ backgroundColor: `${THEME_COLORS.hex.airKehidupan}15`, color: THEME_COLORS.hex.airKehidupan }}
+                  className="w-7 h-7 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105"
+                >
+                  <User className="w-3.5 h-3.5" />
+                </div>
+                <span className="font-semibold text-[11px]">Profil Saya</span>
               </button>
+
               <button
                 onClick={() => { setIsOpen(false); alert("Fitur Ubah Sandi segera hadir!"); }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors cursor-pointer text-left"
+                className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-medium text-zinc-700 hover:text-[#1f2937] hover:bg-[#F2B233]/10 transition-all cursor-pointer text-left group"
               >
-                <Lock className="w-3.5 h-3.5 text-gray-400" />
-                Ubah Sandi
+                <div
+                  style={{ backgroundColor: `${THEME_COLORS.hex.padiKemakmuran}25`, color: "#916715" }}
+                  className="w-7 h-7 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105"
+                >
+                  <Lock className="w-3.5 h-3.5" />
+                </div>
+                <span className="font-semibold text-[11px]">Ubah Sandi</span>
               </button>
-              <div className="border-t border-gray-100/60 my-0.5" />
+
+              <div className="my-1 border-t border-zinc-100" />
+
               <button
                 onClick={() => { setIsOpen(false); onLogout?.(); }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold text-rose-600 hover:bg-rose-50/50 transition-colors cursor-pointer text-left"
+                className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-medium hover:bg-[#e0542c]/10 transition-all cursor-pointer text-left group"
+                style={{ color: THEME_COLORS.hex.primary }}
               >
-                <LogOut className="w-3.5 h-3.5 text-rose-400" />
-                Log Out
+                <div
+                  style={{ backgroundColor: `${THEME_COLORS.hex.primary}15`, color: THEME_COLORS.hex.primary }}
+                  className="w-7 h-7 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </div>
+                <span className="font-bold text-[11px]">Keluar Akun</span>
               </button>
             </div>
           )}
@@ -208,3 +252,4 @@ export function Navbar({ user, onLogout }: NavbarProps) {
     </div>
   );
 }
+

@@ -249,12 +249,12 @@ export function EmployeePage() {
         const roleName = row.roles?.[0]?.name || row.is_admin || "user";
         return (
           <span className={cn(
-            "px-2 py-0.5 rounded-md text-[10px] font-medium border uppercase",
+            "px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider inline-flex items-center justify-center text-white shadow-2xs",
             roleName === "admin"
-              ? "bg-[#e0542c]/5 text-[#e0542c] border-[#e0542c]/10"
+              ? "bg-[#e0542c]"
               : roleName === "user"
-                ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                : "bg-zinc-50 text-gray-600 border-zinc-100"
+                ? "bg-[#7FA46D]"
+                : "bg-gray-500"
           )}>
             {roleName}
           </span>

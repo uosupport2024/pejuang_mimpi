@@ -10,9 +10,33 @@ import {
 import Chart from "react-apexcharts";
 import { fetchAdminDashboardAPI } from "@/features/dashboard/api/dashboard";
 import { useRouter } from "@/shared/router/router";
+import { fetchProfileAPI } from "@/features/tunas/api/absensi";
 
 export function DashboardPage() {
   const { navigate } = useRouter();
+
+  const [userName, setUserName] = useState<string>("Super Admin");
+
+  useEffect(() => {
+    fetchProfileAPI()
+      .then((profile) => {
+        if (profile?.nama_pegawai) {
+          setUserName(profile.nama_pegawai);
+        } else if (profile?.name) {
+          setUserName(profile.name);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const getUserGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour >= 4 && hour < 11) return "Selamat Pagi";
+    if (hour >= 11 && hour < 15) return "Selamat Siang";
+    if (hour >= 15 && hour < 18) return "Selamat Sore";
+    return "Selamat Malam";
+  };
+  const greeting = getUserGreeting();
 
   // Filters state
   const [selectedDate, setSelectedDate] = useState<string>(() => {
@@ -62,34 +86,30 @@ export function DashboardPage() {
   const statCards = [
     {
       title: "Masuk",
-      value: stats.masuk.toString(),
+      value: `${stats.masuk} Orang`,
       icon: CheckCircle,
-      badgeStyle: "bg-emerald-500/10 text-emerald-600",
-      borderColor: "border-l-emerald-500",
+      cardBg: "bg-[#7FA46D]",
       subtext: "Pegawai hadir hari ini",
     },
     {
       title: "Alfa",
-      value: stats.alfa.toString(),
+      value: `${stats.alfa} Orang`,
       icon: XCircle,
-      badgeStyle: "bg-rose-500/10 text-rose-600",
-      borderColor: "border-l-rose-500",
+      cardBg: "bg-[#e0542c]",
       subtext: "Absen tanpa keterangan",
     },
     {
       title: "Sakit",
-      value: stats.sakit.toString(),
+      value: `${stats.sakit} Orang`,
       icon: Activity,
-      badgeStyle: "bg-amber-500/10 text-amber-600",
-      borderColor: "border-l-amber-500",
+      cardBg: "bg-[#F2B233]",
       subtext: "Pegawai dengan surat sakit",
     },
     {
       title: "Izin",
-      value: stats.izin.toString(),
+      value: `${stats.izin} Orang`,
       icon: FileText,
-      badgeStyle: "bg-blue-500/10 text-blue-600",
-      borderColor: "border-l-blue-500",
+      cardBg: "bg-[#5C8A90]",
       subtext: "Pegawai dengan persetujuan izin",
     },
   ];
@@ -156,8 +176,7 @@ export function DashboardPage() {
     plotOptions: {
       bar: {
         borderRadius: 4,
-        columnWidth: "45%",
-        distributed: false
+        columnWidth: "45%"
       }
     },
     colors: ["#7FA46D"],
@@ -226,10 +245,10 @@ export function DashboardPage() {
     plotOptions: {
       bar: {
         borderRadius: 4,
-        columnWidth: "40%",
+        columnWidth: "45%"
       }
     },
-    colors: ["#7FA46D", "#F25C2A"],
+    colors: ["#7FA46D", "#e0542c"],
     dataLabels: { enabled: false },
     xaxis: {
       categories: charts.map((c: any) => c.label),
@@ -245,16 +264,33 @@ export function DashboardPage() {
       axisTicks: { show: false }
     },
     yaxis: {
-      labels: { show: false }
+      labels: {
+        style: {
+          colors: "#9ca3af",
+          fontSize: "10px",
+          fontWeight: 600,
+          fontFamily: "Poppins"
+        },
+        formatter: (val: number) => `${Math.round(val)}%`
+      }
     },
-    grid: { show: false },
-    legend: { show: false },
+    grid: {
+      borderColor: "#f1f5f9",
+      strokeDashArray: 4,
+      xaxis: { lines: { show: false } },
+      yaxis: { lines: { show: true } }
+    },
+    legend: {
+      position: "top",
+      horizontalAlign: "right",
+      fontSize: "11px",
+      fontFamily: "Poppins",
+      fontWeight: 600,
+      labels: { colors: "#6b7280" }
+    },
     tooltip: {
       theme: "light",
-      style: { fontSize: "10px", fontFamily: "Poppins" },
-      y: {
-        formatter: (val: number) => `${val} Pegawai`
-      }
+      style: { fontSize: "10px", fontFamily: "Poppins" }
     }
   };
 
@@ -271,14 +307,21 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Top Filter Bar Card */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border border-gray-200 rounded-2xl p-4 shadow-xs">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#e0542c]" />
-          <span className="text-xs font-black text-gray-700 uppercase tracking-wider">Filter Dashboard</span>
+      {/* Top Header Section: Dynamic Greeting on Left + Filter Controls on Right */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Left Side Greeting */}
+        <div className="space-y-0.5 text-left">
+          <h1 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+            <span>{greeting},</span>
+            <span className="text-[#e0542c]">{userName}</span>
+          </h1>
+          <p className="text-xs font-bold text-gray-500">
+            Semangat memperjuangkan impian! Pantau ringkasan kehadiran & performa tim hari ini.
+          </p>
         </div>
-        
-        <div className="flex flex-wrap items-center gap-3">
+
+        {/* Right Side Filter Controls */}
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
           {/* Location Dropdown */}
           <div className="relative">
             <select
@@ -287,7 +330,7 @@ export function DashboardPage() {
                 const val = e.target.value;
                 setSelectedLokasiId(val ? Number(val) : undefined);
               }}
-              className="appearance-none flex items-center gap-2 px-3.5 py-2 pr-9 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 shadow-xs hover:bg-gray-50 transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#e0542c]"
+              className="appearance-none flex items-center gap-2 px-3.5 py-2 pr-9 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-600 shadow-xs hover:bg-gray-50 transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#e0542c]"
             >
               <option value="">Semua Lokasi</option>
               {locations.map((loc: any) => (
@@ -300,7 +343,7 @@ export function DashboardPage() {
           </div>
 
           {/* Date Picker Input */}
-          <div className="relative flex items-center bg-white border border-gray-200 rounded-lg px-3.5 py-2 shadow-xs hover:bg-gray-50 transition-colors">
+          <div className="relative flex items-center bg-white border border-gray-200 rounded-xl px-3.5 py-2 shadow-xs hover:bg-gray-50 transition-colors">
             <Calendar className="w-4 h-4 text-gray-400 mr-2" />
             <input
               type="date"
@@ -319,21 +362,18 @@ export function DashboardPage() {
           return (
             <div
               key={i}
-              className={`p-5 bg-white border border-gray-200 border-l-4 ${card.borderColor} rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default`}
+              className={`p-4 ${card.cardBg} rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default text-white`}
             >
               <div className="space-y-1 text-left">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider block">
+                <span className="text-[10px] font-extrabold text-white/80 uppercase tracking-wider block">
                   {card.title}
                 </span>
-                <span className="text-3xl font-black text-gray-900 tracking-tight leading-none block">
+                <span className="text-2xl font-black text-white tracking-tight leading-none block">
                   {loading ? "..." : card.value}
                 </span>
-                <span className="text-[9.5px] text-gray-400 font-semibold block leading-tight">
-                  {card.subtext}
-                </span>
               </div>
-              <div className={`w-12 h-12 rounded-xl ${card.badgeStyle} flex items-center justify-center shrink-0`}>
-                <Icon className="w-5.5 h-5.5" />
+              <div className="w-10 h-10 rounded-xl bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0">
+                <Icon className="w-5 h-5" />
               </div>
             </div>
           );
