@@ -541,9 +541,9 @@ export function AttendancePage() {
         </div>
 
         {/* Card-Grid or List Layout representing the rekap data */}
-        <div className="p-6 bg-zinc-50/30">
-          {viewMode === "card" ? (
-            loading ? (
+        {viewMode === "card" ? (
+          <div className="p-6 bg-zinc-50/30">
+            {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                 {Array.from({ length: 6 }).map((_, idx) => (
                   <div key={idx} className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between space-y-6 animate-pulse">
@@ -681,24 +681,24 @@ export function AttendancePage() {
                   );
                 })}
               </div>
-            )
-          ) : (
-            <ReusableTable
-              columns={columns}
-              data={loading ? [] : sortedItems}
-              loading={loading}
-              showSearch={false}
-              showPagination={true}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={totalItems}
-              onPageChange={handlePageChange}
-              className="border-none shadow-none p-0 bg-transparent rounded-none"
-              rowClassName="hover:bg-zinc-50/30"
-              emptyMessage="Tidak ada data rekapitulasi."
-            />
-          )}
-        </div>
+            )}
+          </div>
+        ) : (
+          <ReusableTable
+            columns={columns}
+            data={loading ? [] : sortedItems}
+            loading={loading}
+            showSearch={false}
+            showPagination={true}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            onPageChange={handlePageChange}
+            className="border-none shadow-none p-0 bg-transparent rounded-none"
+            rowClassName="hover:bg-zinc-50/30"
+            emptyMessage="Tidak ada data rekapitulasi."
+          />
+        )}
 
         {/* Pagination Controls for Card View */}
         {!loading && totalPages > 1 && viewMode === "card" && (

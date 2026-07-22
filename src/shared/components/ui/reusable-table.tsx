@@ -9,7 +9,7 @@ import {
 } from "./table"
 import { cn } from "@/shared/lib/utils"
 import { Skeleton } from "./skeleton"
-import { Magnifier } from "@solar-icons/react"
+import { Magnifier, SortFromTopToBottom, SortFromBottomToTop, SortVertical } from "@solar-icons/react"
 
 export interface ColumnDef<T> {
   header: React.ReactNode
@@ -17,6 +17,7 @@ export interface ColumnDef<T> {
   cell?: (row: T, index: number) => React.ReactNode
   skeleton?: (index: number) => React.ReactNode
   className?: string
+  sortable?: boolean
 }
 
 interface ReusableTableProps<T> {
@@ -48,6 +49,9 @@ interface ReusableTableProps<T> {
   totalItems?: number
   itemsPerPage?: number
   onPageChange?: (page: number) => void
+
+  // Built-in Sorting
+  onSortChange?: (sortKey: string, direction: "asc" | "desc" | null) => void
 }
 
 const getPaginationRange = (currentPage: number, totalPages: number) => {
@@ -74,6 +78,50 @@ const getPaginationRange = (currentPage: number, totalPages: number) => {
   }
 
   return uniqueRange
+}
+
+const getCleanHeaderText = (header: React.ReactNode): string => {
+  if (typeof header === "string") return header.trim().toLowerCase();
+  if (typeof header === "number") return String(header);
+  return extractTextFromReactNode(header).trim().toLowerCase();
+};
+
+const isExcludedFromSort = (header: React.ReactNode, explicitSortable?: boolean): boolean => {
+  if (explicitSortable === false) return true;
+  if (explicitSortable === true) return false;
+  
+  const cleanHeader = getCleanHeaderText(header);
+  return (
+    cleanHeader === "no" ||
+    cleanHeader === "no." ||
+    cleanHeader === "np" ||
+    cleanHeader === "np." ||
+    cleanHeader === "aksi" ||
+    cleanHeader === "action" ||
+    cleanHeader === "actions" ||
+    cleanHeader.includes("aksi") ||
+    cleanHeader.includes("action")
+  );
+};
+
+const isActionColumn = (header: React.ReactNode, className?: string): boolean => {
+  const cleanHeader = getCleanHeaderText(header);
+  if (cleanHeader.includes("aksi") || cleanHeader.includes("action")) return true;
+  if (className && className.includes("text-center")) return true;
+  return false;
+};
+
+function extractTextFromReactNode(node: React.ReactNode): string {
+  if (node === null || node === undefined || typeof node === "boolean") return "";
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(extractTextFromReactNode).join(" ");
+  if (React.isValidElement(node)) {
+    const props = node.props as any;
+    if (props && props.children) {
+      return extractTextFromReactNode(props.children);
+    }
+  }
+  return "";
 }
 
 export function ReusableTable<T>({
@@ -105,6 +153,9 @@ export function ReusableTable<T>({
   totalItems,
   itemsPerPage = 10,
   onPageChange,
+
+  // Sorting props
+  onSortChange,
 }: ReusableTableProps<T>) {
   // 1. Internal Search State (if uncontrolled)
   const [internalSearchQuery, setInternalSearchQuery] = React.useState("")
@@ -115,6 +166,37 @@ export function ReusableTable<T>({
   const [internalPage, setInternalPage] = React.useState(1)
   const isPaginationControlled = currentPage !== undefined && onPageChange !== undefined
   const activePage = isPaginationControlled ? currentPage : internalPage
+
+  // 3. Internal Sorting State
+  const [sortColIndex, setSortColIndex] = React.useState<number | null>(null)
+  const [sortDirection, setSortDirection] = React.useState<"asc" | "desc" | null>(null)
+
+  // Handle Header Click for Sorting
+  const handleHeaderClick = (colIdx: number, column: ColumnDef<T>) => {
+    if (isExcludedFromSort(column.header, column.sortable)) return
+
+    let nextDirection: "asc" | "desc" | null = "asc"
+    let nextColIndex: number | null = colIdx
+
+    if (sortColIndex === colIdx) {
+      if (sortDirection === "asc") {
+        nextDirection = "desc"
+      } else if (sortDirection === "desc") {
+        nextDirection = null
+        nextColIndex = null
+      } else {
+        nextDirection = "asc"
+      }
+    }
+
+    setSortColIndex(nextColIndex)
+    setSortDirection(nextDirection)
+
+    if (onSortChange) {
+      const sortKey = column.accessorKey ? String(column.accessorKey) : String(column.header)
+      onSortChange(sortKey, nextDirection)
+    }
+  }
 
   // Handle Search Input Change
   const handleSearchInputChange = (val: string) => {
@@ -135,7 +217,7 @@ export function ReusableTable<T>({
     }
   }
 
-  // 3. Filter data based on search if uncontrolled
+  // 4. Filter data based on search if uncontrolled
   const getFilteredData = () => {
     if (isSearchControlled) {
       return data;
@@ -157,18 +239,56 @@ export function ReusableTable<T>({
 
   const filteredData = getFilteredData()
 
-  // 4. Pagination math
+  // 5. Sort data if active
+  const getSortedData = (baseData: T[]) => {
+    if (sortColIndex === null || !sortDirection) return baseData
+    const targetCol = columns[sortColIndex]
+    if (!targetCol) return baseData
+
+    return [...baseData].sort((a, b) => {
+      let valA: any = ""
+      let valB: any = ""
+
+      if (targetCol.accessorKey) {
+        valA = (a as any)[targetCol.accessorKey]
+        valB = (b as any)[targetCol.accessorKey]
+      } else if (targetCol.cell) {
+        const cellA = targetCol.cell(a, 0)
+        const cellB = targetCol.cell(b, 0)
+        valA = extractTextFromReactNode(cellA)
+        valB = extractTextFromReactNode(cellB)
+      }
+
+      if (valA === null || valA === undefined) valA = ""
+      if (valB === null || valB === undefined) valB = ""
+
+      if (typeof valA === "number" && typeof valB === "number") {
+        return sortDirection === "asc" ? valA - valB : valB - valA
+      }
+
+      const strA = String(valA).toLowerCase()
+      const strB = String(valB).toLowerCase()
+
+      return sortDirection === "asc"
+        ? strA.localeCompare(strB, undefined, { numeric: true })
+        : strB.localeCompare(strA, undefined, { numeric: true })
+    })
+  }
+
+  const sortedData = getSortedData(filteredData)
+
+  // 6. Pagination math
   const activeTotalItems = isPaginationControlled 
     ? (totalItems !== undefined ? totalItems : data.length) 
-    : filteredData.length
+    : sortedData.length
   
   const activeTotalPages = isPaginationControlled 
     ? (totalPages !== undefined ? totalPages : 1) 
     : Math.ceil(activeTotalItems / itemsPerPage)
 
   const displayData = isPaginationControlled 
-    ? data 
-    : filteredData.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage)
+    ? getSortedData(data)
+    : sortedData.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage)
 
   const paginationRange = getPaginationRange(activePage, activeTotalPages)
 
@@ -219,17 +339,41 @@ export function ReusableTable<T>({
         <Table>
           <TableHeader className="bg-zinc-50/70">
             <TableRow className="bg-zinc-50/70 hover:bg-zinc-50/70 border-b border-gray-100">
-              {columns.map((column, idx) => (
-                <TableHead
-                  key={idx}
-                  className={cn(
-                    "py-3.5 px-4 text-xs font-bold text-gray-600 border-b border-gray-100",
-                    column.className
-                  )}
-                >
-                  {column.header}
-                </TableHead>
-              ))}
+              {columns.map((column, idx) => {
+                const canSort = !isExcludedFromSort(column.header, column.sortable)
+                const isSorted = sortColIndex === idx && sortDirection !== null
+                const isCentered = isActionColumn(column.header, column.className)
+
+                return (
+                  <TableHead
+                    key={idx}
+                    className={cn(
+                      "py-3.5 px-4 text-xs font-bold text-gray-600 border-b border-gray-100",
+                      isCentered && "text-center",
+                      canSort && "cursor-pointer select-none group hover:text-gray-900 transition-colors",
+                      column.className
+                    )}
+                    onClick={() => canSort && handleHeaderClick(idx, column)}
+                  >
+                    <div className={cn("flex items-center gap-1.5 min-w-0", isCentered && "justify-center text-center")}>
+                      <span className="truncate">{column.header}</span>
+                      {canSort && (
+                        <span className="inline-flex items-center shrink-0">
+                          {isSorted ? (
+                            sortDirection === "asc" ? (
+                              <SortFromTopToBottom size={14} className="text-[#e0542c] font-bold" />
+                            ) : (
+                              <SortFromBottomToTop size={14} className="text-[#e0542c] font-bold" />
+                            )
+                          ) : (
+                            <SortVertical size={14} className="text-gray-300 group-hover:text-gray-500 transition-colors opacity-70" />
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </TableHead>
+                )
+              })}
             </TableRow>
           </TableHeader>
           <TableBody>

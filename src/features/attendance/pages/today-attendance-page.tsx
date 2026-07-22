@@ -338,18 +338,16 @@ export function TodayAttendancePage() {
         </div>
 
         {/* Embedded Reusable Table */}
-        <div className="p-6 bg-zinc-50/30">
-          <ReusableTable
-            columns={columns}
-            data={loading ? [] : items}
-            loading={loading}
-            showSearch={false}
-            showPagination={false}
-            className="border-none shadow-none p-0 bg-transparent rounded-none"
-            rowClassName="hover:bg-zinc-50/30"
-            emptyMessage="Tidak ada log absensi hari ini."
-          />
-        </div>
+        <ReusableTable
+          columns={columns}
+          data={loading ? [] : items}
+          loading={loading}
+          showSearch={false}
+          showPagination={false}
+          className="border-none shadow-none p-0 bg-transparent rounded-none"
+          rowClassName="hover:bg-zinc-50/30"
+          emptyMessage="Tidak ada log absensi hari ini."
+        />
       </div>
 
       {/* Photo Preview Modal */}

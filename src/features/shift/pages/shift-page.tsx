@@ -137,7 +137,8 @@ export function ShiftPage() {
       ),
     },
     {
-      header: <span className="text-center block w-full text-xs font-semibold text-gray-500 tracking-wider">Actions</span>,
+      header: "Actions",
+      className: "w-28 text-center",
       cell: (row: BackendShift) => {
         if (row.nama_shift.toLowerCase() === "libur") {
           return (
