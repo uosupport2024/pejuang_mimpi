@@ -263,7 +263,7 @@ export function EmployeePage() {
       skeleton: () => <Skeleton className="h-5 w-12 rounded-md" />,
     },
     {
-      header: "Actions",
+      header: "Aksi",
       cell: (row) => (
         <div className="flex items-center justify-center">
           <EmployeeActionDropdown employee={row} onDelete={triggerDeleteConfirm} />

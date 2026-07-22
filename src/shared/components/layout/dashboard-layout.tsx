@@ -1,6 +1,7 @@
 import { type ReactNode, useState, useEffect, useRef } from "react";
 import { Sidebar } from "./sidebar";
 import { Navbar } from "./navbar";
+import { FetchProgressBar } from "./fetch-progress-bar";
 import patternBg from "@/assets/bg/pattern-background.png";
 
 interface DashboardLayoutProps {
@@ -36,6 +37,9 @@ export function DashboardLayout({ user, onLogout, children }: DashboardLayoutPro
 
   return (
     <div className="admin-dashboard w-full h-screen bg-[#F7F3EB] flex flex-col lg:flex-row overflow-hidden font-sans antialiased text-gray-800">
+      {/* Fixed Full-Width Top Fetch Loading Progress Bar */}
+      <FetchProgressBar />
+
       {/* Left Sidebar */}
       <Sidebar />
 

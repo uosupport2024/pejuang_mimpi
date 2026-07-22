@@ -356,24 +356,24 @@ export function DashboardPage() {
       </div>
 
       {/* Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {statCards.map((card, i) => {
           const Icon = card.icon;
           return (
             <div
               key={i}
-              className={`p-4 ${card.cardBg} rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default text-white`}
+              className={`px-3.5 py-2.5 ${card.cardBg} rounded-xl shadow-xs flex items-center justify-between hover:shadow-sm transition-all duration-200 cursor-default text-white`}
             >
-              <div className="space-y-1 text-left">
-                <span className="text-[10px] font-extrabold text-white/80 uppercase tracking-wider block">
+              <div className="flex flex-col text-left min-w-0">
+                <span className="text-[9px] font-extrabold text-white/80 uppercase tracking-widest block leading-none mb-1">
                   {card.title}
                 </span>
-                <span className="text-2xl font-black text-white tracking-tight leading-none block">
+                <span className="text-lg font-black text-white tracking-tight leading-none block">
                   {loading ? "..." : card.value}
                 </span>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0">
-                <Icon className="w-5 h-5" />
+              <div className="w-8 h-8 rounded-lg bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0 ml-2">
+                <Icon className="w-4 h-4" />
               </div>
             </div>
           );

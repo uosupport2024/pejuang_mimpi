@@ -137,7 +137,7 @@ export function ShiftPage() {
       ),
     },
     {
-      header: "Actions",
+      header: "Aksi",
       className: "w-28 text-center",
       cell: (row: BackendShift) => {
         if (row.nama_shift.toLowerCase() === "libur") {

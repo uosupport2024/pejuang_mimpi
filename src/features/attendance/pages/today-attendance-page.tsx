@@ -217,48 +217,48 @@ export function TodayAttendancePage() {
   return (
     <div className="w-full space-y-6">
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {/* Total Pegawai */}
-        <div className="p-4 bg-[#5C8A90] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default">
-          <div className="space-y-1 text-left">
-            <span className="text-[10px] font-extrabold text-white/80 uppercase tracking-wider block">Total Pegawai</span>
-            <span className="text-2xl font-black text-white tracking-tight leading-none block">{loading ? "..." : `${totalEmployees} Orang`}</span>
+        <div className="px-3.5 py-2.5 bg-[#5C8A90] text-white rounded-xl shadow-xs flex items-center justify-between hover:shadow-sm transition-all duration-200 cursor-default">
+          <div className="flex flex-col text-left min-w-0">
+            <span className="text-[9px] font-extrabold text-white/80 uppercase tracking-widest block leading-none mb-1">Total Pegawai</span>
+            <span className="text-lg font-black text-white tracking-tight leading-none block">{loading ? "..." : `${totalEmployees} Orang`}</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0">
-            <User size={20} />
+          <div className="w-8 h-8 rounded-lg bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0 ml-2">
+            <User size={16} />
           </div>
         </div>
 
         {/* Hadir */}
-        <div className="p-4 bg-[#7FA46D] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default">
-          <div className="space-y-1 text-left">
-            <span className="text-[10px] font-extrabold text-white/80 uppercase tracking-wider block">Hadir</span>
-            <span className="text-2xl font-black text-white tracking-tight leading-none block">{loading ? "..." : `${totalHadir} Orang`}</span>
+        <div className="px-3.5 py-2.5 bg-[#7FA46D] text-white rounded-xl shadow-xs flex items-center justify-between hover:shadow-sm transition-all duration-200 cursor-default">
+          <div className="flex flex-col text-left min-w-0">
+            <span className="text-[9px] font-extrabold text-white/80 uppercase tracking-widest block leading-none mb-1">Hadir</span>
+            <span className="text-lg font-black text-white tracking-tight leading-none block">{loading ? "..." : `${totalHadir} Orang`}</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0">
-            <CheckCircle2 size={20} />
+          <div className="w-8 h-8 rounded-lg bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0 ml-2">
+            <CheckCircle2 size={16} />
           </div>
         </div>
 
         {/* Izin/Sakit */}
-        <div className="p-4 bg-[#F2B233] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default">
-          <div className="space-y-1 text-left">
-            <span className="text-[10px] font-extrabold text-white/80 uppercase tracking-wider block">Izin / Sakit / Cuti</span>
-            <span className="text-2xl font-black text-white tracking-tight leading-none block">{loading ? "..." : `${totalSakitIzin} Orang`}</span>
+        <div className="px-3.5 py-2.5 bg-[#F2B233] text-white rounded-xl shadow-xs flex items-center justify-between hover:shadow-sm transition-all duration-200 cursor-default">
+          <div className="flex flex-col text-left min-w-0">
+            <span className="text-[9px] font-extrabold text-white/80 uppercase tracking-widest block leading-none mb-1">Izin / Sakit / Cuti</span>
+            <span className="text-lg font-black text-white tracking-tight leading-none block">{loading ? "..." : `${totalSakitIzin} Orang`}</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0">
-            <Clock size={20} />
+          <div className="w-8 h-8 rounded-lg bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0 ml-2">
+            <Clock size={16} />
           </div>
         </div>
 
         {/* Belum Hadir */}
-        <div className="p-4 bg-[#e0542c] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default">
-          <div className="space-y-1 text-left">
-            <span className="text-[10px] font-extrabold text-white/80 uppercase tracking-wider block">Belum Hadir</span>
-            <span className="text-2xl font-black text-white tracking-tight leading-none block">{loading ? "..." : `${totalBelumHadir} Orang`}</span>
+        <div className="px-3.5 py-2.5 bg-[#e0542c] text-white rounded-xl shadow-xs flex items-center justify-between hover:shadow-sm transition-all duration-200 cursor-default">
+          <div className="flex flex-col text-left min-w-0">
+            <span className="text-[9px] font-extrabold text-white/80 uppercase tracking-widest block leading-none mb-1">Belum Hadir</span>
+            <span className="text-lg font-black text-white tracking-tight leading-none block">{loading ? "..." : `${totalBelumHadir} Orang`}</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0">
-            <AlertTriangle size={20} />
+          <div className="w-8 h-8 rounded-lg bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0 ml-2">
+            <AlertTriangle size={16} />
           </div>
         </div>
       </div>
