@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Star } from "lucide-react";
 import ayamkuBg from "@/assets/bg/ayamku-bg.jpg";
 import ayamkuPet from "@/assets/bg/ayamku-pet.png";
-import logoWhite from "@/assets/logo/logo-white.png";
+import logoWhite from "@/assets/logo/POT–PejuangMimpi–Logo.png";
 import { toast } from "sonner";
 import type { AyamkuPageProps } from "../types/ayamku.type";
 

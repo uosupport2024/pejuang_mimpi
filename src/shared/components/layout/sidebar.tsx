@@ -5,6 +5,8 @@ import { menuItems } from "@/shared/router/menu";
 import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+let pendingCountsCache: { koreksi: number; cuti: number; timestamp: number } | null = null;
+
 export function Sidebar() {
   const { currentRoute, navigate } = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(() => {
@@ -26,7 +28,13 @@ export function Sidebar() {
     });
   };
 
-  const fetchPendingCount = useCallback(async () => {
+  const fetchPendingCount = useCallback(async (force = false) => {
+    if (!force && pendingCountsCache && Date.now() - pendingCountsCache.timestamp < 30000) {
+      setPendingCount(pendingCountsCache.koreksi);
+      setPendingCutiCount(pendingCountsCache.cuti);
+      return;
+    }
+
     try {
       const koreksiPromise = fetch(`${API_BASE_URL}/koreksi-absen?status=Pending&per_page=1`, {
         method: "GET",
@@ -40,12 +48,17 @@ export function Sidebar() {
 
       const [koreksiJson, cutiJson] = await Promise.all([koreksiPromise, cutiPromise]);
 
-      if (koreksiJson) {
-        setPendingCount(koreksiJson.data?.total || 0);
-      }
-      if (cutiJson) {
-        setPendingCutiCount(cutiJson.data?.total || 0);
-      }
+      const koreksiTotal = koreksiJson?.data?.total || 0;
+      const cutiTotal = cutiJson?.data?.total || 0;
+
+      pendingCountsCache = {
+        koreksi: koreksiTotal,
+        cuti: cutiTotal,
+        timestamp: Date.now(),
+      };
+
+      setPendingCount(koreksiTotal);
+      setPendingCutiCount(cutiTotal);
     } catch (err) {
       console.error("Failed to fetch pending counts:", err);
     }
@@ -55,7 +68,8 @@ export function Sidebar() {
     fetchPendingCount();
 
     const handleUpdate = () => {
-      fetchPendingCount();
+      pendingCountsCache = null;
+      fetchPendingCount(true);
     };
 
     window.addEventListener("koreksi-absen-updated", handleUpdate);

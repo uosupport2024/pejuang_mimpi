@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import logoWhite from "@/assets/logo/logo-white.png";
+import logoWhite from "@/assets/logo/POT–PejuangMimpi–Logo.png";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { useHeaderBanner } from "../hooks/use-header-banner";
 import type { SangkarUser } from "../types/sangkar.type";
@@ -70,7 +70,7 @@ export function HeaderBanner({ user, celengans, loading }: HeaderBannerProps) {
           className="absolute inset-0 opacity-15 pointer-events-none"
           style={{
             backgroundImage: `url(${patternBg})`,
-            backgroundSize: "180px 180px",
+            backgroundSize: "180px auto",
             backgroundRepeat: "repeat",
           }}
         />

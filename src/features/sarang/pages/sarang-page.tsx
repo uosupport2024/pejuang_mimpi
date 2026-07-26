@@ -124,7 +124,7 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
               className="absolute inset-0 opacity-10 pointer-events-none group-hover:opacity-15 transition-opacity"
               style={{
                 backgroundImage: `url(${patternBg})`,
-                backgroundSize: "120px 120px",
+                backgroundSize: "180px auto",
               }}
             />
 

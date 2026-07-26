@@ -198,7 +198,7 @@ export function CelenganDetailPage() {
           className="absolute inset-0 opacity-15 pointer-events-none"
           style={{
             backgroundImage: `url(${patternBg})`,
-            backgroundSize: "150px 150px",
+            backgroundSize: "180px auto",
             backgroundRepeat: "repeat"
           }}
         />

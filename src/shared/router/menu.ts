@@ -7,7 +7,8 @@ import {
   ClockCircle,
   Dollar,
   DocumentText,
-  Widget2
+  Widget2,
+  BookBookmark
 } from "@solar-icons/react";
 import type { RouteType } from "./router";
 
@@ -46,6 +47,7 @@ export const menuItems: MenuItem[] = [
     ]
   },
   { name: "Lembur", route: "Overtime", icon: ClockCircle, group: "Operasional" },
+  { name: "Course", route: "Training", icon: BookBookmark, group: "Operasional" },
 
   // Layanan Group
   {
@@ -67,3 +69,4 @@ export const menuItems: MenuItem[] = [
     ]
   }
 ];
+

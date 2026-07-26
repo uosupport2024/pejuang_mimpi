@@ -6,6 +6,9 @@ import { fetchProfileAPI } from "@/features/tunas/api/absensi";
 import { THEME_COLORS } from "@/shared/constants/colors";
 import { ChangePasswordModal } from "@/shared/components/ui/change-password-modal";
 
+let tenantNameCache: string | null = null;
+let tenantFetchPromise: Promise<string> | null = null;
+
 interface NavbarProps {
   user: {
     name: string;
@@ -107,18 +110,25 @@ export function Navbar({ user, onLogout }: NavbarProps) {
   };
 
   useEffect(() => {
-    fetchProfileAPI()
-      .then((profile) => {
-        if (profile && profile.tenant && profile.tenant.name) {
-          setTenantName(profile.tenant.name);
-        } else {
-          setTenantName("Pejuang Mimpi");
-        }
-      })
-      .catch((err) => {
-        console.error("Failed to load tenant info for navbar:", err);
-        setTenantName("Pejuang Mimpi");
-      });
+    if (tenantNameCache) {
+      setTenantName(tenantNameCache);
+      return;
+    }
+
+    if (!tenantFetchPromise) {
+      tenantFetchPromise = fetchProfileAPI()
+        .then((profile) => {
+          const name = (profile && profile.tenant && profile.tenant.name) || "Pejuang Mimpi";
+          tenantNameCache = name;
+          return name;
+        })
+        .catch((err) => {
+          console.error("Failed to load tenant info for navbar:", err);
+          return "Pejuang Mimpi";
+        });
+    }
+
+    tenantFetchPromise.then((name) => setTenantName(name));
   }, []);
 
   // Close dropdowns when clicking outside

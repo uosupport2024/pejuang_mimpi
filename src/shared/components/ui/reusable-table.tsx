@@ -10,6 +10,7 @@ import {
 import { cn } from "@/shared/lib/utils"
 import { Skeleton } from "./skeleton"
 import { Magnifier, SortFromTopToBottom, SortFromBottomToTop, SortVertical } from "@solar-icons/react"
+import { GripVertical } from "lucide-react"
 
 export interface ColumnDef<T> {
   header: React.ReactNode
@@ -52,6 +53,10 @@ interface ReusableTableProps<T> {
 
   // Built-in Sorting
   onSortChange?: (sortKey: string, direction: "asc" | "desc" | null) => void
+
+  // Built-in Drag & Drop Row Reordering
+  isReorderable?: boolean
+  onReorder?: (reorderedData: T[]) => void
 }
 
 const getPaginationRange = (currentPage: number, totalPages: number) => {
@@ -156,6 +161,10 @@ export function ReusableTable<T>({
 
   // Sorting props
   onSortChange,
+
+  // Reordering props
+  isReorderable = false,
+  onReorder,
 }: ReusableTableProps<T>) {
   // 1. Internal Search State (if uncontrolled)
   const [internalSearchQuery, setInternalSearchQuery] = React.useState("")
@@ -170,6 +179,10 @@ export function ReusableTable<T>({
   // 3. Internal Sorting State
   const [sortColIndex, setSortColIndex] = React.useState<number | null>(null)
   const [sortDirection, setSortDirection] = React.useState<"asc" | "desc" | null>(null)
+
+  // 4. Internal Drag & Drop State
+  const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null)
 
   // Handle Header Click for Sorting
   const handleHeaderClick = (colIdx: number, column: ColumnDef<T>) => {
@@ -217,7 +230,7 @@ export function ReusableTable<T>({
     }
   }
 
-  // 4. Filter data based on search if uncontrolled
+  // Filter data based on search if uncontrolled
   const getFilteredData = () => {
     if (isSearchControlled) {
       return data;
@@ -239,7 +252,7 @@ export function ReusableTable<T>({
 
   const filteredData = getFilteredData()
 
-  // 5. Sort data if active
+  // Sort data if active
   const getSortedData = (baseData: T[]) => {
     if (sortColIndex === null || !sortDirection) return baseData
     const targetCol = columns[sortColIndex]
@@ -277,7 +290,7 @@ export function ReusableTable<T>({
 
   const sortedData = getSortedData(filteredData)
 
-  // 6. Pagination math
+  // Pagination math
   const activeTotalItems = isPaginationControlled 
     ? (totalItems !== undefined ? totalItems : data.length) 
     : sortedData.length
@@ -295,6 +308,14 @@ export function ReusableTable<T>({
   const startIndex = (activePage - 1) * itemsPerPage
   const displayStart = activeTotalItems > 0 ? startIndex + 1 : 0
   const displayEnd = Math.min(startIndex + itemsPerPage, activeTotalItems)
+
+  const handleDrop = (dropIndex: number) => {
+    if (draggedIndex === null || draggedIndex === dropIndex) return;
+    const reorderedList = [...data];
+    const [movedItem] = reorderedList.splice(draggedIndex, 1);
+    reorderedList.splice(dropIndex, 0, movedItem);
+    onReorder?.(reorderedList);
+  };
 
   return (
     <div className={cn("bg-white border border-gray-200/80 rounded-2xl shadow-xs overflow-hidden", className)}>
@@ -339,6 +360,9 @@ export function ReusableTable<T>({
         <Table>
           <TableHeader className="bg-zinc-50/70">
             <TableRow className="bg-zinc-50/70 hover:bg-zinc-50/70 border-b border-gray-100">
+              {isReorderable && (
+                <TableHead className="w-10 text-center py-3.5 px-2 border-b border-gray-100" />
+              )}
               {columns.map((column, idx) => {
                 const canSort = !isExcludedFromSort(column.header, column.sortable)
                 const isSorted = sortColIndex === idx && sortDirection !== null
@@ -380,6 +404,11 @@ export function ReusableTable<T>({
             {loading ? (
               Array.from({ length: skeletonRowCount }).map((_, rowIdx) => (
                 <TableRow key={`skeleton-row-${rowIdx}`} className="hover:bg-transparent border-b border-gray-50/80">
+                  {isReorderable && (
+                    <TableCell className="w-10 text-center py-4 px-2">
+                      <Skeleton className="h-4 w-4 rounded" />
+                    </TableCell>
+                  )}
                   {columns.map((column, colIdx) => (
                     <TableCell key={`skeleton-col-${colIdx}`} className={cn("py-4 px-4 text-xs", column.className)}>
                       {column.skeleton ? (
@@ -394,7 +423,7 @@ export function ReusableTable<T>({
             ) : displayData.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={columns.length + (isReorderable ? 1 : 0)}
                   className="h-32 text-center text-xs text-gray-500"
                 >
                   {emptyMessage}
@@ -405,12 +434,49 @@ export function ReusableTable<T>({
                 <TableRow
                   key={rowIdx}
                   onClick={() => onRowClick?.(row)}
+                  draggable={isReorderable}
+                  onDragStart={(e) => {
+                    if (!isReorderable) return;
+                    e.dataTransfer.setData("text/plain", String(rowIdx));
+                    e.dataTransfer.effectAllowed = "move";
+                    setDraggedIndex(rowIdx);
+                  }}
+                  onDragOver={(e) => {
+                    if (!isReorderable) return;
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "move";
+                    if (dragOverIndex !== rowIdx) {
+                      setDragOverIndex(rowIdx);
+                    }
+                  }}
+                  onDragLeave={() => {
+                    if (!isReorderable) return;
+                    setDragOverIndex(null);
+                  }}
+                  onDrop={(e) => {
+                    if (!isReorderable) return;
+                    e.preventDefault();
+                    handleDrop(rowIdx);
+                  }}
+                  onDragEnd={() => {
+                    setDraggedIndex(null);
+                    setDragOverIndex(null);
+                  }}
                   className={cn(
-                    "hover:bg-zinc-50/40 border-b border-gray-50/80 transition-colors",
+                    "border-b border-gray-50/80 transition-all duration-150",
                     onRowClick && "cursor-pointer",
+                    isReorderable && "hover:bg-orange-50/30",
+                    isReorderable && draggedIndex === rowIdx && "opacity-40 bg-orange-50/50 border-orange-300",
+                    isReorderable && dragOverIndex === rowIdx && draggedIndex !== rowIdx && "bg-orange-50/90 border-y-2 border-[#e0542c]",
+                    !isReorderable && "hover:bg-zinc-50/40",
                     rowClassName
                   )}
                 >
+                  {isReorderable && (
+                    <TableCell className="w-10 text-center py-4 px-2 cursor-grab active:cursor-grabbing text-gray-400 hover:text-[#e0542c] transition-colors">
+                      <GripVertical size={16} />
+                    </TableCell>
+                  )}
                   {columns.map((column, colIdx) => {
                     let content: React.ReactNode = null
 
@@ -450,78 +516,75 @@ export function ReusableTable<T>({
                 <span className="text-gray-900 font-semibold">{activeTotalItems}</span> data
               </>
             ) : (
-              "Tidak ada data yang ditampilkan"
+              "Tidak ada data."
             )}
           </div>
 
-          {!loading && activeTotalPages > 1 && (
+          {activeTotalPages > 1 && (
             <div className="flex items-center gap-1.5">
-              {/* << */}
               <button
                 type="button"
                 disabled={activePage === 1}
                 onClick={() => handlePageChange(1)}
                 className="w-8 h-8 flex items-center justify-center text-[11px] font-semibold rounded-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+                title="Halaman Pertama"
               >
                 &lt;&lt;
               </button>
-
-              {/* < */}
               <button
                 type="button"
                 disabled={activePage === 1}
                 onClick={() => handlePageChange(activePage - 1)}
                 className="w-8 h-8 flex items-center justify-center text-[11px] font-semibold rounded-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+                title="Halaman Sebelumnya"
               >
                 &lt;
               </button>
 
-              {/* Numbers */}
-              {paginationRange.map((page, idx) => {
-                if (page === "...") {
+              {paginationRange.map((page, index) => {
+                if (typeof page === "number") {
+                  const isCurrent = page === activePage
                   return (
-                    <span
-                      key={`ellipsis-${idx}`}
-                      className="w-8 h-8 flex items-center justify-center text-[11px] text-gray-400 font-semibold"
+                    <button
+                      key={`page-${page}`}
+                      type="button"
+                      onClick={() => handlePageChange(page)}
+                      className={cn(
+                        "w-8 h-8 flex items-center justify-center text-[11px] font-semibold rounded-md transition-colors cursor-pointer",
+                        isCurrent
+                          ? "bg-[#e0542c] text-white shadow-xs"
+                          : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                      )}
                     >
-                      ...
-                    </span>
+                      {page}
+                    </button>
                   )
                 }
-
                 return (
-                  <button
-                    type="button"
-                    key={`page-${page}`}
-                    onClick={() => handlePageChange(page as number)}
-                    className={cn(
-                      "w-8 h-8 flex items-center justify-center text-[11px] font-semibold rounded-md transition-colors cursor-pointer",
-                      activePage === page
-                        ? "bg-[#e0542c] text-white"
-                        : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
-                    )}
+                  <span
+                    key={`ellipsis-${index}`}
+                    className="w-8 h-8 flex items-center justify-center text-xs text-gray-400 font-medium"
                   >
-                    {page}
-                  </button>
+                    ...
+                  </span>
                 )
               })}
 
-              {/* > */}
               <button
                 type="button"
                 disabled={activePage === activeTotalPages}
                 onClick={() => handlePageChange(activePage + 1)}
                 className="w-8 h-8 flex items-center justify-center text-[11px] font-semibold rounded-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+                title="Halaman Selanjutnya"
               >
                 &gt;
               </button>
-
-              {/* >> */}
               <button
                 type="button"
                 disabled={activePage === activeTotalPages}
                 onClick={() => handlePageChange(activeTotalPages)}
                 className="w-8 h-8 flex items-center justify-center text-[11px] font-semibold rounded-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+                title="Halaman Terakhir"
               >
                 &gt;&gt;
               </button>
