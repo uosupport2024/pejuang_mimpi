@@ -198,7 +198,7 @@ export function MobileHistoryPage() {
       <div className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl bg-[#1e2a4a] text-white">
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
-          style={{ backgroundImage: `url(${patternBg})`, backgroundSize: "150px 150px", backgroundRepeat: "repeat" }}
+          style={{ backgroundImage: `url(${patternBg})`, backgroundSize: "180px auto", backgroundRepeat: "repeat" }}
         />
         <div className="relative z-10 flex items-center px-6 pt-7 pb-6 gap-3.5">
           <button

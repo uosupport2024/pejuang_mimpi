@@ -219,46 +219,46 @@ export function TodayAttendancePage() {
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Pegawai */}
-        <div className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Total Pegawai</span>
-            <span className="text-xl font-extrabold text-gray-800">{loading ? "..." : totalEmployees} Orang</span>
+        <div className="px-4.5 py-3.5 bg-[#5C8A90] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 cursor-default">
+          <div className="flex flex-col text-left min-w-0">
+            <span className="text-[10px] font-extrabold text-white/85 uppercase tracking-wider block leading-none mb-1.5">Total Pegawai</span>
+            <span className="text-xl font-black text-white tracking-tight leading-none block">{loading ? "..." : `${totalEmployees} Orang`}</span>
           </div>
-          <div className="p-3 bg-[#5C8A90]/10 text-[#5C8A90] rounded-xl shrink-0">
-            <User size={20} />
+          <div className="w-9.5 h-9.5 rounded-xl bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0 ml-3">
+            <User size={18} />
           </div>
         </div>
 
         {/* Hadir */}
-        <div className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Hadir</span>
-            <span className="text-xl font-extrabold text-[#7FA46D]">{loading ? "..." : totalHadir} Orang</span>
+        <div className="px-4.5 py-3.5 bg-[#7FA46D] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 cursor-default">
+          <div className="flex flex-col text-left min-w-0">
+            <span className="text-[10px] font-extrabold text-white/85 uppercase tracking-wider block leading-none mb-1.5">Hadir</span>
+            <span className="text-xl font-black text-white tracking-tight leading-none block">{loading ? "..." : `${totalHadir} Orang`}</span>
           </div>
-          <div className="p-3 bg-[#7FA46D]/10 text-[#7FA46D] rounded-xl shrink-0">
-            <CheckCircle2 size={20} />
+          <div className="w-9.5 h-9.5 rounded-xl bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0 ml-3">
+            <CheckCircle2 size={18} />
           </div>
         </div>
 
         {/* Izin/Sakit */}
-        <div className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Izin / Sakit / Cuti</span>
-            <span className="text-xl font-extrabold text-[#F2B233]">{loading ? "..." : totalSakitIzin} Orang</span>
+        <div className="px-4.5 py-3.5 bg-[#F2B233] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 cursor-default">
+          <div className="flex flex-col text-left min-w-0">
+            <span className="text-[10px] font-extrabold text-white/85 uppercase tracking-wider block leading-none mb-1.5">Izin / Sakit / Cuti</span>
+            <span className="text-xl font-black text-white tracking-tight leading-none block">{loading ? "..." : `${totalSakitIzin} Orang`}</span>
           </div>
-          <div className="p-3 bg-[#F2B233]/10 text-[#F2B233] rounded-xl shrink-0">
-            <Clock size={20} />
+          <div className="w-9.5 h-9.5 rounded-xl bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0 ml-3">
+            <Clock size={18} />
           </div>
         </div>
 
         {/* Belum Hadir */}
-        <div className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Belum Hadir</span>
-            <span className="text-xl font-extrabold text-[#e0542c]">{loading ? "..." : totalBelumHadir} Orang</span>
+        <div className="px-4.5 py-3.5 bg-[#e0542c] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 cursor-default">
+          <div className="flex flex-col text-left min-w-0">
+            <span className="text-[10px] font-extrabold text-white/85 uppercase tracking-wider block leading-none mb-1.5">Belum Hadir</span>
+            <span className="text-xl font-black text-white tracking-tight leading-none block">{loading ? "..." : `${totalBelumHadir} Orang`}</span>
           </div>
-          <div className="p-3 bg-[#e0542c]/10 text-[#e0542c] rounded-xl shrink-0">
-            <AlertTriangle size={20} />
+          <div className="w-9.5 h-9.5 rounded-xl bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0 ml-3">
+            <AlertTriangle size={18} />
           </div>
         </div>
       </div>
@@ -338,18 +338,16 @@ export function TodayAttendancePage() {
         </div>
 
         {/* Embedded Reusable Table */}
-        <div className="p-6 bg-zinc-50/30">
-          <ReusableTable
-            columns={columns}
-            data={loading ? [] : items}
-            loading={loading}
-            showSearch={false}
-            showPagination={false}
-            className="border-none shadow-none p-0 bg-transparent rounded-none"
-            rowClassName="hover:bg-zinc-50/30"
-            emptyMessage="Tidak ada log absensi hari ini."
-          />
-        </div>
+        <ReusableTable
+          columns={columns}
+          data={loading ? [] : items}
+          loading={loading}
+          showSearch={false}
+          showPagination={false}
+          className="border-none shadow-none p-0 bg-transparent rounded-none"
+          rowClassName="hover:bg-zinc-50/30"
+          emptyMessage="Tidak ada log absensi hari ini."
+        />
       </div>
 
       {/* Photo Preview Modal */}

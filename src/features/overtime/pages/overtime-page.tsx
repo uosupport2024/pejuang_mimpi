@@ -471,22 +471,20 @@ export function OvertimePage() {
         </div>
 
         {/* Embedded Reusable Table */}
-        <div className="p-6 bg-zinc-50/30">
-          <ReusableTable
-            columns={columns}
-            data={loading ? [] : items}
-            loading={loading}
-            showSearch={false}
-            showPagination={true}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalItems={totalItems}
-            onPageChange={(page) => loadOvertimeData(page)}
-            className="border-none shadow-none p-0 bg-transparent rounded-none"
-            rowClassName="hover:bg-zinc-50/30"
-            emptyMessage="Tidak ada data overtime."
-          />
-        </div>
+        <ReusableTable
+          columns={columns}
+          data={loading ? [] : items}
+          loading={loading}
+          showSearch={false}
+          showPagination={true}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          onPageChange={(page) => loadOvertimeData(page)}
+          className="border-none shadow-none p-0 bg-transparent rounded-none"
+          rowClassName="hover:bg-zinc-50/30"
+          emptyMessage="Tidak ada data overtime."
+        />
       </div>
 
       {/* Photo Preview Modal */}

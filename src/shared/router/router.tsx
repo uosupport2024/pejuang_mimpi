@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import { BrowserRouter, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -17,6 +17,8 @@ export type RouteType =
   | "Onboarding"
   | "Appraisal"
   | "Training"
+  | "TrainingAdd"
+  | "TrainingEdit"
   | "Document"
   | "Announcement"
   | "Organization"
@@ -45,6 +47,52 @@ export type RouteType =
   | "LocationEdit"
   | "Profile";
 
+export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
+  Dashboard: "Dashboard",
+  Employee: "Pegawai",
+  EmployeeAdd: "Tambah Pegawai",
+  EmployeeEdit: "Edit Pegawai",
+  EmployeeInputShift: "Shift Pegawai",
+  Attendance: "Rekap Absensi",
+  AttendanceToday: "Absensi Hari Ini",
+  Leave: "Cuti & Izin",
+  Payroll: "Rekap Keuangan",
+  PayrollHistory: "Riwayat Keuangan",
+  Overtime: "Lembur",
+  Shift: "Shift",
+  KoreksiAbsenApproval: "Persetujuan Absen",
+  Recruitment: "Rekrutmen",
+  Onboarding: "Onboarding",
+  Appraisal: "Penilaian",
+  Training: "Pelatihan",
+  TrainingAdd: "Tambah Course",
+  TrainingEdit: "Edit Course",
+  Document: "Dokumen",
+  Announcement: "Pengumuman",
+  Organization: "Divisi",
+  Location: "Lokasi",
+  LocationAdd: "Tambah Lokasi",
+  LocationEdit: "Edit Lokasi",
+  Login: "Login",
+  Profile: "Profil",
+  MobileHome: "Sangkar",
+  MobileLumbung: "Lumbung",
+  MobileAyamku: "Ayamku",
+  MobilePakan: "Tunas",
+  MobileProfile: "Profil",
+  MobileCelenganDetail: "Detail Sangkar",
+  MobileCelenganAdd: "Tambah Sangkar",
+  MobileLokerDetail: "Detail Loker",
+  MobileAbsensi: "Absensi",
+  MobileLemburAbsensi: "Absen Lembur",
+  MobileLemburHistory: "Riwayat Lembur",
+  MobileKoreksiAbsen: "Koreksi Absen",
+  MobileHistory: "Riwayat",
+  MobileLeaveRequest: "Pengajuan Cuti",
+  MobileLeaveHistory: "Riwayat Cuti",
+  MobileIdCard: "Kartu Identitas",
+};
+
 export const ROUTE_TO_PATH: Record<RouteType, string> = {
   Dashboard: "/dashboard",
   Employee: "/pegawai",
@@ -60,6 +108,8 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   Onboarding: "/onboarding",
   Appraisal: "/appraisal",
   Training: "/training",
+  TrainingAdd: "/training/tambah",
+  TrainingEdit: "/training/edit",
   Document: "/document",
   Announcement: "/announcement",
   Organization: "/divisi",
@@ -104,6 +154,8 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/onboarding": "Onboarding",
   "/appraisal": "Appraisal",
   "/training": "Training",
+  "/training/tambah": "TrainingAdd",
+  "/training/edit": "TrainingEdit",
   "/document": "Document",
   "/announcement": "Announcement",
   "/divisi": "Organization",
@@ -151,17 +203,25 @@ function RouterInnerProvider({ children }: { children: ReactNode }) {
 
   const currentRoute = PATH_TO_ROUTE[resolvedPath] || "Dashboard";
 
-  const navigate = (route: RouteType, state?: any) => {
+  useEffect(() => {
+    const pageTitle = ROUTE_TITLE_MAP[currentRoute] || "Menu";
+    document.title = `Pejuang Mimpi | ${pageTitle}`;
+  }, [currentRoute]);
+
+  const navigate = useCallback((route: RouteType, state?: any) => {
     const path = ROUTE_TO_PATH[route] || "/dashboard";
     navigateFn(path, { state });
-  };
+  }, [navigateFn]);
+
+  const contextValue = useMemo(() => ({ currentRoute, navigate }), [currentRoute, navigate]);
 
   return (
-    <RouterContext.Provider value={{ currentRoute, navigate }}>
+    <RouterContext.Provider value={contextValue}>
       {children}
     </RouterContext.Provider>
   );
 }
+
 
 export function RouterProvider({ children }: { children: ReactNode }) {
   return (

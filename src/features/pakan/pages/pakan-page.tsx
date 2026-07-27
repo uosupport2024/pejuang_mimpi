@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Search, BookOpen, GraduationCap, Trophy, Play, CheckCircle2, Timer, Heart, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import type { PakanPageProps } from "../types/pakan.type";
-import logoWhite from "@/assets/logo/logo-white.png";
+import logoWhite from "@/assets/logo/POT–PejuangMimpi–Logo.png";
 import patternBg from "@/assets/bg/pattern-background.png";
 
 interface Course {
@@ -89,7 +89,7 @@ export function PakanPage({ user }: PakanPageProps) {
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{
               backgroundImage: `url(${patternBg})`,
-              backgroundSize: "150px 150px",
+              backgroundSize: "180px auto",
               backgroundRepeat: "repeat"
             }}
           />

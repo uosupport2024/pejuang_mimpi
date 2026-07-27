@@ -194,7 +194,7 @@ export function PayrollHistoryPage() {
       ),
     },
     {
-      header: <span className="text-center block text-xs font-semibold text-gray-500 tracking-wider">Actions</span>,
+      header: "Aksi",
       cell: (row: PayrollHistoryItem) => (
         <div className="flex items-center justify-center gap-2">
           <a

@@ -27,15 +27,15 @@ interface LeaveApprovalItem {
 const getLeaveStyle = (name: string) => {
   const normName = name.toLowerCase();
   if (normName.includes("cuti")) {
-    return "bg-emerald-50 border border-emerald-100 text-emerald-700";
+    return "bg-[#7FA46D] text-white shadow-2xs";
   } else if (normName.includes("sakit")) {
-    return "bg-rose-50 border border-rose-100 text-rose-700";
+    return "bg-[#e0542c] text-white shadow-2xs";
   } else if (normName.includes("telat")) {
-    return "bg-amber-50 border border-amber-100 text-amber-700";
+    return "bg-[#F2B233] text-white shadow-2xs";
   } else if (normName.includes("pulang cepat")) {
-    return "bg-orange-50 border border-orange-100 text-orange-700";
+    return "bg-[#F25C2A] text-white shadow-2xs";
   } else {
-    return "bg-zinc-50 border border-zinc-200 text-zinc-700";
+    return "bg-[#5C8A90] text-white shadow-2xs";
   }
 };
 
@@ -148,7 +148,7 @@ export function LeavePage() {
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "Approved":
-        return "bg-emerald-500/10 text-emerald-700 border border-emerald-500/20";
+        return "bg-[#7FA46D] text-white font-bold";
       case "Rejected":
         return "bg-rose-500/10 text-rose-700 border border-rose-500/20";
       default:
@@ -321,11 +321,6 @@ export function LeavePage() {
 
   return (
     <div className="space-y-6 text-left">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Persetujuan Cuti & Izin</h1>
-      </div>
-
       {/* Table Section */}
       <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-xs">
         {/* Header Filter Row */}
@@ -351,19 +346,18 @@ export function LeavePage() {
                 key={tab}
                 type="button"
                 onClick={() => handleTabChange(tab)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === tab
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeTab === tab
                     ? "bg-[#e0542c]/10 text-[#e0542c] border border-[#e0542c]/20"
                     : "bg-zinc-50 border border-gray-200 text-gray-650 hover:bg-zinc-100/70"
-                }`}
+                  }`}
               >
                 {tab === "Pending"
                   ? "Menunggu Approval"
                   : tab === "Approved"
-                  ? "Disetujui"
-                  : tab === "Rejected"
-                  ? "Ditolak"
-                  : "Semua Pengajuan"}
+                    ? "Disetujui"
+                    : tab === "Rejected"
+                      ? "Ditolak"
+                      : "Semua Pengajuan"}
               </button>
             ))}
           </div>
@@ -434,11 +428,10 @@ export function LeavePage() {
                 type="button"
                 disabled={submitting}
                 onClick={handleConfirmAction}
-                className={`w-full h-9 px-4 py-2 text-xs font-bold text-white rounded-lg transition-all shadow-sm focus:outline-none focus:ring-1 focus:ring-offset-1 cursor-pointer disabled:opacity-50 flex items-center justify-center ${
-                  actionModal.type === "Approved"
+                className={`w-full h-9 px-4 py-2 text-xs font-bold text-white rounded-lg transition-all shadow-sm focus:outline-none focus:ring-1 focus:ring-offset-1 cursor-pointer disabled:opacity-50 flex items-center justify-center ${actionModal.type === "Approved"
                     ? "bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500"
                     : "bg-rose-600 hover:bg-rose-700 focus:ring-rose-500"
-                }`}
+                  }`}
               >
                 {submitting ? "Memproses..." : actionModal.type === "Approved" ? "Setujui" : "Tolak"}
               </button>

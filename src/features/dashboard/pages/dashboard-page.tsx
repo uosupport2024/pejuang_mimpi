@@ -5,14 +5,40 @@ import {
   CheckCircle,
   XCircle,
   Activity,
-  FileText
+  FileText,
+  ArrowRight
 } from "lucide-react";
 import Chart from "react-apexcharts";
 import { fetchAdminDashboardAPI } from "@/features/dashboard/api/dashboard";
 import { useRouter } from "@/shared/router/router";
+import { fetchProfileAPI } from "@/features/tunas/api/absensi";
+import { ReusableTable } from "@/shared/components/ui/reusable-table";
 
 export function DashboardPage() {
   const { navigate } = useRouter();
+
+  const [userName, setUserName] = useState<string>("Super Admin");
+
+  useEffect(() => {
+    fetchProfileAPI()
+      .then((profile) => {
+        if (profile?.nama_pegawai) {
+          setUserName(profile.nama_pegawai);
+        } else if (profile?.name) {
+          setUserName(profile.name);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const getUserGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour >= 4 && hour < 11) return "Selamat Pagi";
+    if (hour >= 11 && hour < 15) return "Selamat Siang";
+    if (hour >= 15 && hour < 18) return "Selamat Sore";
+    return "Selamat Malam";
+  };
+  const greeting = getUserGreeting();
 
   // Filters state
   const [selectedDate, setSelectedDate] = useState<string>(() => {
@@ -52,45 +78,49 @@ export function DashboardPage() {
   const pendingLeaves = dashboardData?.pending_leaves || [];
   const birthdayList = dashboardData?.birthday_employees || [];
 
+  // Calculate dynamic ratios and context metrics
+  const totalPegawaiTotal = (stats.masuk || 0) + (stats.alfa || 0) + (stats.sakit || 0) + (stats.izin || 0);
+  const attendanceRate = totalPegawaiTotal > 0 ? Math.round((stats.masuk / totalPegawaiTotal) * 100) : 0;
+  const alfaRate = totalPegawaiTotal > 0 ? Math.round((stats.alfa / totalPegawaiTotal) * 100) : 0;
+
   // Determine max value dynamically for scaling bar charts
   const maxVal = Math.max(
-    10,
-    ...charts.map((c: any) => Number(c.masuk) + Number(c.alfa)),
-    30
+    totalPegawaiTotal || 5,
+    ...charts.map((c: any) => Number(c.masuk || 0))
   );
 
   const statCards = [
     {
       title: "Masuk",
-      value: stats.masuk.toString(),
+      value: `${stats.masuk} Orang`,
       icon: CheckCircle,
-      badgeStyle: "bg-emerald-500/10 text-emerald-600",
-      borderColor: "border-l-emerald-500",
-      subtext: "Pegawai hadir hari ini",
+      cardBg: "bg-[#7FA46D]",
+      badgeText: `${attendanceRate}% Kehadiran`,
+      badgeBg: "bg-white/20 text-white",
     },
     {
       title: "Alfa",
-      value: stats.alfa.toString(),
+      value: `${stats.alfa} Orang`,
       icon: XCircle,
-      badgeStyle: "bg-rose-500/10 text-rose-600",
-      borderColor: "border-l-rose-500",
-      subtext: "Absen tanpa keterangan",
+      cardBg: "bg-[#e0542c]",
+      badgeText: `${alfaRate}% Tanpa Ket.`,
+      badgeBg: "bg-white/20 text-white",
     },
     {
       title: "Sakit",
-      value: stats.sakit.toString(),
+      value: `${stats.sakit} Orang`,
       icon: Activity,
-      badgeStyle: "bg-amber-500/10 text-amber-600",
-      borderColor: "border-l-amber-500",
-      subtext: "Pegawai dengan surat sakit",
+      cardBg: "bg-[#F2B233]",
+      badgeText: "Izin Sakit",
+      badgeBg: "bg-white/20 text-white",
     },
     {
       title: "Izin",
-      value: stats.izin.toString(),
+      value: `${stats.izin} Orang`,
       icon: FileText,
-      badgeStyle: "bg-blue-500/10 text-blue-600",
-      borderColor: "border-l-blue-500",
-      subtext: "Pegawai dengan persetujuan izin",
+      cardBg: "bg-[#5C8A90]",
+      badgeText: "Izin Cuti",
+      badgeBg: "bg-white/20 text-white",
     },
   ];
 
@@ -118,7 +148,6 @@ export function DashboardPage() {
     const firstDay = new Date(year, month, 1).getDay(); // 0 = Sun, 1 = Mon...
     const numDays = new Date(year, month + 1, 0).getDate();
 
-    // Fill offset with null
     const days: (number | null)[] = [];
     for (let i = 0; i < firstDay; i++) {
       days.push(null);
@@ -142,23 +171,25 @@ export function DashboardPage() {
     });
   };
 
-  // ApexCharts Option 1: Weekly Attendance Bar Chart
+  // Apex Charts Options
   const chart1Options: ApexCharts.ApexOptions = {
     chart: {
       type: "bar",
       toolbar: { show: false },
+      fontFamily: "Poppins",
       animations: {
         enabled: true,
-        speed: 1000,
-        animateGradually: { enabled: true, delay: 100 }
+        speed: 1000
       }
     },
     plotOptions: {
       bar: {
         borderRadius: 4,
-        columnWidth: "45%",
-        distributed: false
+        columnWidth: "45%"
       }
+    },
+    fill: {
+      type: "solid"
     },
     colors: ["#7FA46D"],
     dataLabels: { enabled: false },
@@ -178,14 +209,15 @@ export function DashboardPage() {
     yaxis: {
       min: 0,
       max: maxVal,
-      tickAmount: 5,
+      tickAmount: Math.min(maxVal, 5),
       labels: {
         style: {
           colors: "#9ca3af",
           fontSize: "10px",
           fontWeight: 600,
           fontFamily: "Poppins"
-        }
+        },
+        formatter: (val: number) => `${Math.round(val)}`
       }
     },
     grid: {
@@ -205,31 +237,46 @@ export function DashboardPage() {
 
   const chart1Series = [
     {
-      name: "Kehadiran",
+      name: "Masuk",
       data: charts.map((c: any) => c.masuk)
     }
   ];
 
-  // ApexCharts Option 2: Stacked Bar Chart (Present vs Alfa)
   const chart2Options: ApexCharts.ApexOptions = {
     chart: {
-      type: "bar",
-      stacked: true,
-      stackType: "100%",
+      type: "area",
       toolbar: { show: false },
+      fontFamily: "Poppins",
       animations: {
         enabled: true,
-        speed: 1000,
-        animateGradually: { enabled: true, delay: 100 }
+        speed: 1000
       }
     },
-    plotOptions: {
-      bar: {
-        borderRadius: 4,
-        columnWidth: "40%",
+    stroke: {
+      curve: "smooth",
+      width: 3.5
+    },
+    fill: {
+      type: "gradient",
+      gradient: {
+        shade: "light",
+        type: "vertical",
+        shadeIntensity: 0.1,
+        opacityFrom: 0.25,
+        opacityTo: 0.02,
+        stops: [0, 95, 100]
       }
     },
-    colors: ["#7FA46D", "#F25C2A"],
+    colors: ["#7FA46D", "#e0542c"],
+    markers: {
+      size: 5,
+      colors: ["#ffffff"],
+      strokeColors: ["#7FA46D", "#e0542c"],
+      strokeWidth: 3,
+      hover: {
+        size: 7
+      }
+    },
     dataLabels: { enabled: false },
     xaxis: {
       categories: charts.map((c: any) => c.label),
@@ -245,10 +292,103 @@ export function DashboardPage() {
       axisTicks: { show: false }
     },
     yaxis: {
-      labels: { show: false }
+      min: 0,
+      max: 100,
+      tickAmount: 4,
+      labels: {
+        style: {
+          colors: "#9ca3af",
+          fontSize: "10px",
+          fontWeight: 600,
+          fontFamily: "Poppins"
+        },
+        formatter: (val: number) => `${Math.round(val)}%`
+      }
     },
-    grid: { show: false },
-    legend: { show: false },
+    grid: {
+      borderColor: "#f1f5f9",
+      strokeDashArray: 4,
+      xaxis: { lines: { show: false } },
+      yaxis: { lines: { show: true } }
+    },
+    legend: {
+      show: false
+    },
+    tooltip: {
+      theme: "light",
+      style: { fontSize: "10px", fontFamily: "Poppins" },
+      y: {
+        formatter: (val: number) => `${Math.round(val)}%`
+      }
+    }
+  };
+
+  const chart2Series = [
+    {
+      name: "Masuk",
+      data: charts.map((c: any) => {
+        const dayTotal = (Number(c.masuk) || 0) + (Number(c.alfa) || 0) + (Number(c.sakit) || 0) + (Number(c.izin) || 0) || totalPegawaiTotal || 5;
+        return Math.round(((Number(c.masuk) || 0) / dayTotal) * 100);
+      })
+    },
+    {
+      name: "Alfa",
+      data: charts.map((c: any) => {
+        const dayTotal = (Number(c.masuk) || 0) + (Number(c.alfa) || 0) + (Number(c.sakit) || 0) + (Number(c.izin) || 0) || totalPegawaiTotal || 5;
+        return Math.round(((Number(c.alfa) || 0) / dayTotal) * 100);
+      })
+    }
+  ];
+
+  const genderData = dashboardData?.gender_demographics || { pria: 3, wanita: 2 };
+
+  const chart3Options: ApexCharts.ApexOptions = {
+    chart: {
+      type: "donut",
+      toolbar: { show: false },
+      fontFamily: "Poppins",
+      animations: {
+        enabled: true,
+        speed: 1000
+      }
+    },
+    colors: ["#1e2a4a", "#e0542c"],
+    labels: ["Pria", "Wanita"],
+    plotOptions: {
+      pie: {
+        donut: {
+          size: "72%",
+          labels: {
+            show: true,
+            total: {
+              show: true,
+              label: "Total Pegawai",
+              fontSize: "10px",
+              fontWeight: "700",
+              color: "#9ca3af",
+              formatter: () => `${totalPegawaiTotal || 5}`
+            },
+            value: {
+              fontSize: "16px",
+              fontWeight: "900",
+              color: "#1f2937",
+              offsetY: 2
+            }
+          }
+        }
+      }
+    },
+    dataLabels: { enabled: false },
+    legend: {
+      show: true,
+      position: "bottom",
+      fontSize: "10px",
+      fontFamily: "Poppins",
+      fontWeight: 600,
+      labels: { colors: "#4b5563" },
+      markers: { size: 8 }
+    },
+    stroke: { width: 2, colors: ["#ffffff"] },
     tooltip: {
       theme: "light",
       style: { fontSize: "10px", fontFamily: "Poppins" },
@@ -258,27 +398,25 @@ export function DashboardPage() {
     }
   };
 
-  const chart2Series = [
-    {
-      name: "Masuk",
-      data: charts.map((c: any) => c.masuk)
-    },
-    {
-      name: "Alfa",
-      data: charts.map((c: any) => c.alfa)
-    }
-  ];
+  const chart3Series = [genderData.pria || 3, genderData.wanita || 2];
 
   return (
     <div className="space-y-6">
-      {/* Top Filter Bar Card */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border border-gray-200 rounded-2xl p-4 shadow-xs">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#e0542c]" />
-          <span className="text-xs font-black text-gray-700 uppercase tracking-wider">Filter Dashboard</span>
+      {/* Top Header Section: Dynamic Greeting on Left + Filter Controls on Right */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Left Side Greeting */}
+        <div className="space-y-1 text-left">
+          <h1 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+            <span>{greeting},</span>
+            <span className="text-[#e0542c]">{userName}</span>
+          </h1>
+          <p className="text-xs font-bold text-gray-500">
+            Semangat memperjuangkan impian! Pantau ringkasan kehadiran & performa tim hari ini.
+          </p>
         </div>
-        
-        <div className="flex flex-wrap items-center gap-3">
+
+        {/* Right Side Filter Controls */}
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
           {/* Location Dropdown */}
           <div className="relative">
             <select
@@ -287,7 +425,7 @@ export function DashboardPage() {
                 const val = e.target.value;
                 setSelectedLokasiId(val ? Number(val) : undefined);
               }}
-              className="appearance-none flex items-center gap-2 px-3.5 py-2 pr-9 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 shadow-xs hover:bg-gray-50 transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#e0542c]"
+              className="appearance-none flex items-center gap-2 px-3.5 py-2 pr-9 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-600 shadow-xs hover:bg-gray-50 transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#e0542c]"
             >
               <option value="">Semua Lokasi</option>
               {locations.map((loc: any) => (
@@ -300,7 +438,7 @@ export function DashboardPage() {
           </div>
 
           {/* Date Picker Input */}
-          <div className="relative flex items-center bg-white border border-gray-200 rounded-lg px-3.5 py-2 shadow-xs hover:bg-gray-50 transition-colors">
+          <div className="relative flex items-center bg-white border border-gray-200 rounded-xl px-3.5 py-2 shadow-xs hover:bg-gray-50 transition-colors">
             <Calendar className="w-4 h-4 text-gray-400 mr-2" />
             <input
               type="date"
@@ -313,163 +451,163 @@ export function DashboardPage() {
       </div>
 
       {/* Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((card, i) => {
           const Icon = card.icon;
           return (
             <div
               key={i}
-              className={`p-5 bg-white border border-gray-200 border-l-4 ${card.borderColor} rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default`}
+              className={`px-5 py-4 ${card.cardBg} rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 cursor-default text-white relative overflow-hidden`}
             >
-              <div className="space-y-1 text-left">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider block">
+              <div className="flex flex-col text-left min-w-0 z-10">
+                <span className="text-[10px] font-extrabold text-white/85 uppercase tracking-wider block leading-none mb-1.5">
                   {card.title}
                 </span>
-                <span className="text-3xl font-black text-gray-900 tracking-tight leading-none block">
+                <span className="text-xl font-black text-white tracking-tight leading-none block">
                   {loading ? "..." : card.value}
                 </span>
-                <span className="text-[9.5px] text-gray-400 font-semibold block leading-tight">
-                  {card.subtext}
+                <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full inline-block mt-2.5 w-max ${card.badgeBg}`}>
+                  {card.badgeText}
                 </span>
               </div>
-              <div className={`w-12 h-12 rounded-xl ${card.badgeStyle} flex items-center justify-center shrink-0`}>
-                <Icon className="w-5.5 h-5.5" />
+              <div className="w-10 h-10 rounded-xl bg-white/20 text-white backdrop-blur-xs flex items-center justify-center shrink-0 ml-3 z-10">
+                <Icon className="w-5 h-5" />
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Middle Charts Grid (Symmetrical 50% / 50% split) */}
+      {/* Main Asymmetric Layout: Left (8 cols) + Right (4 cols) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Chart 1: Attendance Analytics (1/2 width) */}
-        <div className="lg:col-span-6 p-6 bg-white border border-gray-200 rounded-2xl flex flex-col justify-between shadow-xs relative">
-          <div className="flex justify-between items-center mb-6">
-            <span className="text-sm font-bold text-gray-900">Statistik Kehadiran Mingguan</span>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-[10px] font-bold text-gray-500 cursor-pointer">
-              Minggu Ini
-              <ChevronDown className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          {/* Interactive Apex Bar Chart */}
-          <div className="relative w-full h-[180px]">
-            {loading ? (
-              <div className="h-[180px] w-full flex items-center justify-center text-xs text-gray-400">
-                Memuat grafik...
+        {/* Left Column (8 cols): Charts & Pending Approvals */}
+        <div className="lg:col-span-8 space-y-6">
+          {/* Charts Grid Split (50% / 50% within left 8 cols) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Chart 1: Attendance Analytics */}
+            <div className="p-4.5 sm:p-5 bg-white border border-gray-200 rounded-2xl shadow-xs text-left flex flex-col justify-between h-[275px]">
+              <div className="mb-2">
+                <h3 className="text-xs font-black text-gray-900">Statistik Kehadiran Mingguan</h3>
+                <p className="text-[9.5px] font-bold text-gray-400 mt-0.5">Total pegawai hadir per hari minggu ini</p>
               </div>
-            ) : (
-              <Chart
-                options={chart1Options}
-                series={chart1Series}
-                type="bar"
-                height={180}
-                width="100%"
-              />
-            )}
-          </div>
-        </div>
 
-        {/* Chart 2: Presence vs Alfa comparison (1/2 width) */}
-        <div className="lg:col-span-6 p-6 bg-white border border-gray-200 rounded-2xl flex flex-col justify-between shadow-xs">
-          <div>
-            <div className="flex justify-between items-start">
+              {/* Apex Bar Chart */}
+              <div className="relative w-full h-[195px] -mb-2">
+                {loading ? (
+                  <div className="h-[195px] w-full flex items-center justify-center text-xs text-gray-400 font-semibold">
+                    Memuat grafik...
+                  </div>
+                ) : (
+                  <Chart
+                    options={chart1Options}
+                    series={chart1Series}
+                    type="bar"
+                    height={195}
+                    width="100%"
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Chart 2: Presence vs Alfa comparison */}
+            <div className="p-4.5 sm:p-5 bg-white border border-gray-200 rounded-2xl shadow-xs text-left flex flex-col justify-between h-[275px]">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <h3 className="text-xs font-black text-gray-900">Kehadiran & Alfa</h3>
+                  <p className="text-[9.5px] font-bold text-gray-400 mt-0.5">Rasio harian pegawai masuk vs mangkir</p>
+                </div>
+                <div className="flex gap-3 text-[9.5px] font-bold shrink-0 ml-2 pt-0.5">
+                  <span className="flex items-center gap-1 text-gray-700">
+                    <span className="w-2 h-2 rounded-full bg-[#7FA46D]"></span> Masuk
+                  </span>
+                  <span className="flex items-center gap-1 text-gray-700">
+                    <span className="w-2 h-2 rounded-full bg-[#e0542c]"></span> Alfa
+                  </span>
+                </div>
+              </div>
+
+              {/* Apex Area Chart with Subtle Gradient */}
+              <div className="relative w-full h-[195px] -mb-2">
+                {loading ? (
+                  <div className="h-[195px] w-full flex items-center justify-center text-xs text-gray-400 font-semibold">
+                    Memuat grafik...
+                  </div>
+                ) : (
+                  <Chart
+                    options={chart2Options}
+                    series={chart2Series}
+                    type="area"
+                    height={195}
+                    width="100%"
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Pending Approval Izin Table Card */}
+          <div className="p-4.5 sm:p-5 bg-white border border-gray-200 rounded-2xl shadow-xs text-left">
+            <div className="flex items-center justify-between mb-3">
               <div>
-                <h3 className="text-sm font-bold text-gray-900">Perbandingan Kehadiran & Alfa</h3>
-                <p className="text-[10px] text-gray-400 mt-0.5">Rasio harian pegawai masuk dibandingkan mangkir (alfa)</p>
+                <h3 className="text-xs font-black text-gray-900">Pending Approval Izin & Cuti</h3>
+                <p className="text-[9.5px] font-bold text-gray-400 mt-0.5">
+                  Daftar pengajuan izin dan cuti karyawan yang memerlukan persetujuan
+                </p>
               </div>
+              <button
+                onClick={() => navigate("Leave")}
+                className="inline-flex items-center gap-1 text-xs font-extrabold text-[#e0542c] hover:text-[#c23f1b] transition-colors cursor-pointer shrink-0 ml-2"
+              >
+                <span>Kelola Semua</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
 
-            {/* Legends */}
-            <div className="flex gap-4 mt-4 text-[10px] font-bold">
-              <span className="flex items-center gap-1.5 text-gray-700">
-                <span className="w-2 h-2 rounded-full bg-[#7FA46D]"></span> Masuk
-              </span>
-              <span className="flex items-center gap-1.5 text-gray-700">
-                <span className="w-2 h-2 rounded-full bg-[#F25C2A]"></span> Alfa
-              </span>
-            </div>
-          </div>
-
-          {/* Stacked Bar Apex Chart */}
-          <div className="relative w-full h-[180px]">
-            {loading ? (
-              <div className="h-[180px] w-full flex items-center justify-center text-xs text-gray-400">
-                Memuat grafik...
-              </div>
-            ) : (
-              <Chart
-                options={chart2Options}
-                series={chart2Series}
-                type="bar"
-                height={180}
-                width="100%"
-              />
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Grid for Approvals & Birthday Calendar (Symmetrical 50% / 50% split) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Pending Approval Izin Card (1/2 width - lg:col-span-6) */}
-        <div className="lg:col-span-6 p-6 bg-white border border-gray-200 rounded-2xl shadow-xs space-y-4 text-left">
-          <div>
-            <h3 className="text-sm font-bold text-gray-900">Pending Approval Izin</h3>
-            <p className="text-[10px] text-gray-400 mt-0.5">
-              Daftar 10 pengajuan izin dan cuti karyawan tertua yang memerlukan persetujuan
-            </p>
-          </div>
-
-          {/* Table data */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs font-semibold">
-              <thead>
-                <tr className="border-b border-gray-100 text-gray-400">
-                  <th className="py-3 px-3 w-10">
+            <ReusableTable
+              columns={[
+                {
+                  header: (
                     <input
                       type="checkbox"
                       checked={pendingLeaves.length > 0 && selectedIds.length === pendingLeaves.length}
                       onChange={(e) => handleSelectAll(e.target.checked)}
-                      className="w-4.5 h-4.5 rounded border border-[#e0542c] bg-white checked:bg-[#e0542c] checked:border-[#e0542c] cursor-pointer appearance-none flex items-center justify-center after:content-['✓'] after:text-[10px] after:font-extrabold after:text-white after:hidden checked:after:block transition-all focus:outline-none focus:ring-1 focus:ring-[#e0542c]/30"
+                      className="w-4 h-4 rounded border border-[#e0542c] bg-white checked:bg-[#e0542c] checked:border-[#e0542c] cursor-pointer appearance-none flex items-center justify-center after:content-['✓'] after:text-[10px] after:font-extrabold after:text-white after:hidden checked:after:block transition-all focus:outline-none"
                     />
-                  </th>
-                  <th className="py-3 px-3">Pegawai</th>
-                  <th className="py-3 px-3">Pengajuan</th>
-                  <th className="py-3 px-3">Alasan</th>
-                  <th className="py-3 px-3 text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {loading ? (
-                  <tr>
-                    <td colSpan={5} className="py-8 text-center text-gray-400">
-                      Memuat data pengajuan...
-                    </td>
-                  </tr>
-                ) : pendingLeaves.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="py-8 text-center text-gray-400">
-                      Tidak ada pengajuan izin pending.
-                    </td>
-                  </tr>
-                ) : (
-                  pendingLeaves.map((item: any) => (
-                    <tr key={item.id} className="text-gray-885 hover:bg-zinc-50/50 transition-colors">
-                      <td className="py-4 px-3">
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.includes(item.id)}
-                          onChange={(e) => handleSelectRow(item.id, e.target.checked)}
-                          className="w-4.5 h-4.5 rounded border border-[#e0542c] bg-white checked:bg-[#e0542c] checked:border-[#e0542c] cursor-pointer appearance-none flex items-center justify-center after:content-['✓'] after:text-[10px] after:font-extrabold after:text-white after:hidden checked:after:block transition-all focus:outline-none focus:ring-1 focus:ring-[#e0542c]/30"
-                        />
-                      </td>
-                      <td className="py-4 px-3">
-                        <div className="font-bold text-gray-900 leading-tight">{item.User?.name || "Pegawai"}</div>
-                        <div className="text-[10px] text-gray-400 font-semibold mt-0.5">{item.User?.email || "—"}</div>
-                      </td>
-                      <td className="py-4 px-3">
-                        <span className="px-2 py-0.5 bg-zinc-50 border border-zinc-200 text-zinc-700 rounded-md text-[9px] font-bold block w-max">
+                  ),
+                  sortable: false,
+                  className: "w-10",
+                  cell: (item: any) => (
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(item.id)}
+                      onChange={(e) => handleSelectRow(item.id, e.target.checked)}
+                      className="w-4 h-4 rounded border border-[#e0542c] bg-white checked:bg-[#e0542c] checked:border-[#e0542c] cursor-pointer appearance-none flex items-center justify-center after:content-['✓'] after:text-[10px] after:font-extrabold after:text-white after:hidden checked:after:block transition-all focus:outline-none"
+                    />
+                  ),
+                },
+                {
+                  header: "Pegawai",
+                  cell: (item: any) => (
+                    <div>
+                      <div className="font-extrabold text-gray-900 leading-tight">{item.User?.name || "Pegawai"}</div>
+                      <div className="text-[10px] text-gray-400 font-semibold mt-0.5">{item.User?.email || "—"}</div>
+                    </div>
+                  ),
+                },
+                {
+                  header: "Pengajuan",
+                  cell: (item: any) => {
+                    const name = (item.nama_cuti || "Izin").toLowerCase();
+                    const badgeBg = name.includes("cuti")
+                      ? "bg-[#7FA46D]"
+                      : name.includes("sakit")
+                      ? "bg-[#e0542c]"
+                      : name.includes("telat")
+                      ? "bg-[#F2B233]"
+                      : "bg-[#5C8A90]";
+                    return (
+                      <div>
+                        <span className={`px-2.5 py-0.5 ${badgeBg} text-white rounded-full text-[9px] font-extrabold uppercase shadow-2xs block w-max`}>
                           {item.nama_cuti || "Izin"}
                         </span>
                         <span className="text-[10px] text-gray-400 font-semibold block mt-1">
@@ -481,120 +619,149 @@ export function DashboardPage() {
                               })
                             : "—"}
                         </span>
-                      </td>
-                      <td className="py-4 px-3 text-gray-500 font-medium max-w-[120px] truncate">
-                        {item.alasan_cuti || "—"}
-                      </td>
-                      <td className="py-4 px-3 text-center">
-                        <button
-                          onClick={() => navigate("Leave")}
-                          className="px-3 py-1 bg-[#e0542c] hover:bg-[#c84420] text-white rounded-lg text-[10px] font-bold transition-all cursor-pointer border-0 shadow-sm hover:shadow"
-                        >
-                          Proses
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                      </div>
+                    );
+                  },
+                },
+                {
+                  header: "Alasan",
+                  cell: (item: any) => (
+                    <span className="text-gray-500 font-medium max-w-[140px] truncate block">
+                      {item.alasan_cuti || "—"}
+                    </span>
+                  ),
+                },
+                {
+                  header: "Aksi",
+                  sortable: false,
+                  className: "text-center",
+                  cell: () => (
+                    <button
+                      onClick={() => navigate("Leave")}
+                      className="px-3 py-1 bg-[#e0542c] hover:bg-[#c84420] text-white rounded-lg text-[10px] font-bold transition-all cursor-pointer border-0 shadow-xs hover:shadow"
+                    >
+                      Proses
+                    </button>
+                  ),
+                },
+              ]}
+              data={pendingLeaves}
+              loading={loading}
+              emptyMessage="Tidak ada pengajuan izin pending."
+              showSearch={false}
+              itemsPerPage={6}
+              showPagination={true}
+            />
           </div>
         </div>
 
-        {/* Ulang Tahun Bulan Ini Mini Calendar Card (1/2 width - lg:col-span-6) */}
-        <div className="lg:col-span-6 p-6 bg-white border border-gray-200 rounded-2xl shadow-xs space-y-4 text-left">
-          <div>
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h3 className="text-sm font-bold text-gray-900">Ulang Tahun Bulan Ini</h3>
-                <p className="text-[10px] text-gray-400 mt-0.5">{currentMonthName}</p>
+        {/* Right Column (4 cols): Quick Actions & Birthday Calendar */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Chart 3: Employee Gender Demographics Donut (Replaces Aksi Cepat) */}
+          <div className="p-4.5 sm:p-5 bg-white border border-gray-200 rounded-2xl shadow-xs text-left flex flex-col justify-between h-[275px]">
+            <div>
+              <h3 className="text-xs font-black text-gray-900 uppercase tracking-wider">Komposisi Gender Pegawai</h3>
+              <p className="text-[9.5px] font-bold text-gray-400 mt-0.5">Rasio perbandingan jumlah pegawai Pria & Wanita</p>
+            </div>
+
+            {/* Apex Donut Chart */}
+            <div className="relative w-full h-[195px] flex items-center justify-center -mb-1">
+              {loading ? (
+                <div className="h-[195px] w-full flex items-center justify-center text-xs text-gray-400 font-semibold">
+                  Memuat grafik...
+                </div>
+              ) : (
+                <Chart
+                  options={chart3Options}
+                  series={chart3Series}
+                  type="donut"
+                  height={190}
+                  width="100%"
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Ulang Tahun Bulan Ini Mini Calendar Card */}
+          <div className="p-4.5 sm:p-5 bg-white border border-gray-200 rounded-2xl shadow-xs space-y-4 text-left">
+            <div>
+              <h3 className="text-xs font-black text-gray-900 uppercase tracking-wider">Ulang Tahun Bulan Ini</h3>
+              <p className="text-[10px] font-bold text-gray-400 mt-0.5">{currentMonthName}</p>
+            </div>
+
+            {/* Mini Calendar Grid */}
+            <div className="bg-zinc-50/70 p-3 rounded-2xl border border-zinc-100">
+              <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-gray-400 mb-2">
+                <span>M</span>
+                <span>S</span>
+                <span>S</span>
+                <span>R</span>
+                <span>K</span>
+                <span>J</span>
+                <span>S</span>
+              </div>
+
+              <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-bold">
+                {getDaysInMonth().map((day, idx) => {
+                  if (day === null) {
+                    return <div key={`empty-${idx}`} className="h-7 w-7" />;
+                  }
+
+                  const dayBirthdays = getBirthdaysForDay(day);
+                  const hasBirthday = dayBirthdays.length > 0;
+                  const isToday = day === new Date().getDate();
+
+                  return (
+                    <div
+                      key={`day-${day}`}
+                      className={`h-7 w-7 rounded-full flex items-center justify-center mx-auto relative group ${
+                        hasBirthday
+                          ? "bg-[#e0542c] text-white font-black cursor-pointer shadow-xs"
+                          : isToday
+                          ? "bg-zinc-200 text-gray-900 border border-zinc-300"
+                          : "text-gray-600 hover:bg-zinc-100"
+                      }`}
+                    >
+                      <span>{day}</span>
+                      {hasBirthday && (
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-50 w-max max-w-[150px] bg-gray-900 text-white text-[9px] font-bold rounded-lg px-2 py-1 shadow-md leading-tight text-center">
+                          {dayBirthdays.map((e: any) => e.name).join(", ")}
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-gray-900 rotate-45 -mt-[3px]"></div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Split layout: Calendar Grid (Left) & Birthday List (Right) */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-              {/* Calendar Grid (Left - 5 cols) */}
-              <div className="md:col-span-5 bg-zinc-50/50 p-3 rounded-2xl border border-zinc-100">
-                {/* Calendar Grid Header */}
-                <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-gray-400 mb-2">
-                  <span>M</span>
-                  <span>S</span>
-                  <span>S</span>
-                  <span>R</span>
-                  <span>K</span>
-                  <span>J</span>
-                  <span>S</span>
-                </div>
-
-                {/* Calendar Grid Body */}
-                <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-bold">
-                  {getDaysInMonth().map((day, idx) => {
-                    if (day === null) {
-                      return <div key={`empty-${idx}`} className="h-7 w-7" />;
-                    }
-
-                    const dayBirthdays = getBirthdaysForDay(day);
-                    const hasBirthday = dayBirthdays.length > 0;
-                    const isToday = day === new Date().getDate();
-
+            {/* Birthday Employees List */}
+            <div className="space-y-2">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider block">Daftar Karyawan Ultah</span>
+              <div className="space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
+                {loading ? (
+                  <div className="text-center text-[10px] text-gray-400 py-4">Memuat data...</div>
+                ) : birthdayList.length === 0 ? (
+                  <div className="text-center text-[10px] text-gray-400 py-4">Tidak ada yang berulang tahun bulan ini.</div>
+                ) : (
+                  birthdayList.map((emp: any) => {
+                    const birthDay = new Date(emp.tgl_lahir).getDate();
+                    const initials = emp.name.substring(0, 2).toUpperCase();
                     return (
-                      <div
-                        key={`day-${day}`}
-                        className={`h-7 w-7 rounded-full flex items-center justify-center mx-auto relative group ${
-                          hasBirthday
-                            ? "text-[#e0542c] font-black cursor-pointer hover:bg-orange-50"
-                            : isToday
-                            ? "bg-zinc-100 text-gray-900 border border-zinc-200"
-                            : "text-gray-600 hover:bg-zinc-50"
-                        }`}
-                        title={
-                          hasBirthday
-                            ? `Ulang Tahun: ${dayBirthdays.map((e: any) => e.name).join(", ")}`
-                            : undefined
-                        }
-                      >
-                        <span>{day}</span>
-                        {/* Custom Tooltip on Hover */}
-                        {hasBirthday && (
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-50 w-max max-w-[150px] bg-gray-900 text-white text-[9px] font-bold rounded-lg px-2 py-1 shadow-md leading-tight text-center">
-                            {dayBirthdays.map((e: any) => e.name).join(", ")}
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-gray-900 rotate-45 -mt-[3px]"></div>
-                          </div>
-                        )}
+                      <div key={emp.id} className="flex items-center gap-2.5 p-2 hover:bg-zinc-50 rounded-xl transition-colors border border-transparent hover:border-gray-100">
+                        <div className="w-7 h-7 rounded-full bg-[#e0542c]/10 text-[#e0542c] font-black flex items-center justify-center text-[10px] shrink-0">
+                          {initials}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[11px] font-bold text-gray-800 truncate">{emp.name}</div>
+                        </div>
+                        <span className="text-[9px] font-bold text-[#e0542c] bg-[#e0542c]/10 px-2 py-0.5 rounded-full shrink-0">
+                          {birthDay} {new Date().toLocaleDateString("id-ID", { month: "short" })}
+                        </span>
                       </div>
                     );
-                  })}
-                </div>
-              </div>
-
-              {/* Birthday list (Right - 7 cols) */}
-              <div className="md:col-span-7 space-y-2">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider block mb-1">Daftar Karyawan</span>
-                <div className="space-y-1.5 max-h-[175px] overflow-y-auto pr-1">
-                  {loading ? (
-                    <div className="text-center text-[10px] text-gray-400 py-4">Memuat data...</div>
-                  ) : birthdayList.length === 0 ? (
-                    <div className="text-center text-[10px] text-gray-400 py-4">Tidak ada yang berulang tahun bulan ini.</div>
-                  ) : (
-                    birthdayList.map((emp: any) => {
-                      const birthDay = new Date(emp.tgl_lahir).getDate();
-                      const initials = emp.name.substring(0, 2).toUpperCase();
-                      return (
-                        <div key={emp.id} className="flex items-center gap-2.5 p-1.5 hover:bg-zinc-50 rounded-xl transition-colors border border-transparent hover:border-gray-100">
-                          <div className="w-7 h-7 rounded-full bg-[#e0542c]/10 text-[#e0542c] font-black flex items-center justify-center text-[10px] shrink-0">
-                            {initials}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-[11px] font-bold text-gray-800 truncate">{emp.name}</div>
-                          </div>
-                          <span className="text-[9px] font-bold text-[#e0542c] bg-[#e0542c]/5 px-2 py-0.5 rounded-full shrink-0">
-                            {birthDay} {new Date().toLocaleDateString("id-ID", { month: "short" })}
-                          </span>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
+                  })
+                )}
               </div>
             </div>
           </div>
