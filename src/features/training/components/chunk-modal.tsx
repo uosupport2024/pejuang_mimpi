@@ -413,6 +413,11 @@ function isValidUrl(urlString: string): boolean {
         toast.error("Format URL Audio tidak valid. Pastikan diawali dengan https:// atau http://");
         return;
       }
+      const isAudioFile = trimmed.match(/\.(mp3|wav|ogg|m4a|aac|flac|webm)($|\?)/i) || trimmed.toLowerCase().includes("audio");
+      if (!isAudioFile) {
+        toast.error("URL Audio harus berupa link file audio yang valid (contoh: .mp3, .wav, .ogg, .m4a)");
+        return;
+      }
       payload.audio_url = trimmed;
       payload.duration_second = Number(durationSecond) || undefined;
       payload.transcript = transcript.trim() || undefined;
@@ -425,6 +430,11 @@ function isValidUrl(urlString: string): boolean {
       }
       if (!isValidUrl(trimmed)) {
         toast.error("Format URL Gambar tidak valid. Pastikan diawali dengan https:// atau http://");
+        return;
+      }
+      const isImageFile = trimmed.match(/\.(jpeg|jpg|gif|png|webp|svg)($|\?)/i) || trimmed.toLowerCase().includes("image") || trimmed.includes("placeholder");
+      if (!isImageFile) {
+        toast.error("URL Gambar harus berupa link file gambar yang valid (contoh: .jpg, .png, .webp)");
         return;
       }
       payload.image_url = trimmed;
