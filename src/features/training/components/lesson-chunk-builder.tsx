@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Video,
   Volume2,
@@ -10,12 +10,12 @@ import {
   X,
   Layers,
   CheckCircle2,
-  Loader2,
   Play,
   Clock
 } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { THEME_COLORS } from "@/shared/constants/colors";
 import { ChunkModal } from "./chunk-modal";
 import {
@@ -65,9 +65,12 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
     id: null,
   });
   const [deletingChunk, setDeletingChunk] = useState(false);
+  const fetchActiveRef = useRef<number | null>(null);
 
   const loadLessonDetail = async () => {
     if (!lessonId) return;
+    if (fetchActiveRef.current === lessonId) return;
+    fetchActiveRef.current = lessonId;
     try {
       setLoading(true);
       const data = await fetchLessonById(lessonId);
@@ -76,6 +79,7 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
       toast.error(err.message || "Gagal memuat detail materi lesson");
     } finally {
       setLoading(false);
+      fetchActiveRef.current = null;
     }
   };
 
@@ -109,16 +113,16 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
       setSubmittingChunk(true);
       if (chunkModal.mode === "edit" && chunkModal.initialData?.id) {
         await updateChunk(chunkModal.initialData.id, payload);
-        toast.success("Konten chunk berhasil diperbarui");
+        toast.success("Konten berhasil diperbarui");
       } else if (lessonId) {
         await createChunk(lessonId, payload);
-        toast.success("Konten chunk baru berhasil ditambahkan");
+        toast.success("Konten baru berhasil ditambahkan");
       }
 
       setChunkModal({ isOpen: false, mode: "add" });
       loadLessonDetail();
     } catch (err: any) {
-      toast.error(err.message || "Gagal menyimpan konten chunk");
+      toast.error(err.message || "Gagal menyimpan konten");
     } finally {
       setSubmittingChunk(false);
     }
@@ -136,11 +140,11 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
     try {
       setDeletingChunk(true);
       await deleteChunk(confirmDeleteChunk.id);
-      toast.success("Konten chunk berhasil dihapus");
+      toast.success("Konten berhasil dihapus");
       setConfirmDeleteChunk({ isOpen: false, id: null });
       loadLessonDetail();
     } catch (err: any) {
-      toast.error(err.message || "Gagal menghapus konten chunk");
+      toast.error(err.message || "Gagal menghapus konten");
     } finally {
       setDeletingChunk(false);
     }
@@ -150,25 +154,25 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
     switch (type) {
       case "video":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-700 font-bold text-[10px] border border-blue-200">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#e0542c]/10 text-[#e0542c] font-bold text-[10px] border border-[#e0542c]/20">
             <Video size={12} /> Video
           </span>
         );
       case "audio":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-purple-50 text-purple-700 font-bold text-[10px] border border-purple-200">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#5C8A90]/10 text-[#3b595d] font-bold text-[10px] border border-[#5C8A90]/20">
             <Volume2 size={12} /> Audio
           </span>
         );
       case "image_step":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold text-[10px] border border-emerald-200">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#7FA46D]/10 text-[#516b46] font-bold text-[10px] border border-[#7FA46D]/20">
             <ImageIcon size={12} /> Langkah Gambar
           </span>
         );
       case "quiz":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-700 font-bold text-[10px] border border-amber-200">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#F2B233]/12 text-[#916715] font-bold text-[10px] border border-[#F2B233]/20">
             <HelpCircle size={12} /> Kuis
           </span>
         );
@@ -179,7 +183,7 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-end">
-      <div className="bg-white w-full max-w-2xl h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
+      <div className="bg-white w-full max-w-lg h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
         {/* Drawer Header */}
         <div className="p-5 border-b border-gray-100 flex items-center justify-between shrink-0">
           <div>
@@ -205,38 +209,60 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
           {/* Header Action Row */}
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-bold text-gray-700">
-              Daftar Chunk Konten ({(lesson?.chunks || []).length})
+              Daftar Bagian Konten ({(lesson?.chunks || []).length})
             </h4>
 
             <button
               type="button"
               onClick={handleOpenAddChunk}
               style={{ backgroundColor: THEME_COLORS.hex.primary }}
-              className="px-3.5 py-1.5 rounded-xl text-white text-xs font-bold shadow-md shadow-[#e0542c]/20 hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-md text-white text-xs font-bold shadow-md shadow-[#e0542c]/20 hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5"
             >
               <Plus size={14} />
-              <span>Tambah Chunk Konten</span>
+              <span>Tambah Bagian Konten</span>
             </button>
           </div>
 
           {loading ? (
-            <div className="py-20 text-center flex flex-col items-center justify-center">
-              <Loader2 size={24} className="animate-spin text-[#e0542c] mb-2" />
-              <p className="text-xs font-semibold text-gray-500">Memuat konten materi...</p>
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl border border-gray-200 p-4 shadow-xs space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="w-5 h-5 rounded-md" />
+                      <Skeleton className="w-16 h-5 rounded-full" />
+                    </div>
+                    <div className="flex gap-2">
+                      <Skeleton className="w-6 h-6 rounded-lg" />
+                      <Skeleton className="w-6 h-6 rounded-lg" />
+                    </div>
+                  </div>
+                  <div className="bg-gray-50/50 rounded-md p-3 border border-gray-100/80 flex gap-3 items-center">
+                    <Skeleton className="w-10 h-10 rounded-lg shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-3.5 w-3/4 rounded-md" />
+                      <Skeleton className="h-3 w-1/3 rounded-md" />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (lesson?.chunks || []).length === 0 ? (
             <div className="py-14 text-center flex flex-col items-center justify-center bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
               <Layers size={36} className="text-gray-300 mb-2" />
-              <p className="text-xs font-bold text-gray-700">Belum Ada Konten Chunk</p>
+              <p className="text-xs font-bold text-gray-700">Belum Ada Konten</p>
               <p className="text-[11px] text-gray-500 max-w-xs mt-0.5 mb-4">
-                Materi ini masih kosong. Klik tombol "+ Tambah Chunk Konten" untuk menambahkan video, audio, gambar, atau kuis.
+                Materi ini masih kosong. Klik tombol "+ Tambah Bagian Konten" untuk menambahkan video, audio, gambar, atau kuis.
               </p>
               <button
                 type="button"
                 onClick={handleOpenAddChunk}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-[#e0542c] bg-[#e0542c]/10 hover:bg-[#e0542c]/20 transition-all cursor-pointer"
+                className="px-4 py-2.5 rounded-md text-xs font-bold text-[#e0542c] bg-[#e0542c]/10 hover:bg-[#e0542c]/20 transition-all cursor-pointer"
               >
-                + Tambah Chunk Konten Pertama
+                + Tambah Bagian Konten Pertama
               </button>
             </div>
           ) : (
@@ -279,7 +305,7 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
                           type="button"
                           onClick={() => handleOpenEditChunk(chunk)}
                           className="p-1 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
-                          title="Edit Chunk"
+                          title="Edit Konten"
                         >
                           <Edit2 size={14} />
                         </button>
@@ -287,7 +313,7 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
                           type="button"
                           onClick={() => handleDeleteChunkClick(chunk.id)}
                           className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                          title="Hapus Chunk"
+                          title="Hapus Konten"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -296,7 +322,7 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
 
                     {/* Chunk Type Content Preview */}
                     {chunk.chunk_type === "video" && (
-                      <div className="bg-gray-50/80 rounded-xl p-3 border border-gray-200/80 text-xs space-y-2">
+                      <div className="bg-gray-50/80 rounded-md p-3 border border-gray-200/80 text-xs space-y-2">
                         <div className="flex gap-3 items-center">
                           {ytId ? (
                             <div className="relative w-24 aspect-video rounded-lg overflow-hidden bg-slate-900 shrink-0 border border-gray-200">
@@ -339,15 +365,22 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
                     )}
 
                     {chunk.chunk_type === "audio" && (
-                      <div className="bg-purple-50/50 border border-purple-100 rounded-xl p-3 text-xs space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <p className="font-bold text-purple-900 truncate flex-1" title={audioUrlStr}>
-                            {audioUrlStr || "URL Audio Kosong"}
-                          </p>
+                      <div className="bg-purple-50/50 border border-purple-100 rounded-md p-3 text-xs space-y-2">
+                        <div className="space-y-2">
+                          {audioUrlStr ? (
+                            <audio
+                              src={audioUrlStr}
+                              controls
+                              className="w-full h-8 rounded-md bg-purple-100/50 border border-purple-200 focus:outline-none"
+                            />
+                          ) : (
+                            <p className="font-bold text-purple-900">URL Audio Kosong</p>
+                          )}
                           {durationSec > 0 && (
-                            <span className="text-[10px] font-bold bg-purple-100 text-purple-700 px-2 py-0.5 rounded-md shrink-0 ml-2">
-                              {durationSec}s
-                            </span>
+                            <p className="text-[10px] font-bold text-purple-700 flex items-center gap-1">
+                              <Clock size={10} />
+                              <span>Durasi: {durationSec} detik</span>
+                            </p>
                           )}
                         </div>
                         {transcriptStr && (
@@ -357,7 +390,7 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
                     )}
 
                     {chunk.chunk_type === "image_step" && (
-                      <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-3 text-xs flex gap-3 items-start">
+                      <div className="bg-emerald-50/50 border border-emerald-100 rounded-md p-3 text-xs flex gap-3 items-start">
                         {imageUrlStr && (
                           <img
                             src={imageUrlStr}
@@ -378,7 +411,7 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
                     )}
 
                     {chunk.chunk_type === "quiz" && (
-                      <div className="bg-amber-50/50 border border-amber-100 rounded-xl p-3 text-xs space-y-2">
+                      <div className="bg-amber-50/50 border border-amber-100 rounded-md p-3 text-xs space-y-2">
                         <p className="font-bold text-amber-900">Pertanyaan: {questionStr}</p>
                         {Array.isArray(optionsArr) && optionsArr.length > 0 && (
                           <div className="space-y-1 pt-1 border-t border-amber-200/60">
@@ -424,8 +457,8 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
         isOpen={confirmDeleteChunk.isOpen}
         onClose={() => setConfirmDeleteChunk({ isOpen: false, id: null })}
         onConfirm={handleConfirmDeleteChunk}
-        title="Hapus Konten Chunk"
-        message="Apakah Anda yakin ingin menghapus konten chunk ini dari materi?"
+        title="Hapus Bagian Konten"
+        message="Apakah Anda yakin ingin menghapus bagian konten ini dari materi?"
         variant="danger"
         loading={deletingChunk}
       />

@@ -47,7 +47,7 @@ export const menuItems: MenuItem[] = [
     ]
   },
   { name: "Lembur", route: "Overtime", icon: ClockCircle, group: "Operasional" },
-  { name: "Course", route: "Training", icon: BookBookmark, group: "Operasional" },
+  { name: "Pelatihan", route: "Training", icon: BookBookmark, group: "Operasional" },
 
   // Layanan Group
   {

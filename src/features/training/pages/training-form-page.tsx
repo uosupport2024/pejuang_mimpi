@@ -104,7 +104,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
       );
       setLessons(sortedLessons);
     } catch (err: any) {
-      toast.error(err.message || "Gagal memuat detail course");
+      toast.error(err.message || "Gagal memuat detail pelatihan");
       navigate("Training");
     } finally {
       setLoadingCourse(false);
@@ -124,7 +124,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
   const handleSubmitCourse = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
-      toast.error("Judul course harus diisi terlebih dahulu");
+      toast.error("Judul pelatihan harus diisi terlebih dahulu");
       return;
     }
 
@@ -150,7 +150,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
 
       if (mode === "edit" && courseId) {
         await updateCourse(courseId, basePayload);
-        toast.success(`Course "${title}" berhasil diperbarui`);
+        toast.success(`Pelatihan "${title}" berhasil diperbarui`);
       } else {
         if (lessons.length > 0) {
           await createCourseFull({
@@ -165,13 +165,13 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
         } else {
           await createCourse(basePayload);
         }
-        toast.success(`Course "${title}" berhasil dibuat`);
+        toast.success(`Pelatihan "${title}" berhasil dibuat`);
       }
 
       setConfirmEmptyLessonsModalOpen(false);
       navigate("Training");
     } catch (err: any) {
-      toast.error(err.message || "Gagal menyimpan course");
+      toast.error(err.message || "Gagal menyimpan pelatihan");
     } finally {
       setSubmitting(false);
     }
@@ -180,7 +180,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
   // Lesson Handlers
   const handleOpenAddLesson = () => {
     if (!title.trim()) {
-      toast.error("Silakan isi judul course terlebih dahulu sebelum menambahkan materi pelatihan");
+      toast.error("Silakan isi judul pelatihan terlebih dahulu sebelum menambahkan materi pelatihan");
       return;
     }
 
@@ -375,10 +375,10 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
               className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-[#e0542c]/10 text-gray-700 hover:text-[#e0542c] font-bold text-[11px] transition-all cursor-pointer border border-gray-200"
             >
               <Layers size={13} />
-              <span>Isi Konten ({row.chunks?.length || 0})</span>
+              <span>Isi Konten ({row.chunks_count ?? row.chunks?.length ?? 0})</span>
             </button>
           ) : (
-            <span className="text-[10px] text-gray-400 italic">Simpan course dulu</span>
+            <span className="text-[10px] text-gray-400 italic">Simpan pelatihan dulu</span>
           )}
         </div>
       ),
@@ -417,33 +417,33 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 bg-white border border-gray-200/80 rounded-2xl p-6 shadow-xs space-y-5">
             <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
-              <Skeleton className="w-8 h-8 rounded-xl" />
+              <Skeleton className="w-8 h-8 rounded-md" />
               <Skeleton className="h-4 w-44 rounded-md" />
             </div>
 
             <div className="space-y-2">
               <Skeleton className="h-3 w-28 rounded-md" />
-              <Skeleton className="h-10 w-full rounded-xl" />
+              <Skeleton className="h-10 w-full rounded-md" />
             </div>
 
             <div className="space-y-2">
               <Skeleton className="h-3 w-28 rounded-md" />
-              <Skeleton className="h-28 w-full rounded-xl" />
+              <Skeleton className="h-28 w-full rounded-md" />
             </div>
 
             <div className="space-y-2">
               <Skeleton className="h-3 w-36 rounded-md" />
-              <Skeleton className="h-10 w-full rounded-xl" />
+              <Skeleton className="h-10 w-full rounded-md" />
             </div>
 
             <div className="space-y-2">
               <Skeleton className="h-3 w-40 rounded-md" />
-              <Skeleton className="h-10 w-full rounded-xl" />
+              <Skeleton className="h-10 w-full rounded-md" />
             </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-              <Skeleton className="h-10 w-20 rounded-xl" />
-              <Skeleton className="h-10 w-36 rounded-xl" />
+              <Skeleton className="h-10 w-20 rounded-md" />
+              <Skeleton className="h-10 w-36 rounded-md" />
             </div>
           </div>
 
@@ -454,7 +454,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
             </div>
             <div className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs space-y-3">
               <Skeleton className="h-4 w-32 rounded-md" />
-              <Skeleton className="h-8 w-full rounded-xl" />
+              <Skeleton className="h-8 w-full rounded-md" />
             </div>
           </div>
         </div>
@@ -470,7 +470,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
         <div className="lg:col-span-2 bg-white border border-gray-200/80 rounded-2xl p-6 shadow-xs space-y-3.5">
           <div className="pb-2.5 border-b border-gray-100 text-gray-800">
             <h2 className="text-sm font-bold text-gray-900">
-              {mode === "edit" ? "Edit Informasi Course" : "Form Course Baru"}
+              {mode === "edit" ? "Edit Informasi Pelatihan" : "Form Pelatihan Baru"}
             </h2>
             <p className="text-[11px] text-gray-500">
               Lengkapi informasi utama modul materi pelatihan
@@ -479,7 +479,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
 
           {/* Title */}
           <FormField
-            label="Judul Course"
+            label="Judul Pelatihan"
             type="text"
             required
             value={title}
@@ -490,14 +490,14 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
           {/* Description */}
           <div>
             <label className="block text-xs font-bold text-gray-700 mb-1.5">
-              Deskripsi Course
+              Deskripsi Pelatihan
             </label>
             <textarea
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Jelaskan cakupan modul, materi yang akan dipelajari, serta target kemampuan pegawai..."
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all resize-none"
+              className="w-full px-4 py-2.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all resize-none"
             />
           </div>
 
@@ -526,7 +526,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
               type="button"
               onClick={() => navigate("Training")}
               disabled={submitting}
-              className="px-5 py-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+              className="px-5 py-2.5 rounded-md border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
             >
               Batal
             </button>
@@ -534,14 +534,14 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
               type="submit"
               disabled={submitting || !title.trim()}
               style={{ backgroundColor: THEME_COLORS.hex.primary }}
-              className="px-6 py-2.5 rounded-xl text-white text-xs font-bold shadow-md shadow-[#e0542c]/20 hover:opacity-90 active:scale-98 transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 rounded-md text-white text-xs font-bold shadow-md shadow-[#e0542c]/20 hover:opacity-90 active:scale-98 transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? (
                 <Loader2 size={16} className="animate-spin" />
               ) : (
                 <Save size={16} />
               )}
-              <span>{mode === "edit" ? "Simpan Perubahan" : "Buat Course"}</span>
+              <span>{mode === "edit" ? "Simpan Perubahan" : "Buat Pelatihan"}</span>
             </button>
           </div>
         </div>
@@ -576,20 +576,20 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
                     className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold shadow-xs backdrop-blur-xs ${
                       isPublished
                         ? "bg-emerald-600/90 text-white"
-                        : "bg-zinc-700/90 text-white"
+                        : "bg-red-600/90 text-white"
                     }`}
                   >
-                    {isPublished ? "Publik" : "Disembunyikan"}
+                    {isPublished ? "Publik" : "Draft"}
                   </span>
                 </div>
               </div>
 
               <div className="p-4 space-y-2">
                 <h4 className="text-xs font-bold text-gray-900 line-clamp-1">
-                  {title.trim() || "Judul Course"}
+                  {title.trim() || "Judul Pelatihan"}
                 </h4>
                 <p className="text-[11px] text-gray-500 line-clamp-2">
-                  {description.trim() || "Deskripsi modul course akan tampil di sini..."}
+                  {description.trim() || "Deskripsi modul pelatihan akan tampil di sini..."}
                 </p>
               </div>
             </div>
@@ -603,12 +603,12 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
             <div className="flex items-center justify-between pt-1">
               <div>
                 <span className="text-xs font-bold text-gray-800 block">
-                  {isPublished ? "Publik (Tampil)" : "Disembunyikan (Sembunyi)"}
+                  {isPublished ? "Publik (Tampil)" : "Draft"}
                 </span>
                 <span className="text-[10px] text-gray-500 block leading-snug max-w-[180px]">
                   {isPublished
                     ? "Modul ini tampil dan dapat diakses oleh karyawan."
-                    : "Modul ini disembunyikan dari katalog karyawan."}
+                    : "Modul ini disimpan sebagai draf dan tidak tampil."}
                 </span>
               </div>
               <button
@@ -638,7 +638,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
             </h3>
             <p className="text-[11px] text-gray-500">
               {mode === "add"
-                ? "Tambahkan materi ke dalam draf course ini sebelum disimpan."
+                ? "Tambahkan materi ke dalam draf pelatihan ini sebelum disimpan."
                 : "Tarik (drag & drop) baris di bawah untuk mengubah urutan materi secara otomatis."}
             </p>
           </div>
@@ -647,7 +647,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
             type="button"
             onClick={handleOpenAddLesson}
             style={{ backgroundColor: THEME_COLORS.hex.primary }}
-            className="px-3.5 py-2 rounded-xl text-white text-xs font-bold shadow-md shadow-[#e0542c]/20 hover:opacity-90 active:scale-98 transition-all cursor-pointer flex items-center gap-1.5 self-start sm:self-auto"
+            className="px-3.5 py-2 rounded-md text-white text-xs font-bold shadow-md shadow-[#e0542c]/20 hover:opacity-90 active:scale-98 transition-all cursor-pointer flex items-center gap-1.5 self-start sm:self-auto"
           >
             <Plus size={15} />
             <span>Tambah Materi</span>
@@ -656,11 +656,11 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
 
         {/* Lessons List / Empty State */}
         {lessons.length === 0 ? (
-          <div className="py-10 text-center flex flex-col items-center justify-center bg-gray-50/50 rounded-xl border border-dashed border-gray-200">
+          <div className="py-10 text-center flex flex-col items-center justify-center bg-gray-50/50 rounded-md border border-dashed border-gray-200">
             <Layers size={32} className="text-gray-300 mb-2" />
             <p className="text-xs font-bold text-gray-700">Belum Ada Materi Pelatihan</p>
             <p className="text-[11px] text-gray-500 max-w-xs mt-0.5 mb-3">
-              Isi judul course di atas lalu klik "+ Tambah Materi" untuk menambahkan materi pertama.
+              Isi judul pelatihan di atas lalu klik "+ Tambah Materi" untuk menambahkan materi pertama.
             </p>
             <button
               type="button"
@@ -733,9 +733,9 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
         isOpen={confirmEmptyLessonsModalOpen}
         onClose={() => setConfirmEmptyLessonsModalOpen(false)}
         onConfirm={executeSubmitCourse}
-        title="Simpan Course Tanpa Materi?"
-        message="Modul course ini belum memiliki materi pelatihan. Apakah Anda yakin ingin menyimpan course ini sekarang?"
-        confirmText="Ya, Simpan Course"
+        title="Simpan Pelatihan Tanpa Materi?"
+        message="Modul pelatihan ini belum memiliki materi pelatihan. Apakah Anda yakin ingin menyimpan pelatihan ini sekarang?"
+        confirmText="Ya, Simpan Pelatihan"
         cancelText="Batal"
         variant="warning"
         loading={submitting}

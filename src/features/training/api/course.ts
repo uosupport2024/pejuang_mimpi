@@ -41,6 +41,7 @@ export interface Lesson {
   lesson_points?: number;
   created_at?: string;
   updated_at?: string;
+  chunks_count?: number;
   chunks?: LessonChunk[];
 }
 
@@ -133,6 +134,11 @@ export interface PaginatedCourseResponse {
   last_page: number;
   per_page: number;
   total: number;
+  stats?: {
+    total: number;
+    published: number;
+    draft: number;
+  };
 }
 
 let fetchCoursesPromiseMap = new Map<string, Promise<PaginatedCourseResponse>>();
@@ -140,9 +146,10 @@ let fetchCoursesPromiseMap = new Map<string, Promise<PaginatedCourseResponse>>()
 export async function fetchCourses(
   page: number = 1,
   perPage: number = 10,
-  query?: string
+  query?: string,
+  status?: "published" | "draft" | "all"
 ): Promise<PaginatedCourseResponse> {
-  const cacheKey = `${page}_${perPage}_${query || ""}`;
+  const cacheKey = `${page}_${perPage}_${query || ""}_${status || "all"}`;
 
   if (fetchCoursesPromiseMap.has(cacheKey)) {
     return fetchCoursesPromiseMap.get(cacheKey)!;
@@ -155,6 +162,9 @@ export async function fetchCourses(
       url.searchParams.append("per_page", perPage.toString());
       if (query) {
         url.searchParams.append("q", query);
+      }
+      if (status && status !== "all") {
+        url.searchParams.append("status", status);
       }
 
       const response = await fetch(url.toString(), {
@@ -186,6 +196,7 @@ export async function fetchCourses(
         last_page: rawData.last_page || 1,
         per_page: rawData.per_page || perPage,
         total: rawData.total || 0,
+        stats: rawData.stats,
       };
     } finally {
       setTimeout(() => {
@@ -282,7 +293,7 @@ export async function deleteCourse(id: number): Promise<void> {
 // ── Lesson API Helpers ──────────────────────────────────────────────────
 
 export async function fetchLessonById(id: number): Promise<Lesson> {
-  const response = await fetch(`${API_BASE_URL}/lessons/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/lessons/${id}/full`, {
     method: "GET",
     headers: getHeaders(),
   });
