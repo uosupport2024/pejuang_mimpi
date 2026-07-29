@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
 import { X, Loader2, BookOpen, Image as ImageIcon, Sparkles } from "lucide-react";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from "@/shared/components/ui/select";
 import type { Course, CreateCoursePayload } from "../api/course";
 
 interface CourseModalProps {
@@ -22,6 +29,7 @@ export function CourseModal({
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [iconUrl, setIconUrl] = useState("");
   const [isPublished, setIsPublished] = useState(true);
+  const [difficulty, setDifficulty] = useState("basic");
 
   useEffect(() => {
     if (initialData) {
@@ -30,12 +38,14 @@ export function CourseModal({
       setThumbnailUrl(initialData.thumbnail_url || "");
       setIconUrl(initialData.icon_url || "");
       setIsPublished(initialData.is_published ?? true);
+      setDifficulty(initialData.difficulty || "basic");
     } else {
       setTitle("");
       setDescription("");
       setThumbnailUrl("");
       setIconUrl("");
       setIsPublished(true);
+      setDifficulty("basic");
     }
   }, [initialData, isOpen]);
 
@@ -51,6 +61,7 @@ export function CourseModal({
       thumbnail_url: thumbnailUrl.trim() || undefined,
       icon_url: iconUrl.trim() || undefined,
       is_published: isPublished,
+      difficulty: difficulty,
     });
   };
 
@@ -158,6 +169,27 @@ export function CourseModal({
               />
               <Sparkles size={16} className="absolute left-3 top-3 text-gray-400" />
             </div>
+          </div>
+
+          {/* Difficulty Selection */}
+          <div className="space-y-1.5 text-left">
+            <label className="block text-xs font-bold text-gray-700">
+              Tingkat Kesulitan
+            </label>
+            <Select
+              value={difficulty}
+              onValueChange={(val: string | null) => setDifficulty(val || "basic")}
+            >
+              <SelectTrigger className="w-full text-xs font-bold bg-zinc-50 border border-gray-200 rounded-md h-9">
+                <SelectValue placeholder="Pilih Tingkat Kesulitan" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="basic">Basic (Dasar)</SelectItem>
+                <SelectItem value="beginner">Beginner (Pemula)</SelectItem>
+                <SelectItem value="intermediate">Intermediate (Menengah)</SelectItem>
+                <SelectItem value="advanced">Advanced (Mahir)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Published Toggle Switch */}

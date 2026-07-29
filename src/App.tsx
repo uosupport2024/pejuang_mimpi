@@ -51,6 +51,7 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout,
                             currentRoute === "MobileLumbung" ||
                             currentRoute === "MobileAyamku" ||
                             currentRoute === "MobilePakan" || 
+                            currentRoute === "MobilePakanLearn" ||
                             currentRoute === "MobileProfile" ||
                             currentRoute === "MobileCelenganDetail" ||
                             currentRoute === "MobileCelenganAdd" ||

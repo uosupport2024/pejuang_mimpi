@@ -16,6 +16,13 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { FormField } from "@/shared/components/ui/form-field";
 import { ReusableTable } from "@/shared/components/ui/reusable-table";
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from "@/shared/components/ui/select";
 import { THEME_COLORS } from "@/shared/constants/colors";
 import { LessonModal } from "../components/lesson-modal";
 import { LessonChunkBuilder } from "../components/lesson-chunk-builder";
@@ -49,6 +56,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [iconUrl, setIconUrl] = useState("");
   const [isPublished, setIsPublished] = useState(true);
+  const [difficulty, setDifficulty] = useState("basic");
   const [lessons, setLessons] = useState<Lesson[]>([]);
 
   // Lesson Modal State
@@ -97,6 +105,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
       setThumbnailUrl(course.thumbnail_url || "");
       setIconUrl(course.icon_url || "");
       setIsPublished(course.is_published ?? true);
+      setDifficulty(course.difficulty || "basic");
       
       // Sort lessons by order_index ascending
       const sortedLessons = [...(course.lessons || [])].sort(
@@ -146,6 +155,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
         thumbnail_url: thumbnailUrl.trim() || undefined,
         icon_url: iconUrl.trim() || undefined,
         is_published: isPublished,
+        difficulty: difficulty,
       };
 
       if (mode === "edit" && courseId) {
@@ -518,6 +528,27 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
               onChange={(e) => setIconUrl(e.target.value)}
               placeholder="https://... atau nama ikon"
             />
+          </div>
+
+          {/* Difficulty Selection */}
+          <div className="space-y-1.5 text-left">
+            <label className="block text-xs font-bold text-gray-700">
+              Tingkat Kesulitan
+            </label>
+            <Select
+              value={difficulty}
+              onValueChange={(val: string | null) => setDifficulty(val || "basic")}
+            >
+              <SelectTrigger className="w-full text-xs font-bold bg-zinc-50 border border-gray-200 rounded-md h-9">
+                <SelectValue placeholder="Pilih Tingkat Kesulitan" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="basic">Basic (Dasar)</SelectItem>
+                <SelectItem value="beginner">Beginner (Pemula)</SelectItem>
+                <SelectItem value="intermediate">Intermediate (Menengah)</SelectItem>
+                <SelectItem value="advanced">Advanced (Mahir)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Buttons */}
