@@ -20,6 +20,7 @@ export const THEME_COLORS = {
     apiSemangat: "#F25C2A",
     airKehidupan: "#5C8A90",
     padiKemakmuran: "#F2B233",
+    danger: "#ef4444",
   },
 
   classes: {

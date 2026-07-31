@@ -1,90 +1,125 @@
-import { useState } from "react";
-import { Search, BookOpen, GraduationCap, Trophy, Play, CheckCircle2, Timer, Heart, TrendingUp } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Search,
+  BookOpen,
+  GraduationCap,
+  Trophy,
+  Play,
+  CheckCircle2,
+  Timer,
+  Heart,
+  Award
+} from "lucide-react";
 import { toast } from "sonner";
 import type { PakanPageProps } from "../types/pakan.type";
 import logoWhite from "@/assets/logo/POT–PejuangMimpi–Logo.png";
 import patternBg from "@/assets/bg/pattern-background.png";
-
-interface Course {
-  id: string;
-  title: string;
-  excerpt: string;
-  category: "Dasar" | "Manajemen" | "Kesehatan";
-  instructor: string;
-  duration: string;
-  modulesCount: number;
-  progress: number; // 0 to 100
-  gradientTheme: string;
-}
-
-const COURSES_DATA: Course[] = [
-  {
-    id: "1",
-    title: "Dasar-Dasar Pelayanan Prima (Excellent Service)",
-    excerpt: "Konsep dasar pelayanan hospitality, etika penampilan, komunikasi efektif, dan grooming standar hotel bintang 5.",
-    category: "Dasar",
-    instructor: "Andri Wijaya, M.Par.",
-    duration: "4.5 Jam",
-    modulesCount: 8,
-    progress: 75,
-    gradientTheme: "from-[#7FA46D] to-[#5C824C]",
-  },
-  {
-    id: "2",
-    title: "Manajemen Operasional Front Office & Housekeeping",
-    excerpt: "Prosedur check-in/check-out, pengelolaan reservasi kamar, standar kebersihan area publik, dan housekeeping SOP.",
-    category: "Manajemen",
-    instructor: "Nadia Siregar, CHA",
-    duration: "3.2 Jam",
-    modulesCount: 6,
-    progress: 40,
-    gradientTheme: "from-[#F25C2A] to-[#C54117]",
-  },
-  {
-    id: "3",
-    title: "SOP Higiene, Sanitasi & Keamanan Pangan (HACCP)",
-    excerpt: "Standar kebersihan dapur hotel, sanitasi alat makan, penyimpanan bahan pangan, serta pencegahan kontaminasi silang.",
-    category: "Kesehatan",
-    instructor: "Chef Danu Subrata",
-    duration: "5.0 Jam",
-    modulesCount: 10,
-    progress: 0,
-    gradientTheme: "from-[#5C8A90] to-[#3F686D]",
-  },
-  {
-    id: "4",
-    title: "Strategi Pemasaran & Revenue Management Hotel",
-    excerpt: "Optimasi harga kamar dinamis, pengelolaan Online Travel Agent (OTA), serta program retensi dan loyalitas tamu.",
-    category: "Manajemen",
-    instructor: "Prof. Dr. Hendra Wijaya",
-    duration: "2.8 Jam",
-    modulesCount: 5,
-    progress: 100,
-    gradientTheme: "from-[#F2B233] to-[#C58F1B]",
-  },
-];
+import {
+  fetchCourses,
+  enrollCourse,
+  type Course as APICourse
+} from "@/features/training/api/course";
 
 export function PakanPage({ user }: PakanPageProps) {
+  const navigate = useNavigate();
+  const [courses, setCourses] = useState<APICourse[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<"Semua" | "Dasar" | "Manajemen" | "Kesehatan">("Semua");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<"Semua" | "basic" | "beginner" | "intermediate" | "advanced">("Semua");
 
-  const filteredCourses = COURSES_DATA.filter((course) => {
-    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === "Semua" || course.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const loadCourses = async () => {
+    try {
+      setLoading(true);
+      const res = await fetchCourses(1, 100);
+      setCourses(res.data);
+    } catch (err: any) {
+      toast.error(err.message || "Gagal memuat data pembelajaran");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleStartCourse = (title: string) => {
-    toast.success(`Memulai kelas: ${title}`);
+  useEffect(() => {
+    loadCourses();
+  }, []);
+
+  // Stats calculation dynamically from database courses
+  const stats = useMemo(() => {
+    let completed = 0;
+    let active = 0;
+    let points = 0;
+
+    courses.forEach((c) => {
+      if (c.user_progress?.status === "completed") {
+        completed++;
+      } else if (c.user_progress?.status === "in_progress") {
+        active++;
+      }
+      points += c.user_progress?.total_point || 0;
+    });
+
+    return { completed, active, points };
+  }, [courses]);
+
+  const mappedCourses = useMemo(() => {
+    return courses.map((c) => {
+      const diff = (c.difficulty || "basic").toLowerCase();
+      let progressVal = 0;
+      if (c.user_progress) {
+        progressVal = c.user_progress.percentage_completed;
+      }
+
+      let gradientTheme = "from-[#7FA46D] to-[#5C824C]"; // basic (Green)
+      if (diff === "beginner") {
+        gradientTheme = "from-[#F25C2A] to-[#C54117]"; // beginner (Orange)
+      } else if (diff === "intermediate") {
+        gradientTheme = "from-[#5C8A90] to-[#3F686D]"; // intermediate (Teal)
+      } else if (diff === "advanced") {
+        gradientTheme = "from-[#F2B233] to-[#C58F1B]"; // advanced (Yellow)
+      }
+
+      return {
+        ...c,
+        progress: progressVal,
+        gradientTheme,
+        instructor: "Trainer POT",
+        excerpt: c.description || "Materi pembelajaran resmi Uo-space.",
+      };
+    });
+  }, [courses]);
+
+  const filteredCourses = useMemo(() => {
+    return mappedCourses.filter((course) => {
+      const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesDifficulty =
+        selectedDifficulty === "Semua" ||
+        (course.difficulty || "basic").toLowerCase() === selectedDifficulty.toLowerCase();
+      return matchesSearch && matchesDifficulty;
+    });
+  }, [mappedCourses, searchQuery, selectedDifficulty]);
+
+  const handleStartCourse = async (courseId: number) => {
+    try {
+      const courseObj = courses.find((c) => c.id === courseId);
+      if (!courseObj) return;
+
+      if (!courseObj.user_progress) {
+        await enrollCourse(courseId);
+        await loadCourses();
+      }
+
+      navigate(`/mobile/pakan/learn/${courseId}`);
+    } catch (err: any) {
+      toast.error(err.message || "Gagal memulai kelas");
+    }
   };
 
   return (
     <div className="space-y-4">
-      {/* Header Banner Card - matching the design in Sangkar & Tunas */}
+      {/* Header Banner Card */}
       <div className="-mt-6 -mx-5 relative mb-4">
         <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-7 pb-6 relative overflow-hidden">
-          {/* Background Pattern */}
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{
@@ -94,9 +129,7 @@ export function PakanPage({ user }: PakanPageProps) {
             }}
           />
 
-          {/* Top row: Logo & Welcome Info */}
           <div className="flex justify-between items-center z-10 relative mb-4">
-            {/* Left: Logo & User Info */}
             <div className="flex items-center gap-3.5">
               <img src={logoWhite} alt="Logo" className="w-12 h-12 object-contain" />
               <div className="flex flex-col text-left">
@@ -109,35 +142,33 @@ export function PakanPage({ user }: PakanPageProps) {
               </div>
             </div>
 
-            {/* Right: Page Label Badge */}
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 text-white text-[9px] font-bold tracking-wide uppercase shadow-xs">
               E-Learning
             </span>
           </div>
 
-          {/* Divider line */}
           <div className="h-[1px] bg-white/15 w-full my-1.5 z-10 relative" />
 
-          {/* Stats Bar (Solid accents using THEME_COLORS.hex.accent #fee279) */}
+          {/* Stats Bar */}
           <div className="grid grid-cols-3 gap-2 mt-2 pt-2.5 text-center z-10 relative">
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-1 text-[#fee279]">
                 <Trophy className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-xs font-bold">1</span>
+                <span className="text-xs font-bold">{stats.completed}</span>
               </div>
               <span className="text-[8px] text-zinc-400 font-bold uppercase mt-0.5">Selesai</span>
             </div>
             <div className="flex flex-col items-center border-x border-white/10">
               <div className="flex items-center gap-1 text-[#fee279]">
                 <BookOpen className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-xs font-bold">2</span>
+                <span className="text-xs font-bold">{stats.active}</span>
               </div>
               <span className="text-[8px] text-zinc-400 font-bold uppercase mt-0.5">Aktif</span>
             </div>
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-1 text-[#fee279]">
                 <Timer className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-xs font-bold">7.7 Jam</span>
+                <span className="text-xs font-bold">{stats.points} Poin</span>
               </div>
               <span className="text-[8px] text-zinc-400 font-bold uppercase mt-0.5">Belajar</span>
             </div>
@@ -153,114 +184,142 @@ export function PakanPage({ user }: PakanPageProps) {
               placeholder="Cari materi pembelajaran..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white text-zinc-800 placeholder-zinc-450 rounded-xl text-xs shadow-xs focus:outline-none focus:ring-2 focus:ring-white/20"
+              className="w-full pl-10 pr-4 py-3 bg-white text-zinc-800 placeholder-zinc-400 rounded-md text-xs shadow-xs focus:outline-none focus:ring-2 focus:ring-white/20"
             />
           </div>
         </div>
       </div>
 
-      {/* Category Tabs */}
+      {/* Category/Difficulty Tabs */}
       <div className="flex gap-1.5 overflow-x-auto pb-1.5 scrollbar-none px-0.5">
-        {(["Semua", "Dasar", "Manajemen", "Kesehatan"] as const).map((cat) => (
+        {([
+          { value: "Semua", label: "SEMUA" },
+          { value: "basic", label: "BASIC" },
+          { value: "beginner", label: "BEGINNER" },
+          { value: "intermediate", label: "INTERMEDIATE" },
+          { value: "advanced", label: "ADVANCED" }
+        ] as const).map((tab) => (
           <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 transition-all cursor-pointer ${selectedCategory === cat
-              ? "bg-[#e0542c] text-white shadow-xs"
-              : "bg-white text-zinc-500 border border-zinc-100 hover:bg-zinc-50"
-              }`}
+            key={tab.value}
+            onClick={() => setSelectedDifficulty(tab.value)}
+            className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 transition-all cursor-pointer ${
+              selectedDifficulty === tab.value
+                ? "bg-[#e0542c] text-white shadow-xs"
+                : "bg-white text-zinc-500 border border-zinc-100 hover:bg-zinc-50"
+            }`}
           >
-            {cat}
+            {tab.label}
           </button>
         ))}
       </div>
 
-      {/* Course List Grid */}
-      <div className="grid grid-cols-2 gap-3">
-        {filteredCourses.length > 0 ? (
-          filteredCourses.map((course) => {
-            // Map course category or ID to icon
-            const getCourseIcon = (id: string) => {
-              switch (id) {
-                case "1": return GraduationCap;
-                case "2": return BookOpen;
-                case "3": return Heart;
-                case "4": return TrendingUp;
-                default: return GraduationCap;
-              }
-            };
-            const IconComp = getCourseIcon(course.id);
+      {/* Loading Skeletons */}
+      {loading ? (
+        <div className="grid grid-cols-2 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-md border border-zinc-100 p-2.5 space-y-3 animate-pulse">
+              <div className="h-22 bg-zinc-200 rounded-md w-full" />
+              <div className="space-y-2">
+                <div className="h-3 bg-zinc-200 rounded-md w-3/4" />
+                <div className="h-2 bg-zinc-200 rounded-md w-1/2" />
+                <div className="h-6 bg-zinc-200 rounded-md w-full" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* Course List Grid */
+        <div className="grid grid-cols-2 gap-3">
+          {filteredCourses.length > 0 ? (
+            filteredCourses.map((course) => {
+              const getCourseIcon = (difficulty?: string) => {
+                switch (difficulty?.toLowerCase()) {
+                  case "basic":
+                    return GraduationCap;
+                  case "beginner":
+                    return BookOpen;
+                  case "intermediate":
+                    return Heart;
+                  case "advanced":
+                    return Award;
+                  default:
+                    return GraduationCap;
+                }
+              };
+              const IconComp = getCourseIcon(course.difficulty);
+              const getDifficultyLabel = (difficulty?: string) => {
+                switch (difficulty?.toLowerCase()) {
+                  case "basic": return "BASIC";
+                  case "beginner": return "BEGINNER";
+                  case "intermediate": return "INTERMEDIATE";
+                  case "advanced": return "ADVANCED";
+                  default: return "BASIC";
+                }
+              };
 
-            return (
-              <div
-                key={course.id}
-                className="bg-white rounded-2xl border border-zinc-100 shadow-xs flex flex-col overflow-hidden hover:scale-[1.01] transition-transform duration-200"
-              >
-                {/* Thumbnail Header Block - Compact Height (h-22) */}
-                <div className={`h-22 bg-gradient-to-tr ${course.gradientTheme} flex items-center justify-center relative shrink-0`}>
-                  {/* Glassmorphic icon container - smaller size */}
-                  <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/20 shadow-xs">
-                    <IconComp className="w-5 h-5" />
-                  </div>
-                  {/* Category badge absolutely positioned on top-right */}
-                  <span className="absolute top-2 right-2 inline-flex items-center px-1.5 py-0.5 rounded-full bg-black/25 text-white text-[7.5px] font-bold uppercase tracking-wide backdrop-blur-xs">
-                    {course.category}
-                  </span>
-                </div>
-
-                {/* Content details & Action Button - Compact padding */}
-                <div className="p-2.5 flex-1 flex flex-col justify-between space-y-2.5">
-                  <div className="space-y-0.5 text-left">
-                    {/* Title - Compact size and spacing */}
-                    <h3 className="text-[10px] font-bold text-zinc-900 leading-snug line-clamp-2 min-h-[30px]">
-                      {course.title}
-                    </h3>
-
-                    {/* Excerpt - 1 line max, small size */}
-                    <p className="text-[8px] text-zinc-400 font-bold leading-normal line-clamp-1">
-                      {course.excerpt}
-                    </p>
-
-                    {/* Instructor / Author */}
-                    <span className="block text-[7.5px] text-zinc-400 font-bold tracking-wider uppercase truncate">
-                      Oleh: {course.instructor}
+              return (
+                <div
+                  key={course.id}
+                  className="bg-white rounded-md border border-zinc-100 shadow-xs flex flex-col overflow-hidden hover:scale-[1.01] transition-transform duration-200"
+                >
+                  <div className={`h-22 bg-gradient-to-tr ${course.gradientTheme} flex items-center justify-center relative shrink-0`}>
+                    <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/20 shadow-xs">
+                      <IconComp className="w-5 h-5" />
+                    </div>
+                    <span className="absolute top-2 right-2 inline-flex items-center px-1.5 py-0.5 rounded-full bg-black/25 text-white text-[7.5px] font-bold uppercase tracking-wide backdrop-blur-xs">
+                      {getDifficultyLabel(course.difficulty)}
                     </span>
                   </div>
 
+                  <div className="p-2.5 flex-1 flex flex-col justify-between space-y-2.5">
+                    <div className="space-y-0.5 text-left">
+                      <h3 className="text-[10px] font-bold text-zinc-900 leading-snug line-clamp-2 min-h-[30px]">
+                        {course.title}
+                      </h3>
+                      <p className="text-[8px] text-zinc-400 font-medium leading-normal line-clamp-1">
+                        {course.excerpt}
+                      </p>
+                      <span className="block text-[7.5px] text-zinc-400 font-bold tracking-wider uppercase truncate">
+                        Oleh: {course.instructor}
+                      </span>
+                    </div>
 
-
-                  {/* Action Button - Compact height and py */}
-                  <button
-                    onClick={() => handleStartCourse(course.title)}
-                    className="w-full py-1.5 rounded-xl bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white text-[8.5px] font-bold uppercase tracking-wider shadow-xs hover:from-[#c23f1b] hover:to-[#e0542c] active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5 font-bold"
-                  >
-                    {course.progress === 100 ? (
-                      <>
-                        <CheckCircle2 className="w-3 h-3 shrink-0" />
-                        Selesai
-                      </>
-                    ) : course.progress > 0 ? (
-                      <>
-                        <Play className="w-2.5 h-2.5 fill-current shrink-0" />
-                        Lanjut
-                      </>
-                    ) : (
-                      <>
-                        <Play className="w-2.5 h-2.5 fill-current shrink-0" />
-                        Mulai
-                      </>
-                    )}
-                  </button>
+                    <button
+                      onClick={() => handleStartCourse(course.id)}
+                      className={`w-full py-1.5 rounded-md text-white text-[8.5px] font-bold uppercase tracking-wider shadow-xs active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                        course.user_progress?.status === "completed"
+                          ? "bg-gradient-to-tr from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 shadow-green-100/50"
+                          : "bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] hover:from-[#c23f1b] hover:to-[#e0542c]"
+                      }`}
+                    >
+                      {course.user_progress?.status === "completed" ? (
+                        <>
+                          <CheckCircle2 className="w-3 h-3 shrink-0" />
+                          Selesai
+                        </>
+                      ) : course.user_progress ? (
+                        <>
+                          <Play className="w-2.5 h-2.5 fill-current shrink-0" />
+                          Lanjutkan
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-2.5 h-2.5 fill-current shrink-0" />
+                          Mulai
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            );
-          })
-        ) : (
-          <div className="col-span-2 text-center py-8 bg-white rounded-2xl border border-zinc-100">
-            <span className="text-xs text-zinc-400 font-bold">Materi tidak ditemukan</span>
-          </div>
-        )}
-      </div>
+              );
+            })
+          ) : (
+            <div className="col-span-2 text-center py-8 bg-white rounded-md border border-zinc-100">
+              <span className="text-xs text-zinc-400 font-bold">Materi tidak ditemukan</span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

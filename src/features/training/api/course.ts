@@ -41,7 +41,9 @@ export interface Lesson {
   lesson_points?: number;
   created_at?: string;
   updated_at?: string;
+  chunks_count?: number;
   chunks?: LessonChunk[];
+  seen_status?: "completed" | "in_progress" | "not_started";
 }
 
 export interface Course {
@@ -57,6 +59,17 @@ export interface Course {
   lessons_count?: number;
   lessons?: Lesson[];
   progress?: any;
+  difficulty?: string;
+  user_progress?: {
+    id: number;
+    user_id: number;
+    course_id: number;
+    status: "in_progress" | "completed";
+    percentage_completed: number;
+    total_point: number;
+    completed_at?: string | null;
+  } | null;
+  requirement_status?: any;
 }
 
 export interface CreateCoursePayload {
@@ -65,6 +78,7 @@ export interface CreateCoursePayload {
   thumbnail_url?: string;
   icon_url?: string;
   is_published?: boolean;
+  difficulty?: string;
 }
 
 export interface CreateCourseFullPayload {
@@ -73,6 +87,7 @@ export interface CreateCourseFullPayload {
   thumbnail_url?: string;
   icon_url?: string;
   is_published?: boolean;
+  difficulty?: string;
   lessons: {
     title: string;
     icon_url?: string;
@@ -87,6 +102,7 @@ export interface UpdateCoursePayload {
   thumbnail_url?: string;
   icon_url?: string;
   is_published?: boolean;
+  difficulty?: string;
 }
 
 export interface CreateLessonPayload {
@@ -133,6 +149,11 @@ export interface PaginatedCourseResponse {
   last_page: number;
   per_page: number;
   total: number;
+  stats?: {
+    total: number;
+    published: number;
+    draft: number;
+  };
 }
 
 let fetchCoursesPromiseMap = new Map<string, Promise<PaginatedCourseResponse>>();
@@ -140,9 +161,10 @@ let fetchCoursesPromiseMap = new Map<string, Promise<PaginatedCourseResponse>>()
 export async function fetchCourses(
   page: number = 1,
   perPage: number = 10,
-  query?: string
+  query?: string,
+  status?: "published" | "draft" | "all"
 ): Promise<PaginatedCourseResponse> {
-  const cacheKey = `${page}_${perPage}_${query || ""}`;
+  const cacheKey = `${page}_${perPage}_${query || ""}_${status || "all"}`;
 
   if (fetchCoursesPromiseMap.has(cacheKey)) {
     return fetchCoursesPromiseMap.get(cacheKey)!;
@@ -155,6 +177,9 @@ export async function fetchCourses(
       url.searchParams.append("per_page", perPage.toString());
       if (query) {
         url.searchParams.append("q", query);
+      }
+      if (status && status !== "all") {
+        url.searchParams.append("status", status);
       }
 
       const response = await fetch(url.toString(), {
@@ -186,6 +211,7 @@ export async function fetchCourses(
         last_page: rawData.last_page || 1,
         per_page: rawData.per_page || perPage,
         total: rawData.total || 0,
+        stats: rawData.stats,
       };
     } finally {
       setTimeout(() => {
@@ -282,7 +308,7 @@ export async function deleteCourse(id: number): Promise<void> {
 // ── Lesson API Helpers ──────────────────────────────────────────────────
 
 export async function fetchLessonById(id: number): Promise<Lesson> {
-  const response = await fetch(`${API_BASE_URL}/lessons/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/lessons/${id}/full`, {
     method: "GET",
     headers: getHeaders(),
   });
@@ -290,6 +316,21 @@ export async function fetchLessonById(id: number): Promise<Lesson> {
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
     throw new Error(errorData?.message || "Gagal mengambil detail lesson");
+  }
+
+  const result = await response.json();
+  return result.data || result;
+}
+
+export async function fetchLessonByIdBasic(id: number): Promise<Lesson> {
+  const response = await fetch(`${API_BASE_URL}/lessons/${id}`, {
+    method: "GET",
+    headers: getHeaders(),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.message || "Gagal mengambil detail materi");
   }
 
   const result = await response.json();
@@ -451,4 +492,73 @@ export async function deleteQuizOption(id: number): Promise<void> {
     const errorData = await response.json().catch(() => null);
     throw new Error(errorData?.message || "Gagal menghapus opsi kuis");
   }
+}
+
+export async function enrollCourse(courseId: number): Promise<any> {
+  fetchCoursesPromiseMap.clear();
+  const response = await fetch(`${API_BASE_URL}/courses/${courseId}/enroll`, {
+    method: "POST",
+    headers: getHeaders(),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.message || "Gagal mendaftar kelas");
+  }
+  const result = await response.json();
+  return result.data || result;
+}
+
+export async function markChunkSeen(chunkId: number): Promise<any> {
+  fetchCoursesPromiseMap.clear();
+  const response = await fetch(`${API_BASE_URL}/lesson-chunks/${chunkId}/seen`, {
+    method: "POST",
+    headers: getHeaders(),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.message || "Gagal menandai konten dibaca");
+  }
+  const result = await response.json();
+  return result.data || result;
+}
+
+export async function answerQuiz(quizId: number, optionId: number): Promise<any> {
+  fetchCoursesPromiseMap.clear();
+  const response = await fetch(`${API_BASE_URL}/chunk-quizzes/${quizId}/answer`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({ option_id: optionId }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.message || "Gagal menjawab kuis");
+  }
+  const result = await response.json();
+  return result.data || result;
+}
+
+export async function completeLesson(lessonId: number): Promise<any> {
+  fetchCoursesPromiseMap.clear();
+  const response = await fetch(`${API_BASE_URL}/lessons/${lessonId}/complete`, {
+    method: "POST",
+    headers: getHeaders(),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.message || "Gagal menyelesaikan materi");
+  }
+  const result = await response.json();
+  return result.data || result;
+}
+
+export async function fetchCourseHistory(): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/courses/history`, {
+    method: "GET",
+    headers: getHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error("Gagal mengambil riwayat belajar");
+  }
+  const result = await response.json();
+  return result.data || result;
 }

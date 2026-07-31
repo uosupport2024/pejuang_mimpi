@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
 import { X, Loader2, BookOpen, Image as ImageIcon, Sparkles } from "lucide-react";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from "@/shared/components/ui/select";
 import type { Course, CreateCoursePayload } from "../api/course";
 
 interface CourseModalProps {
@@ -22,6 +29,7 @@ export function CourseModal({
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [iconUrl, setIconUrl] = useState("");
   const [isPublished, setIsPublished] = useState(true);
+  const [difficulty, setDifficulty] = useState("basic");
 
   useEffect(() => {
     if (initialData) {
@@ -30,12 +38,14 @@ export function CourseModal({
       setThumbnailUrl(initialData.thumbnail_url || "");
       setIconUrl(initialData.icon_url || "");
       setIsPublished(initialData.is_published ?? true);
+      setDifficulty(initialData.difficulty || "basic");
     } else {
       setTitle("");
       setDescription("");
       setThumbnailUrl("");
       setIconUrl("");
       setIsPublished(true);
+      setDifficulty("basic");
     }
   }, [initialData, isOpen]);
 
@@ -51,6 +61,7 @@ export function CourseModal({
       thumbnail_url: thumbnailUrl.trim() || undefined,
       icon_url: iconUrl.trim() || undefined,
       is_published: isPublished,
+      difficulty: difficulty,
     });
   };
 
@@ -65,7 +76,7 @@ export function CourseModal({
             </div>
             <div>
               <h3 className="text-base font-bold">
-                {initialData ? "Edit Course" : "Tambah Course Baru"}
+                {initialData ? "Edit Pelatihan" : "Tambah Pelatihan Baru"}
               </h3>
               <p className="text-xs text-white/70">
                 {initialData ? "Perbarui informasi materi modul" : "Buat materi modul pelatihan baru"}
@@ -75,7 +86,7 @@ export function CourseModal({
           <button
             onClick={onClose}
             disabled={loading}
-            className="p-1.5 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="p-1.5 rounded-md text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -86,7 +97,7 @@ export function CourseModal({
           {/* Title */}
           <div>
             <label className="block text-xs font-bold text-gray-700 mb-1.5">
-              Judul Course <span className="text-rose-500">*</span>
+              Judul Pelatihan <span className="text-rose-500">*</span>
             </label>
             <input
               type="text"
@@ -94,7 +105,7 @@ export function CourseModal({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Contoh: Orientasi Pegawai Baru 2026"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all"
             />
           </div>
 
@@ -107,8 +118,8 @@ export function CourseModal({
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Jelaskan mengenai cakupan dan tujuan dari course ini..."
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all resize-none"
+              placeholder="Jelaskan mengenai cakupan dan tujuan dari pelatihan ini..."
+              className="w-full px-3.5 py-2.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all resize-none"
             />
           </div>
 
@@ -123,14 +134,14 @@ export function CourseModal({
                 value={thumbnailUrl}
                 onChange={(e) => setThumbnailUrl(e.target.value)}
                 placeholder="https://images.unsplash.com/photo-..."
-                className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all"
+                className="w-full pl-9 pr-3.5 py-2.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all"
               />
               <ImageIcon size={16} className="absolute left-3 top-3 text-gray-400" />
             </div>
 
             {/* Thumbnail Preview */}
             {thumbnailUrl.trim() && (
-              <div className="mt-2 relative h-28 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+              <div className="mt-2 relative h-28 rounded-md overflow-hidden border border-gray-200 bg-gray-50">
                 <img
                   src={thumbnailUrl}
                   alt="Preview Thumbnail"
@@ -154,10 +165,31 @@ export function CourseModal({
                 value={iconUrl}
                 onChange={(e) => setIconUrl(e.target.value)}
                 placeholder="https://... atau nama ikon"
-                className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all"
+                className="w-full pl-9 pr-3.5 py-2.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all"
               />
               <Sparkles size={16} className="absolute left-3 top-3 text-gray-400" />
             </div>
+          </div>
+
+          {/* Difficulty Selection */}
+          <div className="space-y-1.5 text-left">
+            <label className="block text-xs font-bold text-gray-700">
+              Tingkat Kesulitan
+            </label>
+            <Select
+              value={difficulty}
+              onValueChange={(val: string | null) => setDifficulty(val || "basic")}
+            >
+              <SelectTrigger className="w-full text-xs font-bold bg-zinc-50 border border-gray-200 rounded-md h-9">
+                <SelectValue placeholder="Pilih Tingkat Kesulitan" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="basic">Basic (Dasar)</SelectItem>
+                <SelectItem value="beginner">Beginner (Pemula)</SelectItem>
+                <SelectItem value="intermediate">Intermediate (Menengah)</SelectItem>
+                <SelectItem value="advanced">Advanced (Mahir)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Published Toggle Switch */}
@@ -166,8 +198,8 @@ export function CourseModal({
               <span className="text-xs font-bold text-gray-800 block">Status Publikasi</span>
               <span className="text-[11px] text-gray-500">
                 {isPublished
-                  ? "Course akan langsung tampil di katalog pengguna"
-                  : "Course disimpan sebagai draf (tidak tampil)"}
+                  ? "Pelatihan akan langsung tampil di katalog pengguna"
+                  : "Pelatihan disimpan sebagai draf (tidak tampil)"}
               </span>
             </div>
             <button
@@ -191,17 +223,17 @@ export function CourseModal({
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+              className="px-4 py-2.5 rounded-md border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={loading || !title.trim()}
-              className="px-5 py-2.5 rounded-xl bg-[#e0542c] text-white text-xs font-bold shadow-md shadow-[#e0542c]/25 hover:bg-[#c94520] active:scale-98 transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 rounded-md bg-[#e0542c] text-white text-xs font-bold shadow-md shadow-[#e0542c]/25 hover:bg-[#c94520] active:scale-98 transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading && <Loader2 size={14} className="animate-spin" />}
-              <span>{initialData ? "Simpan Perubahan" : "Buat Course"}</span>
+              <span>{initialData ? "Simpan Perubahan" : "Buat Pelatihan"}</span>
             </button>
           </div>
         </form>

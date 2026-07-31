@@ -27,6 +27,7 @@ export type RouteType =
   | "MobileLumbung"
   | "MobileAyamku"
   | "MobilePakan"
+  | "MobilePakanLearn"
   | "MobileProfile"
   | "MobileCelenganDetail"
   | "MobileCelenganAdd"
@@ -65,8 +66,8 @@ export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   Onboarding: "Onboarding",
   Appraisal: "Penilaian",
   Training: "Pelatihan",
-  TrainingAdd: "Tambah Course",
-  TrainingEdit: "Edit Course",
+  TrainingAdd: "Tambah Pelatihan",
+  TrainingEdit: "Edit Pelatihan",
   Document: "Dokumen",
   Announcement: "Pengumuman",
   Organization: "Divisi",
@@ -79,6 +80,7 @@ export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   MobileLumbung: "Lumbung",
   MobileAyamku: "Ayamku",
   MobilePakan: "Tunas",
+  MobilePakanLearn: "Pembelajaran",
   MobileProfile: "Profil",
   MobileCelenganDetail: "Detail Sangkar",
   MobileCelenganAdd: "Tambah Sangkar",
@@ -121,6 +123,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   MobileLumbung: "/mobile/lumbung",
   MobileAyamku: "/mobile/ayamku",
   MobilePakan: "/mobile/pakan",
+  MobilePakanLearn: "/mobile/pakan/learn",
   MobileProfile: "/mobile/profile",
   MobileCelenganDetail: "/mobile/celengan",
   MobileCelenganAdd: "/mobile/celengan/add",
@@ -167,6 +170,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/mobile/lumbung": "MobileLumbung",
   "/mobile/ayamku": "MobileAyamku",
   "/mobile/pakan": "MobilePakan",
+  "/mobile/pakan/learn": "MobilePakanLearn",
   "/mobile/profile": "MobileProfile",
   "/mobile/celengan": "MobileCelenganDetail",
   "/mobile/celengan/add": "MobileCelenganAdd",
@@ -199,6 +203,9 @@ function RouterInnerProvider({ children }: { children: ReactNode }) {
   let resolvedPath = location.pathname;
   if (resolvedPath.startsWith("/mobile/loker/")) {
     resolvedPath = "/mobile/loker";
+  }
+  if (resolvedPath.startsWith("/mobile/pakan/learn/")) {
+    resolvedPath = "/mobile/pakan/learn";
   }
 
   const currentRoute = PATH_TO_ROUTE[resolvedPath] || "Dashboard";

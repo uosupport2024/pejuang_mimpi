@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Video,
   Volume2,
@@ -175,7 +175,8 @@ async function detectMediaDuration(
 
   // 2. Direct Video / Audio file fallback using HTML5 element
   return new Promise((resolve) => {
-    const media = document.createElement("video");
+    const isAudio = trimmed.match(/\.(mp3|wav|ogg|m4a|aac|flac|webm)($|\?)/i) || trimmed.includes("audio");
+    const media = document.createElement(isAudio ? "audio" : "video");
     media.preload = "metadata";
     media.src = trimmed;
 
@@ -231,6 +232,16 @@ export function ChunkModal({
   // Auto Duration Detection state
   const [detectingDuration, setDetectingDuration] = useState(false);
 
+  const audioTimeoutRef = useRef<any>(null);
+  const videoTimeoutRef = useRef<any>(null);
+
+  useEffect(() => {
+    return () => {
+      if (audioTimeoutRef.current) clearTimeout(audioTimeoutRef.current);
+      if (videoTimeoutRef.current) clearTimeout(videoTimeoutRef.current);
+    };
+  }, []);
+
   useEffect(() => {
     if (initialData) {
       setChunkType(initialData.chunk_type || "video");
@@ -276,47 +287,62 @@ export function ChunkModal({
 
   if (!isOpen) return null;
 
-  const handleVideoUrlChange = async (url: string) => {
+  const handleVideoUrlChange = (url: string) => {
     setVideoUrl(url);
     const trimmed = url.trim();
-    const ytId = extractYouTubeId(trimmed);
-    if (ytId || trimmed.match(/\.(mp4|webm|ogg)$/i)) {
-      setDetectingDuration(true);
-      const duration = await detectMediaDuration(trimmed, (meta) => {
-        if (meta.title) setVideoTitle(meta.title);
-      });
-      setDetectingDuration(false);
-      if (duration && duration > 0) {
-        setDurationSecond(duration);
-        const mins = Math.floor(duration / 60);
-        const secs = duration % 60;
-        toast.success(
-          `Durasi terdeteksi otomatis: ${mins > 0 ? `${mins} m ` : ""}${secs} d (${duration} detik)`
-        );
-      }
+    if (videoTimeoutRef.current) {
+      clearTimeout(videoTimeoutRef.current);
+    }
+    if (trimmed.startsWith("http")) {
+      videoTimeoutRef.current = setTimeout(async () => {
+        setDetectingDuration(true);
+        const duration = await detectMediaDuration(trimmed, (meta) => {
+          if (meta.title) setVideoTitle(meta.title);
+        });
+        setDetectingDuration(false);
+        if (duration && duration > 0) {
+          setDurationSecond(duration);
+          const mins = Math.floor(duration / 60);
+          const secs = duration % 60;
+          toast.success(
+            `Durasi video terdeteksi otomatis: ${mins > 0 ? `${mins} m ` : ""}${secs} d (${duration} detik)`
+          );
+        }
+      }, 600);
     }
   };
 
-  const handleAudioUrlChange = async (url: string) => {
+  const handleAudioUrlChange = (url: string) => {
     setAudioUrl(url);
     const trimmed = url.trim();
-    if (trimmed.match(/\.(mp3|wav|ogg|m4a|aac)$/i) || trimmed.includes("audio")) {
-      setDetectingDuration(true);
-      const duration = await detectMediaDuration(trimmed);
-      setDetectingDuration(false);
-      if (duration && duration > 0) {
-        setDurationSecond(duration);
-        const mins = Math.floor(duration / 60);
-        const secs = duration % 60;
-        toast.success(
-          `Durasi audio terdeteksi otomatis: ${mins > 0 ? `${mins} m ` : ""}${secs} d (${duration} detik)`
-        );
-      }
+    if (audioTimeoutRef.current) {
+      clearTimeout(audioTimeoutRef.current);
+    }
+    if (trimmed.startsWith("http")) {
+      audioTimeoutRef.current = setTimeout(async () => {
+        setDetectingDuration(true);
+        const duration = await detectMediaDuration(trimmed);
+        setDetectingDuration(false);
+        if (duration && duration > 0) {
+          setDurationSecond(duration);
+          const mins = Math.floor(duration / 60);
+          const secs = duration % 60;
+          toast.success(
+            `Durasi audio terdeteksi otomatis: ${mins > 0 ? `${mins} m ` : ""}${secs} d (${duration} detik)`
+          );
+        }
+      }, 600);
     }
   };
 
   const handleAddQuizOption = () => {
     setQuizOptions([...quizOptions, { options: "", is_true: false }]);
+    setTimeout(() => {
+      const nextInput = document.getElementById(`quiz-option-${quizOptions.length}`);
+      if (nextInput) {
+        nextInput.focus();
+      }
+    }, 50);
   };
 
   const handleRemoveQuizOption = (index: number) => {
@@ -387,6 +413,11 @@ function isValidUrl(urlString: string): boolean {
         toast.error("Format URL Audio tidak valid. Pastikan diawali dengan https:// atau http://");
         return;
       }
+      const isAudioFile = trimmed.match(/\.(mp3|wav|ogg|m4a|aac|flac|webm)($|\?)/i) || trimmed.toLowerCase().includes("audio");
+      if (!isAudioFile) {
+        toast.error("URL Audio harus berupa link file audio yang valid (contoh: .mp3, .wav, .ogg, .m4a)");
+        return;
+      }
       payload.audio_url = trimmed;
       payload.duration_second = Number(durationSecond) || undefined;
       payload.transcript = transcript.trim() || undefined;
@@ -399,6 +430,11 @@ function isValidUrl(urlString: string): boolean {
       }
       if (!isValidUrl(trimmed)) {
         toast.error("Format URL Gambar tidak valid. Pastikan diawali dengan https:// atau http://");
+        return;
+      }
+      const isImageFile = trimmed.match(/\.(jpeg|jpg|gif|png|webp|svg)($|\?)/i) || trimmed.toLowerCase().includes("image") || trimmed.includes("placeholder");
+      if (!isImageFile) {
+        toast.error("URL Gambar harus berupa link file gambar yang valid (contoh: .jpg, .png, .webp)");
         return;
       }
       payload.image_url = trimmed;
@@ -439,7 +475,7 @@ function isValidUrl(urlString: string): boolean {
         <div className="flex items-center justify-between pb-3 border-b border-gray-100">
           <div>
             <h3 className="text-sm font-bold text-gray-900">
-              {mode === "edit" ? "Edit Konten Chunk" : "Tambah Konten Chunk Baru"}
+              {mode === "edit" ? "Edit Bagian Konten" : "Tambah Bagian Konten Baru"}
             </h3>
             <p className="text-[11px] text-gray-500">
               Pilih tipe konten materi dan lihat pratinjau langsung di sebelah kanan
@@ -457,7 +493,7 @@ function isValidUrl(urlString: string): boolean {
 
         {/* Chunk Type Selector Tabs */}
         {mode === "add" && (
-          <div className="grid grid-cols-4 gap-2 bg-gray-100/80 p-1 rounded-xl">
+          <div className="grid grid-cols-4 gap-2 bg-gray-100/80 p-1 rounded-md">
             <button
               type="button"
               onClick={() => setChunkType("video")}
@@ -542,7 +578,7 @@ function isValidUrl(urlString: string): boolean {
                       value={durationSecond}
                       onChange={(e) => setDurationSecond(Number(e.target.value))}
                       placeholder="300"
-                      className="w-full px-4 py-2 rounded-xl border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all"
+                      className="w-full px-4 py-2 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all"
                     />
                     {durationSecond > 0 && (
                       <span className="text-[10px] text-emerald-600 font-bold mt-1 block">
@@ -580,7 +616,7 @@ function isValidUrl(urlString: string): boolean {
                     value={transcript}
                     onChange={(e) => setTranscript(e.target.value)}
                     placeholder="Tuliskan isi percakapan atau transkrip materi..."
-                    className="w-full px-3.5 py-2 rounded-xl border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all resize-none"
+                    className="w-full px-3.5 py-2 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all resize-none"
                   />
                 </div>
               </>
@@ -615,7 +651,7 @@ function isValidUrl(urlString: string): boolean {
                       value={durationSecond}
                       onChange={(e) => setDurationSecond(Number(e.target.value))}
                       placeholder="120"
-                      className="w-full px-4 py-2 rounded-xl border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all"
+                      className="w-full px-4 py-2 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all"
                     />
                     {durationSecond > 0 && (
                       <span className="text-[10px] text-purple-600 font-bold mt-1 block">
@@ -653,7 +689,7 @@ function isValidUrl(urlString: string): boolean {
                     value={transcript}
                     onChange={(e) => setTranscript(e.target.value)}
                     placeholder="Tuliskan transkrip percakapan audio..."
-                    className="w-full px-3.5 py-2 rounded-xl border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all resize-none"
+                    className="w-full px-3.5 py-2 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all resize-none"
                   />
                 </div>
               </>
@@ -680,7 +716,7 @@ function isValidUrl(urlString: string): boolean {
                     value={captions}
                     onChange={(e) => setCaptions(e.target.value)}
                     placeholder="Contoh: Langkah 1: Masuk melalui gerbang utama dan lakukan presensi..."
-                    className="w-full px-3.5 py-2 rounded-xl border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all resize-none"
+                    className="w-full px-3.5 py-2 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all resize-none"
                   />
                 </div>
               </>
@@ -699,7 +735,7 @@ function isValidUrl(urlString: string): boolean {
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
                     placeholder="Contoh: Berapa jam batas toleransi presensi masuk kantor?"
-                    className="w-full px-3.5 py-2 rounded-xl border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all resize-none"
+                    className="w-full px-3.5 py-2 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all resize-none"
                   />
                 </div>
 
@@ -736,12 +772,26 @@ function isValidUrl(urlString: string): boolean {
                         </button>
 
                         <input
+                          id={`quiz-option-${idx}`}
                           type="text"
                           required
                           value={opt.options}
                           onChange={(e) => handleQuizOptionTextChange(idx, e.target.value)}
                           placeholder={`Pilihan ${String.fromCharCode(65 + idx)}`}
-                          className="flex-1 px-3 py-1.5 rounded-xl border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              if (idx === quizOptions.length - 1) {
+                                handleAddQuizOption();
+                              } else {
+                                const nextInput = document.getElementById(`quiz-option-${idx + 1}`);
+                                if (nextInput) {
+                                  nextInput.focus();
+                                }
+                              }
+                            }
+                          }}
+                          className="flex-1 px-3 py-1.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all"
                         />
 
                         {quizOptions.length > 2 && (
@@ -777,7 +827,7 @@ function isValidUrl(urlString: string): boolean {
               {/* VIDEO PREVIEW CARD */}
               {chunkType === "video" && (
                 <div className="space-y-3">
-                  <div className="relative w-full aspect-video rounded-xl bg-gradient-to-tr from-slate-900 to-slate-800 border border-gray-200 overflow-hidden shadow-xs flex items-center justify-center">
+                  <div className="relative w-full aspect-video rounded-md bg-gradient-to-tr from-slate-900 to-slate-800 border border-gray-200 overflow-hidden shadow-xs flex items-center justify-center">
                     {currentYtId ? (
                       <img
                         src={`https://img.youtube.com/vi/${currentYtId}/hqdefault.jpg`}
@@ -828,7 +878,7 @@ function isValidUrl(urlString: string): boolean {
                   </div>
 
                   {transcript.trim() && (
-                    <div className="bg-white rounded-xl p-2.5 border border-gray-200 text-[11px] text-gray-600 space-y-0.5">
+                    <div className="bg-white rounded-md p-2.5 border border-gray-200 text-[11px] text-gray-600 space-y-0.5">
                       <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block flex items-center gap-1">
                         <FileText size={10} /> Transkrip
                       </span>
@@ -841,7 +891,7 @@ function isValidUrl(urlString: string): boolean {
               {/* AUDIO PREVIEW CARD */}
               {chunkType === "audio" && (
                 <div className="space-y-3">
-                  <div className="w-full rounded-xl bg-purple-900 p-4 text-white border border-purple-800 shadow-xs space-y-3">
+                  <div className="w-full rounded-md bg-purple-900 p-4 text-white border border-purple-800 shadow-xs space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="w-9 h-9 rounded-full bg-purple-700 flex items-center justify-center">
                         <Volume2 size={18} className="text-purple-200" />
@@ -851,18 +901,30 @@ function isValidUrl(urlString: string): boolean {
                       </span>
                     </div>
 
-                    <div className="space-y-1">
-                      <p className="text-xs font-bold text-purple-100 truncate">
-                        {audioUrl.trim() || "URL Rekaman Audio"}
-                      </p>
-                      <div className="w-full bg-purple-950/80 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-[#e0542c] h-full w-1/3 rounded-full" />
-                      </div>
+                    <div className="space-y-2">
+                      {audioUrl.trim() ? (
+                        <div className="pt-1">
+                          <audio
+                            src={audioUrl}
+                            controls
+                            className="w-full h-8 rounded-md bg-purple-950/50 border border-purple-800 focus:outline-none"
+                          />
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <p className="text-xs font-bold text-purple-100">
+                            URL Rekaman Audio Kosong
+                          </p>
+                          <div className="w-full bg-purple-950/80 h-1.5 rounded-full overflow-hidden">
+                            <div className="bg-[#e0542c] h-full w-1/3 rounded-full" />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   {transcript.trim() && (
-                    <div className="bg-white rounded-xl p-2.5 border border-gray-200 text-[11px] text-gray-600 space-y-0.5">
+                    <div className="bg-white rounded-md p-2.5 border border-gray-200 text-[11px] text-gray-600 space-y-0.5">
                       <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">
                         Transkrip Audio
                       </span>
@@ -875,7 +937,7 @@ function isValidUrl(urlString: string): boolean {
               {/* IMAGE STEP PREVIEW CARD */}
               {chunkType === "image_step" && (
                 <div className="space-y-3">
-                  <div className="relative w-full aspect-video rounded-xl bg-gray-200 border border-gray-200 overflow-hidden flex items-center justify-center">
+                  <div className="relative w-full aspect-video rounded-md bg-gray-200 border border-gray-200 overflow-hidden flex items-center justify-center">
                     {imageUrl.trim() ? (
                       <img
                         src={imageUrl}
@@ -893,7 +955,7 @@ function isValidUrl(urlString: string): boolean {
                     )}
                   </div>
 
-                  <div className="bg-white rounded-xl p-3 border border-gray-200 text-xs space-y-1">
+                  <div className="bg-white rounded-md p-3 border border-gray-200 text-xs space-y-1">
                     <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">
                       Teks Penjelasan / Caption
                     </span>
@@ -906,7 +968,7 @@ function isValidUrl(urlString: string): boolean {
 
               {/* QUIZ PREVIEW CARD */}
               {chunkType === "quiz" && (
-                <div className="bg-white rounded-xl p-3.5 border border-gray-200 space-y-3 shadow-xs">
+                <div className="bg-white rounded-md p-3.5 border border-gray-200 space-y-3 shadow-xs">
                   <div className="space-y-1">
                     <span className="text-[9px] font-bold text-amber-600 uppercase tracking-wider block">
                       Pertanyaan Kuis
@@ -954,7 +1016,7 @@ function isValidUrl(urlString: string): boolean {
                 type="button"
                 onClick={onClose}
                 disabled={loading || detectingDuration}
-                className="px-4 py-2 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer bg-white"
+                className="px-4 py-2 rounded-md border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer bg-white"
               >
                 Batal
               </button>
@@ -962,7 +1024,7 @@ function isValidUrl(urlString: string): boolean {
                 type="submit"
                 disabled={loading || detectingDuration}
                 style={{ backgroundColor: THEME_COLORS.hex.primary }}
-                className="px-5 py-2 rounded-xl text-white text-xs font-bold shadow-md shadow-[#e0542c]/20 hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                className="px-5 py-2 rounded-md text-white text-xs font-bold shadow-md shadow-[#e0542c]/20 hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
               >
                 {loading ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
                 <span>Simpan Konten</span>
