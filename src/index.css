@@ -369,7 +369,8 @@ main:hover::-webkit-scrollbar-thumb {
   display: none !important;
 }
 
-/* Prevent scrollbars from shrinking content width and causing layout shifts */
+/* Prevent scrollbars from shrinking content width and causing layout shifts globally */
+html,
 .admin-dashboard main,
 .admin-dashboard aside {
   scrollbar-gutter: stable;

@@ -106,6 +106,10 @@ export function TrainingPage() {
     navigate("TrainingEdit", { courseId: course.id });
   };
 
+  const handleDetailOpen = (course: Course) => {
+    navigate("TrainingDetail", { courseId: course.id });
+  };
+
   const handleDeleteClick = (course: Course) => {
     setConfirmDelete({
       isOpen: true,
@@ -143,8 +147,11 @@ export function TrainingPage() {
     {
       header: <span className="text-left block w-full text-xs font-semibold text-gray-500 tracking-wider">Pelatihan</span>,
       cell: (row: Course) => (
-        <div className="flex items-center gap-3 py-1">
-          <div className="w-10 h-10 rounded-md bg-gray-100 border border-gray-200 shrink-0 overflow-hidden flex items-center justify-center text-[#e0542c]">
+        <div
+          onClick={() => handleDetailOpen(row)}
+          className="flex items-center gap-3 py-1 cursor-pointer group/row"
+        >
+          <div className="w-10 h-10 rounded-md bg-gray-100 border border-gray-200 shrink-0 overflow-hidden flex items-center justify-center text-[#e0542c] group-hover/row:border-[#e0542c]/50 transition-colors">
             {row.thumbnail_url ? (
               <img
                 src={row.thumbnail_url}
@@ -159,7 +166,7 @@ export function TrainingPage() {
             )}
           </div>
           <div>
-            <span className="text-xs font-bold text-gray-800 block line-clamp-1">{row.title}</span>
+            <span className="text-xs font-bold text-gray-800 block line-clamp-1 group-hover/row:text-[#e0542c] transition-colors">{row.title}</span>
             <span className="text-[11px] text-gray-500 line-clamp-1 max-w-[280px]">
               {row.description || "Tidak ada deskripsi"}
             </span>
@@ -360,6 +367,7 @@ export function TrainingPage() {
                 course={course}
                 onEdit={handleEditOpen}
                 onDelete={handleDeleteClick}
+                onViewDetail={handleDetailOpen}
               />
             ))}
           </div>

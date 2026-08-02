@@ -26,6 +26,7 @@ import {
   type LessonChunk as APILessonChunk
 } from "@/features/training/api/course";
 import patternBg from "@/assets/bg/pattern-background.png";
+import { fetchProfileAPI } from "@/features/tunas/api/absensi";
 
 function extractYouTubeId(url: string): string | null {
   if (!url) return null;
@@ -65,6 +66,26 @@ export function PakanLearningPage() {
   const [loadingChunk, setLoadingChunk] = useState(false);
   const [lives, setLives] = useState(3);
   const pageRef = useRef<HTMLDivElement | null>(null);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+
+  const [tenantName, setTenantName] = useState("Pejuang Mimpi");
+
+  useEffect(() => {
+    fetchProfileAPI()
+      .then((profile) => {
+        if (profile && profile.tenant && profile.tenant.name) {
+          setTenantName(profile.tenant.name);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load tenant info for learning page:", err);
+      });
+  }, []);
+
+  const formatCaption = (text: string) => {
+    if (!text) return "";
+    return text.replace(/\[nama\s+hotel\]/gi, tenantName);
+  };
 
   useEffect(() => {
     // Clear parent transforms to resolve iOS/Android WebView touch coordinate mapping issue inside iframe
@@ -390,6 +411,33 @@ export function PakanLearningPage() {
 
   return (
     <div ref={pageRef} className="flex flex-col min-h-screen bg-zinc-50 relative -mt-6 -mx-5 pb-20">
+      <style>{`
+        .rich-text-content ul {
+          list-style-type: disc !important;
+          padding-left: 1.25rem !important;
+          margin-top: 0.5rem !important;
+          margin-bottom: 0.5rem !important;
+        }
+        .rich-text-content ol {
+          list-style-type: decimal !important;
+          padding-left: 1.25rem !important;
+          margin-top: 0.5rem !important;
+          margin-bottom: 0.5rem !important;
+        }
+        .rich-text-content p {
+          margin-top: 0.25rem;
+          margin-bottom: 0.25rem;
+        }
+        .rich-text-content h3 {
+          font-size: 1.125rem;
+          font-weight: 600 !important;
+          margin-top: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+        .rich-text-content strong {
+          font-weight: 600 !important;
+        }
+      `}</style>
       {/* Flutter-like Top Sticky Header / Appbar */}
       <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-4 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
         {/* Background Pattern */}
@@ -721,9 +769,10 @@ export function PakanLearningPage() {
                               <img
                                 src={chunk.detail.image_url}
                                 alt="Langkah Gambar"
-                                className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoading ? "opacity-0" : "opacity-100"}`}
+                                className={`w-full h-full object-cover transition-opacity duration-300 cursor-zoom-in ${imageLoading ? "opacity-0" : "opacity-100"}`}
                                 onLoad={() => setImageLoading(false)}
                                 onError={() => setImageLoading(false)}
+                                onClick={() => setZoomedImage(chunk.detail?.image_url || null)}
                               />
                             </div>
                           ) : (
@@ -732,13 +781,14 @@ export function PakanLearningPage() {
                             </div>
                           )}
                           {chunk.detail?.captions && (
-                            <div className="bg-white p-4 rounded-2xl border border-zinc-200 shadow-xs mt-3">
-                              <h5 className="text-[10px] font-bold text-zinc-700 uppercase tracking-wide">
+                            <div className="mt-4 text-left">
+                              <h5 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">
                                 Penjelasan Panduan
                               </h5>
-                              <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
-                                {chunk.detail.captions}
-                              </p>
+                              <div
+                                className="text-xs text-zinc-600 mt-2 leading-relaxed rich-text-content"
+                                dangerouslySetInnerHTML={{ __html: formatCaption(chunk.detail.captions) }}
+                              />
                             </div>
                           )}
                         </div>
@@ -910,6 +960,20 @@ export function PakanLearningPage() {
               Kembali ke Materi
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Zoom Image Lightbox Overlay */}
+      {zoomedImage && (
+        <div
+          onClick={() => setZoomedImage(null)}
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 cursor-zoom-out animate-fade-in"
+        >
+          <img
+            src={zoomedImage}
+            alt="Zoomed preview"
+            className="max-w-full max-h-[90vh] object-contain rounded-lg animate-in zoom-in-95 duration-200"
+          />
         </div>
       )}
 

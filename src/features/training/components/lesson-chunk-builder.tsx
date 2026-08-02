@@ -11,7 +11,8 @@ import {
   Layers,
   CheckCircle2,
   Play,
-  Clock
+  Clock,
+  ChevronDown
 } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
@@ -65,7 +66,15 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
     id: null,
   });
   const [deletingChunk, setDeletingChunk] = useState(false);
+  const [expandedChunks, setExpandedChunks] = useState<Record<number, boolean>>({});
   const fetchActiveRef = useRef<number | null>(null);
+
+  const toggleChunk = (chunkId: number) => {
+    setExpandedChunks((prev) => ({
+      ...prev,
+      [chunkId]: !prev[chunkId],
+    }));
+  };
 
   const loadLessonDetail = async () => {
     if (!lessonId) return;
@@ -183,6 +192,20 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-end">
+      <style>{`
+        .rich-text-preview ul {
+          list-style-type: disc !important;
+          padding-left: 1.25rem !important;
+          margin-top: 0.25rem !important;
+          margin-bottom: 0.25rem !important;
+        }
+        .rich-text-preview ol {
+          list-style-type: decimal !important;
+          padding-left: 1.25rem !important;
+          margin-top: 0.25rem !important;
+          margin-bottom: 0.25rem !important;
+        }
+      `}</style>
       <div className="bg-white w-full max-w-lg h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
         {/* Drawer Header */}
         <div className="p-5 border-b border-gray-100 flex items-center justify-between shrink-0">
@@ -287,20 +310,42 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
                 const optionsArr = detail.options || (chunk as any).options || [];
                 const ytId = extractYouTubeId(videoUrlStr);
 
+                const isExpanded = expandedChunks[chunk.id] === true;
+
                 return (
                   <div
                     key={chunk.id}
                     className="bg-white rounded-2xl border border-gray-200 p-4 shadow-xs hover:border-gray-300 transition-all space-y-3"
                   >
-                    <div className="flex items-center justify-between">
+                    <div
+                      onClick={() => toggleChunk(chunk.id)}
+                      className="flex items-center justify-between cursor-pointer select-none"
+                    >
                       <div className="flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-md bg-gray-100 text-[10px] font-bold text-gray-600 flex items-center justify-center">
+                        <span className="w-5 h-5 rounded-md bg-gray-100 text-[10px] font-bold text-gray-600 flex items-center justify-center shrink-0">
                           {idx + 1}
                         </span>
                         {getChunkTypeBadge(chunk.chunk_type)}
+
+                        {/* Inline content preview snippet */}
+                        {chunk.chunk_type === "image_step" && captionsStr && (
+                          <span className="text-[11px] text-gray-400 max-w-[140px] truncate ml-1 font-medium">
+                            {captionsStr.replace(/<[^>]*>/g, "")}
+                          </span>
+                        )}
+                        {chunk.chunk_type === "video" && videoUrlStr && (
+                          <span className="text-[11px] text-gray-400 max-w-[140px] truncate ml-1 font-medium">
+                            {videoUrlStr}
+                          </span>
+                        )}
+                        {chunk.chunk_type === "quiz" && questionStr && (
+                          <span className="text-[11px] text-gray-400 max-w-[140px] truncate ml-1 font-medium">
+                            {questionStr}
+                          </span>
+                        )}
                       </div>
 
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                         <button
                           type="button"
                           onClick={() => handleOpenEditChunk(chunk)}
@@ -317,119 +362,171 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
                         >
                           <Trash2 size={14} />
                         </button>
+                        <div className="w-px h-4 bg-gray-200 mx-1 shrink-0" />
+                        <button
+                          type="button"
+                          onClick={() => toggleChunk(chunk.id)}
+                          className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer flex items-center justify-center animate-none"
+                          title={isExpanded ? "Sembunyikan Detail" : "Lihat Detail"}
+                        >
+                          <ChevronDown
+                            size={16}
+                            className={`transition-transform duration-200 ${
+                              isExpanded ? "rotate-180 text-gray-700" : ""
+                            }`}
+                          />
+                        </button>
                       </div>
                     </div>
 
-                    {/* Chunk Type Content Preview */}
-                    {chunk.chunk_type === "video" && (
-                      <div className="bg-gray-50/80 rounded-md p-3 border border-gray-200/80 text-xs space-y-2">
-                        <div className="flex gap-3 items-center">
-                          {ytId ? (
-                            <div className="relative w-24 aspect-video rounded-lg overflow-hidden bg-slate-900 shrink-0 border border-gray-200">
-                              <img
-                                src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
-                                alt="YT"
-                                className="w-full h-full object-cover"
-                              />
-                              <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                                <Play size={12} className="fill-white text-white" />
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                              <Video size={20} />
-                            </div>
-                          )}
-
-                          <div className="flex-1 min-w-0">
-                            <p className="font-bold text-gray-900 truncate" title={videoUrlStr}>
-                              {videoUrlStr || "URL Video Kosong"}
-                            </p>
-                            {durationSec > 0 && (
-                              <p className="text-[11px] font-bold text-emerald-600 flex items-center gap-1 mt-0.5">
-                                <Clock size={10} />
-                                <span>
-                                  {Math.floor(durationSec / 60)} menit {durationSec % 60} detik ({durationSec}s)
-                                </span>
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        {transcriptStr && (
-                          <div className="pt-1 border-t border-gray-200 text-[11px] text-gray-600 italic line-clamp-2">
-                            "{transcriptStr}"
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {chunk.chunk_type === "audio" && (
-                      <div className="bg-purple-50/50 border border-purple-100 rounded-md p-3 text-xs space-y-2">
-                        <div className="space-y-2">
-                          {audioUrlStr ? (
-                            <audio
-                              src={audioUrlStr}
-                              controls
-                              className="w-full h-8 rounded-md bg-purple-100/50 border border-purple-200 focus:outline-none"
-                            />
-                          ) : (
-                            <p className="font-bold text-purple-900">URL Audio Kosong</p>
-                          )}
-                          {durationSec > 0 && (
-                            <p className="text-[10px] font-bold text-purple-700 flex items-center gap-1">
-                              <Clock size={10} />
-                              <span>Durasi: {durationSec} detik</span>
-                            </p>
-                          )}
-                        </div>
-                        {transcriptStr && (
-                          <p className="text-[11px] text-purple-800 italic line-clamp-2">"{transcriptStr}"</p>
-                        )}
-                      </div>
-                    )}
-
-                    {chunk.chunk_type === "image_step" && (
-                      <div className="bg-emerald-50/50 border border-emerald-100 rounded-md p-3 text-xs flex gap-3 items-start">
-                        {imageUrlStr && (
-                          <img
-                            src={imageUrlStr}
-                            alt="Step"
-                            className="w-16 h-12 object-cover rounded-lg border border-emerald-200 shrink-0"
-                            onError={(e) => {
-                              (e.target as HTMLElement).style.display = "none";
-                            }}
-                          />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-bold text-emerald-900 line-clamp-2">
-                            {captionsStr || "Tanpa Penjelasan"}
-                          </p>
-                          <p className="text-[10px] text-emerald-700 truncate mt-0.5">{imageUrlStr}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {chunk.chunk_type === "quiz" && (
-                      <div className="bg-amber-50/50 border border-amber-100 rounded-md p-3 text-xs space-y-2">
-                        <p className="font-bold text-amber-900">Pertanyaan: {questionStr}</p>
-                        {Array.isArray(optionsArr) && optionsArr.length > 0 && (
-                          <div className="space-y-1 pt-1 border-t border-amber-200/60">
-                            {optionsArr.map((opt: any, oIdx: number) => (
-                              <div key={oIdx} className="flex items-center justify-between text-[11px] text-amber-900">
-                                <div className="flex items-center gap-1.5">
-                                  <span className="w-4 h-4 rounded-full bg-amber-200 text-amber-800 text-[9px] font-bold flex items-center justify-center">
-                                    {String.fromCharCode(65 + oIdx)}
-                                  </span>
-                                  <span>{opt.options}</span>
+                    {/* Chunk Type Content Preview (Visible when expanded) */}
+                    {isExpanded && (
+                      <div className="space-y-3 pt-3 border-t border-gray-100 animate-in fade-in duration-200">
+                        {chunk.chunk_type === "video" && (
+                          <div className="bg-zinc-50 border border-gray-200 rounded-xl p-3 flex gap-3.5 items-center">
+                            {ytId ? (
+                              <div className="relative w-20 h-14 rounded-lg overflow-hidden bg-slate-900 shrink-0 border border-gray-200 shadow-xs">
+                                <img
+                                  src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
+                                  alt="YT"
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                  <Play size={14} className="fill-white text-white" />
                                 </div>
-                                {opt.is_true && (
-                                  <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
-                                    <CheckCircle2 size={10} /> Benar
-                                  </span>
-                                )}
                               </div>
-                            ))}
+                            ) : (
+                              <div className="w-14 h-14 rounded-lg bg-blue-50 border border-blue-150 text-blue-500 flex items-center justify-center shrink-0">
+                                <Video size={20} />
+                              </div>
+                            )}
+
+                            <div className="flex-1 min-w-0">
+                              <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block mb-0.5">
+                                Konten Video
+                              </span>
+                              <p className="font-bold text-gray-800 text-xs truncate" title={videoUrlStr}>
+                                {videoUrlStr ? "Tautan Video YouTube" : "Tautan Video Kosong"}
+                              </p>
+                              {durationSec > 0 && (
+                                <p className="text-[10px] text-gray-500 flex items-center gap-1 mt-0.5 font-medium">
+                                  <Clock size={10} />
+                                  <span>
+                                    {Math.floor(durationSec / 60)}m {durationSec % 60}d ({durationSec} detik)
+                                  </span>
+                                </p>
+                              )}
+                              {transcriptStr && (
+                                <p className="text-[10px] text-gray-400 italic mt-0.5 truncate" title={transcriptStr}>
+                                  Transkrip: "{transcriptStr}"
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {chunk.chunk_type === "audio" && (
+                          <div className="bg-zinc-50 border border-gray-200 rounded-xl p-3 flex gap-3.5 items-center">
+                            <div className="w-12 h-12 rounded-lg bg-purple-50 border border-purple-150 text-purple-600 flex items-center justify-center shrink-0">
+                              <Volume2 size={20} />
+                            </div>
+                            <div className="flex-1 min-w-0 space-y-1">
+                              <span className="text-[10px] font-bold text-purple-600 uppercase tracking-wider block">
+                                Konten Audio
+                              </span>
+                              {audioUrlStr ? (
+                                <audio
+                                  src={audioUrlStr}
+                                  controls
+                                  className="w-full h-7 mt-1 scale-95 origin-left"
+                                />
+                              ) : (
+                                <p className="font-bold text-gray-800 text-xs">URL Audio Kosong</p>
+                              )}
+                              {durationSec > 0 && (
+                                <p className="text-[10px] text-gray-500 flex items-center gap-1 font-medium">
+                                  <Clock size={10} />
+                                  <span>{durationSec} detik</span>
+                                </p>
+                              )}
+                              {transcriptStr && (
+                                <p className="text-[10px] text-gray-400 italic mt-0.5 truncate" title={transcriptStr}>
+                                  Transkrip: "{transcriptStr}"
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {chunk.chunk_type === "image_step" && (
+                          <div className="bg-zinc-50 border border-gray-200 rounded-xl p-3 flex gap-3.5 items-center">
+                            {imageUrlStr ? (
+                              <div className="w-20 h-14 rounded-lg overflow-hidden bg-gray-100 border border-gray-250 shrink-0 shadow-xs">
+                                <img
+                                  src={imageUrlStr}
+                                  alt="Step"
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLElement).style.display = "none";
+                                  }}
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-20 h-14 rounded-lg bg-emerald-50 border border-emerald-150 text-emerald-500 flex items-center justify-center shrink-0">
+                                <ImageIcon size={20} />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block mb-0.5">
+                                Penjelasan Langkah Gambar
+                              </span>
+                              <div
+                                className="font-semibold text-gray-700 text-xs rich-text-preview"
+                                dangerouslySetInnerHTML={{ __html: captionsStr || "Tanpa Penjelasan" }}
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {chunk.chunk_type === "quiz" && (
+                          <div className="bg-zinc-50 border border-gray-200 rounded-xl p-4 text-xs space-y-3">
+                            <div className="flex items-start gap-2">
+                              <span className="shrink-0 flex items-center justify-center w-5 h-5 rounded bg-amber-50 border border-amber-150 text-amber-600 mt-0.5">
+                                <HelpCircle size={12} />
+                              </span>
+                              <div className="flex-1">
+                                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block mb-0.5">
+                                  Pertanyaan Kuis
+                                </span>
+                                <p className="font-bold text-gray-800 leading-snug">{questionStr || "Pertanyaan Kuis"}</p>
+                              </div>
+                            </div>
+
+                            {Array.isArray(optionsArr) && optionsArr.length > 0 && (
+                              <div className="space-y-1.5 pt-3 border-t border-gray-100">
+                                {optionsArr.map((opt: any, oIdx: number) => (
+                                  <div key={oIdx} className="flex items-center justify-between text-xs py-1 px-2.5 rounded-lg border border-gray-100 bg-white">
+                                    <div className="flex items-center gap-2">
+                                      <span className={`w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center border ${
+                                        opt.is_true
+                                          ? "bg-emerald-100 text-emerald-800 border-emerald-250"
+                                          : "bg-gray-150 text-gray-600 border-gray-200"
+                                      }`}>
+                                        {String.fromCharCode(65 + oIdx)}
+                                      </span>
+                                      <span className={opt.is_true ? "font-semibold text-gray-800" : "text-gray-600"}>
+                                        {opt.options}
+                                      </span>
+                                    </div>
+                                    {opt.is_true && (
+                                      <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
+                                        <CheckCircle2 size={10} /> Kunci Jawaban
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>

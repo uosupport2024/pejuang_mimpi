@@ -13,12 +13,19 @@ import {
   Play,
   FileText,
   Clock,
-  Sparkles
+  Sparkles,
+  Bold,
+  Italic,
+  List,
+  ListOrdered,
+  Heading
 } from "lucide-react";
 import { toast } from "sonner";
 import { FormField } from "@/shared/components/ui/form-field";
 import { THEME_COLORS } from "@/shared/constants/colors";
 import type { ChunkType, LessonChunk, CreateChunkPayload } from "../api/course";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 
 interface ChunkModalProps {
   isOpen: boolean;
@@ -200,6 +207,71 @@ async function detectMediaDuration(
   });
 }
 
+const MenuBar = ({ editor }: { editor: any }) => {
+  if (!editor) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-1 p-1.5 bg-gray-50 border border-b-0 border-gray-200 rounded-t-md">
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().toggleBold().run()}
+        disabled={!editor.can().chain().focus().toggleBold().run()}
+        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${
+          editor.isActive("bold") ? "bg-gray-250 font-bold" : ""
+        }`}
+        title="Tebal"
+      >
+        <Bold size={13} />
+      </button>
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().toggleItalic().run()}
+        disabled={!editor.can().chain().focus().toggleItalic().run()}
+        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${
+          editor.isActive("italic") ? "bg-gray-250 italic" : ""
+        }`}
+        title="Miring"
+      >
+        <Italic size={13} />
+      </button>
+      <div className="w-px h-5 bg-gray-200 mx-1 align-middle self-center" />
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().toggleBulletList().run()}
+        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${
+          editor.isActive("bulletList") ? "bg-gray-250" : ""
+        }`}
+        title="Daftar Bulatan"
+      >
+        <List size={13} />
+      </button>
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${
+          editor.isActive("orderedList") ? "bg-gray-250" : ""
+        }`}
+        title="Daftar Angka"
+      >
+        <ListOrdered size={13} />
+      </button>
+      <div className="w-px h-5 bg-gray-200 mx-1 align-middle self-center" />
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer font-bold text-xs ${
+          editor.isActive("heading", { level: 3 }) ? "bg-gray-250" : ""
+        }`}
+        title="Heading"
+      >
+        <Heading size={13} />
+      </button>
+    </div>
+  );
+};
+
 export function ChunkModal({
   isOpen,
   mode,
@@ -221,6 +293,20 @@ export function ChunkModal({
   // Image step fields
   const [imageUrl, setImageUrl] = useState("");
   const [captions, setCaptions] = useState("");
+
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: captions,
+    onUpdate: ({ editor }) => {
+      setCaptions(editor.getHTML());
+    },
+  });
+
+  useEffect(() => {
+    if (editor && captions !== editor.getHTML()) {
+      editor.commands.setContent(captions);
+    }
+  }, [captions, editor]);
 
   // Quiz fields
   const [question, setQuestion] = useState("");
@@ -470,6 +556,59 @@ function isValidUrl(urlString: string): boolean {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <style>{`
+        .ProseMirror {
+          outline: none;
+          min-height: 100px;
+        }
+        .ProseMirror ul {
+          list-style-type: disc !important;
+          padding-left: 1.25rem !important;
+          margin-top: 0.5rem !important;
+          margin-bottom: 0.5rem !important;
+        }
+        .ProseMirror ol {
+          list-style-type: decimal !important;
+          padding-left: 1.25rem !important;
+          margin-top: 0.5rem !important;
+          margin-bottom: 0.5rem !important;
+        }
+        .ProseMirror p {
+          margin-top: 0.25rem;
+          margin-bottom: 0.25rem;
+        }
+        .ProseMirror h3 {
+          font-size: 1.125rem;
+          font-weight: 600 !important;
+          margin-top: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+        .ProseMirror strong {
+          font-weight: 600 !important;
+        }
+        
+        .rich-text-preview ul, .rich-text-content ul {
+          list-style-type: disc !important;
+          padding-left: 1.25rem !important;
+          margin-top: 0.5rem !important;
+          margin-bottom: 0.5rem !important;
+        }
+        .rich-text-preview ol, .rich-text-content ol {
+          list-style-type: decimal !important;
+          padding-left: 1.25rem !important;
+          margin-top: 0.5rem !important;
+          margin-bottom: 0.5rem !important;
+        }
+        .rich-text-preview h3, .rich-text-content h3 {
+          font-size: 1.125rem;
+          font-weight: 600 !important;
+          margin-top: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+        .rich-text-preview strong, .rich-text-content strong {
+          font-weight: 600 !important;
+        }
+      `}</style>
       <div className="bg-white rounded-2xl border border-gray-200 shadow-2xl w-full max-w-4xl p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150 relative max-h-[92vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-gray-100">
@@ -711,13 +850,13 @@ function isValidUrl(urlString: string): boolean {
                   <label className="block text-xs font-bold text-gray-700 mb-1">
                     Teks Penjelasan / Caption
                   </label>
-                  <textarea
-                    rows={3}
-                    value={captions}
-                    onChange={(e) => setCaptions(e.target.value)}
-                    placeholder="Contoh: Langkah 1: Masuk melalui gerbang utama dan lakukan presensi..."
-                    className="w-full px-3.5 py-2 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all resize-none"
-                  />
+                  <div className="border border-gray-200 rounded-md focus-within:ring-2 focus-within:ring-[#e0542c]/20 focus-within:border-[#e0542c] overflow-hidden transition-all">
+                    <MenuBar editor={editor} />
+                    <EditorContent
+                      editor={editor}
+                      className="prose prose-xs max-w-none p-3 text-xs min-h-[100px] outline-none text-gray-900 bg-white"
+                    />
+                  </div>
                 </div>
               </>
             )}
@@ -959,9 +1098,10 @@ function isValidUrl(urlString: string): boolean {
                     <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">
                       Teks Penjelasan / Caption
                     </span>
-                    <p className="text-gray-800 font-semibold leading-relaxed">
-                      {captions.trim() || "Penjelasan langkah gambar akan muncul di sini..."}
-                    </p>
+                    <div
+                      className="text-gray-800 font-semibold leading-relaxed rich-text-preview"
+                      dangerouslySetInnerHTML={{ __html: captions.trim() || "Penjelasan langkah gambar akan muncul di sini..." }}
+                    />
                   </div>
                 </div>
               )}

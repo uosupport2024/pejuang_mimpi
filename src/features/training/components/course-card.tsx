@@ -5,11 +5,15 @@ interface CourseCardProps {
   course: Course;
   onEdit: (course: Course) => void;
   onDelete: (course: Course) => void;
+  onViewDetail: (course: Course) => void;
 }
 
-export function CourseCard({ course, onEdit, onDelete }: CourseCardProps) {
+export function CourseCard({ course, onEdit, onDelete, onViewDetail }: CourseCardProps) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col group relative">
+    <div
+      onClick={() => onViewDetail(course)}
+      className="bg-white rounded-2xl border border-gray-200/80 shadow-xs hover:shadow-lg hover:border-orange-200/80 transition-all duration-300 overflow-hidden flex flex-col group relative cursor-pointer"
+    >
       {/* Card Header Image / Cover */}
       <div className="h-40 w-full bg-gradient-to-r from-[#1e2a4a] to-[#2a3b68] relative overflow-hidden shrink-0">
         {course.thumbnail_url ? (
@@ -59,16 +63,22 @@ export function CourseCard({ course, onEdit, onDelete }: CourseCardProps) {
           </span>
 
           {/* Actions */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
             <button
-              onClick={() => onEdit(course)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(course);
+              }}
               className="p-1.5 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
               title="Edit Pelatihan"
             >
               <Edit2 size={15} />
             </button>
             <button
-              onClick={() => onDelete(course)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(course);
+              }}
               className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
               title="Hapus Pelatihan"
             >

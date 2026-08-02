@@ -13,7 +13,7 @@ import { ShiftPage } from "@/features/shift";
 import { RecruitmentPage } from "@/features/recruitment";
 import { OnboardingPage } from "@/features/onboarding";
 import { AppraisalPage } from "@/features/appraisal";
-import { TrainingPage, TrainingFormPage } from "@/features/training";
+import { TrainingPage, TrainingFormPage, TrainingDetailPage } from "@/features/training";
 import { DocumentPage } from "@/features/document";
 import { AnnouncementPage } from "@/features/announcement";
 import { OrganizationPage } from "@/features/organization";
@@ -92,6 +92,8 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <TrainingFormPage mode="add" />;
       case "TrainingEdit":
         return <TrainingFormPage mode="edit" />;
+      case "TrainingDetail":
+        return <TrainingDetailPage />;
       case "Document":
         return <DocumentPage />;
       case "Announcement":
