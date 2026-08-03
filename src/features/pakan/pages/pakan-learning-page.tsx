@@ -830,9 +830,12 @@ export function PakanLearningPage() {
                           </div>
 
                           <div className="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs space-y-4">
-                            <h4 className="text-xs font-bold text-zinc-900 leading-relaxed">
-                              {chunk.detail?.question || "Jawab pertanyaan berikut:"}
-                            </h4>
+                            <div
+                              className="text-xs font-bold text-zinc-900 leading-relaxed rich-text-content"
+                              dangerouslySetInnerHTML={{
+                                __html: chunk.detail?.question || "Jawab pertanyaan berikut:"
+                              }}
+                            />
 
                             <div className="space-y-2.5 mt-3">
                               {chunk.detail?.options?.map((opt) => {
@@ -867,7 +870,7 @@ export function PakanLearningPage() {
                                      }}
                                      className={`w-full p-3 rounded-xl border text-xs font-bold text-left transition-all flex items-center justify-between cursor-pointer ${optionStyle}`}
                                    >
-                                     <span>{opt.options}</span>
+                                     <span dangerouslySetInnerHTML={{ __html: opt.options }} />
                                      {isSubmitted && quizAnswerResult?.is_correct && isCorrectOpt && (
                                        <span className="text-[8.5px] font-bold text-green-600 uppercase bg-green-100 px-2 py-0.5 rounded-md">
                                          Benar

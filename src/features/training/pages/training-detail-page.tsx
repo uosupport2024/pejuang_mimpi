@@ -524,7 +524,10 @@ function ChunkPreviewRenderer({ chunk }: { chunk: LessonChunk }) {
             <div className="w-5 h-5 rounded-md bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
               <HelpCircle size={13} />
             </div>
-            <p className="text-xs font-bold text-gray-800">{detail.question || "Pertanyaan Kuis"}</p>
+            <div
+              className="text-xs font-bold text-gray-850 leading-relaxed rich-text-content"
+              dangerouslySetInnerHTML={{ __html: detail.question || "Pertanyaan Kuis" }}
+            />
           </div>
 
           <div className="space-y-2 pl-7">
@@ -545,7 +548,7 @@ function ChunkPreviewRenderer({ chunk }: { chunk: LessonChunk }) {
                   >
                     {String.fromCharCode(65 + oIdx)}
                   </span>
-                  <span>{opt.options}</span>
+                  <span dangerouslySetInnerHTML={{ __html: opt.options }} />
                 </div>
 
                 {opt.is_true && (

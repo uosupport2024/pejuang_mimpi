@@ -1581,7 +1581,11 @@ export function ChunkModal({
                           >
                             {String.fromCharCode(65 + idx)}
                           </span>
-                          <span>{opt.options.trim() || `Pilihan ${String.fromCharCode(65 + idx)}`}</span>
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: opt.options.trim() || `Pilihan ${String.fromCharCode(65 + idx)}`
+                            }}
+                          />
                         </div>
                         {opt.is_true && (
                           <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
