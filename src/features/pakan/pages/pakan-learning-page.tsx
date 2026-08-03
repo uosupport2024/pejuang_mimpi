@@ -11,7 +11,8 @@ import {
   Loader2,
   Check,
   Play,
-  Heart
+  Heart,
+  FileText
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -780,7 +781,7 @@ export function PakanLearningPage() {
                               Gambar tidak tersedia
                             </div>
                           )}
-                          {chunk.detail?.captions && (
+                            {chunk.detail?.captions && (
                             <div className="mt-4 text-left">
                               <h5 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">
                                 Penjelasan Panduan
@@ -791,6 +792,30 @@ export function PakanLearningPage() {
                               />
                             </div>
                           )}
+                        </div>
+                      );
+                    }
+
+                    if (chunk.chunk_type === "text") {
+                      return (
+                        <div className="space-y-3 text-left">
+                          <div className="flex items-center gap-1.5 text-zinc-550 font-bold uppercase text-[9.5px] tracking-wider pl-0.5">
+                            <FileText size={14} className="text-[#e0542c]" />
+                            <span>Materi Teks</span>
+                          </div>
+                          <div className="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs space-y-4">
+                            {chunk.detail?.title && (
+                              <h4 className="text-sm font-bold text-zinc-900 leading-relaxed border-b border-zinc-100 pb-2.5">
+                                {chunk.detail.title}
+                              </h4>
+                            )}
+                            {chunk.detail?.description && (
+                              <div
+                                className="text-xs text-zinc-600 leading-relaxed rich-text-content"
+                                dangerouslySetInnerHTML={{ __html: chunk.detail.description }}
+                              />
+                            )}
+                          </div>
                         </div>
                       );
                     }

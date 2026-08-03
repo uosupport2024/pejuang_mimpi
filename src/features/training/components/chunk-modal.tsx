@@ -18,7 +18,14 @@ import {
   Italic,
   List,
   ListOrdered,
-  Heading
+  Link2 as LinkIcon,
+  Quote,
+  Code,
+  Terminal,
+  Minus,
+  Strikethrough,
+  Table as TableIcon,
+  Layers
 } from "lucide-react";
 import { toast } from "sonner";
 import { FormField } from "@/shared/components/ui/form-field";
@@ -26,6 +33,17 @@ import { THEME_COLORS } from "@/shared/constants/colors";
 import type { ChunkType, LessonChunk, CreateChunkPayload } from "../api/course";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Image from "@tiptap/extension-image";
+import Youtube from "@tiptap/extension-youtube";
+import Link from "@tiptap/extension-link";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { createLowlight, all } from "lowlight";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+
+const lowlight = createLowlight(all);
 
 interface ChunkModalProps {
   isOpen: boolean;
@@ -34,6 +52,9 @@ interface ChunkModalProps {
   onSubmit: (payload: CreateChunkPayload) => Promise<void>;
   onClose: () => void;
   loading?: boolean;
+  inline?: boolean;
+  isSidebarCollapsed?: boolean;
+  onToggleSidebar?: () => void;
 }
 
 const YOUTUBE_API_KEY = "AIzaSyArZNOWJ7FkSofftAPEic7co2_D-UMs76s";
@@ -218,9 +239,8 @@ const MenuBar = ({ editor }: { editor: any }) => {
         type="button"
         onClick={() => editor.chain().focus().toggleBold().run()}
         disabled={!editor.can().chain().focus().toggleBold().run()}
-        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${
-          editor.isActive("bold") ? "bg-gray-250 font-bold" : ""
-        }`}
+        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${editor.isActive("bold") ? "bg-gray-250 font-bold" : ""
+          }`}
         title="Tebal"
       >
         <Bold size={13} />
@@ -229,20 +249,28 @@ const MenuBar = ({ editor }: { editor: any }) => {
         type="button"
         onClick={() => editor.chain().focus().toggleItalic().run()}
         disabled={!editor.can().chain().focus().toggleItalic().run()}
-        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${
-          editor.isActive("italic") ? "bg-gray-250 italic" : ""
-        }`}
+        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${editor.isActive("italic") ? "bg-gray-250 italic" : ""
+          }`}
         title="Miring"
       >
         <Italic size={13} />
+      </button>
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().toggleStrike().run()}
+        disabled={!editor.can().chain().focus().toggleStrike().run()}
+        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${editor.isActive("strike") ? "bg-gray-250 line-through" : ""
+          }`}
+        title="Coret (Strikethrough)"
+      >
+        <Strikethrough size={13} />
       </button>
       <div className="w-px h-5 bg-gray-200 mx-1 align-middle self-center" />
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleBulletList().run()}
-        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${
-          editor.isActive("bulletList") ? "bg-gray-250" : ""
-        }`}
+        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${editor.isActive("bulletList") ? "bg-gray-250" : ""
+          }`}
         title="Daftar Bulatan"
       >
         <List size={13} />
@@ -250,24 +278,206 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${
-          editor.isActive("orderedList") ? "bg-gray-250" : ""
-        }`}
+        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${editor.isActive("orderedList") ? "bg-gray-250" : ""
+          }`}
         title="Daftar Angka"
       >
         <ListOrdered size={13} />
       </button>
       <div className="w-px h-5 bg-gray-200 mx-1 align-middle self-center" />
+      <select
+        value={
+          editor.isActive("heading", { level: 1 })
+            ? "h1"
+            : editor.isActive("heading", { level: 2 })
+              ? "h2"
+              : editor.isActive("heading", { level: 3 })
+                ? "h3"
+                : editor.isActive("heading", { level: 4 })
+                  ? "h4"
+                  : "paragraph"
+        }
+        onChange={(e) => {
+          const val = e.target.value;
+          if (val === "paragraph") {
+            editor.chain().focus().setParagraph().run();
+          } else if (val === "h1") {
+            editor.chain().focus().toggleHeading({ level: 1 }).run();
+          } else if (val === "h2") {
+            editor.chain().focus().toggleHeading({ level: 2 }).run();
+          } else if (val === "h3") {
+            editor.chain().focus().toggleHeading({ level: 3 }).run();
+          } else if (val === "h4") {
+            editor.chain().focus().toggleHeading({ level: 4 }).run();
+          }
+        }}
+        className="px-2 py-1 text-[10px] font-bold text-gray-700 border border-gray-200 rounded hover:bg-gray-150 transition-colors focus:outline-none cursor-pointer bg-white"
+        title="Pilih Format Teks"
+      >
+        <option value="paragraph">Teks Normal</option>
+        <option value="h1">Heading 1</option>
+        <option value="h2">Heading 2</option>
+        <option value="h3">Heading 3</option>
+        <option value="h4">Heading 4</option>
+      </select>
+      <div className="w-px h-5 bg-gray-200 mx-1 align-middle self-center" />
       <button
         type="button"
-        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer font-bold text-xs ${
-          editor.isActive("heading", { level: 3 }) ? "bg-gray-250" : ""
-        }`}
-        title="Heading"
+        onClick={() => {
+          const previousUrl = editor.getAttributes("link").href;
+          const url = window.prompt("Masukkan URL Link:", previousUrl);
+          if (url === null) {
+            return;
+          }
+          if (url === "") {
+            editor.chain().focus().extendMarkRange("link").unsetLink().run();
+            return;
+          }
+          editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+        }}
+        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${editor.isActive("link") ? "bg-gray-250 text-blue-600 font-bold" : ""
+          }`}
+        title="Tambah Link"
       >
-        <Heading size={13} />
+        <LinkIcon size={13} />
       </button>
+      <button
+        type="button"
+        onClick={() => {
+          const url = window.prompt("Masukkan URL Gambar:");
+          if (url) {
+            editor.chain().focus().setImage({ src: url }).run();
+          }
+        }}
+        className="p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer"
+        title="Tambah Gambar"
+      >
+        <ImageIcon size={13} />
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          const url = window.prompt("Masukkan URL Video YouTube:");
+          if (url) {
+            editor.chain().focus().setYoutubeVideo({ src: url }).run();
+          }
+        }}
+        className="p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer"
+        title="Tambah Video YouTube"
+      >
+        <Play size={13} />
+      </button>
+      <div className="w-px h-5 bg-gray-200 mx-1 align-middle self-center" />
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${editor.isActive("blockquote") ? "bg-gray-250 font-bold" : ""
+          }`}
+        title="Kutipan (Quote)"
+      >
+        <Quote size={13} />
+      </button>
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().toggleCode().run()}
+        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${editor.isActive("code") ? "bg-gray-250 font-bold" : ""
+          }`}
+        title="Kode Inline"
+      >
+        <Code size={13} />
+      </button>
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+        className={`p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer ${editor.isActive("codeBlock") ? "bg-gray-250 font-bold" : ""
+          }`}
+        title="Blok Kode"
+      >
+        <Terminal size={13} />
+      </button>
+
+      {editor.isActive("codeBlock") && (
+        <select
+          value={editor.getAttributes("codeBlock").language || "plaintext"}
+          onChange={(e) => editor.chain().focus().setCodeBlock({ language: e.target.value }).run()}
+          className="px-2 py-0.5 text-[10px] font-bold text-gray-700 border border-gray-200 rounded hover:bg-gray-150 transition-colors focus:outline-none cursor-pointer bg-white"
+          title="Pilih Bahasa Kode"
+        >
+          <option value="plaintext">Plain Text</option>
+          <option value="javascript">JavaScript</option>
+          <option value="typescript">TypeScript</option>
+          <option value="python">Python</option>
+          <option value="php">PHP</option>
+          <option value="html">HTML/XML</option>
+          <option value="css">CSS</option>
+          <option value="sql">SQL</option>
+          <option value="bash">Bash</option>
+          <option value="json">JSON</option>
+        </select>
+      )}
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().setHorizontalRule().run()}
+        className="p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer"
+        title="Garis Pembatas"
+      >
+        <Minus size={13} />
+      </button>
+      <div className="w-px h-5 bg-gray-200 mx-1 align-middle self-center" />
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+        className="p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-700 cursor-pointer"
+        title="Buat Tabel (3x3)"
+      >
+        <TableIcon size={13} />
+      </button>
+
+      {editor.isActive("table") && (
+        <>
+          <div className="w-px h-5 bg-gray-200 mx-1 align-middle self-center" />
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().addColumnAfter().run()}
+            className="p-1 px-1.5 rounded hover:bg-gray-200 transition-colors text-[10px] font-bold text-gray-700 cursor-pointer"
+            title="Tambah Kolom"
+          >
+            +Kolom
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().deleteColumn().run()}
+            className="p-1 px-1.5 rounded hover:bg-rose-100 hover:text-rose-600 transition-colors text-[10px] font-bold text-gray-500 cursor-pointer"
+            title="Hapus Kolom"
+          >
+            -Kolom
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().addRowAfter().run()}
+            className="p-1 px-1.5 rounded hover:bg-gray-200 transition-colors text-[10px] font-bold text-gray-700 cursor-pointer"
+            title="Tambah Baris"
+          >
+            +Baris
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().deleteRow().run()}
+            className="p-1 px-1.5 rounded hover:bg-rose-100 hover:text-rose-600 transition-colors text-[10px] font-bold text-gray-500 cursor-pointer"
+            title="Hapus Baris"
+          >
+            -Baris
+          </button>
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().deleteTable().run()}
+            className="p-1 px-1.5 rounded hover:bg-rose-100 hover:text-rose-700 transition-colors text-[10px] font-bold text-rose-600 cursor-pointer"
+            title="Hapus Seluruh Tabel"
+          >
+            Hapus Tabel
+          </button>
+        </>
+      )}
     </div>
   );
 };
@@ -279,6 +489,9 @@ export function ChunkModal({
   onSubmit,
   onClose,
   loading = false,
+  inline = false,
+  isSidebarCollapsed = false,
+  onToggleSidebar,
 }: ChunkModalProps) {
   const [chunkType, setChunkType] = useState<ChunkType>("video");
 
@@ -295,7 +508,28 @@ export function ChunkModal({
   const [captions, setCaptions] = useState("");
 
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit.configure({
+        codeBlock: false,
+      }),
+      CodeBlockLowlight.configure({
+        lowlight,
+      }),
+      Image,
+      Youtube.configure({
+        width: 480,
+        height: 270,
+      }),
+      Link.configure({
+        openOnClick: false,
+      }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
+    ],
     content: captions,
     onUpdate: ({ editor }) => {
       setCaptions(editor.getHTML());
@@ -308,12 +542,86 @@ export function ChunkModal({
     }
   }, [captions, editor]);
 
+  // Text fields
+  const [textTitle, setTextTitle] = useState("");
+  const [textContent, setTextContent] = useState("");
+
+  const textEditor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        codeBlock: false,
+      }),
+      CodeBlockLowlight.configure({
+        lowlight,
+      }),
+      Image,
+      Youtube.configure({
+        width: 480,
+        height: 270,
+      }),
+      Link.configure({
+        openOnClick: false,
+      }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
+    ],
+    content: textContent,
+    onUpdate: ({ editor }) => {
+      setTextContent(editor.getHTML());
+    },
+  });
+
+  useEffect(() => {
+    if (textEditor && textContent !== textEditor.getHTML()) {
+      textEditor.commands.setContent(textContent);
+    }
+  }, [textContent, textEditor]);
+
   // Quiz fields
   const [question, setQuestion] = useState("");
   const [quizOptions, setQuizOptions] = useState<{ options: string; is_true: boolean }[]>([
     { options: "", is_true: true },
     { options: "", is_true: false },
   ]);
+
+  const quizEditor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        codeBlock: false,
+      }),
+      CodeBlockLowlight.configure({
+        lowlight,
+      }),
+      Image,
+      Youtube.configure({
+        width: 480,
+        height: 270,
+      }),
+      Link.configure({
+        openOnClick: false,
+      }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
+    ],
+    content: question,
+    onUpdate: ({ editor }) => {
+      setQuestion(editor.getHTML());
+    },
+  });
+
+  useEffect(() => {
+    if (quizEditor && question !== quizEditor.getHTML()) {
+      quizEditor.commands.setContent(question);
+    }
+  }, [question, quizEditor]);
 
   // Auto Duration Detection state
   const [detectingDuration, setDetectingDuration] = useState(false);
@@ -340,6 +648,8 @@ export function ChunkModal({
       setAutoPlay(d.auto_play || false);
       setCaptions(d.captions || "");
       setQuestion(d.question || "");
+      setTextTitle(d.title || "");
+      setTextContent(d.description || "");
       if (Array.isArray(d.options) && d.options.length > 0) {
         setQuizOptions(
           d.options.map((opt) => ({
@@ -364,6 +674,8 @@ export function ChunkModal({
       setCaptions("");
       setQuestion("");
       setVideoTitle("");
+      setTextTitle("");
+      setTextContent("");
       setQuizOptions([
         { options: "", is_true: true },
         { options: "", is_true: false },
@@ -451,14 +763,14 @@ export function ChunkModal({
     );
   };
 
-function isValidUrl(urlString: string): boolean {
-  try {
-    const url = new URL(urlString);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch (e) {
-    return false;
+  function isValidUrl(urlString: string): boolean {
+    try {
+      const url = new URL(urlString);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch (e) {
+      return false;
+    }
   }
-}
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -526,7 +838,7 @@ function isValidUrl(urlString: string): boolean {
       payload.image_url = trimmed;
       payload.captions = captions.trim() || undefined;
     } else if (chunkType === "quiz") {
-      if (!question.trim()) {
+      if (!question.trim() || question.trim() === "<p></p>") {
         toast.error("Pertanyaan kuis harus diisi");
         return;
       }
@@ -547,6 +859,13 @@ function isValidUrl(urlString: string): boolean {
         options: o.options.trim(),
         is_true: o.is_true,
       }));
+    } else if (chunkType === "text") {
+      if (!textContent.trim() || textContent.trim() === "<p></p>") {
+        toast.error("Konten teks harus diisi");
+        return;
+      }
+      payload.title = textTitle.trim() || undefined;
+      payload.description = textContent.trim();
     }
 
     await onSubmit(payload);
@@ -554,8 +873,8 @@ function isValidUrl(urlString: string): boolean {
 
   const currentYtId = extractYouTubeId(videoUrl);
 
-  return (
-    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+  const innerContent = (
+    <>
       <style>{`
         .ProseMirror {
           outline: none;
@@ -577,12 +896,10 @@ function isValidUrl(urlString: string): boolean {
           margin-top: 0.25rem;
           margin-bottom: 0.25rem;
         }
-        .ProseMirror h3 {
-          font-size: 1.125rem;
-          font-weight: 600 !important;
-          margin-top: 0.5rem;
-          margin-bottom: 0.5rem;
-        }
+        .ProseMirror h1 { font-size: 1.4rem; font-weight: 700 !important; margin-top: 0.75rem; margin-bottom: 0.5rem; color: #08060d; }
+        .ProseMirror h2 { font-size: 1.25rem; font-weight: 700 !important; margin-top: 0.75rem; margin-bottom: 0.5rem; color: #1f2937; }
+        .ProseMirror h3 { font-size: 1.1rem; font-weight: 600 !important; margin-top: 0.5rem; margin-bottom: 0.5rem; color: #374151; }
+        .ProseMirror h4 { font-size: 1rem; font-weight: 600 !important; margin-top: 0.5rem; margin-bottom: 0.5rem; color: #4b5563; }
         .ProseMirror strong {
           font-weight: 600 !important;
         }
@@ -599,29 +916,107 @@ function isValidUrl(urlString: string): boolean {
           margin-top: 0.5rem !important;
           margin-bottom: 0.5rem !important;
         }
-        .rich-text-preview h3, .rich-text-content h3 {
-          font-size: 1.125rem;
-          font-weight: 600 !important;
-          margin-top: 0.5rem;
-          margin-bottom: 0.5rem;
-        }
+        .rich-text-preview h1, .rich-text-content h1 { font-size: 1.4rem; font-weight: 700 !important; margin-top: 0.75rem; margin-bottom: 0.5rem; color: #08060d; }
+        .rich-text-preview h2, .rich-text-content h2 { font-size: 1.25rem; font-weight: 700 !important; margin-top: 0.75rem; margin-bottom: 0.5rem; color: #1f2937; }
+        .rich-text-preview h3, .rich-text-content h3 { font-size: 1.1rem; font-weight: 600 !important; margin-top: 0.5rem; margin-bottom: 0.5rem; color: #374151; }
+        .rich-text-preview h4, .rich-text-content h4 { font-size: 1rem; font-weight: 600 !important; margin-top: 0.5rem; margin-bottom: 0.5rem; color: #4b5563; }
         .rich-text-preview strong, .rich-text-content strong {
           font-weight: 600 !important;
         }
+        blockquote, .ProseMirror blockquote {
+          background-color: #fff1ed;
+          border-left: none;
+          padding: 10px 14px;
+          border-radius: 8px;
+          color: #c23f1b;
+          font-style: italic;
+          margin-top: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+        pre, .ProseMirror pre {
+          background-color: #f4f4f5;
+          border: 1px solid #e4e4e7;
+          padding: 10px;
+          border-radius: 8px;
+          font-family: monospace;
+          font-size: 0.85em;
+          color: #18181b;
+          overflow-x: auto;
+          margin-top: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+        code, .ProseMirror code {
+          background-color: #f4f4f5;
+          padding: 2px 4px;
+          border-radius: 4px;
+          font-family: monospace;
+          font-size: 0.85em;
+          color: #c23f1b;
+        }
+        pre code, .ProseMirror pre code {
+          background-color: transparent;
+          padding: 0;
+          border-radius: 0;
+          color: inherit;
+          font-size: inherit;
+        }
+        hr, .ProseMirror hr {
+          border: none;
+          border-top: 1px solid #e4e4e7;
+          margin: 1rem 0;
+        }
+        table, .ProseMirror table {
+          border-collapse: collapse;
+          table-layout: fixed;
+          width: 100%;
+          margin: 0;
+          overflow: hidden;
+          margin-top: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+        table td, table th, .ProseMirror td, .ProseMirror th {
+          min-width: 1em;
+          border: 1px solid #e4e4e7;
+          padding: 6px 10px;
+          vertical-align: top;
+          box-sizing: border-box;
+          position: relative;
+          font-size: 0.85em;
+        }
+        table th, .ProseMirror th {
+          font-weight: bold;
+          text-align: left;
+          background-color: #f4f4f5;
+        }
+        table p, .ProseMirror table p {
+          margin: 0;
+        }
       `}</style>
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-2xl w-full max-w-4xl p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150 relative max-h-[92vh] overflow-y-auto">
+      <div className="w-full h-full p-4 relative flex flex-col gap-3.5 overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-          <div>
-            <h3 className="text-sm font-bold text-gray-900">
-              {mode === "edit" ? "Edit Bagian Konten" : "Tambah Bagian Konten Baru"}
-            </h3>
+        <div className="flex items-center justify-between pb-2.5 border-b border-gray-100 shrink-0">
+          <div className="flex items-center gap-2">
+            {inline && isSidebarCollapsed && onToggleSidebar && (
+              <button
+                type="button"
+                onClick={onToggleSidebar}
+                className="p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer flex items-center justify-center mr-1"
+                title="Tampilkan Daftar Konten"
+              >
+                <Layers size={15} />
+              </button>
+            )}
+            <div>
+              <h3 className="text-sm font-bold text-gray-900">
+                {mode === "edit" ? "Edit Bagian Konten" : "Tambah Bagian Konten Baru"}
+              </h3>
             <p className="text-[11px] text-gray-500">
               Pilih tipe konten materi dan lihat pratinjau langsung di sebelah kanan
             </p>
           </div>
+        </div>
 
-          <button
+        <button
             type="button"
             onClick={onClose}
             className="p-1 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
@@ -632,15 +1027,14 @@ function isValidUrl(urlString: string): boolean {
 
         {/* Chunk Type Selector Tabs */}
         {mode === "add" && (
-          <div className="grid grid-cols-4 gap-2 bg-gray-100/80 p-1 rounded-md">
+          <div className="grid grid-cols-5 gap-2 bg-gray-100/80 p-1 rounded-md shrink-0">
             <button
               type="button"
               onClick={() => setChunkType("video")}
-              className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                chunkType === "video"
-                  ? "bg-white text-[#e0542c] shadow-xs"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${chunkType === "video"
+                ? "bg-white text-[#e0542c] shadow-xs"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
             >
               <Video size={14} />
               <span>Video</span>
@@ -648,11 +1042,10 @@ function isValidUrl(urlString: string): boolean {
             <button
               type="button"
               onClick={() => setChunkType("audio")}
-              className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                chunkType === "audio"
-                  ? "bg-white text-[#e0542c] shadow-xs"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${chunkType === "audio"
+                ? "bg-white text-[#e0542c] shadow-xs"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
             >
               <Volume2 size={14} />
               <span>Audio</span>
@@ -660,23 +1053,32 @@ function isValidUrl(urlString: string): boolean {
             <button
               type="button"
               onClick={() => setChunkType("image_step")}
-              className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                chunkType === "image_step"
-                  ? "bg-white text-[#e0542c] shadow-xs"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${chunkType === "image_step"
+                ? "bg-white text-[#e0542c] shadow-xs"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
             >
               <ImageIcon size={14} />
               <span>Gambar</span>
             </button>
             <button
               type="button"
+              onClick={() => setChunkType("text")}
+              className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${chunkType === "text"
+                ? "bg-white text-[#e0542c] shadow-xs"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
+            >
+              <FileText size={14} />
+              <span>Teks</span>
+            </button>
+            <button
+              type="button"
               onClick={() => setChunkType("quiz")}
-              className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                chunkType === "quiz"
-                  ? "bg-white text-[#e0542c] shadow-xs"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${chunkType === "quiz"
+                ? "bg-white text-[#e0542c] shadow-xs"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
             >
               <HelpCircle size={14} />
               <span>Kuis</span>
@@ -685,7 +1087,7 @@ function isValidUrl(urlString: string): boolean {
         )}
 
         {/* 2-Column Main Content: Left Form, Right Live Preview */}
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-5 gap-6 pt-1">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-5 gap-4 pt-0 flex-1 min-h-0 overflow-y-auto pb-4">
           {/* Left Column: Form Inputs (Col 3) */}
           <div className="lg:col-span-3 space-y-3.5">
             {/* VIDEO FIELDS */}
@@ -733,14 +1135,12 @@ function isValidUrl(urlString: string): boolean {
                     <button
                       type="button"
                       onClick={() => setAutoPlay(!autoPlay)}
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        autoPlay ? "bg-[#e0542c]" : "bg-gray-200"
-                      }`}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${autoPlay ? "bg-[#e0542c]" : "bg-gray-200"
+                        }`}
                     >
                       <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                          autoPlay ? "translate-x-5" : "translate-x-0"
-                        }`}
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${autoPlay ? "translate-x-5" : "translate-x-0"
+                          }`}
                       />
                     </button>
                   </div>
@@ -806,14 +1206,12 @@ function isValidUrl(urlString: string): boolean {
                     <button
                       type="button"
                       onClick={() => setAutoPlay(!autoPlay)}
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        autoPlay ? "bg-[#e0542c]" : "bg-gray-200"
-                      }`}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${autoPlay ? "bg-[#e0542c]" : "bg-gray-200"
+                        }`}
                     >
                       <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                          autoPlay ? "translate-x-5" : "translate-x-0"
-                        }`}
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${autoPlay ? "translate-x-5" : "translate-x-0"
+                          }`}
                       />
                     </button>
                   </div>
@@ -861,6 +1259,32 @@ function isValidUrl(urlString: string): boolean {
               </>
             )}
 
+            {/* TEXT FIELDS */}
+            {chunkType === "text" && (
+              <>
+                <FormField
+                  label="Judul Teks (Opsional)"
+                  type="text"
+                  value={textTitle}
+                  onChange={(e) => setTextTitle(e.target.value)}
+                  placeholder="Contoh: Pengenalan Kebijakan Perusahaan"
+                />
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">
+                    Konten Teks / Artikel <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="border border-gray-200 rounded-md focus-within:ring-2 focus-within:ring-[#e0542c]/20 focus-within:border-[#e0542c] overflow-hidden transition-all">
+                    <MenuBar editor={textEditor} />
+                    <EditorContent
+                      editor={textEditor}
+                      className="prose prose-xs max-w-none p-3 text-xs min-h-[150px] outline-none text-gray-900 bg-white"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
             {/* QUIZ FIELDS */}
             {chunkType === "quiz" && (
               <>
@@ -868,14 +1292,13 @@ function isValidUrl(urlString: string): boolean {
                   <label className="block text-xs font-bold text-gray-700 mb-1">
                     Pertanyaan Kuis <span className="text-rose-500">*</span>
                   </label>
-                  <textarea
-                    rows={2}
-                    required
-                    value={question}
-                    onChange={(e) => setQuestion(e.target.value)}
-                    placeholder="Contoh: Berapa jam batas toleransi presensi masuk kantor?"
-                    className="w-full px-3.5 py-2 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all resize-none"
-                  />
+                  <div className="border border-gray-200 rounded-md focus-within:ring-2 focus-within:ring-[#e0542c]/20 focus-within:border-[#e0542c] overflow-hidden transition-all">
+                    <MenuBar editor={quizEditor} />
+                    <EditorContent
+                      editor={quizEditor}
+                      className="prose prose-xs max-w-none p-3 text-xs min-h-[100px] outline-none text-gray-900 bg-white"
+                    />
+                  </div>
                 </div>
 
                 {/* Quiz Options List */}
@@ -900,11 +1323,10 @@ function isValidUrl(urlString: string): boolean {
                         <button
                           type="button"
                           onClick={() => handleSetCorrectOption(idx)}
-                          className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border transition-all cursor-pointer ${
-                            opt.is_true
-                              ? "bg-emerald-600 border-emerald-600 text-white shadow-xs"
-                              : "bg-white border-gray-300 text-transparent hover:border-gray-400"
-                          }`}
+                          className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border transition-all cursor-pointer ${opt.is_true
+                            ? "bg-emerald-600 border-emerald-600 text-white shadow-xs"
+                            : "bg-white border-gray-300 text-transparent hover:border-gray-400"
+                            }`}
                           title={opt.is_true ? "Jawaban Benar" : "Tandai sebagai jawaban benar"}
                         >
                           <Check size={12} strokeWidth={3} />
@@ -1106,6 +1528,28 @@ function isValidUrl(urlString: string): boolean {
                 </div>
               )}
 
+              {/* TEXT PREVIEW CARD */}
+              {chunkType === "text" && (
+                <div className="bg-white rounded-md p-4 border border-gray-200 space-y-3 shadow-xs">
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-bold text-[#e0542c] uppercase tracking-wider block">
+                      Pratinjau Teks
+                    </span>
+                    <h5 className="text-xs font-bold text-gray-900 leading-snug">
+                      {textTitle.trim() || "Judul Teks"}
+                    </h5>
+                  </div>
+                  <div className="pt-2 border-t border-gray-100">
+                    <div
+                      className="text-xs text-gray-800 leading-relaxed rich-text-preview"
+                      dangerouslySetInnerHTML={{
+                        __html: textContent.trim() || "Tulis konten teks di editor untuk melihat pratinjau..."
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
               {/* QUIZ PREVIEW CARD */}
               {chunkType === "quiz" && (
                 <div className="bg-white rounded-md p-3.5 border border-gray-200 space-y-3 shadow-xs">
@@ -1113,26 +1557,27 @@ function isValidUrl(urlString: string): boolean {
                     <span className="text-[9px] font-bold text-amber-600 uppercase tracking-wider block">
                       Pertanyaan Kuis
                     </span>
-                    <h5 className="text-xs font-bold text-gray-900 leading-snug">
-                      {question.trim() || "Pertanyaan kuis akan tampil di sini..."}
-                    </h5>
+                    <div
+                      className="text-xs font-bold text-gray-900 leading-snug rich-text-preview"
+                      dangerouslySetInnerHTML={{
+                        __html: question.trim() || "Pertanyaan kuis akan tampil di sini..."
+                      }}
+                    />
                   </div>
 
                   <div className="space-y-1.5 pt-1">
                     {quizOptions.map((opt, idx) => (
                       <div
                         key={idx}
-                        className={`flex items-center justify-between p-2 rounded-lg text-xs font-medium border transition-all ${
-                          opt.is_true
-                            ? "bg-emerald-50 border-emerald-300 text-emerald-900 font-bold"
-                            : "bg-gray-50 border-gray-200 text-gray-700"
-                        }`}
+                        className={`flex items-center justify-between p-2 rounded-lg text-xs font-medium border transition-all ${opt.is_true
+                          ? "bg-emerald-50 border-emerald-300 text-emerald-900 font-bold"
+                          : "bg-gray-50 border-gray-200 text-gray-700"
+                          }`}
                       >
                         <div className="flex items-center gap-2">
                           <span
-                            className={`w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center ${
-                              opt.is_true ? "bg-emerald-600 text-white" : "bg-gray-200 text-gray-600"
-                            }`}
+                            className={`w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center ${opt.is_true ? "bg-emerald-600 text-white" : "bg-gray-200 text-gray-600"
+                              }`}
                           >
                             {String.fromCharCode(65 + idx)}
                           </span>
@@ -1172,6 +1617,18 @@ function isValidUrl(urlString: string): boolean {
             </div>
           </div>
         </form>
+      </div>
+    </>
+  );
+
+  if (inline) {
+    return innerContent;
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/25 backdrop-blur-xs flex items-center justify-end">
+      <div className="bg-white w-full max-w-4xl h-full shadow-2xl overflow-hidden rounded-l-2xl animate-in slide-in-from-right duration-250">
+        {innerContent}
       </div>
     </div>
   );

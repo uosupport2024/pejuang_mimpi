@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   Play,
   Clock,
-  ChevronDown
+  ChevronDown,
+  FileText
 } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
@@ -67,6 +68,7 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
   });
   const [deletingChunk, setDeletingChunk] = useState(false);
   const [expandedChunks, setExpandedChunks] = useState<Record<number, boolean>>({});
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const fetchActiveRef = useRef<number | null>(null);
 
   const toggleChunk = (chunkId: number) => {
@@ -163,26 +165,32 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
     switch (type) {
       case "video":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#e0542c]/10 text-[#e0542c] font-bold text-[10px] border border-[#e0542c]/20">
-            <Video size={12} /> Video
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#e0542c]/10 text-[#e0542c] font-bold text-[9.5px] border border-[#e0542c]/20">
+            <Video size={11} /> Video
           </span>
         );
       case "audio":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#5C8A90]/10 text-[#3b595d] font-bold text-[10px] border border-[#5C8A90]/20">
-            <Volume2 size={12} /> Audio
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-100 text-zinc-700 font-bold text-[9.5px] border border-zinc-200">
+            <Volume2 size={11} /> Audio
           </span>
         );
       case "image_step":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#7FA46D]/10 text-[#516b46] font-bold text-[10px] border border-[#7FA46D]/20">
-            <ImageIcon size={12} /> Langkah Gambar
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#7FA46D]/10 text-[#516b46] font-bold text-[9.5px] border border-[#7FA46D]/20">
+            <ImageIcon size={11} /> Gambar
           </span>
         );
       case "quiz":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#F2B233]/12 text-[#916715] font-bold text-[10px] border border-[#F2B233]/20">
-            <HelpCircle size={12} /> Kuis
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#F2B233]/12 text-[#916715] font-bold text-[9.5px] border border-[#F2B233]/20">
+            <HelpCircle size={11} /> Kuis
+          </span>
+        );
+      case "text":
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-bold text-[9.5px] border border-blue-200">
+            <FileText size={11} /> Teks
           </span>
         );
       default:
@@ -206,7 +214,21 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
           margin-bottom: 0.25rem !important;
         }
       `}</style>
-      <div className="bg-white w-full max-w-lg h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
+      <div className={`bg-white h-full shadow-2xl flex flex-col transition-all duration-300 rounded-l-2xl animate-in slide-in-from-right duration-200 ${
+        chunkModal.isOpen
+          ? isSidebarCollapsed
+            ? "w-full max-w-4xl"
+            : "w-full max-w-6xl"
+          : "w-full max-w-lg"
+      }`}>
+        <div className="flex-1 flex overflow-hidden min-h-0">
+          <div className={`flex flex-col h-full border-r border-gray-100 transition-all duration-300 shrink-0 overflow-hidden ${
+            chunkModal.isOpen
+              ? isSidebarCollapsed
+                ? "w-0 border-r-0"
+                : "w-[340px]"
+              : "w-full"
+          }`}>
         {/* Drawer Header */}
         <div className="p-5 border-b border-gray-100 flex items-center justify-between shrink-0">
           <div>
@@ -220,31 +242,43 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => {
+              if (chunkModal.isOpen) {
+                setIsSidebarCollapsed(true);
+              } else {
+                onClose();
+              }
+            }}
             className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            title={chunkModal.isOpen ? "Sembunyikan Daftar Konten" : "Tutup"}
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Drawer Body Content */}
-        <div className="p-6 flex-1 overflow-y-auto space-y-5">
-          {/* Header Action Row */}
-          <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-gray-700">
-              Daftar Bagian Konten ({(lesson?.chunks || []).length})
-            </h4>
+            {/* Drawer Body Content */}
+            <div className={`flex-1 overflow-y-auto space-y-4 min-h-0 ${chunkModal.isOpen ? "p-4" : "p-6"}`}>
+              {/* Header Action Row */}
+              <div className="flex flex-col gap-2 pb-2 border-b border-gray-100/80 shrink-0">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                    Daftar Bagian Konten
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-gray-100 text-[10px] font-bold text-gray-600">
+                    {(lesson?.chunks || []).length} Konten
+                  </span>
+                </div>
 
-            <button
-              type="button"
-              onClick={handleOpenAddChunk}
-              style={{ backgroundColor: THEME_COLORS.hex.primary }}
-              className="px-4 py-2.5 rounded-md text-white text-xs font-bold shadow-md shadow-[#e0542c]/20 hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5"
-            >
-              <Plus size={14} />
-              <span>Tambah Bagian Konten</span>
-            </button>
-          </div>
+                <button
+                  type="button"
+                  onClick={handleOpenAddChunk}
+                  style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                  className="w-full py-2 rounded-lg text-white text-xs font-bold shadow-sm hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <Plus size={14} />
+                  <span>Tambah Bagian Konten</span>
+                </button>
+              </div>
 
           {loading ? (
             <div className="space-y-4">
@@ -298,11 +332,14 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
                   (chunk as any).image_step ||
                   (chunk as any).imageStep ||
                   (chunk as any).quiz ||
+                  (chunk as any).text ||
                   {};
 
                 const videoUrlStr = detail.video_url || (chunk as any).video_url || "";
                 const audioUrlStr = detail.audio_url || (chunk as any).audio_url || "";
                 const imageUrlStr = detail.image_url || (chunk as any).image_url || "";
+                const textTitleStr = detail.title || (chunk as any).title || "";
+                const textContentStr = detail.description || (chunk as any).description || "";
                 const durationSec = detail.duration_second || (chunk as any).duration_second || 0;
                 const transcriptStr = detail.transcript || (chunk as any).transcript || "";
                 const captionsStr = detail.captions || (chunk as any).captions || "";
@@ -315,13 +352,15 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
                 return (
                   <div
                     key={chunk.id}
-                    className="bg-white rounded-2xl border border-gray-200 p-4 shadow-xs hover:border-gray-300 transition-all space-y-3"
+                    className={`bg-white rounded-xl border border-gray-205 shadow-xs hover:border-gray-300 transition-all space-y-2.5 ${
+                      chunkModal.isOpen ? "p-3" : "p-4"
+                    }`}
                   >
                     <div
                       onClick={() => toggleChunk(chunk.id)}
                       className="flex items-center justify-between cursor-pointer select-none"
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
                         <span className="w-5 h-5 rounded-md bg-gray-100 text-[10px] font-bold text-gray-600 flex items-center justify-center shrink-0">
                           {idx + 1}
                         </span>
@@ -329,18 +368,31 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
 
                         {/* Inline content preview snippet */}
                         {chunk.chunk_type === "image_step" && captionsStr && (
-                          <span className="text-[11px] text-gray-400 max-w-[140px] truncate ml-1 font-medium">
+                          <span className={`text-[10px] text-gray-400 truncate ml-0.5 font-medium ${
+                            chunkModal.isOpen ? "max-w-[70px]" : "max-w-[140px]"
+                          }`}>
                             {captionsStr.replace(/<[^>]*>/g, "")}
                           </span>
                         )}
                         {chunk.chunk_type === "video" && videoUrlStr && (
-                          <span className="text-[11px] text-gray-400 max-w-[140px] truncate ml-1 font-medium">
+                          <span className={`text-[10px] text-gray-400 truncate ml-0.5 font-medium ${
+                            chunkModal.isOpen ? "max-w-[70px]" : "max-w-[140px]"
+                          }`}>
                             {videoUrlStr}
                           </span>
                         )}
                         {chunk.chunk_type === "quiz" && questionStr && (
-                          <span className="text-[11px] text-gray-400 max-w-[140px] truncate ml-1 font-medium">
+                          <span className={`text-[10px] text-gray-400 truncate ml-0.5 font-medium ${
+                            chunkModal.isOpen ? "max-w-[70px]" : "max-w-[140px]"
+                          }`}>
                             {questionStr}
+                          </span>
+                        )}
+                        {chunk.chunk_type === "text" && (textTitleStr || textContentStr) && (
+                          <span className={`text-[10px] text-gray-400 truncate ml-0.5 font-medium ${
+                            chunkModal.isOpen ? "max-w-[70px]" : "max-w-[140px]"
+                          }`}>
+                            {textTitleStr || textContentStr.replace(/<[^>]*>/g, "")}
                           </span>
                         )}
                       </div>
@@ -469,7 +521,7 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
                                   onError={(e) => {
                                     (e.target as HTMLElement).style.display = "none";
                                   }}
-                                />
+                                  />
                               </div>
                             ) : (
                               <div className="w-20 h-14 rounded-lg bg-emerald-50 border border-emerald-150 text-emerald-500 flex items-center justify-center shrink-0">
@@ -483,8 +535,25 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
                               <div
                                 className="font-semibold text-gray-700 text-xs rich-text-preview"
                                 dangerouslySetInnerHTML={{ __html: captionsStr || "Tanpa Penjelasan" }}
-                              />
+                                />
                             </div>
+                          </div>
+                        )}
+
+                        {chunk.chunk_type === "text" && (
+                          <div className="bg-zinc-50 border border-gray-200 rounded-xl p-3 space-y-2">
+                            <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block mb-0.5">
+                              Konten Teks
+                            </span>
+                            {textTitleStr && (
+                              <h5 className="font-bold text-gray-800 text-xs">
+                                {textTitleStr}
+                              </h5>
+                            )}
+                            <div
+                              className="font-semibold text-gray-700 text-xs rich-text-preview"
+                              dangerouslySetInnerHTML={{ __html: textContentStr || "Tanpa Konten Teks" }}
+                              />
                           </div>
                         )}
 
@@ -498,7 +567,10 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
                                 <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block mb-0.5">
                                   Pertanyaan Kuis
                                 </span>
-                                <p className="font-bold text-gray-800 leading-snug">{questionStr || "Pertanyaan Kuis"}</p>
+                                <div
+                                  className="font-bold text-gray-800 leading-snug rich-text-preview"
+                                  dangerouslySetInnerHTML={{ __html: questionStr || "Pertanyaan Kuis" }}
+                                />
                               </div>
                             </div>
 
@@ -536,18 +608,30 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
               })}
             </div>
           )}
+          </div>
         </div>
-      </div>
 
-      {/* Chunk Modal Add / Edit */}
-      <ChunkModal
-        isOpen={chunkModal.isOpen}
-        mode={chunkModal.mode}
-        initialData={chunkModal.initialData}
-        onSubmit={handleSubmitChunk}
-        onClose={() => setChunkModal({ ...chunkModal, isOpen: false })}
-        loading={submittingChunk}
-      />
+        {/* Panel Kanan: Inline Editor Form */}
+        {chunkModal.isOpen && (
+          <div className="flex-1 h-full overflow-hidden bg-gray-50/30 animate-in fade-in duration-300">
+            <ChunkModal
+              isOpen={chunkModal.isOpen}
+              mode={chunkModal.mode}
+              initialData={chunkModal.initialData}
+              onSubmit={handleSubmitChunk}
+              onClose={() => {
+                setChunkModal({ ...chunkModal, isOpen: false });
+                setIsSidebarCollapsed(false);
+              }}
+              loading={submittingChunk}
+              inline={true}
+              isSidebarCollapsed={isSidebarCollapsed}
+              onToggleSidebar={() => setIsSidebarCollapsed(false)}
+            />
+          </div>
+        )}
+      </div>
+    </div>
 
       {/* Delete Chunk Confirmation Modal */}
       <ConfirmationModal

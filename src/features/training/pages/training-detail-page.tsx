@@ -9,7 +9,8 @@ import {
   HelpCircle,
   Award,
   Sparkles,
-  ChevronDown
+  ChevronDown,
+  FileText
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "@/shared/router/router";
@@ -247,7 +248,9 @@ export function TrainingDetailPage() {
                                   ? "Audio"
                                   : chunk.chunk_type === "image_step"
                                     ? "Langkah Gambar"
-                                    : "Kuis";
+                                    : chunk.chunk_type === "text"
+                                      ? "Teks"
+                                      : "Kuis";
 
                             const getChunkIcon = (type: string) => {
                               switch (type) {
@@ -257,6 +260,8 @@ export function TrainingDetailPage() {
                                   return <Volume2 size={10} className="text-purple-500" />;
                                 case "image_step":
                                   return <ImageIcon size={10} className="text-emerald-500" />;
+                                case "text":
+                                  return <FileText size={10} className="text-blue-550" />;
                                 case "quiz":
                                   return <HelpCircle size={10} className="text-amber-500" />;
                                 default:
@@ -362,7 +367,13 @@ function LessonPreviewCard({ lesson, index, isExpanded, onToggle }: LessonPrevie
                 <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
                   <span>Bagian {cIdx + 1}</span>
                   <span>•</span>
-                  <span className="text-[#e0542c]">{chunk.chunk_type === "image_step" ? "langkah gambar" : chunk.chunk_type}</span>
+                  <span className="text-[#e0542c]">
+                    {chunk.chunk_type === "image_step"
+                      ? "langkah gambar"
+                      : chunk.chunk_type === "text"
+                        ? "teks biasa"
+                        : chunk.chunk_type}
+                  </span>
                 </div>
 
                 {/* Chunk Content Renderer */}
@@ -478,6 +489,26 @@ function ChunkPreviewRenderer({ chunk }: { chunk: LessonChunk }) {
               <div
                 className="text-xs text-gray-750 leading-relaxed font-medium rich-text-content"
                 dangerouslySetInnerHTML={{ __html: detail.captions }}
+              />
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    case "text": {
+      return (
+        <div className="space-y-3">
+          <div className="bg-blue-50/20 border border-blue-100/60 rounded-xl p-4 space-y-3">
+            {detail.title && (
+              <h5 className="font-bold text-gray-800 text-sm">
+                {detail.title}
+              </h5>
+            )}
+            {detail.description && (
+              <div
+                className="text-xs text-gray-750 leading-relaxed font-medium rich-text-content"
+                dangerouslySetInnerHTML={{ __html: detail.description }}
               />
             )}
           </div>
