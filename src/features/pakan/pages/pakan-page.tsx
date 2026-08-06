@@ -262,11 +262,26 @@ export function PakanPage({ user }: PakanPageProps) {
                   key={course.id}
                   className="bg-white rounded-md border border-zinc-100 shadow-xs flex flex-col overflow-hidden hover:scale-[1.01] transition-transform duration-200"
                 >
-                  <div className={`h-22 bg-gradient-to-tr ${course.gradientTheme} flex items-center justify-center relative shrink-0`}>
-                    <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/20 shadow-xs">
+                  <div className="h-22 relative flex items-center justify-center shrink-0 overflow-hidden bg-zinc-100">
+                    {course.thumbnail_url ? (
+                      <>
+                        <img
+                          src={course.thumbnail_url}
+                          alt={course.title}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = "none";
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/15" />
+                      </>
+                    ) : (
+                      <div className={`absolute inset-0 bg-gradient-to-tr ${course.gradientTheme}`} />
+                    )}
+                    <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/20 shadow-xs z-10">
                       <IconComp className="w-5 h-5" />
                     </div>
-                    <span className="absolute top-2 right-2 inline-flex items-center px-1.5 py-0.5 rounded-full bg-black/25 text-white text-[7.5px] font-bold uppercase tracking-wide backdrop-blur-xs">
+                    <span className="absolute top-2 right-2 inline-flex items-center px-1.5 py-0.5 rounded-full bg-black/25 text-white text-[7.5px] font-bold uppercase tracking-wide backdrop-blur-xs z-10">
                       {getDifficultyLabel(course.difficulty)}
                     </span>
                   </div>

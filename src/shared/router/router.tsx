@@ -19,6 +19,7 @@ export type RouteType =
   | "Training"
   | "TrainingAdd"
   | "TrainingEdit"
+  | "TrainingDetail"
   | "Document"
   | "Announcement"
   | "Organization"
@@ -68,6 +69,7 @@ export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   Training: "Pelatihan",
   TrainingAdd: "Tambah Pelatihan",
   TrainingEdit: "Edit Pelatihan",
+  TrainingDetail: "Detail Pelatihan",
   Document: "Dokumen",
   Announcement: "Pengumuman",
   Organization: "Divisi",
@@ -112,6 +114,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   Training: "/training",
   TrainingAdd: "/training/tambah",
   TrainingEdit: "/training/edit",
+  TrainingDetail: "/training/detail",
   Document: "/document",
   Announcement: "/announcement",
   Organization: "/divisi",
@@ -159,6 +162,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/training": "Training",
   "/training/tambah": "TrainingAdd",
   "/training/edit": "TrainingEdit",
+  "/training/detail": "TrainingDetail",
   "/document": "Document",
   "/announcement": "Announcement",
   "/divisi": "Organization",

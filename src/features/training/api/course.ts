@@ -1,6 +1,6 @@
 import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
 
-export type ChunkType = "video" | "audio" | "image_step" | "quiz";
+export type ChunkType = "video" | "audio" | "image_step" | "quiz" | "text";
 
 export interface ChunkQuizOption {
   id?: number;
@@ -21,6 +21,8 @@ export interface ChunkDetail {
   captions?: string;
   question?: string;
   options?: ChunkQuizOption[];
+  title?: string;
+  description?: string;
 }
 
 export interface LessonChunk {
@@ -130,6 +132,8 @@ export interface CreateChunkPayload {
   captions?: string;
   question?: string;
   options?: { options: string; is_true?: boolean }[];
+  title?: string;
+  description?: string;
 }
 
 export interface UpdateChunkPayload {
@@ -141,6 +145,8 @@ export interface UpdateChunkPayload {
   auto_play?: boolean;
   captions?: string;
   question?: string;
+  title?: string;
+  description?: string;
 }
 
 export interface PaginatedCourseResponse {

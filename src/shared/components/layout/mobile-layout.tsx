@@ -1,7 +1,8 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useState, useEffect } from "react";
 import { useRouter } from "@/shared/router/router";
 import logoWhite from "@/assets/logo/logo-white.png";
-import { SmartHome, Box, MedalStar, User } from "@solar-icons/react";
+import { SmartHome, Box, MedalStar, User, InfoCircle } from "@solar-icons/react";
+import { MobileGuidanceTour } from "./mobile-guidance";
 
 interface MobileLayoutProps {
   children: ReactNode;
@@ -9,6 +10,17 @@ interface MobileLayoutProps {
 
 export function MobileLayout({ children }: MobileLayoutProps) {
   const { currentRoute, navigate } = useRouter();
+  const [isTourOpen, setIsTourOpen] = useState(false);
+
+  useEffect(() => {
+    const completed = localStorage.getItem("mobile_guidance_completed");
+    if (!completed) {
+      const timer = setTimeout(() => {
+        setIsTourOpen(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const getRouteIndex = () => {
     switch (currentRoute) {
@@ -22,6 +34,19 @@ export function MobileLayout({ children }: MobileLayoutProps) {
   };
 
   const activeIndex = getRouteIndex();
+
+  const handleStepChange = (index: number) => {
+    const routes: ("MobileHome" | "MobileLumbung" | "MobileAyamku" | "MobilePakan" | "MobileProfile")[] = [
+      "MobileHome",
+      "MobileLumbung",
+      "MobileAyamku",
+      "MobilePakan",
+      "MobileProfile",
+    ];
+    if (routes[index]) {
+      navigate(routes[index]);
+    }
+  };
 
   const isTabRoute = currentRoute === "MobileHome" || 
                      currentRoute === "MobileLumbung" || 
@@ -114,10 +139,23 @@ export function MobileLayout({ children }: MobileLayoutProps) {
               <User size={20} weight={currentRoute === "MobileProfile" ? "Bold" : "Linear"} />
               <span className="text-[9px] font-semibold capitalize mt-0.5 tracking-wide">Induk</span>
             </button>
-
           </div>
         </div>
       )}
+
+      {/* Floating Help Button */}
+      {isTabRoute && !isTourOpen && (
+        <button
+          onClick={() => setIsTourOpen(true)}
+          className="absolute bottom-20 right-4 w-9 h-9 rounded-full bg-[#1e2a4a]/85 backdrop-blur-xs border border-white/10 text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer z-40"
+        >
+          <InfoCircle size={18} weight="Bold" />
+        </button>
+      )}
+
+      {/* Mobile Guidance Tour Overlay */}
+      <MobileGuidanceTour isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} onStepChange={handleStepChange} />
+
       </div>
     </div>
   );

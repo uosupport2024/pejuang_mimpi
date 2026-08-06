@@ -2,6 +2,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "highlight.js/styles/github.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -369,7 +370,8 @@ main:hover::-webkit-scrollbar-thumb {
   display: none !important;
 }
 
-/* Prevent scrollbars from shrinking content width and causing layout shifts */
+/* Prevent scrollbars from shrinking content width and causing layout shifts globally */
+html,
 .admin-dashboard main,
 .admin-dashboard aside {
   scrollbar-gutter: stable;
@@ -391,4 +393,102 @@ main:hover::-webkit-scrollbar-thumb {
 }
 .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #cbd5e1;
+}
+
+/* Rich Text Images, Links, and Videos styling */
+.rich-text-preview img, .rich-text-content img, .ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 10px 0;
+  display: block;
+}
+.rich-text-preview iframe, .rich-text-content iframe, .ProseMirror iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-width: 560px;
+  height: auto;
+  border-radius: 8px;
+  margin: 10px 0;
+  display: block;
+}
+.rich-text-preview a, .rich-text-content a, .ProseMirror a {
+  color: #e0542c;
+  text-decoration: underline;
+  font-weight: 600;
+}
+.rich-text-preview blockquote, .rich-text-content blockquote, .ProseMirror blockquote {
+  background-color: #fff1ed;
+  border-left: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: #c23f1b;
+  font-style: italic;
+  margin: 10px 0;
+}
+
+.rich-text-preview h1, .rich-text-content h1, .ProseMirror h1 { font-size: 1.4rem; font-weight: 700 !important; margin-top: 0.75rem; margin-bottom: 0.5rem; color: #08060d; }
+.rich-text-preview h2, .rich-text-content h2, .ProseMirror h2 { font-size: 1.25rem; font-weight: 700 !important; margin-top: 0.75rem; margin-bottom: 0.5rem; color: #1f2937; }
+.rich-text-preview h3, .rich-text-content h3, .ProseMirror h3 { font-size: 1.1rem; font-weight: 600 !important; margin-top: 0.5rem; margin-bottom: 0.5rem; color: #374151; }
+.rich-text-preview h4, .rich-text-content h4, .ProseMirror h4 { font-size: 1rem; font-weight: 600 !important; margin-top: 0.5rem; margin-bottom: 0.5rem; color: #4b5563; }
+
+/* Rich Text pre, code, and hr styles */
+.rich-text-preview pre, .rich-text-content pre, .ProseMirror pre {
+  background-color: #f4f4f5;
+  border: 1px solid #e4e4e7;
+  padding: 10px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 0.85em;
+  color: #18181b;
+  overflow-x: auto;
+  margin: 10px 0;
+}
+.rich-text-preview code, .rich-text-content code, .ProseMirror code {
+  background-color: #f4f4f5;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.85em;
+  color: #c23f1b;
+}
+.rich-text-preview pre code, .rich-text-content pre code, .ProseMirror pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  color: inherit;
+  font-size: inherit;
+}
+.rich-text-preview hr, .rich-text-content hr, .ProseMirror hr {
+  border: none;
+  border-top: 1px solid #e4e4e7;
+  margin: 1.5rem 0;
+}
+
+/* Rich Text Table styles */
+.rich-text-preview table, .rich-text-content table, .ProseMirror table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.rich-text-preview td, .rich-text-preview th, .rich-text-content td, .rich-text-content th, .ProseMirror td, .ProseMirror th {
+  min-width: 1em;
+  border: 1px solid #e4e4e7;
+  padding: 6px 10px;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+  font-size: 0.85em;
+}
+.rich-text-preview th, .rich-text-content th, .ProseMirror th {
+  font-weight: bold;
+  text-align: left;
+  background-color: #f4f4f5;
+}
+.rich-text-preview table p, .rich-text-content table p, .ProseMirror table p {
+  margin: 0;
 }
