@@ -1,4 +1,4 @@
-import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
+import { API_BASE_URL, getHeaders, dedupFetch } from "@/shared/utils/api";
 
 export type ChunkType = "video" | "audio" | "image_step" | "quiz" | "text";
 
@@ -188,7 +188,7 @@ export async function fetchCourses(
         url.searchParams.append("status", status);
       }
 
-      const response = await fetch(url.toString(), {
+      const response = await dedupFetch(url.toString(), {
         method: "GET",
         headers: getHeaders(),
       });
@@ -231,7 +231,7 @@ export async function fetchCourses(
 }
 
 export async function fetchCourseById(id: number): Promise<Course> {
-  const response = await fetch(`${API_BASE_URL}/courses/${id}`, {
+  const response = await dedupFetch(`${API_BASE_URL}/courses/${id}`, {
     method: "GET",
     headers: getHeaders(),
   });
@@ -314,7 +314,7 @@ export async function deleteCourse(id: number): Promise<void> {
 // ── Lesson API Helpers ──────────────────────────────────────────────────
 
 export async function fetchLessonById(id: number): Promise<Lesson> {
-  const response = await fetch(`${API_BASE_URL}/lessons/${id}/full`, {
+  const response = await dedupFetch(`${API_BASE_URL}/lessons/${id}/full`, {
     method: "GET",
     headers: getHeaders(),
   });
@@ -329,7 +329,7 @@ export async function fetchLessonById(id: number): Promise<Lesson> {
 }
 
 export async function fetchLessonByIdBasic(id: number): Promise<Lesson> {
-  const response = await fetch(`${API_BASE_URL}/lessons/${id}`, {
+  const response = await dedupFetch(`${API_BASE_URL}/lessons/${id}`, {
     method: "GET",
     headers: getHeaders(),
   });

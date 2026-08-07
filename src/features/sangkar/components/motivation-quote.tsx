@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import bgQuote from "@/assets/bg/bg-quote-1.png";
-import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
+import { API_BASE_URL, getHeaders, dedupFetch } from "@/shared/utils/api";
 
 export function MotivationQuote() {
   const [message, setMessage] = useState<string>(
@@ -11,7 +11,7 @@ export function MotivationQuote() {
     let isMounted = true;
     const fetchDailyMotivation = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/motivation/get-daily`, {
+        const res = await dedupFetch(`${API_BASE_URL}/motivation/get-daily`, {
           headers: getHeaders(),
         });
         if (res.ok) {

@@ -8,6 +8,7 @@ interface DashboardLayoutProps {
   user: {
     name: string;
     role: string;
+    email?: string;
   };
   onLogout: () => void;
   children: ReactNode;
@@ -42,7 +43,7 @@ export function DashboardLayout({ user, onLogout, children }: DashboardLayoutPro
       <FetchProgressBar />
 
       {/* Left Sidebar (Desktop Fixed & Mobile Off-Canvas Drawer) */}
-      <Sidebar isMobileOpen={isMobileOpen} onCloseMobile={() => setIsMobileOpen(false)} />
+      <Sidebar user={user} isMobileOpen={isMobileOpen} onCloseMobile={() => setIsMobileOpen(false)} />
 
       {/* Right side: Top Navbar + Page Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">

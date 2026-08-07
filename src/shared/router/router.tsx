@@ -47,7 +47,8 @@ export type RouteType =
   | "Location"
   | "LocationAdd"
   | "LocationEdit"
-  | "Profile";
+  | "Profile"
+  | "TenantMapping";
 
 export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   Dashboard: "Dashboard",
@@ -78,6 +79,7 @@ export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   LocationEdit: "Edit Lokasi",
   Login: "Login",
   Profile: "Profil",
+  TenantMapping: "Mapping Menu Tenant",
   MobileHome: "Sangkar",
   MobileLumbung: "Lumbung",
   MobileAyamku: "Ayamku",
@@ -143,6 +145,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   EmployeeEdit: "/pegawai/edit",
   EmployeeInputShift: "/pegawai/shift",
   Profile: "/profile",
+  TenantMapping: "/tenant-mapping",
 };
 
 export const PATH_TO_ROUTE: Record<string, RouteType> = {
@@ -191,6 +194,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/pegawai/edit": "EmployeeEdit",
   "/pegawai/shift": "EmployeeInputShift",
   "/profile": "Profile",
+  "/tenant-mapping": "TenantMapping",
 };
 
 interface RouterContextType {
@@ -217,7 +221,13 @@ function RouterInnerProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const pageTitle = ROUTE_TITLE_MAP[currentRoute] || "Menu";
     document.title = `Pejuang Mimpi | ${pageTitle}`;
-  }, [currentRoute]);
+    console.log(
+      `%c[NAVIGATION LOG] %c${pageTitle} %c(${resolvedPath})`,
+      "background: #1e2a4a; color: #fee279; font-weight: bold; padding: 2px 6px; border-radius: 4px;",
+      "color: #1f2937; font-weight: bold;",
+      "color: #6b7280; font-size: 11px;"
+    );
+  }, [currentRoute, resolvedPath]);
 
   const navigate = useCallback((route: RouteType, state?: any) => {
     const path = ROUTE_TO_PATH[route] || "/dashboard";
@@ -265,7 +275,14 @@ export function PageTransition({ children, route }: { children: ReactNode; route
 export function useRouter() {
   const context = useContext(RouterContext);
   if (!context) {
-    throw new Error("useRouter must be used within a RouterProvider");
+    return {
+      currentRoute: "Dashboard" as RouteType,
+      navigate: (route: RouteType) => {
+        const path = ROUTE_TO_PATH[route] || "/dashboard";
+        window.location.pathname = path;
+      },
+    };
   }
   return context;
 }
+

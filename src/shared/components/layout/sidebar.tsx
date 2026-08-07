@@ -2,17 +2,23 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "@/shared/router/router";
 import logoWhiteImg from "@/assets/logo/POT–PejuangMimpi–Logo.png";
 import { menuItems } from "@/shared/router/menu";
-import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
+import { API_BASE_URL, getHeaders, dedupFetch } from "@/shared/utils/api";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { isMenuEnabled, subscribePermissions } from "@/shared/utils/tenant-permissions";
 
 let pendingCountsCache: { koreksi: number; cuti: number; timestamp: number } | null = null;
 
 interface SidebarProps {
+  user?: {
+    name?: string;
+    role?: string;
+    email?: string;
+  };
   isMobileOpen?: boolean;
   onCloseMobile?: () => void;
 }
 
-export function Sidebar({ isMobileOpen = false, onCloseMobile }: SidebarProps) {
+export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarProps) {
   const { currentRoute, navigate } = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(() => {
     return localStorage.getItem("sidebar_collapsed") === "true";
@@ -22,8 +28,15 @@ export function Sidebar({ isMobileOpen = false, onCloseMobile }: SidebarProps) {
   const [popoverPos, setPopoverPos] = useState<{ top: number; left: number } | null>(null);
   const [pendingCount, setPendingCount] = useState(0);
   const [pendingCutiCount, setPendingCutiCount] = useState(0);
+  const [, setPermissionTick] = useState(0);
 
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return subscribePermissions(() => {
+      setPermissionTick((t) => t + 1);
+    });
+  }, []);
 
   const toggleCollapse = () => {
     setIsCollapsed((prev) => {
@@ -46,12 +59,12 @@ export function Sidebar({ isMobileOpen = false, onCloseMobile }: SidebarProps) {
     }
 
     try {
-      const koreksiPromise = fetch(`${API_BASE_URL}/koreksi-absen?status=Pending&per_page=1`, {
+      const koreksiPromise = dedupFetch(`${API_BASE_URL}/koreksi-absen?status=Pending&per_page=1`, {
         method: "GET",
         headers: getHeaders(),
       }).then((r) => (r.ok ? r.json() : null));
 
-      const cutiPromise = fetch(`${API_BASE_URL}/cuti/admin?status=Pending&per_page=1`, {
+      const cutiPromise = dedupFetch(`${API_BASE_URL}/cuti/admin?status=Pending&per_page=1`, {
         method: "GET",
         headers: getHeaders(),
       }).then((r) => (r.ok ? r.json() : null));
@@ -139,13 +152,19 @@ export function Sidebar({ isMobileOpen = false, onCloseMobile }: SidebarProps) {
     handleMouseLeaveItem();
   };
 
-  const groups = ["Utama", "Data Master", "Operasional", "Layanan"] as const;
+  const isSuperAdmin = user?.email?.toLowerCase() === "admin@gmail.com";
+
+  const groups = isSuperAdmin
+    ? (["Utama", "Data Master", "Operasional", "Layanan", "Super Admin"] as const)
+    : (["Utama", "Data Master", "Operasional", "Layanan"] as const);
 
   const renderNavGroupContent = (collapsedState: boolean, isMobileView: boolean = false) => {
     return (
       <div className="flex-1 overflow-y-auto sidebar-scrollbar pb-4 pr-0.5 space-y-4">
         {groups.map((group) => {
-          const groupItems = menuItems.filter((item) => item.group === group);
+          const groupItems = menuItems.filter(
+            (item) => item.group === group && (!item.route || isMenuEnabled(item.route))
+          );
           if (groupItems.length === 0) return null;
 
           return (
@@ -393,18 +412,16 @@ export function Sidebar({ isMobileOpen = false, onCloseMobile }: SidebarProps) {
       {/* DESKTOP FIXED SIDEBAR (DISPLAYED ONLY ON LG AND UP)           */}
       {/* ------------------------------------------------------------- */}
       <aside
-        className={`bg-[#1e2a4a] text-white hidden lg:flex flex-col py-3 shrink-0 h-screen overflow-visible transition-all duration-300 ease-in-out relative z-40 select-none ${
-          isCollapsed ? "w-20 px-2.5" : "w-64 pl-4 pr-[11px]"
-        }`}
+        className={`bg-[#1e2a4a] text-white hidden lg:flex flex-col py-3 shrink-0 h-screen overflow-visible transition-all duration-300 ease-in-out relative z-40 select-none ${isCollapsed ? "w-20 px-2.5" : "w-64 pl-4 pr-[11px]"
+          }`}
       >
         {/* Brand Logo Header */}
         <div className="flex items-center justify-center shrink-0 w-full py-1 transition-all duration-300">
           <img
             src={logoWhiteImg}
             alt="Pejuang Mimpi Logo"
-            className={`object-contain transition-all duration-300 hover:scale-105 shrink-0 ${
-              isCollapsed ? "w-9 h-9" : "h-[43px] w-auto max-w-[135px]"
-            }`}
+            className={`object-contain transition-all duration-300 hover:scale-105 shrink-0 ${isCollapsed ? "w-9 h-9" : "h-[43px] w-auto max-w-[135px]"
+              }`}
           />
         </div>
 
@@ -416,11 +433,10 @@ export function Sidebar({ isMobileOpen = false, onCloseMobile }: SidebarProps) {
           <button
             onClick={toggleCollapse}
             type="button"
-            className={`flex items-center rounded-xl transition-all duration-200 cursor-pointer active:scale-98 ${
-              isCollapsed
-                ? "w-11 h-11 justify-center mx-auto text-white/70 hover:text-white hover:bg-white/10 relative group"
-                : "w-full justify-between px-3.5 py-2 text-xs font-medium text-white/70 hover:text-white hover:bg-white/10"
-            }`}
+            className={`flex items-center rounded-xl transition-all duration-200 cursor-pointer active:scale-98 ${isCollapsed
+              ? "w-11 h-11 justify-center mx-auto text-white/70 hover:text-white hover:bg-white/10 relative group"
+              : "w-full justify-between px-3.5 py-2 text-xs font-medium text-white/70 hover:text-white hover:bg-white/10"
+              }`}
             title={isCollapsed ? "Perluas Sidebar" : "Ciutkan Sidebar"}
           >
             {!isCollapsed ? (
@@ -447,23 +463,20 @@ export function Sidebar({ isMobileOpen = false, onCloseMobile }: SidebarProps) {
       {/* MOBILE SLIDE-OVER DRAWER SIDEBAR (DISPLAYED ON < LG)           */}
       {/* ------------------------------------------------------------- */}
       <div
-        className={`fixed inset-0 z-50 lg:hidden transition-all duration-300 ${
-          isMobileOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
-        }`}
+        className={`fixed inset-0 z-50 lg:hidden transition-all duration-300 ${isMobileOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+          }`}
       >
         {/* Backdrop Overlay */}
         <div
           onClick={onCloseMobile}
-          className={`absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300 ${
-            isMobileOpen ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300 ${isMobileOpen ? "opacity-100" : "opacity-0"
+            }`}
         />
 
         {/* Drawer Container */}
         <div
-          className={`absolute top-0 bottom-0 left-0 w-72 max-w-[85vw] bg-[#1e2a4a] text-white flex flex-col py-4 px-4 shadow-2xl transition-transform duration-300 ease-out select-none ${
-            isMobileOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+          className={`absolute top-0 bottom-0 left-0 w-72 max-w-[85vw] bg-[#1e2a4a] text-white flex flex-col py-4 px-4 shadow-2xl transition-transform duration-300 ease-out select-none ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
         >
           {/* Header with Logo + Close X Button */}
           <div className="flex items-center justify-between pb-3.5 border-b border-white/10 mb-3.5">

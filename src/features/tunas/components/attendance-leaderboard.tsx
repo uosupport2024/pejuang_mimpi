@@ -36,11 +36,11 @@ export function AttendanceLeaderboard() {
         setError(null);
 
         const [big3Res, listRes] = await Promise.all([
-          fetchAttendanceLeaderboardBig3API().catch((err) => {
+          fetchAttendanceLeaderboardBig3API().catch((err: any) => {
             console.error("Gagal memuat Big 3 Leaderboard:", err);
             return { period: null, leaderboard: [] };
           }),
-          fetchAttendanceLeaderboardListAPI(1, 20).catch((err) => {
+          fetchAttendanceLeaderboardListAPI(1, 20).catch((err: any) => {
             console.error("Gagal memuat Leaderboard List:", err);
             return { period: null, leaderboardData: [], currentPage: 1, perPage: 20, total: 0, lastPage: 1 };
           }),

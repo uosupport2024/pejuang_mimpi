@@ -1,7 +1,7 @@
-import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
+import { API_BASE_URL, getHeaders, dedupFetch } from "@/shared/utils/api";
 
 export async function fetchProfileAPI() {
-  const response = await fetch(`${API_BASE_URL}/profile`, {
+  const response = await dedupFetch(`${API_BASE_URL}/profile`, {
     method: "GET",
     headers: getHeaders(),
   });
@@ -15,7 +15,7 @@ export async function fetchProfileAPI() {
 }
 
 export async function fetchLokasiAPI(id: number | string) {
-  const response = await fetch(`${API_BASE_URL}/lokasi/${id}`, {
+  const response = await dedupFetch(`${API_BASE_URL}/lokasi/${id}`, {
     method: "GET",
     headers: getHeaders(),
   });
@@ -29,7 +29,7 @@ export async function fetchLokasiAPI(id: number | string) {
 }
 
 export async function fetchJadwalHariIniAPI(dateString: string) {
-  const response = await fetch(`${API_BASE_URL}/jadwal?start_date=${dateString}&end_date=${dateString}`, {
+  const response = await dedupFetch(`${API_BASE_URL}/jadwal?start_date=${dateString}&end_date=${dateString}`, {
     method: "GET",
     headers: getHeaders(),
   });
@@ -107,7 +107,7 @@ export async function fetchJadwalHistoryAPI(page = 1, perPage = 10, startDate?: 
 }
 
 export async function fetchShiftsAPI() {
-  const response = await fetch(`${API_BASE_URL}/shifts`, {
+  const response = await dedupFetch(`${API_BASE_URL}/shifts`, {
     method: "GET",
     headers: getHeaders(),
   });
@@ -121,7 +121,7 @@ export async function fetchShiftsAPI() {
 }
 
 export async function fetchOvertimeStatusAPI() {
-  const response = await fetch(`${API_BASE_URL}/overtime/status`, {
+  const response = await dedupFetch(`${API_BASE_URL}/overtime/status`, {
     method: "GET",
     headers: getHeaders(),
   });
@@ -269,8 +269,8 @@ export async function approveKoreksiAbsenAPI(id: number, payload: { status: "App
   return await response.json();
 }
 
-export async function fetchAttendanceLeaderboardBig3API() {
-  const response = await fetch(`${API_BASE_URL}/attendance/leaderboard`, {
+export async function fetchLeaderboardAPI() {
+  const response = await dedupFetch(`${API_BASE_URL}/attendance/leaderboard`, {
     method: "GET",
     headers: getHeaders(),
   });
@@ -285,8 +285,10 @@ export async function fetchAttendanceLeaderboardBig3API() {
   };
 }
 
-export async function fetchAttendanceLeaderboardListAPI(page = 1, perPage = 20) {
-  const response = await fetch(`${API_BASE_URL}/attendance/leaderboard/list?per_page=${perPage}&page=${page}`, {
+export const fetchAttendanceLeaderboardBig3API = fetchLeaderboardAPI;
+
+export async function fetchLeaderboardListAPI(page = 1, perPage = 10) {
+  const response = await dedupFetch(`${API_BASE_URL}/attendance/leaderboard/list?per_page=${perPage}&page=${page}`, {
     method: "GET",
     headers: getHeaders(),
   });
@@ -305,4 +307,6 @@ export async function fetchAttendanceLeaderboardListAPI(page = 1, perPage = 20) 
     lastPage: lb?.last_page || 1,
   };
 }
+
+export const fetchAttendanceLeaderboardListAPI = fetchLeaderboardListAPI;
 

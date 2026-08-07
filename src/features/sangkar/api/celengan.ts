@@ -1,8 +1,8 @@
 import type { Celengan, CelenganTransaction } from "../types/celengan";
-import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
+import { API_BASE_URL, getHeaders, dedupFetch } from "@/shared/utils/api";
 
 export async function fetchCelengans(): Promise<Celengan[]> {
-  const response = await fetch(`${API_BASE_URL}/celengan`, {
+  const response = await dedupFetch(`${API_BASE_URL}/celengan`, {
     method: "GET",
     headers: getHeaders(),
   });
@@ -107,7 +107,7 @@ export async function withdrawCelengan(id: number, amount: number, note?: string
 }
 
 export async function fetchCelenganHistory(id: number): Promise<CelenganTransaction[]> {
-  const response = await fetch(`${API_BASE_URL}/celengan/${id}/history`, {
+  const response = await dedupFetch(`${API_BASE_URL}/celengan/${id}/history`, {
     method: "GET",
     headers: getHeaders(),
   });

@@ -26,6 +26,9 @@ export async function login(email: string, password: string): Promise<LoginRespo
         token: json.data.token,
         user: {
           id: String(json.data.user.id),
+          tenant_id: json.data.user.tenant_id ?? json.data.user.tenant?.id ?? json.data.tenant_list?.[0]?.tenant_id ?? 1,
+          tenant: json.data.user.tenant,
+          tenant_list: json.data.tenant_list,
           name: json.data.user.name,
           email: json.data.user.email || json.data.user.username || email,
           role: (json.data.user.is_admin === "admin" || (Array.isArray(json.data.user.roles) && json.data.user.roles.some((r: any) => r.name === "admin"))) ? "Administrator" : "User",

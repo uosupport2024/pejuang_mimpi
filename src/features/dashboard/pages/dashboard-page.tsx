@@ -499,6 +499,7 @@ export function DashboardPage() {
                   </div>
                 ) : (
                   <Chart
+                    key={`chart1-${charts.length}-${selectedDate}-${selectedLokasiId || "all"}`}
                     options={chart1Options}
                     series={chart1Series}
                     type="bar"
@@ -534,6 +535,7 @@ export function DashboardPage() {
                   </div>
                 ) : (
                   <Chart
+                    key={`chart2-${charts.length}-${selectedDate}-${selectedLokasiId || "all"}`}
                     options={chart2Options}
                     series={chart2Series}
                     type="area"
@@ -672,6 +674,7 @@ export function DashboardPage() {
                 </div>
               ) : (
                 <Chart
+                  key={`chart3-${genderData.pria}-${genderData.wanita}`}
                   options={chart3Options}
                   series={chart3Series}
                   type="donut"
