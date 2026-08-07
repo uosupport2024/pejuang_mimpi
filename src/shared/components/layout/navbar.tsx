@@ -1,10 +1,11 @@
-import { Bell, ChevronDown, User, Lock, LogOut, FileText, Calendar, Megaphone, Clock, Building2 } from "lucide-react";
+import { Bell, ChevronDown, User, Lock, LogOut, FileText, Calendar, Megaphone, Clock, Building2, Menu } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useRouter, type RouteType } from "@/shared/router/router";
 import { fetchProfileAPI } from "@/features/tunas/api/absensi";
 import { THEME_COLORS } from "@/shared/constants/colors";
 import { ChangePasswordModal } from "@/shared/components/ui/change-password-modal";
+import logoWhiteImg from "@/assets/logo/POT–PejuangMimpi–Logo.png";
 
 let tenantNameCache: string | null = null;
 let tenantFetchPromise: Promise<string> | null = null;
@@ -15,9 +16,10 @@ interface NavbarProps {
     role: string;
   };
   onLogout?: () => void;
+  onToggleMobileMenu?: () => void;
 }
 
-export function Navbar({ user, onLogout }: NavbarProps) {
+export function Navbar({ user, onLogout, onToggleMobileMenu }: NavbarProps) {
   const { navigate } = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -216,32 +218,51 @@ export function Navbar({ user, onLogout }: NavbarProps) {
   const { title, breadcrumbs } = getHeaderInfo();
 
   return (
-    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-      {/* Title & Breadcrumbs on the left */}
-      <div className="flex flex-col text-left">
-        {/* Page Title */}
-        <h1 className="text-base font-bold text-white tracking-tight leading-tight drop-shadow-xs">
-          {title}
-        </h1>
-        {/* Breadcrumbs (under title) */}
-        <div className="flex items-center gap-1.5 text-[10px] font-medium text-white/70 select-none mt-0.5">
-          {breadcrumbs.map((crumb, idx) => (
-            <div key={idx} className="flex items-center gap-1.5">
-              {idx === breadcrumbs.length - 1 ? (
-                <span className="text-white/90 font-semibold">{crumb.label}</span>
-              ) : (
-                <Link
-                  to={crumb.path}
-                  className="hover:text-white transition-colors cursor-pointer"
-                >
-                  {crumb.label}
-                </Link>
-              )}
-              {idx < breadcrumbs.length - 1 && (
-                <span className="text-white/40 font-normal">/</span>
-              )}
-            </div>
-          ))}
+    <div className="flex flex-row items-center justify-between gap-3">
+      {/* Title & Breadcrumbs on the left (+ Hamburger Button on Mobile) */}
+      <div className="flex items-center gap-2.5 min-w-0">
+        {/* Mobile Hamburger Menu Button */}
+        <button
+          type="button"
+          onClick={onToggleMobileMenu}
+          className="lg:hidden p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer shrink-0 active:scale-95 flex items-center justify-center border border-white/15"
+          title="Buka Menu Sidebar"
+        >
+          <Menu className="w-5 h-5 text-white" />
+        </button>
+
+        {/* Mobile Brand Logo */}
+        <img
+          src={logoWhiteImg}
+          alt="Pejuang Mimpi Logo"
+          className="h-7 w-auto object-contain lg:hidden shrink-0"
+        />
+
+        <div className="flex flex-col text-left min-w-0">
+          {/* Page Title */}
+          <h1 className="text-sm sm:text-base font-bold text-white tracking-tight leading-tight truncate drop-shadow-xs">
+            {title}
+          </h1>
+          {/* Breadcrumbs (under title) */}
+          <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-medium text-white/70 select-none mt-0.5">
+            {breadcrumbs.map((crumb, idx) => (
+              <div key={idx} className="flex items-center gap-1.5">
+                {idx === breadcrumbs.length - 1 ? (
+                  <span className="text-white/90 font-semibold">{crumb.label}</span>
+                ) : (
+                  <Link
+                    to={crumb.path}
+                    className="hover:text-white transition-colors cursor-pointer"
+                  >
+                    {crumb.label}
+                  </Link>
+                )}
+                {idx < breadcrumbs.length - 1 && (
+                  <span className="text-white/40 font-normal">/</span>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

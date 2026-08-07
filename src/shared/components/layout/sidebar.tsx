@@ -3,11 +3,16 @@ import { useRouter } from "@/shared/router/router";
 import logoWhiteImg from "@/assets/logo/POT–PejuangMimpi–Logo.png";
 import { menuItems } from "@/shared/router/menu";
 import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 let pendingCountsCache: { koreksi: number; cuti: number; timestamp: number } | null = null;
 
-export function Sidebar() {
+interface SidebarProps {
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
+}
+
+export function Sidebar({ isMobileOpen = false, onCloseMobile }: SidebarProps) {
   const { currentRoute, navigate } = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(() => {
     return localStorage.getItem("sidebar_collapsed") === "true";
@@ -26,6 +31,11 @@ export function Sidebar() {
       localStorage.setItem("sidebar_collapsed", String(next));
       return next;
     });
+  };
+
+  const handleNavigate = (route: any) => {
+    onCloseMobile?.();
+    navigate(route);
   };
 
   const fetchPendingCount = useCallback(async (force = false) => {
@@ -131,23 +141,8 @@ export function Sidebar() {
 
   const groups = ["Utama", "Data Master", "Operasional", "Layanan"] as const;
 
-  return (
-    <aside
-      className={`bg-[#1e2a4a] text-white flex flex-col py-3 shrink-0 h-screen lg:h-screen overflow-visible transition-all duration-300 ease-in-out relative z-40 select-none ${isCollapsed ? "w-full lg:w-20 px-2.5" : "w-full lg:w-64 pl-4 pr-[11px]"
-        }`}
-    >
-      {/* Pejuang Mimpi Brand Logo Header */}
-      <div className="flex items-center justify-center shrink-0 w-full py-1 transition-all duration-300">
-        <img
-          src={logoWhiteImg}
-          alt="Pejuang Mimpi Logo"
-          className={`object-contain transition-all duration-300 hover:scale-105 shrink-0 ${
-            isCollapsed ? "w-9 h-9" : "h-[43px] w-auto max-w-[135px]"
-          }`}
-        />
-      </div>
-
-      {/* Menu groups */}
+  const renderNavGroupContent = (collapsedState: boolean, isMobileView: boolean = false) => {
+    return (
       <div className="flex-1 overflow-y-auto sidebar-scrollbar pb-4 pr-0.5 space-y-4">
         {groups.map((group) => {
           const groupItems = menuItems.filter((item) => item.group === group);
@@ -155,7 +150,7 @@ export function Sidebar() {
 
           return (
             <div key={group} className="space-y-1.5">
-              {!isCollapsed ? (
+              {!collapsedState ? (
                 <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 pl-3 block select-none transition-all duration-300 opacity-100">
                   {group}
                 </span>
@@ -178,10 +173,8 @@ export function Sidebar() {
                     (item.name === "Pengajuan" ? pendingCount + pendingCutiCount : 0) ||
                     (item.badge ? 1 : 0);
 
-                  // -------------------------------------------------------------
-                  // MODE COLLAPSED (MINIMIZED)
-                  // -------------------------------------------------------------
-                  if (isCollapsed) {
+                  // MODE COLLAPSED (DESKTOP MINIMIZED ONLY)
+                  if (collapsedState && !isMobileView) {
                     return (
                       <div
                         key={item.name}
@@ -193,7 +186,7 @@ export function Sidebar() {
                           type="button"
                           onClick={(e) => {
                             if (!hasSubItems && item.route) {
-                              navigate(item.route);
+                              handleNavigate(item.route);
                             } else if (hasSubItems) {
                               handleMouseEnterItem(item.name, e);
                             }
@@ -205,13 +198,11 @@ export function Sidebar() {
                         >
                           <Icon size={20} weight="Linear" className="shrink-0 transition-transform group-hover:scale-110 duration-200" />
 
-                          {/* Notification dot badge in collapsed mode */}
                           {totalPendingGroup > 0 && (
                             <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-[#1e2a4a] animate-pulse" />
                           )}
                         </button>
 
-                        {/* Fixed Tooltip for Single Items */}
                         {!hasSubItems && activeHoverMenu === item.name && popoverPos && (
                           <div
                             style={{ top: `${popoverPos.top + 4}px`, left: `${popoverPos.left}px` }}
@@ -226,7 +217,6 @@ export function Sidebar() {
                           </div>
                         )}
 
-                        {/* Fixed Floating Pop-up Dropdown Menu for Items with Sub-Items */}
                         {hasSubItems && activeHoverMenu === item.name && popoverPos && (
                           <div
                             onMouseEnter={handlePopoverMouseEnter}
@@ -251,7 +241,7 @@ export function Sidebar() {
                                     }
                                     setActiveHoverMenu(null);
                                     setPopoverPos(null);
-                                    navigate(sub.route);
+                                    handleNavigate(sub.route);
                                   }}
                                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all duration-150 cursor-pointer ${isSubActive
                                     ? "text-[#fee279] font-bold bg-white/15"
@@ -278,9 +268,7 @@ export function Sidebar() {
                     );
                   }
 
-                  // -------------------------------------------------------------
-                  // MODE EXPANDED (MAXIMIZED)
-                  // -------------------------------------------------------------
+                  // MODE EXPANDED (MAXIMIZED & MOBILE)
                   if (hasSubItems) {
                     return (
                       <div key={item.name} className="space-y-0.5">
@@ -326,7 +314,6 @@ export function Sidebar() {
                           </div>
                         </button>
 
-                        {/* Sub-items */}
                         {isOpen && (
                           <div className="pl-9 pr-2 py-0.5 space-y-0.5 transition-all duration-200 animate-in fade-in slide-in-from-top-1">
                             {item.subItems?.map((sub) => {
@@ -335,7 +322,7 @@ export function Sidebar() {
                                 <button
                                   key={sub.name}
                                   type="button"
-                                  onClick={() => navigate(sub.route)}
+                                  onClick={() => handleNavigate(sub.route)}
                                   className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition-all duration-150 cursor-pointer ${isSubActive
                                     ? "text-[#fee279] font-bold bg-white/10"
                                     : "text-white/60 hover:text-white hover:bg-white/5"
@@ -371,7 +358,7 @@ export function Sidebar() {
                     <button
                       key={item.name}
                       type="button"
-                      onClick={() => item.route && navigate(item.route)}
+                      onClick={() => item.route && handleNavigate(item.route)}
                       className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 cursor-pointer ${isActive
                         ? "bg-[#e0542c] text-white shadow-md shadow-[#e0542c]/25 font-semibold"
                         : "text-white/70 hover:text-white hover:bg-white/10"
@@ -397,33 +384,105 @@ export function Sidebar() {
           );
         })}
       </div>
+    );
+  };
 
-      {/* Bottom Collapse / Expand Toggle Button */}
-      <div className="pt-2 mt-auto border-t border-white/10 shrink-0">
-        <button
-          onClick={toggleCollapse}
-          type="button"
-          className={`flex items-center rounded-xl transition-all duration-200 cursor-pointer active:scale-98 ${isCollapsed
-            ? "w-11 h-11 justify-center mx-auto text-white/70 hover:text-white hover:bg-white/10 relative group"
-            : "w-full justify-between px-3.5 py-2 text-xs font-medium text-white/70 hover:text-white hover:bg-white/10"
+  return (
+    <>
+      {/* ------------------------------------------------------------- */}
+      {/* DESKTOP FIXED SIDEBAR (DISPLAYED ONLY ON LG AND UP)           */}
+      {/* ------------------------------------------------------------- */}
+      <aside
+        className={`bg-[#1e2a4a] text-white hidden lg:flex flex-col py-3 shrink-0 h-screen overflow-visible transition-all duration-300 ease-in-out relative z-40 select-none ${
+          isCollapsed ? "w-20 px-2.5" : "w-64 pl-4 pr-[11px]"
+        }`}
+      >
+        {/* Brand Logo Header */}
+        <div className="flex items-center justify-center shrink-0 w-full py-1 transition-all duration-300">
+          <img
+            src={logoWhiteImg}
+            alt="Pejuang Mimpi Logo"
+            className={`object-contain transition-all duration-300 hover:scale-105 shrink-0 ${
+              isCollapsed ? "w-9 h-9" : "h-[43px] w-auto max-w-[135px]"
             }`}
-          title={isCollapsed ? "Perluas Sidebar" : "Ciutkan Sidebar"}
+          />
+        </div>
+
+        {/* Menu Groups */}
+        {renderNavGroupContent(isCollapsed, false)}
+
+        {/* Bottom Collapse / Expand Toggle Button */}
+        <div className="pt-2 mt-auto border-t border-white/10 shrink-0">
+          <button
+            onClick={toggleCollapse}
+            type="button"
+            className={`flex items-center rounded-xl transition-all duration-200 cursor-pointer active:scale-98 ${
+              isCollapsed
+                ? "w-11 h-11 justify-center mx-auto text-white/70 hover:text-white hover:bg-white/10 relative group"
+                : "w-full justify-between px-3.5 py-2 text-xs font-medium text-white/70 hover:text-white hover:bg-white/10"
+            }`}
+            title={isCollapsed ? "Perluas Sidebar" : "Ciutkan Sidebar"}
+          >
+            {!isCollapsed ? (
+              <>
+                <span className="font-semibold">Ciutkan</span>
+                <ChevronLeft className="w-4 h-4 text-white/70 transition-transform duration-300 group-hover:-translate-x-0.5" />
+              </>
+            ) : (
+              <>
+                <ChevronRight className="w-4 h-4 text-white/80 transition-transform duration-300 group-hover:translate-x-0.5" />
+                <div
+                  className="fixed px-3 py-1.5 bg-[#161f36] text-white text-xs font-semibold rounded-xl shadow-2xl whitespace-nowrap opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 pointer-events-none z-[9999] border border-white/15 origin-left"
+                  style={{ left: "90px" }}
+                >
+                  Perluas Sidebar
+                </div>
+              </>
+            )}
+          </button>
+        </div>
+      </aside>
+
+      {/* ------------------------------------------------------------- */}
+      {/* MOBILE SLIDE-OVER DRAWER SIDEBAR (DISPLAYED ON < LG)           */}
+      {/* ------------------------------------------------------------- */}
+      <div
+        className={`fixed inset-0 z-50 lg:hidden transition-all duration-300 ${
+          isMobileOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      >
+        {/* Backdrop Overlay */}
+        <div
+          onClick={onCloseMobile}
+          className={`absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300 ${
+            isMobileOpen ? "opacity-100" : "opacity-0"
+          }`}
+        />
+
+        {/* Drawer Container */}
+        <div
+          className={`absolute top-0 bottom-0 left-0 w-72 max-w-[85vw] bg-[#1e2a4a] text-white flex flex-col py-4 px-4 shadow-2xl transition-transform duration-300 ease-out select-none ${
+            isMobileOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         >
-          {!isCollapsed ? (
-            <>
-              <span className="font-semibold">Ciutkan</span>
-              <ChevronLeft className="w-4 h-4 text-white/70 transition-transform duration-300 group-hover:-translate-x-0.5" />
-            </>
-          ) : (
-            <>
-              <ChevronRight className="w-4 h-4 text-white/80 transition-transform duration-300 group-hover:translate-x-0.5" />
-              <div className="fixed px-3 py-1.5 bg-[#161f36] text-white text-xs font-semibold rounded-xl shadow-2xl whitespace-nowrap opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 pointer-events-none z-[9999] border border-white/15 origin-left" style={{ left: '90px' }}>
-                Perluas Sidebar
-              </div>
-            </>
-          )}
-        </button>
+          {/* Header with Logo + Close X Button */}
+          <div className="flex items-center justify-between pb-3.5 border-b border-white/10 mb-3.5">
+            <img src={logoWhiteImg} alt="Pejuang Mimpi Logo" className="h-9 w-auto max-w-[130px] object-contain" />
+            <button
+              type="button"
+              onClick={onCloseMobile}
+              className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer active:scale-95 flex items-center justify-center border border-white/15"
+              title="Tutup Menu"
+            >
+              <X className="w-5 h-5 text-white" />
+            </button>
+          </div>
+
+          {/* Scrollable Navigation Groups */}
+          {renderNavGroupContent(false, true)}
+        </div>
       </div>
-    </aside>
+    </>
   );
 }
+

@@ -15,6 +15,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ user, onLogout, children }: DashboardLayoutProps) {
   const [scrolled, setScrolled] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const mainRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,14 +41,14 @@ export function DashboardLayout({ user, onLogout, children }: DashboardLayoutPro
       {/* Fixed Full-Width Top Fetch Loading Progress Bar */}
       <FetchProgressBar />
 
-      {/* Left Sidebar */}
-      <Sidebar />
+      {/* Left Sidebar (Desktop Fixed & Mobile Off-Canvas Drawer) */}
+      <Sidebar isMobileOpen={isMobileOpen} onCloseMobile={() => setIsMobileOpen(false)} />
 
       {/* Right side: Top Navbar + Page Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         {/* Navbar inside right panel with subtle batik navy styling */}
         <header
-          className={`sticky top-0 z-40 shrink-0 transition-all duration-300 bg-[#1e2a4a] text-white border-b border-white/10 px-6 py-2 shadow-sm ${
+          className={`sticky top-0 z-40 shrink-0 transition-all duration-300 bg-[#1e2a4a] text-white border-b border-white/10 px-3 sm:px-6 py-2 shadow-sm ${
             scrolled ? "bg-opacity-95 backdrop-blur-md shadow-md" : ""
           }`}
         >
@@ -62,16 +63,21 @@ export function DashboardLayout({ user, onLogout, children }: DashboardLayoutPro
           />
 
           <div className="relative z-10">
-            <Navbar user={user} onLogout={onLogout} />
+            <Navbar 
+              user={user} 
+              onLogout={onLogout} 
+              onToggleMobileMenu={() => setIsMobileOpen((prev) => !prev)} 
+            />
           </div>
         </header>
 
-        {/* Content area: perfectly balanced 24px (p-6) padding on all 4 sides */}
-        <main ref={mainRef} className="flex-1 overflow-y-auto p-6 space-y-6">
+        {/* Content area: balanced responsive padding */}
+        <main ref={mainRef} className="flex-1 overflow-y-auto p-3.5 sm:p-6 space-y-4 sm:space-y-6">
           {children}
         </main>
       </div>
     </div>
   );
 }
+
 
