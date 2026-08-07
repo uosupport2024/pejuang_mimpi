@@ -268,3 +268,41 @@ export async function approveKoreksiAbsenAPI(id: number, payload: { status: "App
   }
   return await response.json();
 }
+
+export async function fetchAttendanceLeaderboardBig3API() {
+  const response = await fetch(`${API_BASE_URL}/attendance/leaderboard`, {
+    method: "GET",
+    headers: getHeaders(),
+  });
+  if (!response.ok) {
+    const errorJson = await response.json().catch(() => ({}));
+    throw new Error(errorJson.message || "Gagal memuat Big 3 leaderboard presensi");
+  }
+  const json = await response.json();
+  return {
+    period: json.data?.period,
+    leaderboard: json.data?.leaderboard || [],
+  };
+}
+
+export async function fetchAttendanceLeaderboardListAPI(page = 1, perPage = 20) {
+  const response = await fetch(`${API_BASE_URL}/attendance/leaderboard/list?per_page=${perPage}&page=${page}`, {
+    method: "GET",
+    headers: getHeaders(),
+  });
+  if (!response.ok) {
+    const errorJson = await response.json().catch(() => ({}));
+    throw new Error(errorJson.message || "Gagal memuat daftar leaderboard presensi");
+  }
+  const json = await response.json();
+  const lb = json.data?.leaderboard;
+  return {
+    period: json.data?.period,
+    leaderboardData: Array.isArray(lb?.data) ? lb.data : (Array.isArray(lb) ? lb : []),
+    currentPage: lb?.current_page || page,
+    perPage: lb?.per_page || perPage,
+    total: lb?.total || 0,
+    lastPage: lb?.last_page || 1,
+  };
+}
+
