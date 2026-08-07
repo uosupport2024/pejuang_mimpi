@@ -10,9 +10,10 @@ export function setCookie(name: string, value: string, days = 7) {
     expires = "; expires=" + date.toUTCString()
   }
   
-  // Storing with SameSite=Strict and Secure properties for security
-  // Note: Secure requires HTTPS, which is standard in production.
-  document.cookie = `${name}=${encodeURIComponent(value)}${expires}; path=/; SameSite=Strict; Secure`
+  // Storing with SameSite=Strict and Secure properties for security.
+  // Note: Secure requires HTTPS. We check protocol so it doesn't fail on local HTTP development.
+  const isSecure = typeof window !== "undefined" && window.location.protocol === "https:"
+  document.cookie = `${name}=${encodeURIComponent(value)}${expires}; path=/; SameSite=Strict${isSecure ? "; Secure" : ""}`
 }
 
 export function getCookie(name: string): string | null {
@@ -27,5 +28,6 @@ export function getCookie(name: string): string | null {
 }
 
 export function eraseCookie(name: string) {
-  document.cookie = name + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Strict; Secure"
+  const isSecure = typeof window !== "undefined" && window.location.protocol === "https:"
+  document.cookie = name + `=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Strict${isSecure ? "; Secure" : ""}`
 }

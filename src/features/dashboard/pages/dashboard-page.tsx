@@ -451,7 +451,7 @@ export function DashboardPage() {
       </div>
 
       {/* Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
         {statCards.map((card, i) => {
           const Icon = card.icon;
           return (
@@ -479,11 +479,11 @@ export function DashboardPage() {
       </div>
 
       {/* Main Asymmetric Layout: Left (8 cols) + Right (4 cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         {/* Left Column (8 cols): Charts & Pending Approvals */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className="lg:col-span-8 space-y-4 sm:space-y-6">
           {/* Charts Grid Split (50% / 50% within left 8 cols) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {/* Chart 1: Attendance Analytics */}
             <div className="p-4.5 sm:p-5 bg-white border border-gray-200 rounded-2xl shadow-xs text-left flex flex-col justify-between h-[275px]">
               <div className="mb-2">

@@ -73,7 +73,7 @@ export function TunasLokerList() {
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center px-0.5">
-        <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">Daftar Tunas Terbaru</span>
+        <span className="text-xs font-bold text-gray-900 tracking-wider">Ngais Berlian</span>
         <span
           onClick={() => toast.info("Membuka riwayat lengkap tunas...")}
           className="text-[10px] text-[#e0542c] font-bold cursor-pointer hover:underline"

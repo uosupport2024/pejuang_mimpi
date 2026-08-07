@@ -6,7 +6,7 @@ import logoWhite from "@/assets/logo/POT–PejuangMimpi–Logo.png";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { AbsensiCard } from "../components/absensi-card";
 import { MenuGrid } from "../components/menu-grid";
-import { AttendanceHistory } from "../components/attendance-history";
+import { AttendanceLeaderboard } from "../components/attendance-leaderboard";
 import { useTunas } from "../hooks/use-tunas";
 import type { TunasPageProps } from "../types/tunas.type";
 import { PakanLokerList } from "../../pakan/components/pakan-list";
@@ -1031,7 +1031,7 @@ export function TunasPage({ user }: TunasPageProps) {
       {/* Services Grid Menu */}
       <MenuGrid />
 
-      <AttendanceHistory />
+      <AttendanceLeaderboard />
     </div>
   );
 }

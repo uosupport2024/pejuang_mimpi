@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, MapPin } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, MapPin, Calendar as CalendarIcon, Clock, Lock } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
 import { toast } from "sonner";
 import {
@@ -353,46 +353,63 @@ export function EmployeeInputShiftPage() {
   };
 
   return (
-    <>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: Input Form */}
-        <div className="bg-white border border-gray-200/80 rounded-3xl p-5 shadow-xs h-fit space-y-4">
-          <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-            <h2 className="text-sm font-black text-gray-800">
-              Tambah / Edit Shift Range
-            </h2>
-            <button
-              type="button"
-              onClick={() => navigate("Employee")}
-              className="p-1.5 border border-gray-200 hover:bg-gray-50 active:scale-95 rounded-lg transition-all cursor-pointer text-gray-500 bg-white flex items-center justify-center"
-              title="Kembali ke Daftar Pegawai"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </button>
-          </div>
+    <div className="space-y-6">
+      {/* Top Header Card */}
+      <div className="bg-white border border-gray-200/80 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate("Employee")}
+            className="p-2 border border-gray-200 hover:bg-gray-50 active:scale-95 rounded-xl transition-all cursor-pointer text-gray-600 bg-white flex items-center justify-center shrink-0 shadow-2xs"
+            title="Kembali ke Daftar Pegawai"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
 
-          {employee && (
-            <div className="bg-zinc-50 border border-zinc-100/70 px-3.5 py-2.5 rounded-2xl flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#1e2a4a] flex items-center justify-center font-black text-white shrink-0 text-xs">
-                {employee.name.charAt(0)}
-              </div>
-              <div className="flex flex-col text-left min-w-0">
-                <span className="text-[11px] font-extrabold text-gray-850 leading-tight truncate">{employee.name}</span>
-                <span className="text-[9.5px] text-gray-400 font-bold mt-0.5 truncate">{employee.email}</span>
-              </div>
+          <div className="flex flex-col text-left min-w-0">
+            <h1 className="text-base sm:text-lg font-black text-gray-900 tracking-tight leading-tight">
+              Penugasan Shift Pegawai
+            </h1>
+            <p className="text-xs font-semibold text-gray-400 mt-0.5">
+              Atur dan kelola jadwal shift kerja bulanan untuk karyawan.
+            </p>
+          </div>
+        </div>
+
+        {employee && (
+          <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200/80 px-3.5 py-2 rounded-xl shrink-0 w-full sm:w-auto">
+            <div className="w-8 h-8 rounded-full bg-[#1e2a4a] text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+              {employee.name.charAt(0).toUpperCase()}
             </div>
-          )}
+            <div className="flex flex-col text-left min-w-0">
+              <span className="text-xs font-extrabold text-gray-800 leading-tight truncate">{employee.name}</span>
+              <span className="text-[10px] text-gray-400 font-semibold truncate">{employee.email}</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left: Input Form Card (4 cols on lg) */}
+        <div className="lg:col-span-4 bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs space-y-4 h-fit">
+          <div className="border-b border-gray-100 pb-3 flex items-center gap-2">
+            <CalendarIcon className="w-4 h-4 text-[#e0542c]" />
+            <h2 className="text-xs font-black text-gray-900 uppercase tracking-wider">
+              Form Penugasan Shift
+            </h2>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Shift Select */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10.5px] font-bold text-gray-500 uppercase tracking-wider">
-                Shift Pegawai
+            <div className="flex flex-col gap-1.5 text-left">
+              <label className="text-[10.5px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
+                <Clock className="w-3 h-3 text-gray-400" />
+                <span>Pilih Shift Kerja</span>
               </label>
               <select
                 value={selectedShiftId}
                 onChange={(e) => setSelectedShiftId(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 bg-white focus:outline-none focus:border-[#e0542c] focus:ring-1 focus:ring-[#e0542c]"
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 bg-white focus:outline-none focus:border-[#e0542c] focus:ring-1 focus:ring-[#e0542c] transition-all cursor-pointer shadow-2xs"
                 required
               >
                 {shifts.map((s) => (
@@ -404,7 +421,7 @@ export function EmployeeInputShiftPage() {
             </div>
 
             {/* Date range grid */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10.5px] font-bold text-gray-500 uppercase tracking-wider">
                   Tanggal Mulai
@@ -413,7 +430,7 @@ export function EmployeeInputShiftPage() {
                   type="date"
                   value={tanggalMulai}
                   onChange={(e) => setTanggalMulai(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 bg-white focus:outline-none focus:border-[#e0542c]"
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 bg-white focus:outline-none focus:border-[#e0542c] transition-all shadow-2xs"
                   required
                 />
               </div>
@@ -426,27 +443,28 @@ export function EmployeeInputShiftPage() {
                   type="date"
                   value={tanggalAkhir}
                   onChange={(e) => setTanggalAkhir(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 bg-white focus:outline-none focus:border-[#e0542c]"
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 bg-white focus:outline-none focus:border-[#e0542c] transition-all shadow-2xs"
                   required
                 />
               </div>
             </div>
 
             {/* Lock Location Checkbox */}
-            <div className="flex items-start gap-3 py-1 px-1">
+            <div className="p-3 bg-zinc-50 border border-zinc-200/80 rounded-xl flex items-start gap-3 text-left">
               <input
                 type="checkbox"
                 id="lock_location"
                 checked={lockLocation}
                 onChange={(e) => setLockLocation(e.target.checked)}
-                className="mt-0.5 w-4.5 h-4.5 rounded border-2 border-[#e0542c] bg-white checked:bg-[#e0542c] checked:border-[#e0542c] cursor-pointer appearance-none flex items-center justify-center after:content-['✓'] after:text-[10px] after:font-extrabold after:text-white after:hidden checked:after:block transition-all focus:outline-none shrink-0"
+                className="mt-0.5 w-4 h-4 rounded border-2 border-[#e0542c] bg-white checked:bg-[#e0542c] checked:border-[#e0542c] cursor-pointer appearance-none flex items-center justify-center after:content-['✓'] after:text-[10px] after:font-extrabold after:text-white after:hidden checked:after:block transition-all focus:outline-none shrink-0"
               />
-              <div className="flex flex-col text-left">
-                <label htmlFor="lock_location" className="text-xs font-bold text-gray-800 cursor-pointer select-none">
-                  Kunci Lokasi (Lock Location)
+              <div className="flex flex-col">
+                <label htmlFor="lock_location" className="text-xs font-bold text-gray-800 cursor-pointer select-none flex items-center gap-1.5">
+                  <Lock className="w-3 h-3 text-[#e0542c]" />
+                  <span>Kunci Lokasi (Lock Location)</span>
                 </label>
-                <span className="text-[10px] text-gray-400 font-bold mt-1.5 leading-snug">
-                  Karyawan hanya diperbolehkan melakukan absen masuk dan pulang jika berada di dalam radius lokasi kantor yang ditentukan.
+                <span className="text-[10px] text-gray-500 font-medium leading-normal mt-1">
+                  Absensi hanya diizinkan di dalam koordinat geofencing kantor.
                 </span>
               </div>
             </div>
@@ -455,223 +473,251 @@ export function EmployeeInputShiftPage() {
             <button
               type="submit"
               disabled={submitting}
-              className={`w-full py-2.5 rounded-lg text-xs font-bold transition-all border-0 flex items-center justify-center gap-2 cursor-pointer shadow-sm ${
+              className={`w-full py-2.5 px-4 rounded-xl text-xs font-extrabold transition-all border-0 flex items-center justify-center gap-2 cursor-pointer shadow-md ${
                 submitting
-                  ? "bg-zinc-200 text-zinc-400 cursor-not-allowed"
-                  : "bg-[#e0542c] hover:bg-[#c84420] text-white shadow-md shadow-[#e0542c]/15 hover:shadow-lg active:scale-95"
+                  ? "bg-zinc-200 text-zinc-400 cursor-not-allowed shadow-none"
+                  : "bg-[#e0542c] hover:bg-[#c84420] text-white shadow-[#e0542c]/20 hover:shadow-lg active:scale-98"
               }`}
             >
-              {submitting ? "Menyimpan..." : "Terapkan Shift"}
+              {submitting ? "Menyimpan Shift..." : "Terapkan Shift"}
             </button>
           </form>
         </div>
 
-        {/* Right: Modern Custom Calendar Grid */}
-        <div className="lg:col-span-2 bg-white border border-gray-200/80 rounded-3xl p-5 shadow-xs flex flex-col min-h-[500px]">
-          {/* Calendar Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-gray-100 mb-4">
-            <h2 className="text-sm font-black text-gray-800 leading-none">
-              Jadwal Shift Kalender
-            </h2>
-
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-bold text-gray-700">
+        {/* Right: Responsive Calendar Grid (8 cols on lg) */}
+        <div className="lg:col-span-8 bg-white border border-gray-200/80 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col min-h-[520px]">
+          {/* Calendar Header & Month Navigation */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-gray-100 mb-4 gap-3">
+            <div className="flex items-center gap-2 text-left">
+              <h2 className="text-xs sm:text-sm font-black text-gray-900 uppercase tracking-wider">
+                Kalender Shift Kerja
+              </h2>
+              <span className="text-[10px] font-bold text-[#e0542c] bg-[#e0542c]/10 px-2 py-0.5 rounded-full">
                 {monthNames[month]} {year}
               </span>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={handlePrevMonth}
-                  className="p-1.5 border border-gray-200 hover:bg-gray-50 active:scale-90 rounded-lg transition-all cursor-pointer text-gray-500 bg-white"
-                >
-                  <ChevronLeft className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={handleNextMonth}
-                  className="p-1.5 border border-gray-200 hover:bg-gray-50 active:scale-90 rounded-lg transition-all cursor-pointer text-gray-500 bg-white"
-                >
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
+            </div>
+
+            <div className="flex items-center gap-2 self-end sm:self-auto">
+              <button
+                type="button"
+                onClick={handlePrevMonth}
+                className="p-2 border border-gray-200 hover:bg-gray-50 active:scale-95 rounded-xl transition-all cursor-pointer text-gray-600 bg-white shadow-2xs"
+                title="Bulan Sebelumnya"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="text-xs font-black text-gray-800 min-w-[110px] text-center">
+                {monthNames[month]} {year}
+              </span>
+              <button
+                type="button"
+                onClick={handleNextMonth}
+                className="p-2 border border-gray-200 hover:bg-gray-50 active:scale-95 rounded-xl transition-all cursor-pointer text-gray-600 bg-white shadow-2xs"
+                title="Bulan Selanjutnya"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
 
-          {/* Calendar Grid */}
-          <div className="flex-1 flex flex-col">
-            {/* Days of Week Row */}
-            <div className="grid grid-cols-7 gap-1 text-center mb-1">
-              {["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"].map((dayName, idx) => (
-                <span
-                  key={idx}
-                  className={`text-[10px] font-bold uppercase tracking-wider py-1.5 text-gray-400 ${
-                    idx === 0 || idx === 6 ? "text-rose-450" : ""
-                  }`}
-                >
-                  {dayName}
-                </span>
-              ))}
-            </div>
+          {/* Shift Legend Badges Bar */}
+          <div className="flex flex-wrap items-center gap-3 pb-3 mb-3 border-b border-gray-100 text-[10px] font-bold text-gray-600">
+            <span className="text-gray-400 uppercase font-black text-[9px] tracking-wider">Legend:</span>
+            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#7FA46D]/15 text-[#5e804d]">
+              <span className="w-2 h-2 rounded-full bg-[#7FA46D]" /> Pagi / Normal
+            </span>
+            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#5C8A90]/15 text-[#426469]">
+              <span className="w-2 h-2 rounded-full bg-[#5C8A90]" /> Malam
+            </span>
+            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#e0542c]/15 text-[#c4401a]">
+              <span className="w-2 h-2 rounded-full bg-[#e0542c]" /> Off / Libur
+            </span>
+          </div>
 
-            {/* Days Grid */}
-            {loading ? (
-              <div className="grid grid-cols-7 gap-1 flex-1 min-h-[420px]">
-                {Array.from({ length: 35 }).map((_, i) => (
-                  <div
-                    key={`skeleton-cell-${i}`}
-                    className="relative min-h-[85px] border border-gray-100 p-1.5 rounded-xl flex flex-col justify-between bg-white"
+          {/* Horizontally Scrollable Calendar Container for Mobile View */}
+          <div className="overflow-x-auto flex-1 pb-2">
+            <div className="min-w-[620px] flex-1 flex flex-col">
+              {/* Days of Week Row */}
+              <div className="grid grid-cols-7 gap-1.5 text-center mb-2">
+                {["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"].map((dayName, idx) => (
+                  <span
+                    key={idx}
+                    className={`text-[10px] font-black uppercase tracking-wider py-1.5 rounded-lg ${
+                      idx === 0 || idx === 6 ? "text-rose-500 bg-rose-50/50" : "text-gray-500 bg-zinc-50/70"
+                    }`}
                   >
-                    <div className="flex justify-between items-center">
-                      <Skeleton className="w-5 h-5 rounded-full" />
-                      {i % 4 === 0 && <Skeleton className="w-3 h-3 rounded-full" />}
-                    </div>
-                    {i % 2 === 0 ? (
-                      <div className="mt-1 border border-zinc-100/60 rounded-lg p-1.5 flex flex-col gap-1 bg-zinc-50/50">
-                        <Skeleton className="h-3 w-3/4 rounded" />
-                        <Skeleton className="h-2 w-1/2 rounded" />
-                      </div>
-                    ) : (
-                      <Skeleton className="h-2 w-8 rounded self-start mt-2" />
-                    )}
-                  </div>
+                    {dayName}
+                  </span>
                 ))}
               </div>
-            ) : (
-              <div className="grid grid-cols-7 gap-1 flex-1 min-h-[420px]">
-                {daysArray.map((day, idx) => {
-                  if (day === null) {
-                    return <div key={`empty-${idx}`} className="bg-gray-50/50 rounded-xl border border-transparent" />;
-                  }
 
-                  const todayStr = new Date().toLocaleDateString("en-CA");
-                  const dayStr = day.toLocaleDateString("en-CA");
-                  const isPast = dayStr < todayStr;
-                  const isToday = todayStr === dayStr;
-                  const mapping = getMappingForDate(day);
-                  const isDragTarget = !isPast && draggedOverDate === day.toDateString();
-
-                  return (
+              {/* Days Grid */}
+              {loading ? (
+                <div className="grid grid-cols-7 gap-1.5 flex-1 min-h-[420px]">
+                  {Array.from({ length: 35 }).map((_, i) => (
                     <div
-                      key={`day-${day.getDate()}`}
-                      onClick={() => !isPast && handleCellClick(day)}
-                      onDragOver={(e) => {
-                        if (isPast) return;
-                        e.preventDefault();
-                        e.dataTransfer.dropEffect = "move";
-                      }}
-                      onDragEnter={(e) => {
-                        if (isPast) return;
-                        e.preventDefault();
-                        setDraggedOverDate(day.toDateString());
-                      }}
-                      onDragLeave={(e) => {
-                        if (isPast) return;
-                        e.preventDefault();
-                        if (draggedOverDate === day.toDateString()) {
-                          setDraggedOverDate(null);
-                        }
-                      }}
-                      onDrop={(e) => !isPast && handleDropShift(e, day)}
-                      className={`relative min-h-[85px] border p-1.5 rounded-xl flex flex-col justify-between transition-all group ${
-                        isPast
-                          ? "bg-gray-50/70 border-gray-100/80 opacity-60 cursor-not-allowed select-none"
-                          : isDragTarget
-                          ? "bg-[#e0542c]/10 border-2 border-[#e0542c] scale-[1.02] shadow-md z-10 cursor-pointer"
-                          : isToday
-                          ? "bg-amber-50/20 border-amber-300 cursor-pointer"
-                          : "bg-white border-gray-100 hover:bg-zinc-50/50 cursor-pointer"
-                      }`}
+                      key={`skeleton-cell-${i}`}
+                      className="relative min-h-[85px] border border-gray-100 p-2 rounded-xl flex flex-col justify-between bg-white"
                     >
-                      {/* Day number & today marker */}
                       <div className="flex justify-between items-center">
-                        <span
-                          className={`text-[10.5px] font-extrabold ${
-                            isToday
-                              ? "bg-amber-500 text-white w-5 h-5 rounded-full flex items-center justify-center"
-                              : isPast
-                              ? "text-gray-400 font-semibold"
-                              : "text-gray-700"
-                          }`}
-                        >
-                          {day.getDate()}
-                        </span>
-
-                        {mapping?.lock_location === "1" && (
-                          <span title="Lock Location Active">
-                            <MapPin className={`w-3 h-3 ${isPast ? "text-gray-400" : "text-white/90"}`} />
-                          </span>
-                        )}
+                        <Skeleton className="w-5 h-5 rounded-full" />
+                        {i % 4 === 0 && <Skeleton className="w-3 h-3 rounded-full" />}
                       </div>
-
-                      {/* Mapped shift content */}
-                      {mapping ? (
-                        <div
-                          draggable={!isPast}
-                          onDragStart={(e) => {
-                            if (isPast) {
-                              e.preventDefault();
-                              return;
-                            }
-                            e.stopPropagation();
-                            setDraggedMapping(mapping);
-                            e.dataTransfer.setData(
-                              "application/json",
-                              JSON.stringify({
-                                shift_id: mapping.shift_id,
-                                lock_location: mapping.lock_location,
-                                sourceDate: mapping.tanggal,
-                                shift: mapping.shift,
-                                status_absen: mapping.status_absen,
-                              })
-                            );
-                            e.dataTransfer.effectAllowed = "move";
-                          }}
-                          onDragEnd={() => {
-                            setDraggedMapping(null);
-                            setDraggedOverDate(null);
-                          }}
-                          className={`mt-1 border rounded-lg p-1 text-left flex flex-col gap-0.5 relative group/badge overflow-hidden transition-transform ${
-                            isPast
-                              ? "cursor-not-allowed opacity-75"
-                              : "cursor-grab active:cursor-grabbing hover:scale-[1.02]"
-                          } ${getShiftBadgeStyle(
-                            mapping.shift?.nama_shift || mapping.status_absen,
-                            isPast
-                          )}`}
-                          onClick={(e) => {
-                            e.stopPropagation(); // Avoid double click form fill
-                            if (!isPast) handleCellClick(day);
-                          }}
-                        >
-                          <span className="text-[9.5px] font-black leading-none truncate">
-                            {mapping.shift?.nama_shift || mapping.status_absen}
-                          </span>
-                          <span className="text-[8px] font-bold leading-none opacity-90 mt-0.5">
-                            {mapping.shift?.jam_masuk && mapping.shift?.jam_keluar
-                              ? `${mapping.shift.jam_masuk}-${mapping.shift.jam_keluar}`
-                              : mapping.status_absen}
-                          </span>
-
-                          {/* Quick delete button (disabled on past dates) */}
-                          {!isPast && (
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                triggerDelete(mapping.id, mapping.tanggal);
-                              }}
-                              className="absolute right-0.5 top-0.5 bottom-0.5 px-1 bg-white/20 text-white hover:bg-white/40 rounded-md opacity-0 group-hover/badge:opacity-100 transition-opacity duration-150 flex items-center justify-center cursor-pointer border-0 shadow-xs"
-                            >
-                              <Trash2 className="w-2.5 h-2.5" />
-                            </button>
-                          )}
+                      {i % 2 === 0 ? (
+                        <div className="mt-1 border border-zinc-100/60 rounded-lg p-1.5 flex flex-col gap-1 bg-zinc-50/50">
+                          <Skeleton className="h-3 w-3/4 rounded" />
+                          <Skeleton className="h-2 w-1/2 rounded" />
                         </div>
                       ) : (
-                        <span className="text-[8px] text-gray-300 font-bold self-start mt-2">No shift</span>
+                        <Skeleton className="h-2 w-8 rounded self-start mt-2" />
                       )}
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-7 gap-1.5 flex-1 min-h-[420px]">
+                  {daysArray.map((day, idx) => {
+                    if (day === null) {
+                      return <div key={`empty-${idx}`} className="bg-zinc-50/40 rounded-xl border border-dashed border-zinc-200/50" />;
+                    }
+
+                    const todayStr = new Date().toLocaleDateString("en-CA");
+                    const dayStr = day.toLocaleDateString("en-CA");
+                    const isPast = dayStr < todayStr;
+                    const isToday = todayStr === dayStr;
+                    const mapping = getMappingForDate(day);
+                    const isDragTarget = !isPast && draggedOverDate === day.toDateString();
+
+                    return (
+                      <div
+                        key={`day-${day.getDate()}`}
+                        onClick={() => !isPast && handleCellClick(day)}
+                        onDragOver={(e) => {
+                          if (isPast) return;
+                          e.preventDefault();
+                          e.dataTransfer.dropEffect = "move";
+                        }}
+                        onDragEnter={(e) => {
+                          if (isPast) return;
+                          e.preventDefault();
+                          setDraggedOverDate(day.toDateString());
+                        }}
+                        onDragLeave={(e) => {
+                          if (isPast) return;
+                          e.preventDefault();
+                          if (draggedOverDate === day.toDateString()) {
+                            setDraggedOverDate(null);
+                          }
+                        }}
+                        onDrop={(e) => !isPast && handleDropShift(e, day)}
+                        className={`relative min-h-[88px] border p-2 rounded-xl flex flex-col justify-between transition-all group ${
+                          isPast
+                            ? "bg-zinc-50/70 border-zinc-200/50 opacity-60 cursor-not-allowed select-none"
+                            : isDragTarget
+                            ? "bg-[#e0542c]/10 border-2 border-[#e0542c] scale-[1.02] shadow-md z-10 cursor-pointer"
+                            : isToday
+                            ? "bg-amber-50/40 border-amber-300 shadow-2xs cursor-pointer"
+                            : "bg-white border-gray-200/80 hover:border-gray-300 hover:bg-zinc-50/40 cursor-pointer shadow-2xs"
+                        }`}
+                      >
+                        {/* Day number & today marker */}
+                        <div className="flex justify-between items-center">
+                          <span
+                            className={`text-xs font-black ${
+                              isToday
+                                ? "bg-[#e0542c] text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow-xs"
+                                : isPast
+                                ? "text-gray-400 font-bold"
+                                : "text-gray-800"
+                            }`}
+                          >
+                            {day.getDate()}
+                          </span>
+
+                          {mapping?.lock_location === "1" && (
+                            <span title="Kunci Lokasi Aktif">
+                              <MapPin className={`w-3 h-3 ${isPast ? "text-gray-400" : "text-rose-500"}`} />
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Mapped shift content */}
+                        {mapping ? (
+                          <div
+                            draggable={!isPast}
+                            onDragStart={(e) => {
+                              if (isPast) {
+                                e.preventDefault();
+                                return;
+                              }
+                              e.stopPropagation();
+                              setDraggedMapping(mapping);
+                              e.dataTransfer.setData(
+                                "application/json",
+                                JSON.stringify({
+                                  shift_id: mapping.shift_id,
+                                  lock_location: mapping.lock_location,
+                                  sourceDate: mapping.tanggal,
+                                  shift: mapping.shift,
+                                  status_absen: mapping.status_absen,
+                                })
+                              );
+                              e.dataTransfer.effectAllowed = "move";
+                            }}
+                            onDragEnd={() => {
+                              setDraggedMapping(null);
+                              setDraggedOverDate(null);
+                            }}
+                            className={`mt-1.5 border rounded-lg p-1.5 text-left flex flex-col gap-0.5 relative group/badge overflow-hidden transition-all ${
+                              isPast
+                                ? "cursor-not-allowed opacity-75"
+                                : "cursor-grab active:cursor-grabbing hover:scale-[1.02]"
+                            } ${getShiftBadgeStyle(
+                              mapping.shift?.nama_shift || mapping.status_absen,
+                              isPast
+                            )}`}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Avoid double click form fill
+                              if (!isPast) handleCellClick(day);
+                            }}
+                          >
+                            <span className="text-[10px] font-black leading-tight truncate">
+                              {mapping.shift?.nama_shift || mapping.status_absen}
+                            </span>
+                            <span className="text-[8.5px] font-bold leading-tight opacity-90">
+                              {mapping.shift?.jam_masuk && mapping.shift?.jam_keluar
+                                ? `${mapping.shift.jam_masuk} - ${mapping.shift.jam_keluar}`
+                                : mapping.status_absen}
+                            </span>
+
+                            {/* Quick delete button */}
+                            {!isPast && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  triggerDelete(mapping.id, mapping.tanggal);
+                                }}
+                                className="absolute right-0.5 top-0.5 bottom-0.5 px-1 bg-black/20 text-white hover:bg-black/40 rounded-md opacity-0 group-hover/badge:opacity-100 transition-opacity duration-150 flex items-center justify-center cursor-pointer border-0 shadow-xs"
+                                title="Hapus Shift"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="mt-2 text-left">
+                            <span className="text-[9px] font-semibold text-gray-400/80 block select-none">
+                              —
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -688,43 +734,41 @@ export function EmployeeInputShiftPage() {
 
       {/* Drag & Drop Action Choice Modal */}
       {dragConfirm.isOpen && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
             onClick={processingDrag ? undefined : () => setDragConfirm({ isOpen: false, sourceMapping: null, targetDateStr: "" })}
           />
 
           {/* Modal Content */}
-          <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xl max-w-md w-full p-6 space-y-4 z-50 animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl border border-gray-200/80 shadow-2xl max-w-md w-full p-6 space-y-4 z-50 animate-in zoom-in-95 duration-200">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="p-3 rounded-full flex items-center justify-center w-14 h-14 bg-[#e0542c]/10 border border-[#e0542c]/20">
-                <MapPin className="w-7 h-7 text-[#e0542c]" />
+              <div className="p-3 rounded-full flex items-center justify-center w-14 h-14 bg-[#e0542c]/10 border border-[#e0542c]/20 text-[#e0542c]">
+                <CalendarIcon className="w-7 h-7" />
               </div>
 
-              <div className="space-y-1">
-                <h3 className="text-sm font-black text-gray-800 tracking-tight leading-tight">
+              <div className="space-y-1 text-center">
+                <h3 className="text-sm font-black text-gray-900 tracking-tight leading-tight">
                   Atur Shift Kalender
                 </h3>
-                <p className="text-xs text-gray-500 font-medium leading-relaxed px-1">
-                  Pilih aksi untuk shift <span className="text-gray-800 font-black">"{dragConfirm.sourceMapping?.shift?.nama_shift || dragConfirm.sourceMapping?.status_absen}"</span> dari tanggal <span className="text-gray-800 font-bold">{dragConfirm.sourceMapping?.tanggal}</span> ke tanggal <span className="text-[#e0542c] font-black">{dragConfirm.targetDateStr}</span>:
+                <p className="text-xs text-gray-600 font-medium leading-relaxed">
+                  Pilih aksi untuk shift <span className="text-gray-900 font-black">"{dragConfirm.sourceMapping?.shift?.nama_shift || dragConfirm.sourceMapping?.status_absen}"</span> dari tanggal <span className="text-gray-900 font-bold">{dragConfirm.sourceMapping?.tanggal}</span> ke tanggal <span className="text-[#e0542c] font-black">{dragConfirm.targetDateStr}</span>:
                 </p>
               </div>
             </div>
 
             {/* Horizontal Action Choice Buttons Row */}
             <div className="flex items-center justify-between gap-2.5 pt-3 border-t border-gray-100">
-              {/* Batal on the Left */}
               <button
                 type="button"
                 disabled={processingDrag}
                 onClick={() => setDragConfirm({ isOpen: false, sourceMapping: null, targetDateStr: "" })}
-                className="py-2.5 px-4 text-xs font-bold text-gray-500 hover:text-gray-700 bg-zinc-100 hover:bg-zinc-200 rounded-xl transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+                className="py-2.5 px-4 text-xs font-bold text-gray-600 hover:text-gray-800 bg-zinc-100 hover:bg-zinc-200 rounded-xl transition-colors cursor-pointer disabled:opacity-50 shrink-0"
               >
                 Batal
               </button>
 
-              {/* Action buttons grouped on the Right */}
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -748,6 +792,8 @@ export function EmployeeInputShiftPage() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
+
+
