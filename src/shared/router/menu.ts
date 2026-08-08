@@ -8,7 +8,8 @@ import {
   Dollar,
   DocumentText,
   Widget2,
-  BookBookmark
+  BookBookmark,
+  ShieldCheck
 } from "@solar-icons/react";
 import type { RouteType } from "./router";
 
@@ -21,7 +22,7 @@ export interface MenuItem {
   name: string;
   route?: RouteType;
   icon: any;
-  group: "Utama" | "Data Master" | "Operasional" | "Layanan";
+  group: "Utama" | "Data Master" | "Operasional" | "Layanan" | "Super Admin";
   badge?: string | null;
   subItems?: SubMenuItem[];
 }
@@ -67,6 +68,16 @@ export const menuItems: MenuItem[] = [
       { name: "Cuti & Izin", route: "Leave" },
       { name: "Absensi", route: "KoreksiAbsenApproval" }
     ]
+  },
+
+  // Super Admin Group (Khusus admin@gmail.com)
+  {
+    name: "Mapping Tenant",
+    route: "TenantMapping",
+    icon: ShieldCheck,
+    group: "Super Admin",
+    badge: "Super"
   }
 ];
+
 

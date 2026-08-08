@@ -1,4 +1,4 @@
-import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
+import { API_BASE_URL, getHeaders, dedupFetch } from "@/shared/utils/api";
 
 export interface BackendShift {
   id: number;
@@ -16,7 +16,7 @@ export async function fetchShifts(
   const query = new URLSearchParams();
   if (search) query.append("search", search);
 
-  const response = await fetch(`${API_BASE_URL}/shifts?${query.toString()}`, {
+  const response = await dedupFetch(`${API_BASE_URL}/shifts?${query.toString()}`, {
     method: "GET",
     headers: getHeaders(),
     signal,

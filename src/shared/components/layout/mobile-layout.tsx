@@ -3,6 +3,7 @@ import { useRouter } from "@/shared/router/router";
 import logoWhite from "@/assets/logo/logo-white.png";
 import { SmartHome, Box, MedalStar, User, InfoCircle } from "@solar-icons/react";
 import { MobileGuidanceTour } from "./mobile-guidance";
+import { isMenuEnabled, subscribePermissions } from "@/shared/utils/tenant-permissions";
 
 interface MobileLayoutProps {
   children: ReactNode;
@@ -11,6 +12,13 @@ interface MobileLayoutProps {
 export function MobileLayout({ children }: MobileLayoutProps) {
   const { currentRoute, navigate } = useRouter();
   const [isTourOpen, setIsTourOpen] = useState(false);
+  const [, setPermissionTick] = useState(0);
+
+  useEffect(() => {
+    return subscribePermissions(() => {
+      setPermissionTick((t) => t + 1);
+    });
+  }, []);
 
   useEffect(() => {
     const completed = localStorage.getItem("mobile_guidance_completed");
@@ -22,29 +30,24 @@ export function MobileLayout({ children }: MobileLayoutProps) {
     }
   }, []);
 
-  const getRouteIndex = () => {
-    switch (currentRoute) {
-      case "MobileHome": return 0;
-      case "MobileLumbung": return 1;
-      case "MobileAyamku": return 2;
-      case "MobilePakan": return 3;
-      case "MobileProfile": return 4;
-      default: return 0;
-    }
-  };
+  // Define all available tabs
+  const allTabs = [
+    { key: "MobileHome", label: "Sangkar", icon: SmartHome, isCenterButton: false },
+    { key: "MobileLumbung", label: "Pakan", icon: Box, isCenterButton: false },
+    { key: "MobileAyamku", label: "Ayamku", icon: logoWhite, isCenterButton: true },
+    { key: "MobilePakan", label: "Tunas", icon: MedalStar, isCenterButton: false },
+    { key: "MobileProfile", label: "Induk", icon: User, isCenterButton: false },
+  ] as const;
 
-  const activeIndex = getRouteIndex();
+  // Filter only tabs that are currently enabled for this tenant
+  const activeTabs = allTabs.filter((tab) => isMenuEnabled(tab.key));
+
+  // Find index of current active route within the enabled tabs array
+  const activeIndex = activeTabs.findIndex((tab) => tab.key === currentRoute);
 
   const handleStepChange = (index: number) => {
-    const routes: ("MobileHome" | "MobileLumbung" | "MobileAyamku" | "MobilePakan" | "MobileProfile")[] = [
-      "MobileHome",
-      "MobileLumbung",
-      "MobileAyamku",
-      "MobilePakan",
-      "MobileProfile",
-    ];
-    if (routes[index]) {
-      navigate(routes[index]);
+    if (activeTabs[index]) {
+      navigate(activeTabs[index].key as any);
     }
   };
 
@@ -63,95 +66,78 @@ export function MobileLayout({ children }: MobileLayoutProps) {
         <div className="flex-1 overflow-y-auto pt-6 px-5">
           {children}
           {/* Spacer to guarantee scrolling clearance of bottom navigation */}
-          {isTabRoute && <div className="h-32 w-full shrink-0" />}
+          {isTabRoute && <div className="h-28 w-full shrink-0" />}
         </div>
 
-        {/* Flat Bottom Tab Navigation Bar */}
-        {isTabRoute && (
-          <div className="absolute bottom-0 left-0 right-0 h-16 bg-[#1e2a4a] flex items-center z-40 border-t border-white/5 px-2">
-          
-          <div className="relative w-full grid grid-cols-5 items-center justify-items-center">
-            
-            {/* Sliding Highlight Square — hidden when center tab (Ayamku) is active */}
-            {activeIndex !== 2 && (
-              <div 
-                className="absolute top-1/2 -translate-y-1/2 h-12 w-14 bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] border border-white/10 rounded-xl shadow-sm shadow-black/10 transition-all duration-300 ease-out z-0"
-                style={{ 
-                  left: `calc(${activeIndex * 20}% + (20% - 3.5rem) / 2)`
-                }}
-              />
-            )}
-
-            {/* Tab 1: Home (Sangkar) */}
-            <button
-              onClick={() => navigate("MobileHome")}
-              className={`relative z-10 w-14 h-12 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer ${
-                currentRoute === "MobileHome" ? "text-white font-bold" : "text-zinc-400 hover:text-zinc-300"
-              }`}
-            >
-              <SmartHome size={20} weight={currentRoute === "MobileHome" ? "Bold" : "Linear"} />
-              <span className="text-[9px] font-semibold capitalize mt-0.5 tracking-wide">Sangkar</span>
-            </button>
-
-            {/* Tab 2: Lumbung (Tunas) */}
-            <button
-              onClick={() => navigate("MobileLumbung")}
-              className={`relative z-10 w-14 h-12 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer ${
-                currentRoute === "MobileLumbung" ? "text-white font-bold" : "text-zinc-400 hover:text-zinc-300"
-              }`}
-            >
-              <Box size={20} weight={currentRoute === "MobileLumbung" ? "Bold" : "Linear"} />
-              <span className="text-[9px] font-semibold capitalize mt-0.5 tracking-wide">Pakan</span>
-            </button>
-
-            {/* Tab 3: Centered Ayamku Button */}
-            <div className="relative z-20 flex items-center justify-center w-14 h-14 -translate-y-4">
-              <button
-                onClick={() => navigate("MobileAyamku")}
-                className="relative z-10 w-14 h-14 rounded-full bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] flex items-center justify-center shadow-md shadow-black/25 border-4 border-[#1e2a4a] hover:scale-115 active:scale-95 hover:rotate-6 transition-all duration-300 cursor-pointer group"
-              >
-                <img 
-                  src={logoWhite} 
-                  alt="Logo White" 
-                  className="w-8 h-8 object-contain transition-transform duration-300 group-hover:scale-110 group-hover:rotate-[-6deg]" 
+        {/* Bottom Tab Bar Navigation */}
+        {isTabRoute && activeTabs.length > 0 && (
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-[#1e2a4a] border-t border-white/10 px-2 flex items-center justify-around z-30">
+            <div className="w-full max-w-[440px] flex items-center justify-between relative h-full">
+              
+              {/* Sliding Solid Orange Compact Squarish Active Pill */}
+              {activeIndex >= 0 && !activeTabs[activeIndex]?.isCenterButton && (
+                <div 
+                  className="absolute top-1/2 -translate-y-1/2 w-14 h-12 bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] rounded-2xl transition-all duration-300 ease-out shadow-md shadow-black/20 z-0"
+                  style={{ 
+                    left: `calc(${(activeIndex + 0.5) * (100 / activeTabs.length)}% - 1.75rem)`,
+                  }}
                 />
-              </button>
+              )}
+
+              {/* Render dynamic active tabs */}
+              {activeTabs.map((tab) => {
+                const isActive = currentRoute === tab.key;
+                
+                if (tab.isCenterButton) {
+                  return (
+                    <div 
+                      key={tab.key}
+                      style={{ width: `${100 / activeTabs.length}%` }} 
+                      className="relative z-20 flex items-center justify-center h-full"
+                    >
+                      <button
+                        onClick={() => navigate("MobileAyamku")}
+                        className="relative z-10 w-14 h-14 -translate-y-4 rounded-full bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] flex items-center justify-center shadow-lg shadow-black/30 border-4 border-[#1e2a4a] hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer group"
+                      >
+                        <img 
+                          src={logoWhite} 
+                          alt="Logo White" 
+                          className="w-8 h-8 object-contain transition-transform duration-300 group-hover:scale-110 group-hover:rotate-[-6deg]" 
+                        />
+                      </button>
+                    </div>
+                  );
+                }
+
+                const IconComponent = tab.icon;
+
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => navigate(tab.key as any)}
+                    style={{ width: `${100 / activeTabs.length}%` }}
+                    className={`relative z-10 h-12 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer ${
+                      isActive ? "text-white font-bold" : "text-zinc-300 hover:text-white"
+                    }`}
+                  >
+                    <IconComponent size={20} weight={isActive ? "Bold" : "Linear"} />
+                    <span className="text-[10px] font-semibold capitalize mt-0.5 tracking-wide text-white">{tab.label}</span>
+                  </button>
+                );
+              })}
             </div>
-
-            {/* Tab 4: E-Learning */}
-            <button
-              onClick={() => navigate("MobilePakan")}
-              className={`relative z-10 w-14 h-12 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer ${
-                currentRoute === "MobilePakan" ? "text-white font-bold" : "text-zinc-400 hover:text-zinc-300"
-              }`}
-            >
-              <MedalStar size={20} weight={currentRoute === "MobilePakan" ? "Bold" : "Linear"} />
-              <span className="text-[9px] font-semibold capitalize mt-0.5 tracking-wide">Tunas</span>
-            </button>
-
-            {/* Tab 5: Profile (Induk) */}
-            <button
-              onClick={() => navigate("MobileProfile")}
-              className={`relative z-10 w-14 h-12 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer ${
-                currentRoute === "MobileProfile" ? "text-white font-bold" : "text-zinc-400 hover:text-zinc-300"
-              }`}
-            >
-              <User size={20} weight={currentRoute === "MobileProfile" ? "Bold" : "Linear"} />
-              <span className="text-[9px] font-semibold capitalize mt-0.5 tracking-wide">Induk</span>
-            </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Floating Help Button */}
-      {isTabRoute && !isTourOpen && (
-        <button
-          onClick={() => setIsTourOpen(true)}
-          className="absolute bottom-20 right-4 w-9 h-9 rounded-full bg-[#1e2a4a]/85 backdrop-blur-xs border border-white/10 text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer z-40"
-        >
-          <InfoCircle size={18} weight="Bold" />
-        </button>
-      )}
+        {/* Floating Help Button */}
+        {isTabRoute && !isTourOpen && (
+          <button
+            onClick={() => setIsTourOpen(true)}
+            className="absolute bottom-20 right-4 w-9 h-9 rounded-full bg-[#1e2a4a]/85 backdrop-blur-xs border border-white/10 text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer z-40"
+          >
+            <InfoCircle size={18} weight="Bold" />
+          </button>
+        )}
 
       {/* Mobile Guidance Tour Overlay */}
       <MobileGuidanceTour isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} onStepChange={handleStepChange} />
