@@ -1,4 +1,5 @@
 import { UserPlusRounded } from "@solar-icons/react";
+import { Button } from "@/shared/components/ui/button";
 import { ReusableTable } from "@/shared/components/ui/reusable-table";
 import type { ColumnDef } from "@/shared/components/ui/reusable-table";
 import { cn } from "@/shared/lib/utils";
@@ -8,9 +9,13 @@ import { type BackendEmployee } from "../api/employee";
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
 import { useEmployee } from "../hooks/use-employee";
 import { useState, useRef, useEffect } from "react";
-import { MoreVertical, KeyRound, CalendarRange, SquarePen, Trash2 } from "lucide-react";
+import { MoreVertical, KeyRound, CalendarRange, SquarePen, Trash2, Download, Loader2, UploadCloud } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "@/shared/router/router";
+import { getCookie } from "@/shared/utils/cookies";
+import { downloadEmployeeImportTemplate } from "../api/employee-import";
+import { THEME_COLORS } from "@/shared/constants/colors";
+import { EmployeeImportModal } from "../components/employee-import-modal";
 
 interface EmployeeActionDropdownProps {
   employee: BackendEmployee;
@@ -183,6 +188,21 @@ export function EmployeePage() {
     name: "",
   });
   const [deleting, setDeleting] = useState(false);
+  const [downloadingTemplate, setDownloadingTemplate] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+  const getTenantId = (): number | string => {
+    const userProfileStr = getCookie("user_profile");
+    if (userProfileStr) {
+      try {
+        const user = JSON.parse(userProfileStr);
+        return user.tenant_id || user.tenant?.id || user.tenant_list?.[0]?.tenant_id || 1;
+      } catch (e) {
+        console.error("Failed to parse user_profile cookie", e);
+      }
+    }
+    return 1;
+  };
 
   const triggerDeleteConfirm = (id: number, name: string) => {
     setConfirmDelete({ isOpen: true, id, name });
@@ -199,6 +219,28 @@ export function EmployeePage() {
       toast.error(err.message || "Gagal menghapus pegawai.");
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      setDownloadingTemplate(true);
+      let tenantId: number | string = 1;
+      const userProfileStr = getCookie("user_profile");
+      if (userProfileStr) {
+        try {
+          const user = JSON.parse(userProfileStr);
+          tenantId = user.tenant_id || user.tenant?.id || user.tenant_list?.[0]?.tenant_id || 1;
+        } catch (e) {
+          console.error("Failed to parse user_profile cookie", e);
+        }
+      }
+      await downloadEmployeeImportTemplate(tenantId);
+      toast.success("Template import pegawai berhasil diunduh.");
+    } catch (err: any) {
+      toast.error(err.message || "Gagal mengunduh template import pegawai.");
+    } finally {
+      setDownloadingTemplate(false);
     }
   };
 
@@ -299,6 +341,40 @@ export function EmployeePage() {
         addButtonText="Add Employee"
         addButtonIcon={<UserPlusRounded size={16} weight="Linear" />}
         onAddClick={() => navigate("EmployeeAdd")}
+        customActions={
+          <div className="flex items-center gap-2.5">
+            <Button
+              type="button"
+              onClick={() => setIsImportModalOpen(true)}
+              style={{
+                backgroundColor: THEME_COLORS.hex.primary,
+                color: "#ffffff",
+              }}
+              className="h-9 px-4 text-xs font-bold rounded-lg text-white transition-all shadow-sm cursor-pointer hover:opacity-90 shrink-0 gap-2 border-0"
+            >
+              <UploadCloud size={15} className="text-white" />
+              <span>Import Pegawai</span>
+            </Button>
+
+            <Button
+              type="button"
+              onClick={handleDownloadTemplate}
+              disabled={downloadingTemplate}
+              style={{
+                backgroundColor: THEME_COLORS.hex.airKehidupan,
+                color: "#ffffff",
+              }}
+              className="h-9 px-4 text-xs font-bold rounded-lg text-white transition-all shadow-sm cursor-pointer hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed shrink-0 gap-2 border-0"
+            >
+              {downloadingTemplate ? (
+                <Loader2 size={15} className="animate-spin text-white" />
+              ) : (
+                <Download size={15} className="text-white" />
+              )}
+              <span>Download Template</span>
+            </Button>
+          </div>
+        }
 
         // Pagination config
         showPagination={true}
@@ -317,6 +393,12 @@ export function EmployeePage() {
         message={`Apakah Anda yakin ingin menghapus pegawai "${confirmDelete.name}"? Semua data yang terkait dengan pegawai ini akan terhapus.`}
         variant="danger"
         loading={deleting}
+      />
+
+      <EmployeeImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        tenantId={getTenantId()}
       />
     </div>
   );
