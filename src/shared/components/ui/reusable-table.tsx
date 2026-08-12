@@ -7,7 +7,9 @@ import {
   TableRow,
   TableCell,
 } from "./table"
+import { Button } from "./button"
 import { cn } from "@/shared/lib/utils"
+import { THEME_COLORS } from "@/shared/constants/colors"
 import { Skeleton } from "./skeleton"
 import { Magnifier, SortFromTopToBottom, SortFromBottomToTop, SortVertical } from "@solar-icons/react"
 import { GripVertical } from "lucide-react"
@@ -42,6 +44,7 @@ interface ReusableTableProps<T> {
   addButtonIcon?: React.ReactNode
   onAddClick?: () => void
   addButtonColor?: "primary" | "success"
+  customActions?: React.ReactNode
 
   // Built-in Pagination
   showPagination?: boolean
@@ -150,6 +153,7 @@ export function ReusableTable<T>({
   addButtonIcon,
   onAddClick,
   addButtonColor = "success",
+  customActions,
 
   // Pagination props
   showPagination = true,
@@ -320,7 +324,7 @@ export function ReusableTable<T>({
   return (
     <div className={cn("bg-white border border-gray-200/80 rounded-2xl shadow-xs overflow-hidden", className)}>
       {/* Search & Action Row */}
-      {(showSearch || onAddClick) && (
+      {(showSearch || onAddClick || customActions) && (
         <div className="p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           {showSearch && (
             <div className="relative w-full sm:max-w-[220px]">
@@ -337,20 +341,28 @@ export function ReusableTable<T>({
             </div>
           )}
 
-          {onAddClick && (
-            <button
-              type="button"
-              onClick={onAddClick}
-              className={cn(
-                "flex items-center justify-center gap-2 px-4 py-2.5 text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer shrink-0",
-                addButtonColor === "success"
-                  ? "bg-[#7FA46D] hover:bg-[#6e935d] shadow-[#7FA46D]/15"
-                  : "bg-[#e0542c] hover:bg-[#c84420] shadow-[#e0542c]/10"
+          {(onAddClick || customActions) && (
+            <div className="flex items-center gap-2.5 flex-wrap">
+              {customActions}
+              {onAddClick && (
+                <Button
+                  type="button"
+                  onClick={onAddClick}
+                  style={{
+                    backgroundColor: addButtonColor === "success" ? THEME_COLORS.hex.sawahPertumbuhan : THEME_COLORS.hex.primary
+                  }}
+                  className={cn(
+                    "flex items-center justify-center gap-2 px-4 py-2.5 text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer shrink-0 h-9 border-0 hover:opacity-90",
+                    addButtonColor === "success"
+                      ? "shadow-[#7FA46D]/15 text-white"
+                      : "shadow-[#e0542c]/10 text-white"
+                  )}
+                >
+                  {addButtonIcon}
+                  {addButtonText || "Tambah"}
+                </Button>
               )}
-            >
-              {addButtonIcon}
-              {addButtonText || "Tambah"}
-            </button>
+            </div>
           )}
         </div>
       )}
