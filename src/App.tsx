@@ -8,7 +8,7 @@ import { setCookie, getCookie, eraseCookie } from "@/shared/utils/cookies"
 
 import { RouterProvider, useRouter } from "@/shared/router/router"
 import { loadTenantPermissions, isMenuEnabled, subscribePermissions } from "@/shared/utils/tenant-permissions"
-import logoWhite from "@/assets/logo/POT–PejuangMimpi–Logo.png"
+import { AppLoadingSkeleton } from "@/shared/components/layout/app-loading-skeleton"
 import { toast } from "sonner"
 
 interface UserProfile {
@@ -166,33 +166,9 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout,
     }
   }, [session, isInitializing, isPermLoading, currentRoute, navigate]);
 
-  // Elegant Fullscreen Loading Screen Overlay while reading session cookies & tenant permissions
+  // Skeleton Loading Screen while reading session cookies & tenant permissions
   if (isInitializing || isPermLoading) {
-    return (
-      <div className="fixed inset-0 z-50 bg-[#1e2a4a] flex flex-col items-center justify-center p-6 text-center overflow-hidden">
-        {/* Subtle Ambient Background Pattern */}
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fee279_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
-        
-        {/* Centered Logo with Glowing Aura */}
-        <div className="relative mb-6">
-          <div className="absolute -inset-4 bg-gradient-to-tr from-[#e0542c] to-[#fee279] rounded-full blur-xl opacity-40 animate-pulse" />
-          <div className="relative w-20 h-20 bg-[#161f36] border border-white/10 rounded-2xl flex items-center justify-center p-3 shadow-2xl">
-            <img src={logoWhite} alt="Pejuang Mimpi Logo" className="w-full h-full object-contain animate-bounce" />
-          </div>
-        </div>
-
-        {/* Text & Sleek Loading Bar */}
-        <div className="space-y-3 relative z-10 max-w-xs">
-          <h2 className="text-sm font-black text-white tracking-wide uppercase">Pejuang Mimpi HRIS</h2>
-          <p className="text-xs font-semibold text-white/60">Memuat Hak Akses & Konfigurasi Tenant...</p>
-          
-          {/* Animated Progress Bar */}
-          <div className="w-48 h-1.5 bg-white/10 rounded-full mx-auto overflow-hidden">
-            <div className="w-full h-full bg-gradient-to-r from-[#e0542c] via-[#fee279] to-[#e0542c] animate-pulse rounded-full" />
-          </div>
-        </div>
-      </div>
-    );
+    return <AppLoadingSkeleton />;
   }
 
   if (!session) {

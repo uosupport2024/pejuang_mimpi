@@ -63,7 +63,7 @@ export function MobileLayout({ children }: MobileLayoutProps) {
       <div className="w-full max-w-[480px] h-[100dvh] bg-[#F7F3EB] shadow-2xl flex flex-col relative overflow-hidden">
         
         {/* Scrollable Main Content */}
-        <div className="flex-1 overflow-y-auto pt-6 px-5">
+        <div className="flex-1 overflow-y-auto scrollbar-none pt-6 px-5">
           {children}
           {/* Spacer to guarantee scrolling clearance of bottom navigation */}
           {isTabRoute && <div className="h-32 w-full shrink-0" />}
