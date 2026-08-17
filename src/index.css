@@ -6,6 +6,22 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Hide native video controls & play overlay icon on mobile WebViews */
+video::-webkit-media-controls,
+video::-webkit-media-controls-enclosure,
+video::-webkit-media-controls-panel,
+video::-webkit-media-controls-overlay-play-button,
+video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+video::-webkit-media-controls-play-button {
+  display: none !important;
+}
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;

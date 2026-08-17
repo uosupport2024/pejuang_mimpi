@@ -268,7 +268,7 @@ function PakanLokerSubPage({
     return (
       <div className="absolute inset-0 bg-[#F7F3EB] z-50 flex flex-col text-left">
         {/* Chat Header */}
-        <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-4 pb-4 z-20 shadow-md relative overflow-hidden">
+        <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-7 pb-4 z-20 shadow-md relative overflow-hidden">
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{
@@ -407,7 +407,7 @@ function PakanLokerSubPage({
     return (
       <div className="space-y-4 pb-24 text-left relative min-h-[500px]">
         {/* Flat Sticky Navy Header matching standard layouts */}
-        <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-4 pb-4 sticky -top-6 z-20 shadow-md -mx-5 -mt-6 relative overflow-hidden">
+        <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md -mx-5 -mt-6 relative overflow-hidden">
           {/* Background Pattern */}
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
@@ -854,7 +854,7 @@ export function TunasPage({ user }: TunasPageProps) {
       <div className="space-y-4">
         {/* Flat Sticky Navy Header matching detail page layout */}
         {!hideHeader && (
-          <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-4 pb-4 sticky -top-6 z-20 shadow-md -mx-5 -mt-6 relative overflow-hidden">
+          <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md -mx-5 -mt-6 relative overflow-hidden">
             {/* Background Pattern */}
             <div
               className="absolute inset-0 opacity-15 pointer-events-none"
@@ -901,7 +901,7 @@ export function TunasPage({ user }: TunasPageProps) {
     <div className="space-y-4">
       {/* Header Banner Card - matching the design in Sangkar */}
       <div className="-mt-6 -mx-5 relative mb-4">
-        <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-7 pb-6 relative">
+        <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-11 pb-6 relative">
           {/* Background Pattern */}
           <div
             className="absolute inset-0 opacity-15 pointer-events-none rounded-b-[40px] overflow-hidden"

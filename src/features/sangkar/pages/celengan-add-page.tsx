@@ -38,7 +38,7 @@ export function CelenganAddPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#F7F3EB] text-slate-800 pb-20 relative -mt-6 -mx-5">
       {/* Top sticky navigation */}
-      <div className="bg-[#1e2a4a] text-white flex items-center gap-3 px-5 pt-4 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden">
+      <div className="bg-[#1e2a4a] text-white flex items-center gap-3 px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden">
         {/* Background Pattern */}
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"

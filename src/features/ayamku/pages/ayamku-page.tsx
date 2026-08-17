@@ -551,7 +551,7 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
       <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" />
 
       {/* Top Header Overlay */}
-      <div className="absolute top-6 left-6 right-6 flex justify-between items-center z-10">
+      <div className="absolute top-10 left-6 right-6 flex justify-between items-center z-10">
         <div className="flex items-center gap-3">
           <img src={logoWhite} alt="Logo" className="w-12 h-12 object-contain" />
           <div className="flex flex-col text-left">
