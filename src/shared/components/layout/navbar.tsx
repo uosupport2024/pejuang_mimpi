@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, User, Lock, LogOut, FileText, Calendar, Megaphone, Clock, Building2, Menu } from "lucide-react";
+import { Bell, ChevronDown, User, Lock, LogOut, FileText, Calendar, Megaphone, Clock, Building2, Menu, Compass } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useRouter, type RouteType } from "@/shared/router/router";
@@ -17,9 +17,10 @@ interface NavbarProps {
   };
   onLogout?: () => void;
   onToggleMobileMenu?: () => void;
+  onOpenTour?: () => void;
 }
 
-export function Navbar({ user, onLogout, onToggleMobileMenu }: NavbarProps) {
+export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: NavbarProps) {
   const { navigate } = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -363,6 +364,20 @@ export function Navbar({ user, onLogout, onToggleMobileMenu }: NavbarProps) {
             </div>
           )}
         </div>
+        {/* Panduan Menu Admin Quick Button */}
+        {onOpenTour && (
+          <button
+            onClick={onOpenTour}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full border border-white/20 shadow-xs text-white transition-all cursor-pointer hover:scale-105 active:scale-95 select-none"
+            title="Buka Panduan Menu Admin"
+          >
+            <Compass className="w-3.5 h-3.5 text-[#fee279]" />
+            <span className="text-[10px] font-black text-white uppercase tracking-wider">
+              Panduan Menu
+            </span>
+          </button>
+        )}
+
         {/* Live Running Date & Clock Widget */}
         <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/15 shadow-xs text-white select-none shrink-0">
           <Clock className="w-3.5 h-3.5 text-white/80 shrink-0" />
@@ -454,6 +469,18 @@ export function Navbar({ user, onLogout, onToggleMobileMenu }: NavbarProps) {
                 </div>
                 <span className="font-semibold text-[11px]">Ubah Sandi</span>
               </button>
+
+              {onOpenTour && (
+                <button
+                  onClick={() => { setIsOpen(false); onOpenTour(); }}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-medium text-zinc-700 hover:text-[#1f2937] hover:bg-amber-500/10 transition-all cursor-pointer text-left group"
+                >
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center transition-transform group-hover:scale-105">
+                    <Compass className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="font-semibold text-[11px]">Panduan Menu Admin</span>
+                </button>
+              )}
 
               <div className="my-1 border-t border-zinc-100" />
 
