@@ -17,7 +17,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
     .toUpperCase();
 
   return (
-    <div className="-mt-6 -mx-5 px-5 pt-6 pb-6 bg-[#1e2a4a] text-white flex items-center relative overflow-hidden rounded-b-[32px] shadow-md z-10">
+    <div className="-mt-6 -mx-5 px-5 pt-10 pb-6 bg-[#1e2a4a] text-white flex items-center relative overflow-hidden rounded-b-[32px] shadow-md z-10">
       {/* Background Pattern */}
       <div
         className="absolute inset-0 opacity-15 pointer-events-none"

@@ -35,7 +35,7 @@ export function LeaveRequestPage({ user }: LeaveRequestPageProps) {
             backgroundRepeat: "repeat"
           }}
         />
-        <div className="relative z-10 flex items-center justify-between px-6 pt-7 pb-20 gap-3.5">
+        <div className="relative z-10 flex items-center justify-between px-6 pt-10 pb-20 gap-3.5">
           <div className="flex items-center gap-3.5">
             <button
               onClick={() => navigate("MobileLumbung")}

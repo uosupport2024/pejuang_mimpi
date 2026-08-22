@@ -90,7 +90,7 @@ export function MobileGuidanceTour({ isOpen, onClose, onStepChange }: MobileGuid
     ? `calc(50% - 1.75rem)` // centered (width is 56px / 3.5rem)
     : `calc(${currentIndex * 20}% + (20% - 3.5rem) / 2)`; // standard button
 
-  const highlightBottom = isCenterTab ? "20px" : "8px";
+  const highlightBottom = isCenterTab ? "26px" : "14px";
   const highlightWidth = "3.5rem"; // 56px
   const highlightHeight = isCenterTab ? "3.5rem" : "3rem"; // 56px vs 48px
   const highlightRadius = isCenterTab ? "9999px" : "12px";
@@ -123,7 +123,7 @@ export function MobileGuidanceTour({ isOpen, onClose, onStepChange }: MobileGuid
         {/* Speech Bubble Arrow pointing to the highlighted tab (Clean SVG Triangle) */}
         <motion.div
           layout
-          className="absolute bottom-[69px] z-45 pointer-events-none"
+          className="absolute bottom-[75px] z-45 pointer-events-none"
           style={{
             left: `calc(${currentIndex * 20}% + 10% - 12px)`,
           }}

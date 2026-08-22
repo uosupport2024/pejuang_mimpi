@@ -39,7 +39,7 @@ function BaseProfileDrawer({ isOpen, onClose, title, children }: BaseDrawerProps
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+        <div className="flex-1 overflow-y-auto scrollbar-none p-5 space-y-4">
           {children}
         </div>
       </div>
@@ -785,7 +785,7 @@ export function TermsAndPrivacyDrawer({ isOpen, onClose }: { isOpen: boolean; on
         </div>
 
         {/* Scrollable Document Content Area */}
-        <div className="space-y-4 max-h-[45vh] overflow-y-auto pr-1 text-[11px] leading-relaxed font-medium text-zinc-650">
+        <div className="space-y-4 max-h-[45vh] overflow-y-auto scrollbar-none pr-1 text-[11px] leading-relaxed font-medium text-zinc-650">
           {activeTab === "privacy" ? (
             <>
               <div className="p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/10 text-emerald-700 text-[10px] leading-normal mb-2 flex gap-2">

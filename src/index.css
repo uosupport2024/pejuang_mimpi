@@ -6,6 +6,22 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Hide native video controls & play overlay icon on mobile WebViews */
+video::-webkit-media-controls,
+video::-webkit-media-controls-enclosure,
+video::-webkit-media-controls-panel,
+video::-webkit-media-controls-overlay-play-button,
+video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+video::-webkit-media-controls-play-button {
+  display: none !important;
+}
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -257,7 +273,21 @@ code {
   }
 }
 
-/* Custom scrollbars - hidden by default, visible on hover */
+/* Utility classes to completely hide scrollbars */
+.scrollbar-none,
+.no-scrollbar {
+  -ms-overflow-style: none !important; /* IE and Edge */
+  scrollbar-width: none !important; /* Firefox */
+}
+
+.scrollbar-none::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Custom scrollbars - hidden by default, visible on hover only for desktop layouts */
 * {
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
@@ -265,11 +295,11 @@ code {
 }
 
 /* For Firefox: only show colored scrollbar on hover */
-.overflow-y-auto:hover,
-.overflow-x-auto:hover,
-.overflow-auto:hover,
-aside:hover,
-main:hover {
+.admin-dashboard .overflow-y-auto:hover,
+.admin-dashboard .overflow-x-auto:hover,
+.admin-dashboard .overflow-auto:hover,
+.admin-dashboard aside:hover,
+.admin-dashboard main:hover {
   scrollbar-color: rgba(224, 84, 44, 0.2) transparent;
 }
 
@@ -289,12 +319,12 @@ main:hover {
   transition: background 0.3s ease;
 }
 
-/* Only show the thumb when the scrollable container is hovered */
-.overflow-y-auto:hover::-webkit-scrollbar-thumb,
-.overflow-x-auto:hover::-webkit-scrollbar-thumb,
-.overflow-auto:hover::-webkit-scrollbar-thumb,
-aside:hover::-webkit-scrollbar-thumb,
-main:hover::-webkit-scrollbar-thumb {
+/* Only show the thumb when the scrollable container is hovered in admin dashboard */
+.admin-dashboard .overflow-y-auto:hover::-webkit-scrollbar-thumb,
+.admin-dashboard .overflow-x-auto:hover::-webkit-scrollbar-thumb,
+.admin-dashboard .overflow-auto:hover::-webkit-scrollbar-thumb,
+.admin-dashboard aside:hover::-webkit-scrollbar-thumb,
+.admin-dashboard main:hover::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.15);
 }
 

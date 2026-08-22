@@ -189,7 +189,7 @@ export function IdCardPage({ user }: IdCardPageProps) {
           className="absolute inset-0 opacity-15 pointer-events-none"
           style={{ backgroundImage: `url(${patternBg})`, backgroundSize: "180px auto", backgroundRepeat: "repeat" }}
         />
-        <div className="relative z-10 flex items-center px-6 pt-7 pb-6 gap-3.5">
+        <div className="relative z-10 flex items-center px-6 pt-10 pb-6 gap-3.5">
           <button
             onClick={() => navigate("MobileLumbung")}
             className="p-2 hover:bg-white/10 active:scale-95 rounded-full transition-all cursor-pointer text-white border border-white/10 bg-white/5 backdrop-blur-xs"

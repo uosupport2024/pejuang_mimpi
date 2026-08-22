@@ -180,12 +180,19 @@ export function MobileLemburAbsensiPage() {
     setCameraError(false);
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
+        video: {
+          facingMode: "user",
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
         audio: false,
       });
       setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current?.play().catch(console.error);
+        };
       }
     } catch (err) {
       console.error("Gagal mengakses kamera:", err);
@@ -214,6 +221,10 @@ export function MobileLemburAbsensiPage() {
   useEffect(() => {
     if (stream && videoRef.current) {
       videoRef.current.srcObject = stream;
+      videoRef.current.onloadedmetadata = () => {
+        videoRef.current?.play().catch(console.error);
+      };
+      videoRef.current.play().catch(() => {});
     }
   }, [stream, isCameraModalOpen]);
 
@@ -315,7 +326,7 @@ export function MobileLemburAbsensiPage() {
             backgroundRepeat: "repeat"
           }}
         />
-        <div className="relative z-10 flex items-center justify-between px-6 pt-7 pb-20 gap-3.5">
+        <div className="relative z-10 flex items-center justify-between px-6 pt-10 pb-20 gap-3.5">
           <div className="flex items-center gap-3.5">
             <button
               onClick={() => {
@@ -533,7 +544,9 @@ export function MobileLemburAbsensiPage() {
                     autoPlay
                     playsInline
                     muted
-                    className="w-full h-full object-cover scale-x-[-1]" // mirror view
+                    controls={false}
+                    disablePictureInPicture
+                    className="w-full h-full object-cover scale-x-[-1] pointer-events-none" // mirror view
                   />
                   <div className="absolute inset-0 border-[3px] border-[#e0542c]/30 rounded-2xl pointer-events-none m-4" />
                 </>

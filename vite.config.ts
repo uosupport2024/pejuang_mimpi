@@ -13,4 +13,12 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    host: true,
+    allowedHosts: ["demo.pejuangmimpi.com", ".pejuangmimpi.com"],
+  },
+  preview: {
+    host: true,
+    allowedHosts: ["demo.pejuangmimpi.com", ".pejuangmimpi.com"],
+  },
 })

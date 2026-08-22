@@ -119,7 +119,7 @@ export function PakanPage({ user }: PakanPageProps) {
     <div className="space-y-4">
       {/* Header Banner Card */}
       <div className="-mt-6 -mx-5 relative mb-4">
-        <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-7 pb-6 relative overflow-hidden">
+        <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-11 pb-6 relative overflow-hidden">
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{

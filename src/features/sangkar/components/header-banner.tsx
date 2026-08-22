@@ -64,7 +64,7 @@ export function HeaderBanner({ user, celengans, loading }: HeaderBannerProps) {
   return (
     <div className="-mt-6 -mx-5 relative">
       {/* Header Banner Card - Solid background color matching Navigation Bottom Bar (#1e2a4a) */}
-      <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-7 pb-6 relative overflow-hidden">
+      <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-11 pb-6 relative overflow-hidden">
         {/* Background Pattern - Repeating and subtle (15% opacity) */}
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"

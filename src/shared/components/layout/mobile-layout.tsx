@@ -63,15 +63,15 @@ export function MobileLayout({ children }: MobileLayoutProps) {
       <div className="w-full max-w-[480px] h-[100dvh] bg-[#F7F3EB] shadow-2xl flex flex-col relative overflow-hidden">
         
         {/* Scrollable Main Content */}
-        <div className="flex-1 overflow-y-auto pt-6 px-5">
+        <div className="flex-1 overflow-y-auto scrollbar-none pt-6 px-5">
           {children}
           {/* Spacer to guarantee scrolling clearance of bottom navigation */}
-          {isTabRoute && <div className="h-28 w-full shrink-0" />}
+          {isTabRoute && <div className="h-32 w-full shrink-0" />}
         </div>
 
         {/* Bottom Tab Bar Navigation */}
         {isTabRoute && activeTabs.length > 0 && (
-          <div className="absolute bottom-0 left-0 right-0 h-16 bg-[#1e2a4a] border-t border-white/10 px-2 flex items-center justify-around z-30">
+          <div className="absolute bottom-0 left-0 right-0 h-[74px] pb-3 pt-1 bg-[#1e2a4a] border-t border-white/10 px-2 flex items-center justify-around z-30">
             <div className="w-full max-w-[440px] flex items-center justify-between relative h-full">
               
               {/* Sliding Solid Orange Compact Squarish Active Pill */}
@@ -133,7 +133,7 @@ export function MobileLayout({ children }: MobileLayoutProps) {
         {isTabRoute && !isTourOpen && (
           <button
             onClick={() => setIsTourOpen(true)}
-            className="absolute bottom-20 right-4 w-9 h-9 rounded-full bg-[#1e2a4a]/85 backdrop-blur-xs border border-white/10 text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer z-40"
+            className="absolute bottom-22 right-4 w-9 h-9 rounded-full bg-[#1e2a4a]/85 backdrop-blur-xs border border-white/10 text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer z-40"
           >
             <InfoCircle size={18} weight="Bold" />
           </button>

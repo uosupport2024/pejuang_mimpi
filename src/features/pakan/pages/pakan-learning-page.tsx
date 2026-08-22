@@ -268,7 +268,7 @@ export function PakanLearningPage() {
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen bg-zinc-50 relative -mt-6 -mx-5 pb-20">
-        <div className="bg-[#1e2a4a] text-white flex items-center gap-3 px-5 pt-4 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
+        <div className="bg-[#1e2a4a] text-white flex items-center gap-3 px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{
@@ -326,7 +326,7 @@ export function PakanLearningPage() {
     return (
       <div className="flex flex-col min-h-screen bg-zinc-50 relative -mt-6 -mx-5 pb-20">
         {/* Sticky Header */}
-        <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-4 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
+        <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{
@@ -386,7 +386,7 @@ export function PakanLearningPage() {
   if (!course) {
     return (
       <div className="flex flex-col min-h-screen bg-zinc-50 relative -mt-6 -mx-5 pb-20">
-        <div className="bg-[#1e2a4a] text-white flex items-center gap-3 px-5 pt-4 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
+        <div className="bg-[#1e2a4a] text-white flex items-center gap-3 px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{
@@ -440,7 +440,7 @@ export function PakanLearningPage() {
         }
       `}</style>
       {/* Flutter-like Top Sticky Header / Appbar */}
-      <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-4 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
+      <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
         {/* Background Pattern */}
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"

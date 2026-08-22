@@ -98,9 +98,21 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
     window.addEventListener("koreksi-absen-updated", handleUpdate);
     window.addEventListener("cuti-updated", handleUpdate);
 
+    const handleOpenMenu = (e: any) => {
+      if (e.detail?.menuName) {
+        setOpenDropdowns((prev) => ({
+          ...prev,
+          [e.detail.menuName]: true,
+        }));
+      }
+    };
+
+    window.addEventListener("open-sidebar-menu", handleOpenMenu as any);
+
     return () => {
       window.removeEventListener("koreksi-absen-updated", handleUpdate);
       window.removeEventListener("cuti-updated", handleUpdate);
+      window.removeEventListener("open-sidebar-menu", handleOpenMenu as any);
     };
   }, [fetchPendingCount]);
 
@@ -197,6 +209,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                     return (
                       <div
                         key={item.name}
+                        data-menu-id={item.name}
                         className="relative group flex justify-center"
                         onMouseEnter={(e) => handleMouseEnterItem(item.name, e)}
                         onMouseLeave={handleMouseLeaveItem}
@@ -290,7 +303,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                   // MODE EXPANDED (MAXIMIZED & MOBILE)
                   if (hasSubItems) {
                     return (
-                      <div key={item.name} className="space-y-0.5">
+                      <div key={item.name} data-menu-id={item.name} className="space-y-0.5">
                         <button
                           type="button"
                           onClick={() => toggleDropdown(item.name)}
@@ -340,6 +353,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                               return (
                                 <button
                                   key={sub.name}
+                                  data-menu-id={`${item.name} - ${sub.name}`}
                                   type="button"
                                   onClick={() => handleNavigate(sub.route)}
                                   className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition-all duration-150 cursor-pointer ${isSubActive
@@ -376,6 +390,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                   return (
                     <button
                       key={item.name}
+                      data-menu-id={item.name}
                       type="button"
                       onClick={() => item.route && handleNavigate(item.route)}
                       className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 cursor-pointer ${isActive

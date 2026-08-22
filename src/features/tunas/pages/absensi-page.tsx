@@ -209,12 +209,19 @@ export function MobileAbsensiPage() {
     setCameraError(false);
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
+        video: {
+          facingMode: "user",
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
         audio: false,
       });
       setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current?.play().catch(console.error);
+        };
       }
     } catch (err) {
       console.error("Gagal mengakses kamera:", err);
@@ -243,6 +250,10 @@ export function MobileAbsensiPage() {
   useEffect(() => {
     if (stream && videoRef.current) {
       videoRef.current.srcObject = stream;
+      videoRef.current.onloadedmetadata = () => {
+        videoRef.current?.play().catch(console.error);
+      };
+      videoRef.current.play().catch(() => {});
     }
   }, [stream, isCameraModalOpen]);
 
@@ -382,7 +393,7 @@ export function MobileAbsensiPage() {
             backgroundRepeat: "repeat"
           }}
         />
-        <div className="relative z-10 flex items-center justify-between px-6 pt-7 pb-20 gap-3.5">
+        <div className="relative z-10 flex items-center justify-between px-6 pt-10 pb-20 gap-3.5">
           <div className="flex items-center gap-3.5">
             <button
               onClick={() => {
@@ -618,7 +629,9 @@ export function MobileAbsensiPage() {
                   autoPlay
                   playsInline
                   muted
-                  className="w-full h-full object-cover scale-x-[-1] absolute inset-0 z-0"
+                  controls={false}
+                  disablePictureInPicture
+                  className="w-full h-full object-cover scale-x-[-1] absolute inset-0 z-0 pointer-events-none"
                 />
 
                 {/* Face Silhouette Guide Overlay (Mask effect) */}

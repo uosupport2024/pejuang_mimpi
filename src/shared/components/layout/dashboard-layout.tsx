@@ -2,6 +2,7 @@ import { type ReactNode, useState, useEffect, useRef } from "react";
 import { Sidebar } from "./sidebar";
 import { Navbar } from "./navbar";
 import { FetchProgressBar } from "./fetch-progress-bar";
+import { AdminGuidanceTour } from "./admin-guidance";
 import patternBg from "@/assets/bg/pattern-background.png";
 
 interface DashboardLayoutProps {
@@ -17,6 +18,7 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ user, onLogout, children }: DashboardLayoutProps) {
   const [scrolled, setScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isTourOpen, setIsTourOpen] = useState(false);
   const mainRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,6 +38,19 @@ export function DashboardLayout({ user, onLogout, children }: DashboardLayoutPro
       mainElement.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  // Check if admin onboarding guidance was already completed
+  useEffect(() => {
+    const completed = localStorage.getItem("admin_guidance_completed");
+    if (!completed) {
+      const timer = setTimeout(() => {
+        setIsTourOpen(true);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const isSuperAdmin = user.email?.toLowerCase() === "admin@gmail.com";
 
   return (
     <div className="admin-dashboard w-full h-screen bg-[#F7F3EB] flex flex-col lg:flex-row overflow-hidden font-sans antialiased text-gray-800">
@@ -67,7 +82,8 @@ export function DashboardLayout({ user, onLogout, children }: DashboardLayoutPro
             <Navbar 
               user={user} 
               onLogout={onLogout} 
-              onToggleMobileMenu={() => setIsMobileOpen((prev) => !prev)} 
+              onToggleMobileMenu={() => setIsMobileOpen((prev) => !prev)}
+              onOpenTour={() => setIsTourOpen(true)}
             />
           </div>
         </header>
@@ -77,6 +93,13 @@ export function DashboardLayout({ user, onLogout, children }: DashboardLayoutPro
           {children}
         </main>
       </div>
+
+      {/* Interactive Admin Onboarding Guidance Tour Modal */}
+      <AdminGuidanceTour
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+        isSuperAdmin={isSuperAdmin}
+      />
     </div>
   );
 }
