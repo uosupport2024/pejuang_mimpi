@@ -21,7 +21,9 @@ interface SidebarProps {
 
 export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarProps) {
   const { currentRoute, navigate } = useRouter();
-  const { effectiveLogo, tenantName } = useTenantBranding();
+  const { effectiveLogo, tenantName, mainColor, subColor } = useTenantBranding();
+  const sidebarBg = mainColor || THEME_COLORS.hex.navBg;
+  const accentColor = subColor || THEME_COLORS.hex.primary;
   const [isCollapsed, setIsCollapsed] = useState(() => {
     return localStorage.getItem("sidebar_collapsed") === "true";
   });
@@ -226,15 +228,16 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                             }
                           }}
                           className={`w-11 h-11 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer relative active:scale-95 ${isActive || isAnySubActive
-                            ? `${THEME_COLORS.classes.buttonBg} text-white shadow-md`
+                            ? "text-white shadow-md font-semibold"
                             : "text-white/70 hover:text-white hover:bg-white/10"
                             }`}
+                          style={isActive || isAnySubActive ? { backgroundColor: accentColor } : undefined}
                         >
                           <Icon size={20} weight="Linear" className="shrink-0 transition-transform group-hover:scale-110 duration-200" />
 
                           {totalPendingGroup > 0 && (
                             <span
-                              style={{ borderColor: THEME_COLORS.hex.navBg }}
+                              style={{ borderColor: sidebarBg }}
                               className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 animate-pulse"
                             />
                           )}
@@ -242,7 +245,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
 
                         {!hasSubItems && activeHoverMenu === item.name && popoverPos && (
                           <div
-                            style={{ top: `${popoverPos.top + 4}px`, left: `${popoverPos.left}px`, backgroundColor: THEME_COLORS.hex.navBgHover }}
+                            style={{ top: `${popoverPos.top + 4}px`, left: `${popoverPos.left}px`, backgroundColor: sidebarBg }}
                             className="fixed px-3 py-1.5 text-white text-xs font-semibold rounded-xl shadow-2xl whitespace-nowrap opacity-100 z-[9999] border border-white/15 flex items-center gap-2 animate-in fade-in zoom-in-95 duration-150 pointer-events-none select-none"
                           >
                             <span>{item.name}</span>
@@ -258,7 +261,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                           <div
                             onMouseEnter={handlePopoverMouseEnter}
                             onMouseLeave={handlePopoverMouseLeave}
-                            style={{ top: `${popoverPos.top}px`, left: `${popoverPos.left}px`, backgroundColor: THEME_COLORS.hex.navBgHover }}
+                            style={{ top: `${popoverPos.top}px`, left: `${popoverPos.left}px`, backgroundColor: sidebarBg }}
                             className="fixed w-52 border border-white/15 rounded-2xl shadow-2xl z-[9999] p-2 space-y-1 text-white animate-in fade-in zoom-in-95 slide-in-from-left-2 duration-150 select-none before:absolute before:-left-3 before:top-0 before:bottom-0 before:w-4"
                           >
                             <div className="px-3 py-1.5 border-b border-white/10 flex items-center justify-between mb-1">
@@ -289,7 +292,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                                   <span>{sub.name}</span>
                                   {sub.route === "KoreksiAbsenApproval" && pendingCount > 0 && (
                                     <span
-                                      style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                                      style={{ backgroundColor: accentColor }}
                                       className="px-2 py-0.5 rounded-md text-[9px] font-bold text-white"
                                     >
                                       {pendingCount}
@@ -297,7 +300,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                                   )}
                                   {sub.route === "Leave" && pendingCutiCount > 0 && (
                                     <span
-                                      style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                                      style={{ backgroundColor: accentColor }}
                                       className="px-2 py-0.5 rounded-md text-[9px] font-bold text-white"
                                     >
                                       {pendingCutiCount}
@@ -319,8 +322,9 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                         <button
                           type="button"
                           onClick={() => toggleDropdown(item.name)}
+                          style={isAnySubActive ? { backgroundColor: accentColor } : undefined}
                           className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 cursor-pointer ${isAnySubActive
-                            ? `${THEME_COLORS.classes.buttonBg} text-white shadow-md font-semibold`
+                            ? "text-white shadow-md font-semibold"
                             : "text-white/70 hover:text-white hover:bg-white/10"
                             }`}
                         >
@@ -377,7 +381,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                                   <span>{sub.name}</span>
                                   {sub.route === "KoreksiAbsenApproval" && pendingCount > 0 && (
                                     <span
-                                      style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                                      style={{ backgroundColor: accentColor }}
                                       className="px-2 py-0.5 rounded-md text-[9px] font-bold text-white"
                                     >
                                       {pendingCount}
@@ -385,7 +389,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                                   )}
                                   {sub.route === "Leave" && pendingCutiCount > 0 && (
                                     <span
-                                      style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                                      style={{ backgroundColor: accentColor }}
                                       className="px-2 py-0.5 rounded-md text-[9px] font-bold text-white"
                                     >
                                       {pendingCutiCount}
@@ -406,8 +410,9 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                       data-menu-id={item.name}
                       type="button"
                       onClick={() => item.route && handleNavigate(item.route)}
+                      style={isActive ? { backgroundColor: accentColor } : undefined}
                       className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 cursor-pointer ${isActive
-                        ? `${THEME_COLORS.classes.buttonBg} text-white shadow-md font-semibold`
+                        ? "text-white shadow-md font-semibold"
                         : "text-white/70 hover:text-white hover:bg-white/10"
                         }`}
                     >
@@ -440,7 +445,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
       {/* DESKTOP FIXED SIDEBAR (DISPLAYED ONLY ON LG AND UP)           */}
       {/* ------------------------------------------------------------- */}
       <aside
-        style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+        style={{ backgroundColor: sidebarBg }}
         className={`text-white hidden lg:flex flex-col py-3 shrink-0 h-screen overflow-visible transition-all duration-300 ease-in-out relative z-40 select-none ${isCollapsed ? "w-20 px-2.5" : "w-64 pl-4 pr-[11px]"
           }`}
       >
@@ -477,7 +482,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
               <>
                 <ChevronRight className="w-4 h-4 text-white/80 transition-transform duration-300 group-hover:translate-x-0.5" />
                 <div
-                  style={{ left: "90px", backgroundColor: THEME_COLORS.hex.navBgHover }}
+                  style={{ left: "90px", backgroundColor: sidebarBg }}
                   className="fixed px-3 py-1.5 text-white text-xs font-semibold rounded-xl shadow-2xl whitespace-nowrap opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 pointer-events-none z-[9999] border border-white/15 origin-left"
                 >
                   Perluas Sidebar
@@ -504,7 +509,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
 
         {/* Drawer Container */}
         <div
-          style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+          style={{ backgroundColor: sidebarBg }}
           className={`absolute top-0 bottom-0 left-0 w-72 max-w-[85vw] text-white flex flex-col py-4 px-4 shadow-2xl transition-transform duration-300 ease-out select-none ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
             }`}
         >

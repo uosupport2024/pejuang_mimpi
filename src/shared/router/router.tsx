@@ -49,7 +49,8 @@ export type RouteType =
   | "LocationEdit"
   | "Profile"
   | "TenantConfig"
-  | "TenantMapping";
+  | "TenantMapping"
+  | "TenantManagement";
 
 export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   Dashboard: "Dashboard",
@@ -82,6 +83,7 @@ export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   Profile: "Profil",
   TenantConfig: "Konfigurasi Tenant",
   TenantMapping: "Mapping Menu Tenant",
+  TenantManagement: "Manajemen Tenant",
   MobileHome: "Sangkar",
   MobileLumbung: "Lumbung",
   MobileAyamku: "Ayamku",
@@ -149,6 +151,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   Profile: "/profile",
   TenantConfig: "/konfigurasi-tenant",
   TenantMapping: "/tenant-mapping",
+  TenantManagement: "/super-admin/tenants",
 };
 
 export const PATH_TO_ROUTE: Record<string, RouteType> = {
@@ -199,6 +202,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/profile": "Profile",
   "/konfigurasi-tenant": "TenantConfig",
   "/tenant-mapping": "TenantMapping",
+  "/super-admin/tenants": "TenantManagement",
 };
 
 interface RouterContextType {

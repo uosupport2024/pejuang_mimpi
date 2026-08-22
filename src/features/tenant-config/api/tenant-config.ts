@@ -77,18 +77,23 @@ export async function fetchAllTenantsAPI(): Promise<TenantConfigData[]> {
   }
 }
 
+export interface UpdateTenantPayload extends Partial<TenantConfigData> {
+  logoFile?: File | null;
+  removeLogo?: boolean;
+}
+
 /**
  * PUT /tenants/{id}
  * Update tenant details including brand colors (main_color, sub_color), logo, name, etc.
  */
 export async function updateTenantAPI(
   tenantId: number | string,
-  payload: Partial<TenantConfigData> & { logoFile?: File | null }
+  payload: UpdateTenantPayload
 ): Promise<TenantConfigData> {
   const token = getCookie("auth_token");
 
-  // If there's a logo file, use FormData with _method=PUT
-  if (payload.logoFile) {
+  // If there's a logo file or logo deletion, use FormData with _method=PUT
+  if (payload.logoFile || payload.removeLogo) {
     const formData = new FormData();
     formData.append("_method", "PUT");
     if (payload.name) formData.append("name", payload.name);
@@ -100,7 +105,14 @@ export async function updateTenantAPI(
     if (payload.address !== undefined) formData.append("address", payload.address || "");
     if (payload.web !== undefined) formData.append("web", payload.web || "");
     if (payload.description !== undefined) formData.append("description", payload.description || "");
-    formData.append("logo", payload.logoFile);
+
+    if (payload.logoFile) {
+      formData.append("logo", payload.logoFile);
+    } else if (payload.removeLogo) {
+      formData.append("remove_logo", "1");
+      formData.append("delete_logo", "1");
+      formData.append("logo", "");
+    }
 
     const response = await fetch(`${API_BASE_URL}/tenants/${tenantId}`, {
       method: "POST", // POST with _method=PUT for multipart support
@@ -122,7 +134,7 @@ export async function updateTenantAPI(
   }
 
   // Otherwise standard JSON PUT
-  const { logoFile, ...jsonData } = payload;
+  const { logoFile, removeLogo, ...jsonData } = payload;
   const response = await fetch(`${API_BASE_URL}/tenants/${tenantId}`, {
     method: "PUT",
     headers: getHeaders(),

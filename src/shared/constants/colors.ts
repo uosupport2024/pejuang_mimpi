@@ -97,6 +97,7 @@ export const THEME_COLORS = {
 
   // Tenant Brand Color Presets
   presets: [
+    { name: "Pejuang Navy", main: hex.navBg, sub: hex.primary },
     { name: "Pejuang Orange", main: hex.primary, sub: hex.padiKemakmuran },
     { name: "Sawah Hijau", main: hex.sawahPertumbuhan, sub: hex.padiKemakmuran },
     { name: "Air Kehidupan", main: hex.airKehidupan, sub: hex.sawahPertumbuhan },

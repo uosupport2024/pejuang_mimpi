@@ -2,6 +2,7 @@ import {
   UsersGroupRounded,
   Refresh,
   Structure,
+  Buildings3,
   MapPoint,
   Calendar,
   ClockCircle,
@@ -73,6 +74,13 @@ export const menuItems: MenuItem[] = [
   },
 
   // Super Admin Group (Khusus admin@gmail.com)
+  {
+    name: "Manajemen Tenant",
+    route: "TenantManagement",
+    icon: Buildings3 || Structure,
+    group: "Super Admin",
+    badge: "Super"
+  },
   {
     name: "Mapping Tenant",
     route: "TenantMapping",

@@ -126,11 +126,12 @@ export function isPermissionsLoading(): boolean {
 export function isMenuEnabled(menuIdOrRoute: string, _tenantId?: string | number): boolean {
   const menuId = ROUTE_MENU_MAPPING[menuIdOrRoute] || menuIdOrRoute;
 
-  // Always allow Dashboard, MobileHome, and TenantMapping
+  // Always allow Dashboard, MobileHome, TenantMapping, TenantManagement, TenantConfig
   if (
     menuIdOrRoute === "Dashboard" ||
     menuIdOrRoute === "MobileHome" ||
     menuIdOrRoute === "TenantMapping" ||
+    menuIdOrRoute === "TenantManagement" ||
     menuIdOrRoute === "TenantConfig" ||
     menuId === "admin-dashboard" ||
     menuId === "mobile-home"

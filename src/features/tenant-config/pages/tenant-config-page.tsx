@@ -46,6 +46,7 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
   const [description, setDescription] = useState("");
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [removeLogo, setRemoveLogo] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -81,6 +82,7 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
     setDescription(data.description || "");
     setLogoPreview(data.logo_url || data.logo || null);
     setLogoFile(null);
+    setRemoveLogo(false);
 
     setTenantBranding({
       id: data.id,
@@ -101,6 +103,16 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
       }
       setLogoFile(file);
       setLogoPreview(URL.createObjectURL(file));
+      setRemoveLogo(false);
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    setLogoPreview(null);
+    setLogoFile(null);
+    setRemoveLogo(true);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -140,7 +152,15 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
         address,
         description,
         logoFile,
+        removeLogo,
       });
+
+      if (removeLogo) {
+        setTenantBranding({
+          logo: null,
+          logo_url: null,
+        });
+      }
 
       populateForm(updated);
       toast.success("Konfigurasi tenant berhasil disimpan!");
@@ -154,7 +174,10 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
   if (loading) {
     return (
       <div className="min-h-[400px] flex flex-col items-center justify-center space-y-3">
-        <div className="w-8 h-8 border-3 border-[#E0542C] border-t-transparent rounded-full animate-spin" />
+        <div
+          style={{ borderColor: THEME_COLORS.hex.primary, borderTopColor: "transparent" }}
+          className="w-8 h-8 border-3 rounded-full animate-spin"
+        />
         <p className="text-xs font-medium text-gray-500">Memuat data tenant...</p>
       </div>
     );
@@ -166,7 +189,7 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200/80 pb-4">
         <div>
           <h1 className="text-base font-bold text-gray-800 flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-[#E0542C]" />
+            <Building2 style={{ color: THEME_COLORS.hex.primary }} className="w-5 h-5" />
             Konfigurasi Tenant
           </h1>
           <p className="text-xs text-gray-500 mt-0.5">
@@ -175,7 +198,10 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
         </div>
 
         {tenant && (
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-orange-50 border border-orange-200/80 rounded-xl text-xs font-semibold text-[#E0542C] self-start sm:self-auto">
+          <div
+            style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}15`, borderColor: `${THEME_COLORS.hex.primary}33` }}
+            className="inline-flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs font-semibold self-start sm:self-auto"
+          >
             <Sparkles className="w-3.5 h-3.5" />
             <span>{tenant.name}</span>
           </div>
@@ -188,7 +214,10 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
           {/* Card Warna Brand */}
           <div className="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-2xs space-y-4">
             <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-              <div className="w-7 h-7 rounded-lg bg-orange-50 text-[#E0542C] flex items-center justify-center">
+              <div
+                style={{ backgroundColor: `${THEME_COLORS.hex.primary}15`, color: THEME_COLORS.hex.primary }}
+                className="w-7 h-7 rounded-lg flex items-center justify-center"
+              >
                 <Palette className="w-4 h-4" />
               </div>
               <div>
@@ -261,9 +290,10 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
                       key={preset.name}
                       type="button"
                       onClick={() => handleApplyPreset(preset.main, preset.sub)}
+                      style={isSelected ? { borderColor: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}0D` } : undefined}
                       className={`flex items-center gap-2 p-2 rounded-xl border text-left transition-all cursor-pointer ${
                         isSelected
-                          ? "border-[#E0542C] bg-orange-50/40 text-gray-900"
+                          ? "text-gray-900 shadow-2xs font-semibold"
                           : "border-gray-200/80 hover:border-gray-300 hover:bg-gray-50/50 text-gray-700"
                       }`}
                     >
@@ -271,10 +301,12 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
                         <div
                           className="w-3.5 h-3.5 rounded-full border border-white shadow-2xs"
                           style={{ backgroundColor: preset.main }}
+                          title={`Utama: ${preset.main}`}
                         />
                         <div
                           className="w-3.5 h-3.5 rounded-full border border-white shadow-2xs"
                           style={{ backgroundColor: preset.sub }}
+                          title={`Sekunder: ${preset.sub}`}
                         />
                       </div>
                       <span className="text-[11px] font-medium truncate">
@@ -390,10 +422,7 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
                   {logoPreview && (
                     <button
                       type="button"
-                      onClick={() => {
-                        setLogoPreview(null);
-                        setLogoFile(null);
-                      }}
+                      onClick={handleRemoveLogo}
                       className="px-2 py-1 text-rose-500 hover:bg-rose-50 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
                     >
                       Hapus
