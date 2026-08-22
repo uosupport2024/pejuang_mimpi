@@ -28,6 +28,7 @@ import {
 } from "@/features/training/api/course";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { fetchProfileAPI } from "@/features/tunas/api/absensi";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 function extractYouTubeId(url: string): string | null {
   if (!url) return null;
@@ -268,7 +269,7 @@ export function PakanLearningPage() {
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen bg-zinc-50 relative -mt-6 -mx-5 pb-20">
-        <div className="bg-[#1e2a4a] text-white flex items-center gap-3 px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
+        <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="text-white flex items-center gap-3 px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{
@@ -326,7 +327,7 @@ export function PakanLearningPage() {
     return (
       <div className="flex flex-col min-h-screen bg-zinc-50 relative -mt-6 -mx-5 pb-20">
         {/* Sticky Header */}
-        <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
+        <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{
@@ -386,7 +387,7 @@ export function PakanLearningPage() {
   if (!course) {
     return (
       <div className="flex flex-col min-h-screen bg-zinc-50 relative -mt-6 -mx-5 pb-20">
-        <div className="bg-[#1e2a4a] text-white flex items-center gap-3 px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
+        <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="text-white flex items-center gap-3 px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{
@@ -440,7 +441,7 @@ export function PakanLearningPage() {
         }
       `}</style>
       {/* Flutter-like Top Sticky Header / Appbar */}
-      <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
+      <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
         {/* Background Pattern */}
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
@@ -466,44 +467,24 @@ export function PakanLearningPage() {
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
-          <div className="text-left min-w-0">
-            <h3 className="text-sm font-bold tracking-tight truncate">
+          <div className="text-left truncate">
+            <h1 className="text-sm font-bold tracking-tight truncate">
               {viewMode === "player" && activeLesson ? activeLesson.title : course.title}
-            </h3>
-            {viewMode === "player" && (
-              <span className="text-[10px] text-white/60 font-bold uppercase tracking-wider block mt-0.5 truncate">
-                {course.title}
-              </span>
-            )}
+            </h1>
+            <p className="text-[10.5px] text-white/70 truncate font-semibold">
+              {viewMode === "player" ? course.title : "Modul Pembelajaran"}
+            </p>
           </div>
         </div>
 
-        {/* Exit / Hearts Area - applied to all player screens as requested */}
-        {viewMode === "player" ? (
-          <div className="flex items-center gap-1.5 relative z-10 bg-white/10 px-2.5 py-1.5 rounded-xl border border-white/15 backdrop-blur-xs">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Heart
-                key={i}
-                size={13}
-                className={`transition-all duration-300 ${
-                  i < lives
-                    ? "text-red-500 fill-red-500 scale-100 animate-pulse"
-                    : "text-white/20 fill-transparent scale-90"
-                }`}
-              />
-            ))}
-          </div>
-        ) : (
-          <button
-            onClick={() => navigate("/mobile/pakan")}
-            className="p-1.5 hover:bg-white/10 rounded-full transition-colors cursor-pointer text-white/80 hover:text-white relative z-10 text-xs font-bold uppercase tracking-wider"
-          >
-            Keluar
-          </button>
-        )}
+        {/* Header Right Lives/Points Badge */}
+        <div className="flex items-center gap-1.5 bg-black/25 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10 relative z-10">
+          <Heart size={14} className="text-red-500 fill-current animate-pulse" />
+          <span className="text-xs font-black text-white">{lives}</span>
+        </div>
       </div>
 
-      {/* Main Body Content */}
+      {/* Main Learning Body */}
       <div className="p-4 flex-1 flex flex-col">
         {viewMode === "lessons" ? (
           /* Lessons List View */
@@ -514,20 +495,23 @@ export function PakanLearningPage() {
               </p>
               <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-3">
                 <div className="flex items-center gap-1.5 text-zinc-800">
-                  <GraduationCap size={16} className="text-[#e0542c]" />
+                  <GraduationCap size={16} style={{ color: THEME_COLORS.hex.primary }} />
                   <span className="text-xs font-bold">
                     {course.lessons?.length || 0} Materi
                   </span>
                 </div>
-                <span className="text-xs font-bold text-[#e0542c]">
+                <span style={{ color: THEME_COLORS.hex.primary }} className="text-xs font-bold">
                   Progres: {course.progress?.percentage_completed ?? course.user_progress?.percentage_completed ?? 0}%
                 </span>
               </div>
               {/* Progress Bar */}
               <div className="w-full bg-zinc-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
                 <div
-                  className="bg-[#e0542c] h-full rounded-full transition-all duration-300"
-                  style={{ width: `${course.progress?.percentage_completed ?? course.user_progress?.percentage_completed ?? 0}%` }}
+                  style={{
+                    backgroundColor: THEME_COLORS.hex.primary,
+                    width: `${course.progress?.percentage_completed ?? course.user_progress?.percentage_completed ?? 0}%`
+                  }}
+                  className="h-full rounded-full transition-all duration-300"
                 />
               </div>
             </div>
@@ -545,13 +529,14 @@ export function PakanLearningPage() {
                 const borderClass = isCompleted
                   ? "border-l-4 border-l-green-500 border-zinc-200/60 bg-green-50/5"
                   : isInProgress
-                  ? "border-l-4 border-l-[#e0542c] border-zinc-200/60 bg-amber-500/5"
+                  ? "border-l-4 border-zinc-200/60 bg-amber-500/5"
                   : "border-l-4 border-l-zinc-300 border-zinc-200/60";
 
                 return (
                   <div
                     key={lesson.id}
                     onClick={() => handleSelectLesson(lesson)}
+                    style={isInProgress ? { borderLeftColor: THEME_COLORS.hex.primary } : undefined}
                     className={`bg-white p-4 rounded-2xl border ${borderClass} hover:border-zinc-300 transition-all flex items-center justify-between cursor-pointer group shadow-xs hover:shadow-sm active:scale-[0.99] duration-200`}
                   >
                     <div className="flex items-center gap-3">
@@ -570,7 +555,7 @@ export function PakanLearningPage() {
                       )}
                       
                       <div className="text-left">
-                        <h4 className="text-xs font-bold text-zinc-900 leading-snug group-hover:text-[#e0542c] transition-colors">
+                        <h4 className="text-xs font-bold text-zinc-900 leading-snug transition-colors">
                           {lesson.title}
                         </h4>
                         <p className="text-[10px] text-zinc-400 font-medium mt-0.5">
@@ -589,7 +574,10 @@ export function PakanLearningPage() {
                           Lanjut
                         </span>
                       ) : (
-                        <span className="px-3 py-1.5 text-[8.5px] font-black uppercase rounded-xl bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white shadow-sm border border-white/10 tracking-wider">
+                        <span
+                          style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                          className="px-3 py-1.5 text-[8.5px] font-black uppercase rounded-xl text-white shadow-sm border border-white/10 tracking-wider"
+                        >
                           Mulai
                         </span>
                       )}
@@ -611,7 +599,8 @@ export function PakanLearningPage() {
                   {activeLesson.chunks.map((_, i) => (
                     <div
                       key={i}
-                      className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= activeChunkIndex ? "bg-[#e0542c]" : "bg-zinc-200"
+                      style={i <= activeChunkIndex ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
+                      className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= activeChunkIndex ? "" : "bg-zinc-200"
                         }`}
                     />
                   ))}
@@ -639,7 +628,7 @@ export function PakanLearningPage() {
                         <div className="space-y-3 text-left">
                           <div className="flex items-center justify-between text-zinc-550 font-bold uppercase text-[9.5px] tracking-wider pl-0.5">
                             <div className="flex items-center gap-1.5">
-                              <Video size={14} className="text-[#e0542c]" />
+                              <Video size={14} style={{ color: THEME_COLORS.hex.primary }} />
                               <span>Video Pembelajaran</span>
                             </div>
                             <button
@@ -648,7 +637,8 @@ export function PakanLearningPage() {
                                 setVideoError(false);
                                 toast.success("Memuat ulang video...");
                               }}
-                              className="text-[8.5px] text-[#e0542c] hover:underline cursor-pointer font-bold uppercase tracking-wider bg-[#e0542c]/5 px-2 py-0.5 rounded-md border border-[#e0542c]/10"
+                              style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}0D`, borderColor: `${THEME_COLORS.hex.primary}1A` }}
+                              className="text-[8.5px] hover:underline cursor-pointer font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border"
                             >
                               Muat Ulang
                             </button>
@@ -706,7 +696,7 @@ export function PakanLearningPage() {
                       return (
                         <div className="space-y-4 text-left">
                           <div className="flex items-center gap-1.5 text-zinc-550 font-bold uppercase text-[9.5px] tracking-wider pl-0.5">
-                            <Volume2 size={14} className="text-[#e0542c]" />
+                            <Volume2 size={14} style={{ color: THEME_COLORS.hex.primary }} />
                             <span>Audio Pembelajaran</span>
                           </div>
                           <div className="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs flex flex-col items-center justify-center py-7 text-center relative min-h-[160px]">
@@ -718,7 +708,10 @@ export function PakanLearningPage() {
                               </div>
                             ) : (
                               <>
-                                <div className="w-14 h-14 rounded-full bg-[#5C8A90]/10 text-[#5C8A90] flex items-center justify-center mb-4">
+                                <div
+                                  style={{ backgroundColor: `${THEME_COLORS.hex.airKehidupan}1A`, color: THEME_COLORS.hex.airKehidupan }}
+                                  className="w-14 h-14 rounded-full flex items-center justify-center mb-4"
+                                >
                                   <Volume2 size={26} />
                                 </div>
                                 <h5 className="text-xs font-bold text-zinc-800">
@@ -756,7 +749,7 @@ export function PakanLearningPage() {
                       return (
                         <div className="space-y-3 text-left">
                           <div className="flex items-center gap-1.5 text-zinc-550 font-bold uppercase text-[9.5px] tracking-wider pl-0.5">
-                            <FileImage size={14} className="text-[#e0542c]" />
+                            <FileImage size={14} style={{ color: THEME_COLORS.hex.primary }} />
                             <span>Panduan Gambar</span>
                           </div>
                           {chunk.detail?.image_url ? (
@@ -800,7 +793,7 @@ export function PakanLearningPage() {
                       return (
                         <div className="space-y-3 text-left">
                           <div className="flex items-center gap-1.5 text-zinc-550 font-bold uppercase text-[9.5px] tracking-wider pl-0.5">
-                            <FileText size={14} className="text-[#e0542c]" />
+                            <FileText size={14} style={{ color: THEME_COLORS.hex.primary }} />
                             <span>Materi Teks</span>
                           </div>
                           <div className="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs space-y-4">
@@ -825,7 +818,7 @@ export function PakanLearningPage() {
                       return (
                         <div className="space-y-3 text-left">
                           <div className="flex items-center gap-1.5 text-zinc-550 font-bold uppercase text-[9.5px] tracking-wider pl-0.5">
-                            <HelpCircle size={14} className="text-[#e0542c]" />
+                            <HelpCircle size={14} style={{ color: THEME_COLORS.hex.primary }} />
                             <span>Kuis Pemahaman</span>
                           </div>
 
@@ -846,8 +839,13 @@ export function PakanLearningPage() {
                                   isSubmitted && isSelected && !quizAnswerResult?.is_correct;
 
                                  let optionStyle = "border-zinc-200 hover:bg-zinc-50/50";
+                                 let customStyle: React.CSSProperties | undefined = undefined;
                                  if (isSelected && !isSubmitted) {
-                                   optionStyle = "border-[#e0542c] bg-[#e0542c]/5 text-zinc-900";
+                                   optionStyle = "text-zinc-900";
+                                   customStyle = {
+                                     borderColor: THEME_COLORS.hex.primary,
+                                     backgroundColor: `${THEME_COLORS.hex.primary}0D`,
+                                   };
                                  } else if (isSubmitted) {
                                    if (quizAnswerResult.is_correct && isCorrectOpt) {
                                      optionStyle = "border-green-500 bg-green-50 text-green-900";
@@ -868,6 +866,7 @@ export function PakanLearningPage() {
                                        }
                                        setSelectedQuizOptionId(opt.id || null);
                                      }}
+                                     style={customStyle}
                                      className={`w-full p-3 rounded-xl border text-xs font-bold text-left transition-all flex items-center justify-between cursor-pointer ${optionStyle}`}
                                    >
                                      <span dangerouslySetInnerHTML={{ __html: opt.options }} />
@@ -891,7 +890,8 @@ export function PakanLearningPage() {
                               <button
                                 onClick={() => handleQuizSubmit(quizId)}
                                 disabled={submittingQuiz || !selectedQuizOptionId}
-                                className="w-full mt-4 py-2.5 bg-[#e0542c] hover:bg-[#c23f1b] disabled:opacity-40 disabled:pointer-events-none text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-sm shadow-[#e0542c]/20"
+                                style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                                className="w-full mt-4 py-2.5 disabled:opacity-40 disabled:pointer-events-none text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-sm hover:opacity-90"
                               >
                                 {submittingQuiz ? (
                                   <>
@@ -945,7 +945,8 @@ export function PakanLearningPage() {
                     <button
                       onClick={handleNextChunk}
                       disabled={!canProceed}
-                      className="px-5 py-2.5 bg-[#e0542c] hover:bg-[#c23f1b] disabled:opacity-40 disabled:pointer-events-none text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-colors cursor-pointer shadow-sm shadow-[#e0542c]/10"
+                      style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                      className="px-5 py-2.5 disabled:opacity-40 disabled:pointer-events-none text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-colors cursor-pointer shadow-sm hover:opacity-90"
                     >
                       {activeChunkIndex === activeLesson.chunks.length - 1
                         ? "Selesai & Kembali"
@@ -976,14 +977,15 @@ export function PakanLearningPage() {
 
             <div className="bg-zinc-50 p-3 rounded-xl border border-zinc-150 inline-block px-6">
               <span className="block text-[10px] text-zinc-400 font-bold uppercase">Poin Didapatkan</span>
-              <span className="text-lg font-black text-[#e0542c] mt-0.5 block">
+              <span style={{ color: THEME_COLORS.hex.primary }} className="text-lg font-black mt-0.5 block">
                 +{earnedPoints} POIN
               </span>
             </div>
 
             <button
               onClick={handleCloseCongratulations}
-              className="w-full py-2.5 bg-[#e0542c] hover:bg-[#c23f1b] text-white rounded-xl text-xs font-bold uppercase tracking-wide transition-colors cursor-pointer"
+              style={{ backgroundColor: THEME_COLORS.hex.primary }}
+              className="w-full py-2.5 text-white rounded-xl text-xs font-bold uppercase tracking-wide transition-colors cursor-pointer hover:opacity-90"
             >
               Kembali ke Materi
             </button>

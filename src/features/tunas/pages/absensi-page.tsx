@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { fetchProfileAPI, fetchLokasiAPI, fetchJadwalHariIniAPI, postAbsenMasukAPI, postAbsenPulangAPI } from "../api/absensi";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { AttendanceHistory } from "../components/attendance-history";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 // Import react-leaflet and leaflet
 import { MapContainer, TileLayer, Marker, Circle, useMap } from "react-leaflet";
@@ -30,7 +31,7 @@ const userIcon = L.divIcon({
   className: "custom-user-marker",
   html: `<div style="position: relative; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px;">
     <div style="position: absolute; width: 24px; height: 24px; border-radius: 50%; background-color: rgba(59, 130, 246, 0.4); animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
-    <div style="position: relative; width: 14px; height: 14px; border-radius: 50%; background-color: #2563eb; border: 2.5px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.25);"></div>
+    <div style="position: relative; width: 14px; height: 14px; border-radius: 50%; background-color: ${THEME_COLORS.hex.primary}; border: 2.5px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.25);"></div>
   </div>`,
   iconSize: [32, 32],
   iconAnchor: [16, 16]
@@ -40,7 +41,7 @@ const officeIcon = L.divIcon({
   className: "custom-office-marker",
   html: `<div style="position: relative; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px;">
     <div style="position: absolute; width: 32px; height: 32px; border-radius: 50%; background-color: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3);"></div>
-    <div style="position: relative; width: 12px; height: 12px; border-radius: 50%; background-color: #dc2626; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.25);"></div>
+    <div style="position: relative; width: 12px; height: 12px; border-radius: 50%; background-color: ${THEME_COLORS.hex.danger}; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.25);"></div>
   </div>`,
   iconSize: [32, 32],
   iconAnchor: [16, 16]
@@ -384,7 +385,10 @@ export function MobileAbsensiPage() {
   return (
     <div className="space-y-4">
       {/* Redesigned Premium Header Bar with Pattern Background */}
-      <div className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl bg-[#1e2a4a] text-white">
+      <div
+        style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+        className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl text-white"
+      >
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
           style={{
@@ -469,9 +473,10 @@ export function MobileAbsensiPage() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={!capturedImage || isSubmitting || isOutsideRadius || !todayJadwal || isTooEarlyForShift}
+                style={!capturedImage || isOutsideRadius || !todayJadwal || isTooEarlyForShift ? undefined : { backgroundColor: THEME_COLORS.hex.primary }}
                 className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] ${!capturedImage || isOutsideRadius || !todayJadwal || isTooEarlyForShift
                   ? "bg-zinc-200 text-zinc-400 cursor-not-allowed border border-zinc-300/40"
-                  : "bg-[#e0542c] hover:bg-[#c23f1b] text-white shadow-xs cursor-pointer"
+                  : "text-white shadow-xs cursor-pointer hover:opacity-90"
                   }`}
               >
                 {isSubmitting ? (
@@ -510,11 +515,13 @@ export function MobileAbsensiPage() {
                   <img
                     src={capturedImage}
                     alt="Avatar Absen"
-                    className="w-28 h-28 rounded-full object-cover border-2 border-[#e0542c]"
+                    style={{ borderColor: THEME_COLORS.hex.primary }}
+                    className="w-28 h-28 rounded-full object-cover border-2"
                   />
                   <button
                     onClick={retakePhoto}
-                    className="absolute bottom-1 right-1 p-2 rounded-full bg-white border border-zinc-200 shadow-xs text-[#e0542c] hover:bg-zinc-50 active:scale-95 transition-all cursor-pointer"
+                    style={{ color: THEME_COLORS.hex.primary }}
+                    className="absolute bottom-1 right-1 p-2 rounded-full bg-white border border-zinc-200 shadow-xs hover:bg-zinc-50 active:scale-95 transition-all cursor-pointer"
                   >
                     <RefreshCw className="w-4 h-4" />
                   </button>
@@ -531,30 +538,28 @@ export function MobileAbsensiPage() {
               )}
             </div>
 
-            <div className="h-2"></div>
+            <span className="text-[9.5px] text-zinc-400 font-medium">
+              {capturedImage ? "Foto berhasil diambil" : "Belum ada foto"}
+            </span>
           </div>
 
-          {/* Column 2: Direct Map (No Card Wrapper) */}
-          <div className="rounded-2xl overflow-hidden border border-zinc-200/60 relative min-h-[220px] z-10">
+          {/* Column 2: Interactive Leaflet Live Map Card */}
+          <div className="bg-white rounded-2xl p-2 text-zinc-800 border border-zinc-200/60 flex flex-col items-center justify-center relative overflow-hidden min-h-[220px] shadow-xs">
             <MapContainer
               center={[lat, lng]}
-              zoom={18}
-              zoomControl={false}
-              attributionControl={false}
-              dragging={false}
-              doubleClickZoom={false}
+              zoom={16}
               scrollWheelZoom={false}
-              boxZoom={false}
-              keyboard={false}
-              touchZoom={false}
-              style={{ width: "100%", height: "100%" }}
+              zoomControl={false}
+              className="h-full w-full rounded-xl z-0 min-h-[204px]"
             >
-              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              <ChangeMapView center={[lat, lng]} zoom={18} />
-              {/* User Marker */}
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
               <Marker position={[lat, lng]} icon={userIcon} />
+              <ChangeMapView center={[lat, lng]} zoom={16} />
 
-              {/* Office Marker & Radius Circle */}
+              {/* Office Marker & Geofence Radius Circle */}
               {lokasiDetail && (
                 (() => {
                   const officeLat = parseFloat(lokasiDetail.lat_kantor);
@@ -568,8 +573,8 @@ export function MobileAbsensiPage() {
                           center={[officeLat, officeLng]}
                           radius={radius}
                           pathOptions={{
-                            color: "#e0542c",
-                            fillColor: "#e0542c",
+                            color: THEME_COLORS.hex.primary,
+                            fillColor: THEME_COLORS.hex.primary,
                             fillOpacity: 0.15
                           }}
                         />
@@ -585,7 +590,7 @@ export function MobileAbsensiPage() {
             {lokasiDetail && distance !== null && (
               <div className="absolute bottom-2 left-2 z-[400] bg-white/90 backdrop-blur-xs px-2.5 py-1.5 rounded-xl border border-zinc-200/80 text-[8px] font-bold flex flex-col text-left shadow-sm">
                 <span className="text-zinc-700 truncate max-w-[100px]">{lokasiDetail.nama_lokasi} ({Math.round(distance)}m)</span>
-                <span className={`uppercase mt-0.5 ${distance <= allowedRadius ? "text-[#516b46]" : "text-[#C54117]"}`}>
+                <span className={`uppercase mt-0.5 ${distance <= allowedRadius ? "text-emerald-700 font-bold" : "text-rose-600 font-bold"}`}>
                   {distance <= allowedRadius ? "● Dalam Radius" : "● Luar Radius"}
                 </span>
               </div>
@@ -654,7 +659,8 @@ export function MobileAbsensiPage() {
               <button
                 type="button"
                 onClick={capturePhoto}
-                className="w-18 h-18 rounded-full bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] flex items-center justify-center shadow-2xl active:scale-90 hover:scale-105 transition-all cursor-pointer border-4 border-white"
+                style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                className="w-18 h-18 rounded-full flex items-center justify-center shadow-2xl active:scale-90 hover:scale-105 transition-all cursor-pointer border-4 border-white"
               >
                 <Camera className="w-6 h-6 text-white" />
               </button>

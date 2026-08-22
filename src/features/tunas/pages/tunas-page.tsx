@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Briefcase, Clock, Bookmark, Calendar, MessageSquare, CheckCircle2, FileText, Search, Trophy, XCircle } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
 import { toast } from "sonner";
-import logoWhite from "@/assets/logo/POT–PejuangMimpi–Logo.png";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { AbsensiCard } from "../components/absensi-card";
 import { MenuGrid } from "../components/menu-grid";
@@ -12,6 +11,8 @@ import type { TunasPageProps } from "../types/tunas.type";
 import { PakanLokerList } from "../../pakan/components/pakan-list";
 import { usePakan } from "../../pakan/hooks/use-pakan";
 import { fetchMyApplications, fetchLokerDetail } from "../../pakan/api/loker";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface PakanLokerSubPageProps {
   selectedApplication: any | null;
@@ -176,30 +177,58 @@ function PakanLokerSubPage({
     switch (s) {
       case "submitted":
         return (
-          <span className="px-2.5 py-1.5 text-[10px] font-bold rounded-full bg-[#e0542c]/10 text-[#e0542c] border border-[#e0542c]/20 uppercase tracking-wider shrink-0 leading-none inline-flex items-center">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#e0542c] mr-1.5 shrink-0" />
+          <span
+            style={{
+              backgroundColor: `${THEME_COLORS.hex.primary}1A`,
+              color: THEME_COLORS.hex.primary,
+              borderColor: `${THEME_COLORS.hex.primary}33`,
+            }}
+            className="px-2.5 py-1.5 text-[10px] font-bold rounded-full border uppercase tracking-wider shrink-0 leading-none inline-flex items-center"
+          >
+            <span style={{ backgroundColor: THEME_COLORS.hex.primary }} className="w-1.5 h-1.5 rounded-full mr-1.5 shrink-0" />
             Diajukan
           </span>
         );
       case "reviewed":
         return (
-          <span className="px-2.5 py-1.5 text-[10px] font-bold rounded-full bg-[#5C8A90]/10 text-[#3b595d] border border-[#5C8A90]/20 uppercase tracking-wider shrink-0 leading-none inline-flex items-center">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#5C8A90] mr-1.5 shrink-0" />
+          <span
+            style={{
+              backgroundColor: `${THEME_COLORS.hex.airKehidupan}1A`,
+              color: THEME_COLORS.hex.airKehidupanText,
+              borderColor: `${THEME_COLORS.hex.airKehidupan}33`,
+            }}
+            className="px-2.5 py-1.5 text-[10px] font-bold rounded-full border uppercase tracking-wider shrink-0 leading-none inline-flex items-center"
+          >
+            <span style={{ backgroundColor: THEME_COLORS.hex.airKehidupan }} className="w-1.5 h-1.5 rounded-full mr-1.5 shrink-0" />
             Ditinjau
           </span>
         );
       case "interview":
         return (
-          <span className="px-2.5 py-1.5 text-[10px] font-bold rounded-full bg-[#F2B233]/12 text-[#916715] border border-[#F2B233]/20 uppercase tracking-wider shrink-0 leading-none inline-flex items-center">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#F2B233] mr-1.5 shrink-0" />
+          <span
+            style={{
+              backgroundColor: `${THEME_COLORS.hex.padiKemakmuran}1F`,
+              color: THEME_COLORS.hex.padiKemakmuranText,
+              borderColor: `${THEME_COLORS.hex.padiKemakmuran}33`,
+            }}
+            className="px-2.5 py-1.5 text-[10px] font-bold rounded-full border uppercase tracking-wider shrink-0 leading-none inline-flex items-center"
+          >
+            <span style={{ backgroundColor: THEME_COLORS.hex.padiKemakmuran }} className="w-1.5 h-1.5 rounded-full mr-1.5 shrink-0" />
             Wawancara
           </span>
         );
       case "accepted":
       case "approved":
         return (
-          <span className="px-2.5 py-1.5 text-[10px] font-bold rounded-full bg-[#7FA46D]/10 text-[#516b46] border border-[#7FA46D]/20 uppercase tracking-wider shrink-0 leading-none inline-flex items-center">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#7FA46D] mr-1.5 shrink-0" />
+          <span
+            style={{
+              backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}1A`,
+              color: THEME_COLORS.hex.sawahPertumbuhanText,
+              borderColor: `${THEME_COLORS.hex.sawahPertumbuhan}33`,
+            }}
+            className="px-2.5 py-1.5 text-[10px] font-bold rounded-full border uppercase tracking-wider shrink-0 leading-none inline-flex items-center"
+          >
+            <span style={{ backgroundColor: THEME_COLORS.hex.sawahPertumbuhan }} className="w-1.5 h-1.5 rounded-full mr-1.5 shrink-0" />
             Diterima
           </span>
         );
@@ -268,7 +297,10 @@ function PakanLokerSubPage({
     return (
       <div className="absolute inset-0 bg-[#F7F3EB] z-50 flex flex-col text-left">
         {/* Chat Header */}
-        <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-7 pb-4 z-20 shadow-md relative overflow-hidden">
+        <div
+          style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+          className="text-white flex items-center justify-between px-5 pt-7 pb-4 z-20 shadow-md relative overflow-hidden"
+        >
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{
@@ -311,15 +343,21 @@ function PakanLokerSubPage({
                 className={`flex ${isMe ? "justify-end" : "justify-start"} items-end gap-1.5`}
               >
                 {!isMe && (
-                  <div className="w-6.5 h-6.5 bg-[#1e2a4a] text-white rounded-full flex items-center justify-center text-[9px] font-extrabold shrink-0 select-none">
+                  <div
+                    style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+                    className="w-6.5 h-6.5 text-white rounded-full flex items-center justify-center text-[9px] font-extrabold shrink-0 select-none"
+                  >
                     {companyName.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <div className={`max-w-[75%] rounded-[20px] px-3.5 py-2 shadow-xs ${
-                  isMe
-                    ? "bg-[#e0542c] text-white rounded-tr-xs"
-                    : "bg-white text-zinc-800 rounded-tl-xs border border-slate-200/40"
-                }`}>
+                <div
+                  style={isMe ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
+                  className={`max-w-[75%] rounded-[20px] px-3.5 py-2 shadow-xs ${
+                    isMe
+                      ? "text-white rounded-tr-xs"
+                      : "bg-white text-zinc-800 rounded-tl-xs border border-slate-200/40"
+                  }`}
+                >
                   <p className="text-xs font-semibold leading-relaxed break-words">{msg.text}</p>
                   <span className={`block text-[8px] mt-1 text-right ${isMe ? "text-white/70" : "text-zinc-400"} font-bold`}>
                     {msg.time}
@@ -341,11 +379,12 @@ function PakanLokerSubPage({
             onKeyDown={(e) => {
               if (e.key === "Enter") handleSendMessage();
             }}
-            className="flex-1 px-4 py-2.5 bg-zinc-50 border border-zinc-200 rounded-full text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 text-zinc-800"
+            className="flex-1 px-4 py-2.5 bg-zinc-50 border border-zinc-200 rounded-full text-xs font-semibold focus:outline-none text-zinc-800"
           />
           <button
             onClick={handleSendMessage}
-            className="w-9.5 h-9.5 bg-[#e0542c] hover:bg-[#c23f1b] text-white rounded-full flex items-center justify-center shadow-md active:scale-95 transition-all cursor-pointer shrink-0 border border-orange-500/10"
+            style={{ backgroundColor: THEME_COLORS.hex.primary }}
+            className="w-9.5 h-9.5 text-white rounded-full flex items-center justify-center shadow-md active:scale-95 transition-all cursor-pointer shrink-0 hover:opacity-90"
           >
             <svg
               className="w-4.5 h-4.5 fill-current ml-0.5"
@@ -407,7 +446,10 @@ function PakanLokerSubPage({
     return (
       <div className="space-y-4 pb-24 text-left relative min-h-[500px]">
         {/* Flat Sticky Navy Header matching standard layouts */}
-        <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md -mx-5 -mt-6 relative overflow-hidden">
+        <div
+          style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+          className="text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md -mx-5 -mt-6 relative overflow-hidden"
+        >
           {/* Background Pattern */}
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
@@ -472,8 +514,8 @@ function PakanLokerSubPage({
                   textColor = "text-emerald-600 font-extrabold";
                   descColor = "text-emerald-500 font-semibold";
                 } else {
-                  circleColor = "bg-[#e0542c] border-[#e0542c] text-white shadow-md shadow-orange-500/20";
-                  textColor = "text-[#e0542c] font-extrabold";
+                  circleColor = "text-white shadow-md";
+                  textColor = "font-extrabold";
                   descColor = "text-zinc-650 font-semibold";
                 }
               }
@@ -497,14 +539,20 @@ function PakanLokerSubPage({
               return (
                 <div key={idx} className="flex gap-4 items-start relative z-10">
                   {/* Step Indicator Circle */}
-                  <div className={`w-[28px] h-[28px] rounded-full flex items-center justify-center border transition-all duration-300 ${circleColor} shrink-0 z-10`}>
+                  <div
+                    style={isActive && !(stepNum === 4 && statusVal === "rejected") && !(stepNum === 4 && (statusVal === "accepted" || statusVal === "approved")) ? { backgroundColor: THEME_COLORS.hex.primary, borderColor: THEME_COLORS.hex.primary } : undefined}
+                    className={`w-[28px] h-[28px] rounded-full flex items-center justify-center border transition-all duration-300 ${circleColor} shrink-0 z-10`}
+                  >
                     {isCompleted ? <CheckCircle2 className="w-3.5 h-3.5" /> : stepIcon}
                   </div>
                   
                   {/* Step Text Info */}
                   <div className="flex-1 space-y-0.5 min-h-[28px]">
                     <div className="flex justify-between items-center">
-                      <span className={`text-xs ${textColor}`}>
+                      <span
+                        style={isActive && !(stepNum === 4 && statusVal === "rejected") && !(stepNum === 4 && (statusVal === "accepted" || statusVal === "approved")) ? { color: THEME_COLORS.hex.primary } : undefined}
+                        className={`text-xs ${textColor}`}
+                      >
                         {step.label}
                       </span>
                       {step.time && (
@@ -514,7 +562,7 @@ function PakanLokerSubPage({
                             : isActive && statusVal === "rejected"
                             ? "bg-rose-50 text-rose-600"
                             : isActive
-                            ? "bg-orange-50 text-[#e0542c]"
+                            ? "bg-orange-50 text-orange-600"
                             : "bg-zinc-100 text-zinc-500"
                         }`}>
                           {step.time}
@@ -546,7 +594,10 @@ function PakanLokerSubPage({
         ) : activeLoker ? (
           <div className="bg-white border border-slate-200/50 rounded-2xl p-5 shadow-xs space-y-4">
             <div className="flex gap-4 items-center">
-              <div className="w-12 h-12 bg-gradient-to-tr from-[#1e2a4a]/10 to-[#1e2a4a]/5 border border-zinc-200/50 rounded-full flex items-center justify-center font-black text-md text-[#1e2a4a] shadow-xs shrink-0 select-none">
+              <div
+                style={{ color: THEME_COLORS.hex.navBg }}
+                className="w-12 h-12 bg-zinc-100 border border-zinc-200/50 rounded-full flex items-center justify-center font-black text-md shadow-xs shrink-0 select-none"
+              >
                 {(activeLoker.company || "P").charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0">
@@ -561,13 +612,34 @@ function PakanLokerSubPage({
 
             {/* Pill Badges Row */}
             <div className="flex flex-wrap gap-1.5">
-              <span className="text-[10px] font-bold px-2.5 py-1.5 bg-[#7FA46D]/10 text-[#516b46] border border-[#7FA46D]/20 rounded-full leading-none">
+              <span
+                style={{
+                  color: THEME_COLORS.hex.sawahPertumbuhanText,
+                  backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}1A`,
+                  borderColor: `${THEME_COLORS.hex.sawahPertumbuhan}33`
+                }}
+                className="text-[10px] font-bold px-2.5 py-1.5 border rounded-full leading-none"
+              >
                 {getJobTypeLabel(activeLoker.job_type || activeLoker.jobType)}
               </span>
-              <span className="text-[10px] font-bold px-2.5 py-1.5 bg-[#5C8A90]/10 text-[#3b595d] border border-[#5C8A90]/20 rounded-full leading-none">
+              <span
+                style={{
+                  color: THEME_COLORS.hex.airKehidupanText,
+                  backgroundColor: `${THEME_COLORS.hex.airKehidupan}1A`,
+                  borderColor: `${THEME_COLORS.hex.airKehidupan}33`
+                }}
+                className="text-[10px] font-bold px-2.5 py-1.5 border rounded-full leading-none"
+              >
                 {activeLoker.workplace || "On-site"}
               </span>
-              <span className="text-[10px] font-bold px-2.5 py-1.5 bg-[#F2B233]/12 text-[#916715] border border-[#F2B233]/20 rounded-full leading-none">
+              <span
+                style={{
+                  color: THEME_COLORS.hex.padiKemakmuranText,
+                  backgroundColor: `${THEME_COLORS.hex.padiKemakmuran}1F`,
+                  borderColor: `${THEME_COLORS.hex.padiKemakmuran}33`
+                }}
+                className="text-[10px] font-bold px-2.5 py-1.5 border rounded-full leading-none"
+              >
                 {activeLoker.salary || "Negosiasi"}
               </span>
             </div>
@@ -615,12 +687,13 @@ function PakanLokerSubPage({
   return (
     <div className="space-y-4">
       {/* Sub Tabs Toggle Switch */}
-      <div className="flex bg-[#e2dcd0]/50 p-1 rounded-2xl border border-zinc-200/40 shadow-inner">
+      <div className="flex bg-zinc-200/50 p-1 rounded-2xl border border-zinc-200/40 shadow-inner">
         <button
           onClick={() => setSubTab("search")}
+          style={subTab === "search" ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
           className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
             subTab === "search"
-              ? "bg-[#e0542c] text-white shadow-sm"
+              ? "text-white shadow-sm"
               : "text-zinc-500 hover:text-zinc-700"
           }`}
         >
@@ -628,9 +701,10 @@ function PakanLokerSubPage({
         </button>
         <button
           onClick={() => setSubTab("history")}
+          style={subTab === "history" ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
           className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
             subTab === "history"
-              ? "bg-[#e0542c] text-white shadow-sm"
+              ? "text-white shadow-sm"
               : "text-zinc-500 hover:text-zinc-700"
           }`}
         >
@@ -695,20 +769,20 @@ function PakanLokerSubPage({
             <div className="flex flex-col gap-3">
               {appliedJobs.map((app) => {
                 const statusVal = (app.status || "submitted").toLowerCase();
-                let borderLeftColor = "border-l-[#e0542c]/75";
+                let borderLeftColor: string = THEME_COLORS.hex.primary;
                 let cardBg = "bg-white hover:bg-slate-50/40";
 
                 if (statusVal === "reviewed") {
-                  borderLeftColor = "border-l-[#5C8A90]/75";
+                  borderLeftColor = THEME_COLORS.hex.airKehidupan;
                 } else if (statusVal === "interview") {
-                  borderLeftColor = "border-l-[#F2B233]/75";
-                  cardBg = "bg-[#F2B233]/2 hover:bg-[#F2B233]/4";
+                  borderLeftColor = THEME_COLORS.hex.padiKemakmuran;
+                  cardBg = "bg-amber-50/20 hover:bg-amber-50/40";
                 } else if (statusVal === "accepted" || statusVal === "approved") {
-                  borderLeftColor = "border-l-[#7FA46D]/75";
-                  cardBg = "bg-gradient-to-tr from-white to-[#7FA46D]/3";
+                  borderLeftColor = THEME_COLORS.hex.sawahPertumbuhan;
+                  cardBg = "bg-emerald-50/20 hover:bg-emerald-50/40";
                 } else if (statusVal === "rejected") {
-                  borderLeftColor = "border-l-rose-500/75";
-                  cardBg = "bg-linear-to-tr from-white to-rose-500/3";
+                  borderLeftColor = THEME_COLORS.hex.danger;
+                  cardBg = "bg-rose-50/20 hover:bg-rose-50/40";
                 }
 
                 const companyInitial = (app.loker?.company || "P").charAt(0).toUpperCase();
@@ -730,13 +804,17 @@ function PakanLokerSubPage({
                         setLoadingAppDetail(false);
                       }
                     }}
-                    className={`${cardBg} border-y border-r border-slate-200/50 border-l-4 ${borderLeftColor} rounded-2xl p-4 shadow-xs relative flex flex-col justify-between space-y-3.5 hover:shadow-sm transition-all duration-300 cursor-pointer`}
+                    style={{ borderLeftColor }}
+                    className={`${cardBg} border-y border-r border-slate-200/50 border-l-4 rounded-2xl p-4 shadow-xs relative flex flex-col justify-between space-y-3.5 hover:shadow-sm transition-all duration-300 cursor-pointer`}
                   >
                     {/* Top info and status */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex gap-3 items-center min-w-0">
                         {/* Company Logo Badge */}
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#1e2a4a]/10 to-[#1e2a4a]/5 flex items-center justify-center font-black text-xs text-[#1e2a4a] border border-zinc-200/40 shadow-xs shrink-0 select-none">
+                        <div
+                          style={{ color: THEME_COLORS.hex.navBg }}
+                          className="w-9 h-9 rounded-full bg-zinc-100 flex items-center justify-center font-black text-xs border border-zinc-200/40 shadow-xs shrink-0 select-none"
+                        >
                           {companyInitial}
                         </div>
                         <div className="min-w-0">
@@ -802,6 +880,7 @@ function PakanLokerSubPage({
 
 export function TunasPage({ user }: TunasPageProps) {
   const { navigate } = useRouter();
+  const { effectiveLogo, tenantName } = useTenantBranding();
   const { clockInTime, clockOutTime, isCheckedIn, dayName, dateString, profileData } = useTunas();
   const [activeView, setActiveView] = useState<"dashboard" | "pakan">("dashboard");
   const [selectedApplication, setSelectedApplication] = useState<any | null>(null);
@@ -854,7 +933,10 @@ export function TunasPage({ user }: TunasPageProps) {
       <div className="space-y-4">
         {/* Flat Sticky Navy Header matching detail page layout */}
         {!hideHeader && (
-          <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md -mx-5 -mt-6 relative overflow-hidden">
+          <div
+            style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+            className="text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md -mx-5 -mt-6 relative overflow-hidden"
+          >
             {/* Background Pattern */}
             <div
               className="absolute inset-0 opacity-15 pointer-events-none"
@@ -901,7 +983,10 @@ export function TunasPage({ user }: TunasPageProps) {
     <div className="space-y-4">
       {/* Header Banner Card - matching the design in Sangkar */}
       <div className="-mt-6 -mx-5 relative mb-4">
-        <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-11 pb-6 relative">
+        <div
+          style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+          className="w-full text-white rounded-t-none rounded-b-[40px] shadow-lg border-b border-white/10 flex flex-col p-6 pt-11 pb-6 relative"
+        >
           {/* Background Pattern */}
           <div
             className="absolute inset-0 opacity-15 pointer-events-none rounded-b-[40px] overflow-hidden"
@@ -916,7 +1001,7 @@ export function TunasPage({ user }: TunasPageProps) {
           <div className="flex justify-between items-start z-10 relative mb-4">
             {/* Left: Logo & User Info */}
             <div className="flex items-center gap-3.5">
-              <img src={logoWhite} alt="Logo" className="w-12 h-12 object-contain" />
+              <img src={effectiveLogo} alt={tenantName || "Logo"} className="w-12 h-12 object-contain" />
               <div className="flex flex-col text-left">
                 <span className="text-[10px] font-bold tracking-wider uppercase text-white/90 leading-none">
                   {getGreeting()}
@@ -931,7 +1016,8 @@ export function TunasPage({ user }: TunasPageProps) {
             <button
               type="button"
               onClick={() => setActiveView("pakan")}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white text-[9px] font-bold uppercase tracking-wider shadow-sm hover:scale-105 active:scale-95 transition-all cursor-pointer hover:shadow-[#e0542c]/20"
+              style={{ backgroundColor: THEME_COLORS.hex.primary }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-white text-[9px] font-bold uppercase tracking-wider shadow-sm hover:scale-105 active:scale-95 transition-all cursor-pointer"
             >
               <Briefcase className="w-3.5 h-3.5 text-white/95" />
               <span>Pakan</span>
@@ -955,9 +1041,11 @@ export function TunasPage({ user }: TunasPageProps) {
       </div>
 
       {/* Horizontal Clock In / Out & Action Card (Style matching user screenshot, no border) */}
-      <div className={`w-full bg-[#1e2a4a] text-white p-5 rounded-3xl shadow-lg transition-all duration-300 flex flex-col ${shouldWiggleButton()
-        ? "border border-[#e0542c]/45 shadow-[0_0_15px_rgba(224,84,44,0.18)]"
-        : "border border-white/5 shadow-[#1e2a4a]/20"
+      <div
+        style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+        className={`w-full text-white p-5 rounded-3xl shadow-lg transition-all duration-300 flex flex-col ${shouldWiggleButton()
+        ? "border border-orange-500/45 shadow-[0_0_15px_rgba(224,84,44,0.18)]"
+        : "border border-white/5 shadow-black/20"
         }`}>
         {/* Top: Job & Office Location */}
         <div className="flex justify-between items-center w-full border-b border-white/10 pb-3 mb-3 text-left">
@@ -969,7 +1057,7 @@ export function TunasPage({ user }: TunasPageProps) {
           </div>
           <div className="flex flex-col items-end">
             <span className="text-[7.5px] uppercase text-white/50 font-bold tracking-wider leading-none">Lokasi Kantor</span>
-            <span className="text-xs font-bold text-[#fee279] mt-1 leading-none uppercase">
+            <span style={{ color: THEME_COLORS.hex.accent }} className="text-xs font-bold mt-1 leading-none uppercase">
               {profileData?.lokasi?.nama_lokasi || "Kantor Pusat"}
             </span>
           </div>
@@ -1002,9 +1090,10 @@ export function TunasPage({ user }: TunasPageProps) {
             onClick={() => {
               navigate("MobileAbsensi");
             }}
+            style={!(isCheckedIn && clockOutTime !== "--:--") ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
             className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wide transition-all active:scale-95 cursor-pointer shadow-xs flex items-center gap-1.5 ${isCheckedIn && clockOutTime !== "--:--"
               ? "bg-white/10 text-white/40 cursor-not-allowed"
-              : "bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white shadow-[#e0542c]/15"
+              : "text-white shadow-md"
               } ${shouldWiggleButton() ? "animate-wiggle" : ""}`}
             disabled={isCheckedIn && clockOutTime !== "--:--"}
           >

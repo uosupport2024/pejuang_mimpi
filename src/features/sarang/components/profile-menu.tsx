@@ -10,6 +10,7 @@ import {
   LogOut,
 } from "lucide-react";
 import type { SarangUser } from "../types/sarang.type";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface ProfileMenuProps {
   user: SarangUser;
@@ -116,7 +117,10 @@ export function ProfileMenu({
                           {item.name}
                         </span>
                         {item.sublabel && (
-                          <span className="text-[9.5px] text-[#e0542c] font-semibold mt-0.5 leading-none">
+                          <span
+                            style={{ color: THEME_COLORS.hex.primary }}
+                            className="text-[9.5px] font-semibold mt-0.5 leading-none"
+                          >
                             {item.sublabel}
                           </span>
                         )}
@@ -124,7 +128,8 @@ export function ProfileMenu({
                     </div>
 
                     <ChevronRight
-                      className={`w-4 h-4 text-zinc-400 transition-transform ${(item as any).isActive ? "rotate-90 text-[#e0542c]" : ""
+                      style={(item as any).isActive ? { color: THEME_COLORS.hex.primary } : undefined}
+                      className={`w-4 h-4 text-zinc-400 transition-transform ${(item as any).isActive ? "rotate-90" : ""
                         }`}
                     />
                   </button>

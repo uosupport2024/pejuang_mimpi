@@ -382,7 +382,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
                 setBuilderLessonId(row.id);
                 setBuilderOpen(true);
               }}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-[#e0542c]/10 text-gray-700 hover:text-[#e0542c] font-bold text-[11px] transition-all cursor-pointer border border-gray-200"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-[11px] transition-all cursor-pointer border border-gray-200"
             >
               <Layers size={13} />
               <span>Isi Konten ({row.chunks_count ?? row.chunks?.length ?? 0})</span>
@@ -507,7 +507,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Jelaskan cakupan modul, materi yang akan dipelajari, serta target kemampuan pegawai..."
-              className="w-full px-4 py-2.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all resize-none"
+              className="w-full px-4 py-2.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none transition-all resize-none"
             />
           </div>
 
@@ -565,7 +565,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
               type="submit"
               disabled={submitting || !title.trim()}
               style={{ backgroundColor: THEME_COLORS.hex.primary }}
-              className="px-6 py-2.5 rounded-md text-white text-xs font-bold shadow-md shadow-[#e0542c]/20 hover:opacity-90 active:scale-98 transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 rounded-md text-white text-xs font-bold shadow-md hover:opacity-90 active:scale-98 transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? (
                 <Loader2 size={16} className="animate-spin" />
@@ -587,7 +587,10 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
 
             {/* Simulated Course Card */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden flex flex-col relative">
-              <div className="h-36 w-full bg-gradient-to-r from-[#1e2a4a] to-[#2a3b68] relative overflow-hidden flex items-center justify-center">
+              <div
+                style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+                className="h-36 w-full relative overflow-hidden flex items-center justify-center"
+              >
                 {thumbnailUrl.trim() ? (
                   <img
                     src={thumbnailUrl}
@@ -645,8 +648,9 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
               <button
                 type="button"
                 onClick={() => setIsPublished(!isPublished)}
+                style={isPublished ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
                 className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  isPublished ? "bg-[#e0542c]" : "bg-gray-200"
+                  isPublished ? "" : "bg-gray-200"
                 }`}
               >
                 <span
@@ -678,7 +682,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
             type="button"
             onClick={handleOpenAddLesson}
             style={{ backgroundColor: THEME_COLORS.hex.primary }}
-            className="px-3.5 py-2 rounded-md text-white text-xs font-bold shadow-md shadow-[#e0542c]/20 hover:opacity-90 active:scale-98 transition-all cursor-pointer flex items-center gap-1.5 self-start sm:self-auto"
+            className="px-3.5 py-2 rounded-md text-white text-xs font-bold shadow-md hover:opacity-90 active:scale-98 transition-all cursor-pointer flex items-center gap-1.5 self-start sm:self-auto"
           >
             <Plus size={15} />
             <span>Tambah Materi</span>
@@ -696,7 +700,8 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
             <button
               type="button"
               onClick={handleOpenAddLesson}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold text-[#e0542c] bg-[#e0542c]/10 hover:bg-[#e0542c]/20 transition-all cursor-pointer"
+              style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}1A` }}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer hover:opacity-90"
             >
               + Tambah Materi Pertama
             </button>

@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "@/shared/router/router";
-import logoWhiteImg from "@/assets/logo/POT–PejuangMimpi–Logo.png";
 import { menuItems } from "@/shared/router/menu";
 import { API_BASE_URL, getHeaders, dedupFetch } from "@/shared/utils/api";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { isMenuEnabled, subscribePermissions } from "@/shared/utils/tenant-permissions";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 let pendingCountsCache: { koreksi: number; cuti: number; timestamp: number } | null = null;
 
@@ -20,6 +21,7 @@ interface SidebarProps {
 
 export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarProps) {
   const { currentRoute, navigate } = useRouter();
+  const { effectiveLogo, tenantName } = useTenantBranding();
   const [isCollapsed, setIsCollapsed] = useState(() => {
     return localStorage.getItem("sidebar_collapsed") === "true";
   });
@@ -224,21 +226,24 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                             }
                           }}
                           className={`w-11 h-11 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer relative active:scale-95 ${isActive || isAnySubActive
-                            ? "bg-[#e0542c] text-white shadow-md shadow-[#e0542c]/30"
+                            ? `${THEME_COLORS.classes.buttonBg} text-white shadow-md`
                             : "text-white/70 hover:text-white hover:bg-white/10"
                             }`}
                         >
                           <Icon size={20} weight="Linear" className="shrink-0 transition-transform group-hover:scale-110 duration-200" />
 
                           {totalPendingGroup > 0 && (
-                            <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-[#1e2a4a] animate-pulse" />
+                            <span
+                              style={{ borderColor: THEME_COLORS.hex.navBg }}
+                              className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 animate-pulse"
+                            />
                           )}
                         </button>
 
                         {!hasSubItems && activeHoverMenu === item.name && popoverPos && (
                           <div
-                            style={{ top: `${popoverPos.top + 4}px`, left: `${popoverPos.left}px` }}
-                            className="fixed px-3 py-1.5 bg-[#161f36] text-white text-xs font-semibold rounded-xl shadow-2xl whitespace-nowrap opacity-100 z-[9999] border border-white/15 flex items-center gap-2 animate-in fade-in zoom-in-95 duration-150 pointer-events-none select-none"
+                            style={{ top: `${popoverPos.top + 4}px`, left: `${popoverPos.left}px`, backgroundColor: THEME_COLORS.hex.navBgHover }}
+                            className="fixed px-3 py-1.5 text-white text-xs font-semibold rounded-xl shadow-2xl whitespace-nowrap opacity-100 z-[9999] border border-white/15 flex items-center gap-2 animate-in fade-in zoom-in-95 duration-150 pointer-events-none select-none"
                           >
                             <span>{item.name}</span>
                             {item.badge && (
@@ -253,8 +258,8 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                           <div
                             onMouseEnter={handlePopoverMouseEnter}
                             onMouseLeave={handlePopoverMouseLeave}
-                            style={{ top: `${popoverPos.top}px`, left: `${popoverPos.left}px` }}
-                            className="fixed w-52 bg-[#161f36] border border-white/15 rounded-2xl shadow-2xl z-[9999] p-2 space-y-1 text-white animate-in fade-in zoom-in-95 slide-in-from-left-2 duration-150 select-none before:absolute before:-left-3 before:top-0 before:bottom-0 before:w-4"
+                            style={{ top: `${popoverPos.top}px`, left: `${popoverPos.left}px`, backgroundColor: THEME_COLORS.hex.navBgHover }}
+                            className="fixed w-52 border border-white/15 rounded-2xl shadow-2xl z-[9999] p-2 space-y-1 text-white animate-in fade-in zoom-in-95 slide-in-from-left-2 duration-150 select-none before:absolute before:-left-3 before:top-0 before:bottom-0 before:w-4"
                           >
                             <div className="px-3 py-1.5 border-b border-white/10 flex items-center justify-between mb-1">
                               <span className="text-xs font-bold text-white/90">{item.name}</span>
@@ -275,19 +280,26 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                                     setPopoverPos(null);
                                     handleNavigate(sub.route);
                                   }}
+                                  style={isSubActive ? { color: THEME_COLORS.hex.accent } : undefined}
                                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all duration-150 cursor-pointer ${isSubActive
-                                    ? "text-[#fee279] font-bold bg-white/15"
+                                    ? "font-bold bg-white/15"
                                     : "text-white/70 hover:text-white hover:bg-white/10"
                                     }`}
                                 >
                                   <span>{sub.name}</span>
                                   {sub.route === "KoreksiAbsenApproval" && pendingCount > 0 && (
-                                    <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-[#e0542c] text-white">
+                                    <span
+                                      style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                                      className="px-2 py-0.5 rounded-md text-[9px] font-bold text-white"
+                                    >
                                       {pendingCount}
                                     </span>
                                   )}
                                   {sub.route === "Leave" && pendingCutiCount > 0 && (
-                                    <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-[#e0542c] text-white">
+                                    <span
+                                      style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                                      className="px-2 py-0.5 rounded-md text-[9px] font-bold text-white"
+                                    >
                                       {pendingCutiCount}
                                     </span>
                                   )}
@@ -308,7 +320,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                           type="button"
                           onClick={() => toggleDropdown(item.name)}
                           className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 cursor-pointer ${isAnySubActive
-                            ? "bg-[#e0542c] text-white shadow-md shadow-[#e0542c]/25 font-semibold"
+                            ? `${THEME_COLORS.classes.buttonBg} text-white shadow-md font-semibold`
                             : "text-white/70 hover:text-white hover:bg-white/10"
                             }`}
                         >
@@ -356,24 +368,25 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                                   data-menu-id={`${item.name} - ${sub.name}`}
                                   type="button"
                                   onClick={() => handleNavigate(sub.route)}
+                                  style={isSubActive ? { color: THEME_COLORS.hex.accent } : undefined}
                                   className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition-all duration-150 cursor-pointer ${isSubActive
-                                    ? "text-[#fee279] font-bold bg-white/10"
+                                    ? "font-bold bg-white/10"
                                     : "text-white/60 hover:text-white hover:bg-white/5"
                                     }`}
                                 >
                                   <span>{sub.name}</span>
                                   {sub.route === "KoreksiAbsenApproval" && pendingCount > 0 && (
                                     <span
-                                      className={`px-2 py-0.5 rounded-md text-[9px] font-bold ${isSubActive ? "bg-[#e0542c] text-white" : "bg-rose-500/20 text-rose-300"
-                                        }`}
+                                      style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                                      className="px-2 py-0.5 rounded-md text-[9px] font-bold text-white"
                                     >
                                       {pendingCount}
                                     </span>
                                   )}
                                   {sub.route === "Leave" && pendingCutiCount > 0 && (
                                     <span
-                                      className={`px-2 py-0.5 rounded-md text-[9px] font-bold ${isSubActive ? "bg-[#e0542c] text-white" : "bg-rose-500/20 text-rose-300"
-                                        }`}
+                                      style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                                      className="px-2 py-0.5 rounded-md text-[9px] font-bold text-white"
                                     >
                                       {pendingCutiCount}
                                     </span>
@@ -394,7 +407,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                       type="button"
                       onClick={() => item.route && handleNavigate(item.route)}
                       className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 cursor-pointer ${isActive
-                        ? "bg-[#e0542c] text-white shadow-md shadow-[#e0542c]/25 font-semibold"
+                        ? `${THEME_COLORS.classes.buttonBg} text-white shadow-md font-semibold`
                         : "text-white/70 hover:text-white hover:bg-white/10"
                         }`}
                     >
@@ -427,14 +440,15 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
       {/* DESKTOP FIXED SIDEBAR (DISPLAYED ONLY ON LG AND UP)           */}
       {/* ------------------------------------------------------------- */}
       <aside
-        className={`bg-[#1e2a4a] text-white hidden lg:flex flex-col py-3 shrink-0 h-screen overflow-visible transition-all duration-300 ease-in-out relative z-40 select-none ${isCollapsed ? "w-20 px-2.5" : "w-64 pl-4 pr-[11px]"
+        style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+        className={`text-white hidden lg:flex flex-col py-3 shrink-0 h-screen overflow-visible transition-all duration-300 ease-in-out relative z-40 select-none ${isCollapsed ? "w-20 px-2.5" : "w-64 pl-4 pr-[11px]"
           }`}
       >
         {/* Brand Logo Header */}
         <div className="flex items-center justify-center shrink-0 w-full py-1 transition-all duration-300">
           <img
-            src={logoWhiteImg}
-            alt="Pejuang Mimpi Logo"
+            src={effectiveLogo}
+            alt={tenantName || "Logo"}
             className={`object-contain transition-all duration-300 hover:scale-105 shrink-0 ${isCollapsed ? "w-9 h-9" : "h-[43px] w-auto max-w-[135px]"
               }`}
           />
@@ -463,8 +477,8 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
               <>
                 <ChevronRight className="w-4 h-4 text-white/80 transition-transform duration-300 group-hover:translate-x-0.5" />
                 <div
-                  className="fixed px-3 py-1.5 bg-[#161f36] text-white text-xs font-semibold rounded-xl shadow-2xl whitespace-nowrap opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 pointer-events-none z-[9999] border border-white/15 origin-left"
-                  style={{ left: "90px" }}
+                  style={{ left: "90px", backgroundColor: THEME_COLORS.hex.navBgHover }}
+                  className="fixed px-3 py-1.5 text-white text-xs font-semibold rounded-xl shadow-2xl whitespace-nowrap opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 pointer-events-none z-[9999] border border-white/15 origin-left"
                 >
                   Perluas Sidebar
                 </div>
@@ -490,12 +504,13 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
 
         {/* Drawer Container */}
         <div
-          className={`absolute top-0 bottom-0 left-0 w-72 max-w-[85vw] bg-[#1e2a4a] text-white flex flex-col py-4 px-4 shadow-2xl transition-transform duration-300 ease-out select-none ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
+          style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+          className={`absolute top-0 bottom-0 left-0 w-72 max-w-[85vw] text-white flex flex-col py-4 px-4 shadow-2xl transition-transform duration-300 ease-out select-none ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
             }`}
         >
           {/* Header with Logo + Close X Button */}
           <div className="flex items-center justify-between pb-3.5 border-b border-white/10 mb-3.5">
-            <img src={logoWhiteImg} alt="Pejuang Mimpi Logo" className="h-9 w-auto max-w-[130px] object-contain" />
+            <img src={effectiveLogo} alt={tenantName || "Logo"} className="h-9 w-auto max-w-[130px] object-contain" />
             <button
               type="button"
               onClick={onCloseMobile}

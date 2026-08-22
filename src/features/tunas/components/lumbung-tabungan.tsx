@@ -1,5 +1,6 @@
 import { Wallet, Landmark } from "lucide-react";
 import type { TunasUser } from "../types/tunas.type";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface LumbungTabunganProps {
   user: TunasUser;
@@ -8,7 +9,10 @@ interface LumbungTabunganProps {
 
 export function LumbungTabungan({ user, formatRupiah }: LumbungTabunganProps) {
   return (
-    <div className="bg-[#1e2a4a] text-white p-5 rounded-3xl shadow-lg shadow-[#1e2a4a]/20 relative overflow-hidden space-y-4 text-left">
+    <div
+      style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+      className="text-white p-5 rounded-3xl shadow-lg relative overflow-hidden space-y-4 text-left"
+    >
       <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-xl pointer-events-none" />
 
       <div className="flex justify-between items-center">

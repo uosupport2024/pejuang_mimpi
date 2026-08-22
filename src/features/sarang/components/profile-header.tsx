@@ -1,6 +1,7 @@
 import { Camera } from "lucide-react";
 import type { SarangUser } from "../types/sarang.type";
 import patternBg from "@/assets/bg/pattern-background.png";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface ProfileHeaderProps {
   user: SarangUser;
@@ -17,7 +18,10 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
     .toUpperCase();
 
   return (
-    <div className="-mt-6 -mx-5 px-5 pt-10 pb-6 bg-[#1e2a4a] text-white flex items-center relative overflow-hidden rounded-b-[32px] shadow-md z-10">
+    <div
+      style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+      className="-mt-6 -mx-5 px-5 pt-10 pb-6 text-white flex items-center relative overflow-hidden rounded-b-[32px] shadow-md z-10"
+    >
       {/* Background Pattern */}
       <div
         className="absolute inset-0 opacity-15 pointer-events-none"
@@ -36,7 +40,10 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
               {initials}
             </div>
           </div>
-          <button className="absolute -bottom-1 -right-1 bg-[#e0542c] hover:bg-[#c23f1b] text-white p-1 rounded-full border border-[#1e2a4a] hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-sm">
+          <button
+            style={{ backgroundColor: THEME_COLORS.hex.primary, borderColor: THEME_COLORS.hex.navBg }}
+            className="absolute -bottom-1 -right-1 text-white p-1 rounded-full border hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-sm"
+          >
             <Camera className="w-2.5 h-2.5" />
           </button>
         </div>

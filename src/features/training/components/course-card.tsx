@@ -1,5 +1,6 @@
 import { BookOpen, Edit2, Trash2 } from "lucide-react";
 import type { Course } from "../api/course";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface CourseCardProps {
   course: Course;
@@ -12,10 +13,13 @@ export function CourseCard({ course, onEdit, onDelete, onViewDetail }: CourseCar
   return (
     <div
       onClick={() => onViewDetail(course)}
-      className="bg-white rounded-2xl border border-gray-200/80 shadow-xs hover:shadow-lg hover:border-orange-200/80 transition-all duration-300 overflow-hidden flex flex-col group relative cursor-pointer"
+      className="bg-white rounded-2xl border border-gray-200/80 shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col group relative cursor-pointer"
     >
       {/* Card Header Image / Cover */}
-      <div className="h-40 w-full bg-gradient-to-r from-[#1e2a4a] to-[#2a3b68] relative overflow-hidden shrink-0">
+      <div
+        style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+        className="h-40 w-full relative overflow-hidden shrink-0"
+      >
         {course.thumbnail_url ? (
           <img
             src={course.thumbnail_url}
@@ -48,7 +52,7 @@ export function CourseCard({ course, onEdit, onDelete, onViewDetail }: CourseCar
       {/* Card Body */}
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         <div>
-          <h4 className="text-sm font-bold text-gray-900 group-hover:text-[#e0542c] transition-colors line-clamp-1 mb-1">
+          <h4 className="text-sm font-bold text-gray-900 transition-colors line-clamp-1 mb-1">
             {course.title}
           </h4>
           <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
@@ -58,7 +62,10 @@ export function CourseCard({ course, onEdit, onDelete, onViewDetail }: CourseCar
 
         {/* Card Meta Footer */}
         <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-orange-50 text-[#e0542c] border border-orange-200/60">
+          <span
+            style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}1A`, borderColor: `${THEME_COLORS.hex.primary}33` }}
+            className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold border"
+          >
             {course.lessons_count || course.lessons?.length || 0} Materi
           </span>
 

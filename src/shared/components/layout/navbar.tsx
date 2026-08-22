@@ -5,7 +5,7 @@ import { useRouter, type RouteType } from "@/shared/router/router";
 import { fetchProfileAPI } from "@/features/tunas/api/absensi";
 import { THEME_COLORS } from "@/shared/constants/colors";
 import { ChangePasswordModal } from "@/shared/components/ui/change-password-modal";
-import logoWhiteImg from "@/assets/logo/POT–PejuangMimpi–Logo.png";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
 
 let tenantNameCache: string | null = null;
 let tenantFetchPromise: Promise<string> | null = null;
@@ -22,6 +22,7 @@ interface NavbarProps {
 
 export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: NavbarProps) {
   const { navigate } = useRouter();
+  const { effectiveLogo } = useTenantBranding();
   const [isOpen, setIsOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -234,8 +235,8 @@ export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: Navba
 
         {/* Mobile Brand Logo */}
         <img
-          src={logoWhiteImg}
-          alt="Pejuang Mimpi Logo"
+          src={effectiveLogo}
+          alt="Logo"
           className="h-7 w-auto object-contain lg:hidden shrink-0"
         />
 
@@ -278,7 +279,10 @@ export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: Navba
           >
             <Bell className="w-3.5 h-3.5" />
             {unreadCount > 0 && (
-              <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-[#e0542c] ring-2 ring-[#1e2a4a] animate-pulse" />
+              <span
+                style={{ backgroundColor: THEME_COLORS.hex.primary, borderColor: THEME_COLORS.hex.navBg }}
+                className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full ring-2 animate-pulse"
+              />
             )}
           </button>
 
@@ -290,7 +294,10 @@ export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: Navba
                 <div className="flex items-center gap-2">
                   <h4 className="text-xs font-black text-gray-900">Pemberitahuan</h4>
                   {unreadCount > 0 && (
-                    <span className="px-2 py-0.5 rounded-full bg-[#e0542c]/10 text-[#e0542c] text-[9px] font-black">
+                    <span
+                      style={{ backgroundColor: `${THEME_COLORS.hex.primary}1A`, color: THEME_COLORS.hex.primary }}
+                      className="px-2 py-0.5 rounded-full text-[9px] font-black"
+                    >
                       {unreadCount} Baru
                     </span>
                   )}
@@ -298,7 +305,8 @@ export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: Navba
                 {unreadCount > 0 && (
                   <button
                     onClick={markAllRead}
-                    className="text-[10px] font-bold text-[#5C8A90] hover:text-[#3d5d61] cursor-pointer transition-colors"
+                    style={{ color: THEME_COLORS.hex.airKehidupan }}
+                    className="text-[10px] font-bold hover:underline cursor-pointer transition-colors"
                   >
                     Tandai Semua Dibaca
                   </button>
@@ -316,20 +324,29 @@ export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: Navba
                     <div
                       key={notif.id}
                       onClick={() => handleNotifClick(notif.path, notif.id)}
+                      style={notif.unread ? { backgroundColor: `${THEME_COLORS.hex.primary}0D`, borderColor: `${THEME_COLORS.hex.primary}33` } : undefined}
                       className={`p-2.5 rounded-xl border transition-all cursor-pointer flex items-start gap-3 ${
                         notif.unread
-                          ? "bg-[#e0542c]/5 border-[#e0542c]/20 hover:bg-[#e0542c]/10"
+                          ? ""
                           : "bg-zinc-50/60 border-zinc-100 hover:bg-zinc-100/80"
                       }`}
                     >
                       <div
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
-                          notif.type === "leave"
-                            ? "bg-[#e0542c]/10 text-[#e0542c]"
-                            : notif.type === "shift"
-                            ? "bg-[#5C8A90]/10 text-[#5C8A90]"
-                            : "bg-[#F2B233]/10 text-[#F2B233]"
-                        }`}
+                        style={{
+                          backgroundColor:
+                            notif.type === "leave"
+                              ? `${THEME_COLORS.hex.primary}1A`
+                              : notif.type === "shift"
+                              ? `${THEME_COLORS.hex.airKehidupan}1A`
+                              : `${THEME_COLORS.hex.padiKemakmuran}1A`,
+                          color:
+                            notif.type === "leave"
+                              ? THEME_COLORS.hex.primary
+                              : notif.type === "shift"
+                              ? THEME_COLORS.hex.airKehidupan
+                              : THEME_COLORS.hex.padiKemakmuranDark,
+                        }}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
                       >
                         {notif.type === "leave" ? (
                           <FileText className="w-4 h-4" />
@@ -417,7 +434,7 @@ export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: Navba
           {isOpen && (
             <div className="absolute right-0 mt-2.5 w-56 bg-white/95 backdrop-blur-xl border border-zinc-200/60 rounded-2xl shadow-2xl z-50 p-2 text-zinc-800 transition-all animate-in fade-in zoom-in-95 duration-150">
               {/* User Summary Box (Solid Batik Navy Background) */}
-              <div className="px-3 py-2.5 mb-1.5 rounded-xl bg-[#1e2a4a] text-white flex items-center gap-3 shadow-xs">
+              <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="px-3 py-2.5 mb-1.5 rounded-xl text-white flex items-center gap-3 shadow-xs">
                 <div
                   style={{ backgroundColor: THEME_COLORS.hex.primary }}
                   className="w-9 h-9 rounded-full text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs my-auto ring-2 ring-white/20"
@@ -432,7 +449,7 @@ export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: Navba
 
               {/* Tenant / Organization Info Badge (Solid Sawah Pertumbuhan Green Background) */}
               {tenantName && (
-                <div className="px-3 py-2 mb-2 rounded-xl bg-[#7FA46D] text-white flex items-center justify-between text-left shadow-xs">
+                <div style={{ backgroundColor: THEME_COLORS.hex.sawahPertumbuhan }} className="px-3 py-2 mb-2 rounded-xl text-white flex items-center justify-between text-left shadow-xs">
                   <div className="flex items-center gap-1.5">
                     <Building2 className="w-3.5 h-3.5 text-white" />
                     <span className="text-[10px] font-extrabold text-white/90 uppercase tracking-wider">Tenant</span>
@@ -462,7 +479,7 @@ export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: Navba
                 className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-medium text-zinc-700 hover:text-[#1f2937] hover:bg-[#F2B233]/10 transition-all cursor-pointer text-left group"
               >
                 <div
-                  style={{ backgroundColor: `${THEME_COLORS.hex.padiKemakmuran}25`, color: "#916715" }}
+                  style={{ backgroundColor: `${THEME_COLORS.hex.padiKemakmuran}25`, color: THEME_COLORS.hex.padiKemakmuranText }}
                   className="w-7 h-7 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105"
                 >
                   <Lock className="w-3.5 h-3.5" />

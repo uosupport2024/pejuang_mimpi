@@ -5,6 +5,7 @@ import { useRouter } from "@/shared/router/router";
 import { toast } from "sonner";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { fetchOvertimeHistoryAPI } from "../api/absensi";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 type LemburStatus = "Approved" | "Pending" | "Rejected";
 
@@ -23,9 +24,9 @@ interface LemburHistoryItem {
 }
 
 const cardBg: Record<LemburStatus, string> = {
-  Approved: "bg-[#516B46]", // Padi/Green theme
-  Pending: "bg-[#d2911b]",  // Finexy Orange/Yellow theme
-  Rejected: "bg-[#C54117]", // Rose/Red theme
+  Approved: "bg-emerald-600",
+  Pending: "bg-amber-500",
+  Rejected: "bg-rose-600",
 };
 
 const indonesianDays: Record<string, string> = {
@@ -128,7 +129,10 @@ export function MobileLemburHistoryPage() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl bg-[#e0542c] text-white">
+      <div
+        style={{ backgroundColor: THEME_COLORS.hex.primary }}
+        className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl text-white"
+      >
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
           style={{ backgroundImage: `url(${patternBg})`, backgroundSize: "180px auto", backgroundRepeat: "repeat" }}

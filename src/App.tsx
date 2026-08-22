@@ -8,6 +8,7 @@ import { setCookie, getCookie, eraseCookie } from "@/shared/utils/cookies"
 
 import { RouterProvider, useRouter } from "@/shared/router/router"
 import { loadTenantPermissions, isMenuEnabled, subscribePermissions } from "@/shared/utils/tenant-permissions"
+import { loadTenantBranding } from "@/shared/utils/tenant-branding"
 import { AppLoadingSkeleton } from "@/shared/components/layout/app-loading-skeleton"
 import { toast } from "sonner"
 
@@ -44,7 +45,7 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout,
 
   const userTenantId = session?.user?.tenant_id || (session?.user as any)?.tenant?.id || (session?.user as any)?.tenant_list?.[0]?.tenant_id || 3;
 
-  // Load tenant permissions on session startup
+  // Load tenant permissions and branding on session startup
   useEffect(() => {
     if (!session) {
       setIsPermLoading(false);
@@ -52,6 +53,7 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout,
     }
 
     let isMounted = true;
+    loadTenantBranding();
     loadTenantPermissions(userTenantId).then(() => {
       if (isMounted) setIsPermLoading(false);
     });

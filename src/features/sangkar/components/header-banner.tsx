@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import logoWhite from "@/assets/logo/POT–PejuangMimpi–Logo.png";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { useHeaderBanner } from "../hooks/use-header-banner";
 import type { SangkarUser } from "../types/sangkar.type";
 import type { Celengan } from "../types/celengan";
 import { motion } from "motion/react";
 import { animate } from "motion";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface HeaderBannerProps {
   user: SangkarUser;
@@ -15,6 +16,7 @@ interface HeaderBannerProps {
 }
 
 export function HeaderBanner({ user, celengans, loading }: HeaderBannerProps) {
+  const { effectiveLogo, tenantName } = useTenantBranding();
   const {
     currentTime,
     showBalance,
@@ -63,8 +65,11 @@ export function HeaderBanner({ user, celengans, loading }: HeaderBannerProps) {
 
   return (
     <div className="-mt-6 -mx-5 relative">
-      {/* Header Banner Card - Solid background color matching Navigation Bottom Bar (#1e2a4a) */}
-      <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-11 pb-6 relative overflow-hidden">
+      {/* Header Banner Card - Solid background color matching Navigation Bottom Bar */}
+      <div
+        style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+        className="w-full text-white rounded-t-none rounded-b-[40px] shadow-lg border-b border-white/10 flex flex-col p-6 pt-11 pb-6 relative overflow-hidden"
+      >
         {/* Background Pattern - Repeating and subtle (15% opacity) */}
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
@@ -79,7 +84,7 @@ export function HeaderBanner({ user, celengans, loading }: HeaderBannerProps) {
         <div className="flex justify-between items-center z-10 mb-5">
           {/* Left: App Logo & User Details */}
           <div className="flex items-center gap-3">
-            <img src={logoWhite} alt="Pejuang Mimpi" className="w-9 h-9 object-contain" />
+            <img src={effectiveLogo} alt={tenantName || "Logo"} className="w-9 h-9 object-contain" />
             <div className="flex flex-col text-left">
               <span className="text-[10px] font-bold tracking-wider uppercase text-white/90 leading-none">Selamat Bekerja</span>
               <span className="text-lg font-bold tracking-tight text-white mt-1.5 leading-none">{user.name}</span>
@@ -98,7 +103,7 @@ export function HeaderBanner({ user, celengans, loading }: HeaderBannerProps) {
           <span className="text-xs font-semibold text-white/80 tracking-wide mb-1.5">Total Kekayaan Kamu</span>
           <div className="flex items-center gap-1.5 -mt-0.5">
             <motion.span
-              className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-[#fee279] to-white"
+              className={`text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-[${THEME_COLORS.hex.accent}] to-white`}
               style={{
                 backgroundSize: "200% auto",
               }}

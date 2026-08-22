@@ -165,7 +165,10 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
     switch (type) {
       case "video":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#e0542c]/10 text-[#e0542c] font-bold text-[9.5px] border border-[#e0542c]/20">
+          <span
+            style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}1A`, borderColor: `${THEME_COLORS.hex.primary}33` }}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-bold text-[9.5px] border"
+          >
             <Video size={11} /> Video
           </span>
         );
@@ -177,13 +180,19 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
         );
       case "image_step":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#7FA46D]/10 text-[#516b46] font-bold text-[9.5px] border border-[#7FA46D]/20">
+          <span
+            style={{ color: THEME_COLORS.hex.sawahPertumbuhanText, backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}1A`, borderColor: `${THEME_COLORS.hex.sawahPertumbuhan}33` }}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-bold text-[9.5px] border"
+          >
             <ImageIcon size={11} /> Gambar
           </span>
         );
       case "quiz":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#F2B233]/12 text-[#916715] font-bold text-[9.5px] border border-[#F2B233]/20">
+          <span
+            style={{ color: THEME_COLORS.hex.padiKemakmuranText, backgroundColor: `${THEME_COLORS.hex.padiKemakmuran}1F`, borderColor: `${THEME_COLORS.hex.padiKemakmuran}33` }}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-bold text-[9.5px] border"
+          >
             <HelpCircle size={11} /> Kuis
           </span>
         );
@@ -232,7 +241,10 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
         {/* Drawer Header */}
         <div className="p-5 border-b border-gray-100 flex items-center justify-between shrink-0">
           <div>
-            <span className="text-[10px] font-bold text-[#e0542c] uppercase tracking-wider block">
+            <span
+              style={{ color: THEME_COLORS.hex.primary }}
+              className="text-[10px] font-bold uppercase tracking-wider block"
+            >
               Penyusun Konten Materi
             </span>
             <h3 className="text-base font-bold text-gray-900 line-clamp-1">
@@ -249,61 +261,39 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
                 onClose();
               }
             }}
-            className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
-            title={chunkModal.isOpen ? "Sembunyikan Daftar Konten" : "Tutup"}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
         </div>
 
-            {/* Drawer Body Content */}
-            <div className={`flex-1 overflow-y-auto space-y-4 min-h-0 ${chunkModal.isOpen ? "p-4" : "p-6"}`}>
-              {/* Header Action Row */}
-              <div className="flex flex-col gap-2 pb-2 border-b border-gray-100/80 shrink-0">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                    Daftar Bagian Konten
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full bg-gray-100 text-[10px] font-bold text-gray-600">
-                    {(lesson?.chunks || []).length} Konten
-                  </span>
-                </div>
+        {/* Action Header: Add Chunk Button */}
+        <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between gap-3 shrink-0">
+          <span className="text-xs font-bold text-gray-700">
+            Bagian Konten ({lesson?.chunks?.length || 0})
+          </span>
+          <button
+            type="button"
+            onClick={handleOpenAddChunk}
+            style={{ backgroundColor: THEME_COLORS.hex.primary }}
+            className="px-3 py-1.5 rounded-md text-white text-xs font-bold shadow-sm hover:opacity-90 active:scale-98 transition-all cursor-pointer flex items-center gap-1.5"
+          >
+            <Plus size={14} />
+            <span>Tambah Bagian</span>
+          </button>
+        </div>
 
-                <button
-                  type="button"
-                  onClick={handleOpenAddChunk}
-                  style={{ backgroundColor: THEME_COLORS.hex.primary }}
-                  className="w-full py-2 rounded-lg text-white text-xs font-bold shadow-sm hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <Plus size={14} />
-                  <span>Tambah Bagian Konten</span>
-                </button>
-              </div>
-
+        {/* Chunks List Body */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {loading ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-2xl border border-gray-200 p-4 shadow-xs space-y-3"
-                >
+                <div key={i} className="p-3.5 rounded-xl border border-gray-200 bg-white space-y-2">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Skeleton className="w-5 h-5 rounded-md" />
-                      <Skeleton className="w-16 h-5 rounded-full" />
-                    </div>
-                    <div className="flex gap-2">
-                      <Skeleton className="w-6 h-6 rounded-lg" />
-                      <Skeleton className="w-6 h-6 rounded-lg" />
-                    </div>
+                    <Skeleton className="h-4 w-20 rounded" />
+                    <Skeleton className="h-6 w-16 rounded" />
                   </div>
-                  <div className="bg-gray-50/50 rounded-md p-3 border border-gray-100/80 flex gap-3 items-center">
-                    <Skeleton className="w-10 h-10 rounded-lg shrink-0" />
-                    <div className="flex-1 space-y-2">
-                      <Skeleton className="h-3.5 w-3/4 rounded-md" />
-                      <Skeleton className="h-3 w-1/3 rounded-md" />
-                    </div>
-                  </div>
+                  <Skeleton className="h-3 w-3/4 rounded" />
                 </div>
               ))}
             </div>
@@ -317,7 +307,8 @@ export function LessonChunkBuilder({ lessonId, isOpen, onClose }: LessonChunkBui
               <button
                 type="button"
                 onClick={handleOpenAddChunk}
-                className="px-4 py-2.5 rounded-md text-xs font-bold text-[#e0542c] bg-[#e0542c]/10 hover:bg-[#e0542c]/20 transition-all cursor-pointer"
+                style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}1A` }}
+                className="px-4 py-2.5 rounded-md text-xs font-bold hover:opacity-90 transition-all cursor-pointer"
               >
                 + Tambah Bagian Konten Pertama
               </button>

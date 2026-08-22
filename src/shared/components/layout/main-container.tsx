@@ -19,6 +19,7 @@ import { AnnouncementPage } from "@/features/announcement";
 import { OrganizationPage } from "@/features/organization";
 import { LocationPage, LocationAddPage, LocationEditPage } from "@/features/location";
 import { TenantMappingPage } from "@/features/tenant-mapping";
+import { TenantConfigPage } from "@/features/tenant-config";
 
 // Feature page imports (Mobile)
 import { SangkarPage, CelenganDetailPage, CelenganAddPage, LokerDetailPage } from "@/features/sangkar";
@@ -109,6 +110,8 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <LocationEditPage />;
       case "Profile":
         return <ProfilePage user={user} />;
+      case "TenantConfig":
+        return <TenantConfigPage user={user} />;
       case "TenantMapping":
         return <TenantMappingPage user={user} />;
       default:

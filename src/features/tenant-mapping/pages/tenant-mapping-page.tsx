@@ -31,6 +31,7 @@ import {
   type BackendTenantRolePermission
 } from "../api/tenant-mapping";
 import { setTenantMenuState } from "@/shared/utils/tenant-permissions";
+import { THEME_COLORS } from "@/shared/constants/colors";
 import {
   Select,
   SelectContent,
@@ -478,8 +479,11 @@ export function TenantMappingPage({ user }: TenantMappingPageProps) {
       {/* 1. TOP HEADER BAR: TITLE & TENANT SELECTOR USING SHADCN SELECT */}
       <div className="bg-white border border-gray-200/80 rounded-2xl p-4 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#1e2a4a] text-[#fee279] flex items-center justify-center shrink-0 shadow-xs">
-            <Building2 className="w-5 h-5" />
+          <div
+            style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
+          >
+            <Building2 className="w-5 h-5" style={{ color: THEME_COLORS.hex.accent }} />
           </div>
           <div>
             <h1 className="text-base font-black text-gray-900 tracking-tight">Pengaturan Hak Akses Tenant</h1>
@@ -518,9 +522,10 @@ export function TenantMappingPage({ user }: TenantMappingPageProps) {
             <button
               type="button"
               onClick={() => setActiveTab("TenantLevel")}
+              style={activeTab === "TenantLevel" ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
               className={`h-9 px-4 rounded-lg text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
                 activeTab === "TenantLevel"
-                  ? "bg-[#e0542c] text-white shadow-2xs"
+                  ? "text-white shadow-2xs"
                   : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
               }`}
             >
@@ -531,13 +536,14 @@ export function TenantMappingPage({ user }: TenantMappingPageProps) {
             <button
               type="button"
               onClick={() => setActiveTab("RoleLevel")}
+              style={activeTab === "RoleLevel" ? { backgroundColor: THEME_COLORS.hex.navBg } : undefined}
               className={`h-9 px-4 rounded-lg text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
                 activeTab === "RoleLevel"
-                  ? "bg-[#1e2a4a] text-white shadow-2xs"
+                  ? "text-white shadow-2xs"
                   : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
               }`}
             >
-              <Key className="w-3.5 h-3.5 text-[#fee279]" />
+              <Key className="w-3.5 h-3.5" style={{ color: THEME_COLORS.hex.accent }} />
               <span>Hak Akses Role</span>
             </button>
           </div>
@@ -566,7 +572,8 @@ export function TenantMappingPage({ user }: TenantMappingPageProps) {
               type="button"
               onClick={activeTab === "TenantLevel" ? handleSaveTenantLevelMenus : handleSaveRolePermissions}
               disabled={isSaving}
-              className="h-9 px-4 bg-[#e0542c] hover:bg-[#c23f1b] text-white text-xs font-black rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 disabled:opacity-50 whitespace-nowrap"
+              style={{ backgroundColor: THEME_COLORS.hex.primary }}
+              className="h-9 px-4 hover:opacity-90 text-white text-xs font-black rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 disabled:opacity-50 whitespace-nowrap"
             >
               {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
               <span>{isSaving ? "Menyimpan..." : "Simpan"}</span>
@@ -598,7 +605,7 @@ export function TenantMappingPage({ user }: TenantMappingPageProps) {
                     menuCategoryFilter === "Admin" ? "bg-white text-gray-900 shadow-2xs" : "text-gray-500 hover:text-gray-800"
                   }`}
                 >
-                  <Monitor className="w-3.5 h-3.5 text-[#e0542c]" />
+                  <Monitor className="w-3.5 h-3.5" style={{ color: THEME_COLORS.hex.primary }} />
                   <span>HRIS</span>
                 </button>
                 <button
@@ -622,8 +629,9 @@ export function TenantMappingPage({ user }: TenantMappingPageProps) {
                       key={r.id}
                       type="button"
                       onClick={() => setSelectedRole(r.id)}
+                      style={isSelected ? { backgroundColor: THEME_COLORS.hex.navBg } : undefined}
                       className={`h-7 px-3 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                        isSelected ? "bg-[#1e2a4a] text-white shadow-2xs" : "text-gray-600 hover:text-gray-900"
+                        isSelected ? "text-white shadow-2xs" : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
                       <IconComp className="w-3.5 h-3.5" />
@@ -650,7 +658,7 @@ export function TenantMappingPage({ user }: TenantMappingPageProps) {
               placeholder={activeTab === "TenantLevel" ? "Cari menu..." : "Cari endpoint..."}
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
-              className="w-full pl-8 pr-3 h-9 bg-zinc-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:border-[#e0542c] transition-all"
+              className="w-full pl-8 pr-3 h-9 bg-zinc-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none transition-all"
             />
           </div>
 
@@ -722,7 +730,7 @@ export function TenantMappingPage({ user }: TenantMappingPageProps) {
           <div className="space-y-4 max-h-[560px] overflow-y-auto pr-1">
             {isLoadingEndpoints ? (
               <div className="py-12 text-center text-gray-400 space-y-2">
-                <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#e0542c]" />
+                <Loader2 className="w-6 h-6 animate-spin mx-auto" style={{ color: THEME_COLORS.hex.primary }} />
                 <p className="text-xs font-semibold">Memuat Katalog API Endpoint...</p>
               </div>
             ) : (
@@ -734,7 +742,7 @@ export function TenantMappingPage({ user }: TenantMappingPageProps) {
                   <div key={groupName} className="space-y-2">
                     <div className="flex items-center gap-2 px-1">
                       <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 flex items-center gap-1">
-                        <Server className="w-3.5 h-3.5 text-[#e0542c]" />
+                        <Server className="w-3.5 h-3.5" style={{ color: THEME_COLORS.hex.primary }} />
                         <span>{groupName}</span>
                       </span>
                       <div className="flex-1 h-px bg-gray-100" />

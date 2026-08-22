@@ -7,6 +7,7 @@ import { fetchKoreksiAbsenAPI, postKoreksiAbsenAPI, deleteKoreksiAbsenAPI } from
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
 import { SingleDatePicker } from "@/shared/components/ui/single-date-picker";
 import { SingleTimePicker } from "@/shared/components/ui/single-time-picker";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 type KoreksiStatus = "Approved" | "Pending" | "Rejected";
 
@@ -221,7 +222,10 @@ export function MobileKoreksiAbsenPage() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl bg-[#e0542c] text-white">
+      <div
+        style={{ backgroundColor: THEME_COLORS.hex.primary }}
+        className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl text-white"
+      >
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
           style={{ backgroundImage: `url(${patternBg})`, backgroundSize: "180px auto", backgroundRepeat: "repeat" }}
@@ -245,14 +249,16 @@ export function MobileKoreksiAbsenPage() {
         <button
           type="button"
           onClick={() => setActiveTab("form")}
-          className={`flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all cursor-pointer ${activeTab === "form" ? "bg-white text-[#e0542c] shadow-xs" : "text-zinc-500 hover:text-zinc-700"}`}
+          style={activeTab === "form" ? { color: THEME_COLORS.hex.primary } : undefined}
+          className={`flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all cursor-pointer ${activeTab === "form" ? "bg-white shadow-xs" : "text-zinc-500 hover:text-zinc-700"}`}
         >
           Form Pengajuan
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("history")}
-          className={`flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all cursor-pointer ${activeTab === "history" ? "bg-white text-[#e0542c] shadow-xs" : "text-zinc-500 hover:text-zinc-700"}`}
+          style={activeTab === "history" ? { color: THEME_COLORS.hex.primary } : undefined}
+          className={`flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all cursor-pointer ${activeTab === "history" ? "bg-white shadow-xs" : "text-zinc-500 hover:text-zinc-700"}`}
         >
           Riwayat Pengajuan
         </button>
@@ -306,7 +312,7 @@ export function MobileKoreksiAbsenPage() {
               value={alasan}
               onChange={(e) => setAlasan(e.target.value)}
               placeholder="Jelaskan alasan mengapa Anda tidak melakukan scan absensi tepat waktu..."
-              className="w-full border border-zinc-200 rounded-xl px-4 py-3 text-xs font-medium text-zinc-700 focus:outline-none focus:border-[#e0542c] resize-none"
+              className="w-full border border-zinc-200 rounded-xl px-4 py-3 text-xs font-medium text-zinc-700 focus:outline-none resize-none"
             />
           </div>
 
@@ -314,7 +320,8 @@ export function MobileKoreksiAbsenPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full h-11 bg-[#e0542c] text-white rounded-xl text-xs font-bold hover:bg-[#c23f1b] transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-50"
+            style={{ backgroundColor: THEME_COLORS.hex.primary }}
+            className="w-full h-11 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-50 hover:opacity-90"
           >
             {isSubmitting ? (
               <><RefreshCw className="w-4 h-4 animate-spin" /> Mengajukan...</>
@@ -357,7 +364,7 @@ export function MobileKoreksiAbsenPage() {
                   item.status === "Approved"
                     ? "bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-md shadow-emerald-500/15"
                     : item.status === "Pending"
-                    ? "bg-gradient-to-br from-[#e0542c] to-[#c23f1b] shadow-md shadow-[#e0542c]/20"
+                    ? "bg-gradient-to-br from-orange-500 to-orange-600 shadow-md shadow-orange-500/20"
                     : "bg-gradient-to-br from-rose-500 to-rose-600 shadow-md shadow-rose-500/15";
 
                 return (

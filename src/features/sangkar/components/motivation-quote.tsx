@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import bgQuote from "@/assets/bg/bg-quote-1.png";
 import { API_BASE_URL, getHeaders, dedupFetch } from "@/shared/utils/api";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 export function MotivationQuote() {
   const [message, setMessage] = useState<string>(
@@ -42,7 +43,7 @@ export function MotivationQuote() {
       />
 
       <div className="max-w-[40%] z-10 relative pl-5">
-        <p className="text-[10px] font-bold text-[#1e2a4a] leading-relaxed">
+        <p style={{ color: THEME_COLORS.hex.navBg }} className="text-[10px] font-bold leading-relaxed">
           {message}
         </p>
       </div>

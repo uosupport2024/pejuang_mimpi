@@ -19,27 +19,27 @@ interface HistoryItem {
 const cardStyles: Record<AttendanceStatus, { bgClass: string; shadowClass: string }> = {
   Early: {
     bgClass: `bg-gradient-to-br ${THEME_COLORS.celengan.liburanBali.gradient}`,
-    shadowClass: "shadow-lg shadow-[#5C8A90]/15",
+    shadowClass: "shadow-lg",
   },
   "On Time": {
     bgClass: `bg-gradient-to-br ${THEME_COLORS.celengan.rumah.gradient}`,
-    shadowClass: "shadow-lg shadow-[#7FA46D]/15",
+    shadowClass: "shadow-lg",
   },
   Late: {
     bgClass: `bg-gradient-to-br ${THEME_COLORS.celengan.laptopBaru.gradient}`, // Yellow/Gold for Late
-    shadowClass: "shadow-lg shadow-[#F2B233]/15",
+    shadowClass: "shadow-lg",
   },
   Absent: {
-    bgClass: "bg-gradient-to-br from-[#e0542c] to-[#c23f1b]", // Red/Orange for Alpa (Absent)
-    shadowClass: "shadow-lg shadow-[#e0542c]/20",
+    bgClass: "bg-gradient-to-br from-rose-500 to-rose-600", // Red for Alpa (Absent)
+    shadowClass: "shadow-lg",
   },
   Permit: {
     bgClass: "bg-gradient-to-br from-amber-500 to-amber-600", // Amber for Sakit/Izin/Cuti
-    shadowClass: "shadow-lg shadow-amber-500/15",
+    shadowClass: "shadow-lg",
   },
   Holiday: {
     bgClass: "bg-gradient-to-br from-slate-400 to-slate-500", // Slate for Libur
-    shadowClass: "shadow-lg shadow-slate-400/15",
+    shadowClass: "shadow-lg",
   },
 };
 

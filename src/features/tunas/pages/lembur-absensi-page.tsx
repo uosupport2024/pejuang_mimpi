@@ -5,6 +5,7 @@ import { useTunas } from "../hooks/use-tunas";
 import { toast } from "sonner";
 import { fetchProfileAPI, fetchLokasiAPI, fetchOvertimeStatusAPI, postOvertimeMasukAPI, postOvertimePulangAPI } from "../api/absensi";
 import patternBg from "@/assets/bg/pattern-background.png";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 // Import react-leaflet and leaflet
 import { MapContainer, TileLayer, Marker, Circle, useMap } from "react-leaflet";
@@ -29,7 +30,7 @@ const userIcon = L.divIcon({
   className: "custom-user-marker",
   html: `<div style="position: relative; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px;">
     <div style="position: absolute; width: 24px; height: 24px; border-radius: 50%; background-color: rgba(242, 178, 51, 0.4); animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
-    <div style="position: relative; width: 14px; height: 14px; border-radius: 50%; background-color: #d2911b; border: 2.5px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.25);"></div>
+    <div style="position: relative; width: 14px; height: 14px; border-radius: 50%; background-color: ${THEME_COLORS.hex.padiKemakmuran}; border: 2.5px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.25);"></div>
   </div>`,
   iconSize: [32, 32],
   iconAnchor: [16, 16]
@@ -39,7 +40,7 @@ const officeIcon = L.divIcon({
   className: "custom-office-marker",
   html: `<div style="position: relative; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px;">
     <div style="position: absolute; width: 32px; height: 32px; border-radius: 50%; background-color: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3);"></div>
-    <div style="position: relative; width: 12px; height: 12px; border-radius: 50%; background-color: #dc2626; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.25);"></div>
+    <div style="position: relative; width: 12px; height: 12px; border-radius: 50%; background-color: ${THEME_COLORS.hex.danger}; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.25);"></div>
   </div>`,
   iconSize: [32, 32],
   iconAnchor: [16, 16]
@@ -79,6 +80,7 @@ interface ProfileData {
     name: string;
     slug?: string;
   };
+  role?: string;
 }
 
 interface LokasiData {
@@ -317,7 +319,10 @@ export function MobileLemburAbsensiPage() {
   return (
     <div className="space-y-4">
       {/* Redesigned Premium Header Bar with Pattern Background */}
-      <div className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl bg-[#e0542c] text-white">
+      <div
+        style={{ backgroundColor: THEME_COLORS.hex.primary }}
+        className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl text-white"
+      >
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
           style={{
@@ -374,19 +379,16 @@ export function MobileLemburAbsensiPage() {
               <span className="text-[9px] font-bold tracking-wider uppercase text-zinc-400 leading-none">
                 Perusahaan
               </span>
-              <span className="text-xs font-bold text-zinc-800 mt-1.5 leading-none">
-                {profile.tenant?.name || "Default Company"}
+              <span className="text-xs font-bold text-zinc-800 mt-1 leading-none">
+                {profile.tenant?.name || "Perusahaan"}
+              </span>
+              <span className="text-[10px] text-zinc-500 mt-1 leading-none font-medium">
+                {profile.role || "Karyawan"}
               </span>
             </div>
           </div>
         ) : (
-          <div className="bg-white border border-zinc-200/80 rounded-2xl p-5 -mt-18 relative z-10 mx-1 animate-pulse flex items-center justify-between gap-4 h-16">
-            <div className="space-y-2 flex-1">
-              <div className="h-3 bg-zinc-200 rounded w-1/3" />
-              <div className="h-4 bg-zinc-200 rounded w-2/3" />
-            </div>
-            <div className="h-8 bg-zinc-200 rounded w-16" />
-          </div>
+          <div className="bg-[#f5f4ed] rounded-2xl p-4 -mt-18 relative z-10 mx-1 animate-pulse h-20" />
         )}
 
         {/* Live Map Box */}
@@ -413,8 +415,8 @@ export function MobileLemburAbsensiPage() {
                   center={[parseFloat(lokasiDetail.lat_kantor), parseFloat(lokasiDetail.long_kantor)]}
                   radius={parseFloat(lokasiDetail.radius) || 100}
                   pathOptions={{
-                    color: "#dc2626",
-                    fillColor: "#dc2626",
+                    color: THEME_COLORS.hex.danger,
+                    fillColor: THEME_COLORS.hex.danger,
                     fillOpacity: 0.08,
                     weight: 1.5,
                     dashArray: "4 4"
@@ -434,7 +436,7 @@ export function MobileLemburAbsensiPage() {
           <div className="px-2.5 py-3 flex items-center justify-between gap-4 text-left border-t border-zinc-100 mt-2">
             <div className="space-y-1">
               <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-400 leading-none">
-                Lokasi Presensi
+                Lokasi Presensi Lembur
               </span>
               <p className="text-xs font-bold text-zinc-800 leading-tight">
                 {lokasiDetail?.nama_lokasi || "Memuat lokasi..."}
@@ -444,7 +446,7 @@ export function MobileLemburAbsensiPage() {
               <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-400 leading-none">
                 Jarak ke Kantor
               </span>
-              <p className="text-xs font-bold text-[#e0542c] leading-tight">
+              <p style={{ color: THEME_COLORS.hex.primary }} className="text-xs font-bold leading-tight">
                 {distance !== null ? `${Math.round(distance)} meter` : "Menghitung..."}
               </p>
             </div>
@@ -474,7 +476,10 @@ export function MobileLemburAbsensiPage() {
               onClick={() => setIsCameraModalOpen(true)}
               className={`w-full bg-white border border-zinc-200/80 rounded-2xl p-8 flex flex-col items-center justify-center gap-3 shadow-xs transition-all active:scale-[0.99] border-dashed text-zinc-500 hover:text-zinc-700 hover:bg-zinc-50/50 cursor-pointer ${isLemburFinished ? "opacity-60 cursor-not-allowed" : ""}`}
             >
-              <div className="w-12 h-12 rounded-full bg-[#e0542c]/10 text-[#e0542c] flex items-center justify-center">
+              <div
+                style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}1A` }}
+                className="w-12 h-12 rounded-full flex items-center justify-center"
+              >
                 <Camera className="w-6 h-6" />
               </div>
               <div className="space-y-0.5">
@@ -496,10 +501,11 @@ export function MobileLemburAbsensiPage() {
               type="button"
               disabled={!capturedImage || isSubmitting || isOutsideRadius}
               onClick={handleSubmit}
-              className={`w-full py-3.5 rounded-2xl text-xs font-bold uppercase tracking-wider text-white shadow-md transition-all active:scale-[0.98] cursor-pointer ${
+              style={!capturedImage || isOutsideRadius ? undefined : { backgroundColor: THEME_COLORS.hex.primary }}
+              className={`w-full py-3.5 rounded-2xl text-xs font-bold uppercase tracking-wider text-white shadow-md transition-all active:scale-[0.98] cursor-pointer hover:opacity-90 ${
                 !capturedImage || isOutsideRadius
                   ? "bg-zinc-300 shadow-none cursor-not-allowed"
-                  : "bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] shadow-[#e0542c]/20 hover:shadow-lg hover:shadow-[#e0542c]/30"
+                  : ""
               }`}
             >
               {isSubmitting ? "Memproses..." : isCheckOut ? "Konfirmasi Pulang Lembur" : "Konfirmasi Masuk Lembur"}
@@ -548,7 +554,7 @@ export function MobileLemburAbsensiPage() {
                     disablePictureInPicture
                     className="w-full h-full object-cover scale-x-[-1] pointer-events-none" // mirror view
                   />
-                  <div className="absolute inset-0 border-[3px] border-[#e0542c]/30 rounded-2xl pointer-events-none m-4" />
+                  <div className="absolute inset-0 border-[3px] border-white/30 rounded-2xl pointer-events-none m-4" />
                 </>
               )}
             </div>
@@ -559,9 +565,13 @@ export function MobileLemburAbsensiPage() {
               <button
                 type="button"
                 onClick={capturePhoto}
-                className="w-16 h-16 rounded-full border-4 border-white flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-lg bg-[#e0542c]"
+                style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                className="w-16 h-16 rounded-full border-4 border-white flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-lg"
               >
-                <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-[#e0542c]">
+                <div
+                  style={{ color: THEME_COLORS.hex.primary }}
+                  className="w-12 h-12 rounded-full bg-white flex items-center justify-center"
+                >
                   <Camera className="w-5 h-5" />
                 </div>
               </button>

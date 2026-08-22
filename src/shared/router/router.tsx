@@ -48,6 +48,7 @@ export type RouteType =
   | "LocationAdd"
   | "LocationEdit"
   | "Profile"
+  | "TenantConfig"
   | "TenantMapping";
 
 export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
@@ -79,6 +80,7 @@ export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   LocationEdit: "Edit Lokasi",
   Login: "Login",
   Profile: "Profil",
+  TenantConfig: "Konfigurasi Tenant",
   TenantMapping: "Mapping Menu Tenant",
   MobileHome: "Sangkar",
   MobileLumbung: "Lumbung",
@@ -145,6 +147,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   EmployeeEdit: "/pegawai/edit",
   EmployeeInputShift: "/pegawai/shift",
   Profile: "/profile",
+  TenantConfig: "/konfigurasi-tenant",
   TenantMapping: "/tenant-mapping",
 };
 
@@ -194,6 +197,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/pegawai/edit": "EmployeeEdit",
   "/pegawai/shift": "EmployeeInputShift",
   "/profile": "Profile",
+  "/konfigurasi-tenant": "TenantConfig",
   "/tenant-mapping": "TenantMapping",
 };
 

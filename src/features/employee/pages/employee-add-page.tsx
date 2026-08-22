@@ -4,6 +4,7 @@ import { createEmployee, fetchMasters, type MasterData } from "../api/employee";
 import { toast } from "sonner";
 import { FormField } from "@/shared/components/ui/form-field";
 import { cn } from "@/shared/lib/utils";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 const TABS = [
   { id: "pribadi", label: "Informasi Pribadi" },
@@ -222,10 +223,11 @@ export function EmployeeAddPage() {
             key={tab.id}
             type="button"
             onClick={() => setActiveTab(tab.id)}
+            style={activeTab === tab.id ? { color: THEME_COLORS.hex.primary, borderColor: THEME_COLORS.hex.primary } : undefined}
             className={cn(
               "px-4 py-2.5 text-xs font-bold whitespace-nowrap border-b-2 transition-all cursor-pointer",
               activeTab === tab.id
-                ? "border-[#e0542c] text-[#e0542c]"
+                ? ""
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200"
             )}
           >
@@ -238,7 +240,7 @@ export function EmployeeAddPage() {
         {/* Tab 1: Informasi Pribadi */}
         {activeTab === "pribadi" && (
           <div className="bg-white border border-gray-200/80 rounded-2xl shadow-xs p-6 space-y-4">
-            <h2 className="text-sm font-semibold text-[#e0542c] border-b border-gray-100 pb-2">Informasi Pribadi</h2>
+            <h2 style={{ color: THEME_COLORS.hex.primary }} className="text-sm font-semibold border-b border-gray-100 pb-2">Informasi Pribadi</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField label="Nama Pegawai *" type="text" name="name" required value={formData.name} onChange={handleChange} />
 
@@ -249,7 +251,7 @@ export function EmployeeAddPage() {
               <FormField label="Email *" type="email" name="email" required value={formData.email} onChange={handleChange} />
               <FormField label="Nomor Handphone *" type="text" name="telepon" required value={formData.telepon} onChange={handleChange} />
               <FormField label="Username *" type="text" name="username" required value={formData.username} onChange={handleChange} />
-              <FormField label="Password * (Minimal 6 karakter)" type="password" name="password" required minLength={6} value={formData.password} onChange={handleChange} />
+              <FormField label="Password *" type="password" name="password" required minLength={6} value={formData.password} onChange={handleChange} />
 
               <FormField label="Tenant *" type="combobox" name="tenant_id" value={formData.tenant_id} options={tenantOptions} onChange={handleChange} />
 
@@ -277,7 +279,7 @@ export function EmployeeAddPage() {
         {/* Tab 2: Status & Jabatan */}
         {activeTab === "status" && (
           <div className="bg-white border border-gray-200/80 rounded-2xl shadow-xs p-6 space-y-4">
-            <h2 className="text-sm font-semibold text-[#e0542c] border-b border-gray-100 pb-2">Status & Jabatan</h2>
+            <h2 style={{ color: THEME_COLORS.hex.primary }} className="text-sm font-semibold border-b border-gray-100 pb-2">Status & Jabatan</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField label="Status Pernikahan *" type="combobox" name="status_nikah" value={formData.status_nikah} options={statusNikahOptions} onChange={handleChange} />
 
@@ -298,7 +300,7 @@ export function EmployeeAddPage() {
         {/* Tab 3: Dokumen Identitas */}
         {activeTab === "identitas" && (
           <div className="bg-white border border-gray-200/80 rounded-2xl shadow-xs p-6 space-y-4">
-            <h2 className="text-sm font-semibold text-[#e0542c] border-b border-gray-100 pb-2">Dokumen Identitas</h2>
+            <h2 style={{ color: THEME_COLORS.hex.primary }} className="text-sm font-semibold border-b border-gray-100 pb-2">Dokumen Identitas</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField label="Nomor KTP" type="text" name="ktp" value={formData.ktp} onChange={handleChange} />
               <FormField label="Nomor Kartu Keluarga" type="text" name="kartu_keluarga" value={formData.kartu_keluarga} onChange={handleChange} />
@@ -324,7 +326,7 @@ export function EmployeeAddPage() {
         {/* Tab 4: Cuti & Izin */}
         {activeTab === "cuti" && (
           <div className="bg-white border border-gray-200/80 rounded-2xl shadow-xs p-6 space-y-4">
-            <h2 className="text-sm font-semibold text-[#e0542c] border-b border-gray-100 pb-2">Cuti & Izin</h2>
+            <h2 style={{ color: THEME_COLORS.hex.primary }} className="text-sm font-semibold border-b border-gray-100 pb-2">Cuti & Izin</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <FormField label="Cuti" type="number" name="izin_cuti" value={formData.izin_cuti} onChange={handleChange} />
               <FormField label="Izin Masuk" type="number" name="izin_lainnya" value={formData.izin_lainnya} onChange={handleChange} />
@@ -337,7 +339,7 @@ export function EmployeeAddPage() {
         {/* Tab 5: Penjumlahan Gaji */}
         {activeTab === "gaji" && (
           <div className="bg-white border border-gray-200/80 rounded-2xl shadow-xs p-6 space-y-4">
-            <h2 className="text-sm font-semibold text-[#e0542c] border-b border-gray-100 pb-2">Penjumlahan Gaji</h2>
+            <h2 style={{ color: THEME_COLORS.hex.primary }} className="text-sm font-semibold border-b border-gray-100 pb-2">Penjumlahan Gaji</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField label="Gaji Harian (/ Hari)" type="number" name="gaji_harian" value={formData.gaji_harian} onChange={handleChange} isCurrency={true} />
               <FormField label="Gaji Pokok (/ Bulan)" type="number" name="gaji_pokok" value={formData.gaji_pokok} onChange={handleChange} isCurrency={true} />
@@ -355,7 +357,7 @@ export function EmployeeAddPage() {
         {/* Tab 6: Pengurangan Gaji */}
         {activeTab === "potongan" && (
           <div className="bg-white border border-gray-200/80 rounded-2xl shadow-xs p-6 space-y-4">
-            <h2 className="text-sm font-semibold text-[#e0542c] border-b border-gray-100 pb-2">Pengurangan Gaji</h2>
+            <h2 style={{ color: THEME_COLORS.hex.primary }} className="text-sm font-semibold border-b border-gray-100 pb-2">Pengurangan Gaji</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <FormField label="Izin (/ hari)" type="number" name="potong_izin" value={formData.potong_izin} onChange={handleChange} isCurrency={true} />
               <FormField label="Terlambat (/ hari)" type="number" name="potong_terlambat" value={formData.potong_terlambat} onChange={handleChange} isCurrency={true} />
@@ -365,26 +367,30 @@ export function EmployeeAddPage() {
           </div>
         )}
 
-        {/* Tab 7: Tunjangan & Potongan Pajak / BPJS */}
+        {/* Tab 7: Tunjangan & Potongan */}
         {activeTab === "tunjangan" && (
           <div className="bg-white border border-gray-200/80 rounded-2xl shadow-xs p-6 space-y-4">
-            <h2 className="text-sm font-semibold text-[#e0542c] border-b border-gray-100 pb-2">Tunjangan & Potongan Pajak / BPJS</h2>
+            <h2 style={{ color: THEME_COLORS.hex.primary }} className="text-sm font-semibold border-b border-gray-100 pb-2">Tunjangan & Potongan Pajak / BPJS</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField label="Tunjangan BPJS Kesehatan" type="number" name="tunjangan_bpjs_kesehatan" value={formData.tunjangan_bpjs_kesehatan} onChange={handleChange} isCurrency={true} />
-              <FormField label="Tunjangan BPJS Ketenagakerjaan" type="number" name="tunjangan_bpjs_ketenagakerjaan" value={formData.tunjangan_bpjs_ketenagakerjaan} onChange={handleChange} isCurrency={true} />
-              <FormField label="Potongan BPJS Kesehatan" type="number" name="potongan_bpjs_kesehatan" value={formData.potongan_bpjs_kesehatan} onChange={handleChange} isCurrency={true} />
-              <FormField label="Potongan BPJS Ketenagakerjaan" type="number" name="potongan_bpjs_ketenagakerjaan" value={formData.potongan_bpjs_ketenagakerjaan} onChange={handleChange} isCurrency={true} />
+              <FormField label="Tunjangan BPJS Kesehatan (Rp)" type="number" name="tunjangan_bpjs_kesehatan" value={formData.tunjangan_bpjs_kesehatan} onChange={handleChange} isCurrency={true} />
+              <FormField label="Tunjangan BPJS Ketenagakerjaan (Rp)" type="number" name="tunjangan_bpjs_ketenagakerjaan" value={formData.tunjangan_bpjs_ketenagakerjaan} onChange={handleChange} isCurrency={true} />
+              <FormField label="Potongan BPJS Kesehatan (Rp)" type="number" name="potongan_bpjs_kesehatan" value={formData.potongan_bpjs_kesehatan} onChange={handleChange} isCurrency={true} />
+              <FormField label="Potongan BPJS Ketenagakerjaan (Rp)" type="number" name="potongan_bpjs_ketenagakerjaan" value={formData.potongan_bpjs_ketenagakerjaan} onChange={handleChange} isCurrency={true} />
               <FormField label="Tunjangan Pajak (Gross Up)" type="number" name="tunjangan_pajak" value={formData.tunjangan_pajak} onChange={handleChange} isCurrency={true} className="md:col-span-2" />
             </div>
           </div>
         )}
 
-        {/* Actions Button Bar */}
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <button type="button" onClick={() => navigate("Employee")} className="px-4 py-2 bg-zinc-200 hover:bg-zinc-300 text-gray-700 rounded-lg text-xs font-bold transition-colors cursor-pointer">
+        <div className="flex justify-end gap-3 pt-4">
+          <button type="button" onClick={() => navigate("Employee")} className="px-5 py-2 border border-gray-200 text-gray-700 rounded-lg text-xs font-bold hover:bg-gray-50 transition-colors cursor-pointer">
             Batal
           </button>
-          <button type="submit" disabled={submitting} className="px-5 py-2 bg-[#e0542c] hover:bg-[#c84420] text-white rounded-lg text-xs font-bold transition-colors cursor-pointer disabled:opacity-50">
+          <button
+            type="submit"
+            disabled={submitting}
+            style={{ backgroundColor: THEME_COLORS.hex.primary }}
+            className="px-5 py-2 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 hover:opacity-90"
+          >
             {submitting ? "Menyimpan..." : "Simpan Pegawai"}
           </button>
         </div>

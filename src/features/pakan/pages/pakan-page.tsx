@@ -13,16 +13,18 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import type { PakanPageProps } from "../types/pakan.type";
-import logoWhite from "@/assets/logo/POT–PejuangMimpi–Logo.png";
 import patternBg from "@/assets/bg/pattern-background.png";
 import {
   fetchCourses,
   enrollCourse,
   type Course as APICourse
 } from "@/features/training/api/course";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 export function PakanPage({ user }: PakanPageProps) {
   const navigate = useNavigate();
+  const { effectiveLogo, tenantName } = useTenantBranding();
   const [courses, setCourses] = useState<APICourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -70,13 +72,13 @@ export function PakanPage({ user }: PakanPageProps) {
         progressVal = c.user_progress.percentage_completed;
       }
 
-      let gradientTheme = "from-[#7FA46D] to-[#5C824C]"; // basic (Green)
+      let gradientTheme = THEME_COLORS.celengan.rumah.gradient; // basic (Green)
       if (diff === "beginner") {
-        gradientTheme = "from-[#F25C2A] to-[#C54117]"; // beginner (Orange)
+        gradientTheme = THEME_COLORS.celengan.motor.gradient; // beginner (Orange)
       } else if (diff === "intermediate") {
-        gradientTheme = "from-[#5C8A90] to-[#3F686D]"; // intermediate (Teal)
+        gradientTheme = THEME_COLORS.celengan.liburanBali.gradient; // intermediate (Teal)
       } else if (diff === "advanced") {
-        gradientTheme = "from-[#F2B233] to-[#C58F1B]"; // advanced (Yellow)
+        gradientTheme = THEME_COLORS.celengan.laptopBaru.gradient; // advanced (Yellow)
       }
 
       return {
@@ -119,7 +121,10 @@ export function PakanPage({ user }: PakanPageProps) {
     <div className="space-y-4">
       {/* Header Banner Card */}
       <div className="-mt-6 -mx-5 relative mb-4">
-        <div className="w-full bg-[#1e2a4a] text-white rounded-t-none rounded-b-[40px] shadow-lg shadow-[#1e2a4a]/20 border-b border-white/10 flex flex-col p-6 pt-11 pb-6 relative overflow-hidden">
+        <div
+          style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+          className="w-full text-white rounded-t-none rounded-b-[40px] shadow-lg border-b border-white/10 flex flex-col p-6 pt-11 pb-6 relative overflow-hidden"
+        >
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{
@@ -131,7 +136,7 @@ export function PakanPage({ user }: PakanPageProps) {
 
           <div className="flex justify-between items-center z-10 relative mb-4">
             <div className="flex items-center gap-3.5">
-              <img src={logoWhite} alt="Logo" className="w-12 h-12 object-contain" />
+              <img src={effectiveLogo} alt={tenantName || "Logo"} className="w-12 h-12 object-contain" />
               <div className="flex flex-col text-left">
                 <span className="text-[10px] font-bold tracking-wider uppercase text-white/90 leading-none">
                   Selamat Belajar
@@ -152,48 +157,46 @@ export function PakanPage({ user }: PakanPageProps) {
           {/* Stats Bar */}
           <div className="grid grid-cols-3 gap-2 mt-2 pt-2.5 text-center z-10 relative">
             <div className="flex flex-col items-center">
-              <div className="flex items-center gap-1 text-[#fee279]">
+              <div style={{ color: THEME_COLORS.hex.accent }} className="flex items-center gap-1">
                 <Trophy className="w-3.5 h-3.5 shrink-0" />
                 <span className="text-xs font-bold">{stats.completed}</span>
               </div>
               <span className="text-[8px] text-zinc-400 font-bold uppercase mt-0.5">Selesai</span>
             </div>
             <div className="flex flex-col items-center border-x border-white/10">
-              <div className="flex items-center gap-1 text-[#fee279]">
+              <div style={{ color: THEME_COLORS.hex.accent }} className="flex items-center gap-1">
                 <BookOpen className="w-3.5 h-3.5 shrink-0" />
                 <span className="text-xs font-bold">{stats.active}</span>
               </div>
               <span className="text-[8px] text-zinc-400 font-bold uppercase mt-0.5">Aktif</span>
             </div>
             <div className="flex flex-col items-center">
-              <div className="flex items-center gap-1 text-[#fee279]">
+              <div style={{ color: THEME_COLORS.hex.accent }} className="flex items-center gap-1">
                 <Timer className="w-3.5 h-3.5 shrink-0" />
                 <span className="text-xs font-bold">{stats.points} Poin</span>
               </div>
               <span className="text-[8px] text-zinc-400 font-bold uppercase mt-0.5">Belajar</span>
             </div>
           </div>
-
-          {/* Search Input inside Header Card */}
-          <div className="relative mt-4 z-10">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-              <Search className="w-4 h-4 text-zinc-400" />
-            </span>
-            <input
-              type="text"
-              placeholder="Cari materi pembelajaran..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white text-zinc-800 placeholder-zinc-400 rounded-md text-xs shadow-xs focus:outline-none focus:ring-2 focus:ring-white/20"
-            />
-          </div>
         </div>
       </div>
 
-      {/* Category/Difficulty Tabs */}
-      <div className="flex gap-1.5 overflow-x-auto pb-1.5 scrollbar-none px-0.5">
+      {/* Search Input Bar */}
+      <div className="relative">
+        <input
+          type="text"
+          placeholder="Cari kelas, skill, materi..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full pl-10 pr-4 py-3 bg-white border border-zinc-200/80 rounded-2xl text-xs font-semibold text-gray-800 placeholder-zinc-400 focus:outline-hidden focus:border-zinc-400 shadow-xs transition-all"
+        />
+        <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         {([
-          { value: "Semua", label: "SEMUA" },
+          { value: "Semua", label: "SEMUA TINGKAT" },
           { value: "basic", label: "BASIC" },
           { value: "beginner", label: "BEGINNER" },
           { value: "intermediate", label: "INTERMEDIATE" },
@@ -202,9 +205,10 @@ export function PakanPage({ user }: PakanPageProps) {
           <button
             key={tab.value}
             onClick={() => setSelectedDifficulty(tab.value)}
+            style={selectedDifficulty === tab.value ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
             className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 transition-all cursor-pointer ${
               selectedDifficulty === tab.value
-                ? "bg-[#e0542c] text-white shadow-xs"
+                ? "text-white shadow-xs"
                 : "bg-white text-zinc-500 border border-zinc-100 hover:bg-zinc-50"
             }`}
           >

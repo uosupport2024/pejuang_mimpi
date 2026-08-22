@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { X, Search } from "lucide-react";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface FilterModalProps {
   isOpen: boolean;
@@ -212,7 +213,8 @@ export function FilterModal({
               setProvinceSearch("");
               setCitySearch("");
             }}
-            className="text-xs font-bold text-[#e0542c] hover:text-[#c23f1b] transition-colors cursor-pointer"
+            style={{ color: THEME_COLORS.hex.primary }}
+            className="text-xs font-bold hover:underline transition-colors cursor-pointer"
           >
             Atur Ulang
           </button>
@@ -233,8 +235,9 @@ export function FilterModal({
                     key={type}
                     type="button"
                     onClick={() => toggleTempJobType(type)}
+                    style={isActive ? { backgroundColor: THEME_COLORS.hex.primary, borderColor: THEME_COLORS.hex.primary } : undefined}
                     className={`px-4 py-2 rounded-2xl text-xs font-normal transition-all duration-150 cursor-pointer border ${isActive
-                      ? "bg-[#e0542c] text-white border-[#e0542c]"
+                      ? "text-white"
                       : "bg-white border-zinc-300 text-gray-750 hover:bg-zinc-50"
                       }`}
                   >
@@ -258,8 +261,9 @@ export function FilterModal({
                     key={workplace}
                     type="button"
                     onClick={() => toggleTempWorkplace(workplace)}
+                    style={isActive ? { backgroundColor: THEME_COLORS.hex.primary, borderColor: THEME_COLORS.hex.primary } : undefined}
                     className={`px-4 py-2 rounded-2xl text-xs font-normal transition-all duration-150 cursor-pointer border ${isActive
-                      ? "bg-[#e0542c] text-white border-[#e0542c]"
+                      ? "text-white"
                       : "bg-white border-zinc-300 text-gray-750 hover:bg-zinc-50"
                       }`}
                   >
@@ -308,7 +312,7 @@ export function FilterModal({
                   setShowProvinceDropdown(true);
                 }}
                 onFocus={() => setShowProvinceDropdown(true)}
-                className="w-full h-10 pl-9 pr-4 bg-white border border-zinc-300 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#e0542c]"
+                className="w-full h-10 pl-9 pr-4 bg-white border border-zinc-300 rounded-xl text-xs font-semibold focus:outline-none"
               />
             </div>
 
@@ -343,13 +347,14 @@ export function FilterModal({
                 {tempCities.map((city) => (
                   <span
                     key={city}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#e0542c]/10 text-[#e0542c] text-[10px] font-semibold rounded-full"
+                    style={{ backgroundColor: `${THEME_COLORS.hex.primary}1A`, color: THEME_COLORS.hex.primary }}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-semibold rounded-full"
                   >
                     <span>{city}</span>
                     <button
                       type="button"
                       onClick={() => toggleTempCity(city)}
-                      className="hover:bg-[#e0542c]/20 rounded-full p-0.5"
+                      className="hover:bg-black/10 rounded-full p-0.5"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -375,7 +380,7 @@ export function FilterModal({
                   setShowCityDropdown(true);
                 }}
                 onFocus={() => setShowCityDropdown(true)}
-                className={`w-full h-10 pl-9 pr-4 bg-white border border-zinc-300 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#e0542c] ${
+                className={`w-full h-10 pl-9 pr-4 bg-white border border-zinc-300 rounded-xl text-xs font-semibold focus:outline-none ${
                   tempProvinces.length === 0 ? "opacity-55 cursor-not-allowed bg-zinc-50" : ""
                 }`}
               />
@@ -414,8 +419,9 @@ export function FilterModal({
                     key={cat.id}
                     type="button"
                     onClick={() => toggleTempCategory(cat.id)}
+                    style={isActive ? { backgroundColor: THEME_COLORS.hex.primary, borderColor: THEME_COLORS.hex.primary } : undefined}
                     className={`px-4 py-2 rounded-2xl text-xs font-normal transition-all duration-150 cursor-pointer border ${isActive
-                      ? "bg-[#e0542c] text-white border-[#e0542c]"
+                      ? "text-white"
                       : "bg-white border-zinc-300 text-gray-750 hover:bg-zinc-50"
                       }`}
                   >
@@ -439,8 +445,9 @@ export function FilterModal({
                     key={salary.label}
                     type="button"
                     onClick={() => setTempMinSalary(salary.value)}
+                    style={isActive ? { backgroundColor: THEME_COLORS.hex.primary, borderColor: THEME_COLORS.hex.primary } : undefined}
                     className={`px-4 py-2 rounded-2xl text-xs font-normal transition-all duration-150 cursor-pointer border ${isActive
-                      ? "bg-[#e0542c] text-white border-[#e0542c]"
+                      ? "text-white"
                       : "bg-white border-zinc-300 text-gray-750 hover:bg-zinc-50"
                       }`}
                   >
@@ -456,7 +463,8 @@ export function FilterModal({
         <div className="p-5 bg-white shrink-0 border-t border-zinc-100">
           <button
             onClick={onApply}
-            className="w-full py-3.5 bg-[#e0542c] hover:bg-[#c23f1b] text-white font-bold rounded-2xl transition-all duration-200 text-xs cursor-pointer shadow-sm"
+            style={{ backgroundColor: THEME_COLORS.hex.primary }}
+            className="w-full py-3.5 text-white font-bold rounded-2xl transition-all duration-200 text-xs cursor-pointer shadow-sm hover:opacity-90"
           >
             Tampilkan {tempFilteredCount} Lowongan
           </button>

@@ -71,6 +71,14 @@ export function AdminGuidanceTour({ isOpen, onClose, isSuperAdmin = false }: Adm
       desc: "Tentukan titik koordinat kantor cabang dan radius batas toleransi geofencing untuk validasi absensi GPS.",
     },
     {
+      id: "tenant-config",
+      menuName: "Konfigurasi Tenant",
+      category: "Data Master",
+      title: "Konfigurasi Organisasi & Warna Brand",
+      route: "TenantConfig",
+      desc: "Atur logo instansi, profil perusahaan, serta kombinasi warna tema (Warna Utama & Sekunder) untuk kustomisasi branding aplikasi.",
+    },
+    {
       id: "absensi-rekap",
       parentMenu: "Absensi",
       menuName: "Absensi - Rekap Data",

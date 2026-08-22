@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { CheckCircle2, Clock, AlertTriangle, User, Image, X } from "lucide-react";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 export interface TodayAttendanceItem {
   user_id: number;
@@ -111,7 +112,7 @@ export function TodayAttendancePage() {
       cell: (row) => (
         <div className="flex flex-col justify-center min-w-0">
           <h4 className="text-xs font-bold text-gray-800 truncate">{row.name}</h4>
-          <span className="text-[10px] text-[#5C8A90] font-medium mt-0.5 block">
+          <span style={{ color: THEME_COLORS.hex.airKehidupan }} className="text-[10px] font-medium mt-0.5 block">
             {row.jabatan_nama}
           </span>
         </div>
@@ -162,7 +163,8 @@ export function TodayAttendancePage() {
           {row.foto_absen && (
             <button
               onClick={() => setActivePhoto({ url: row.foto_absen!, title: `Foto Masuk - ${row.name}` })}
-              className="inline-flex items-center gap-1 text-[9px] font-bold text-[#5C8A90] hover:text-[#3b595d] transition-colors cursor-pointer"
+              style={{ color: THEME_COLORS.hex.airKehidupan }}
+              className="inline-flex items-center gap-1 text-[9px] font-bold transition-colors cursor-pointer"
             >
               <Image size={10} />
               <span>Lihat Foto</span>
@@ -181,7 +183,8 @@ export function TodayAttendancePage() {
           {row.foto_pulang && (
             <button
               onClick={() => setActivePhoto({ url: row.foto_pulang!, title: `Foto Pulang - ${row.name}` })}
-              className="inline-flex items-center gap-1 text-[9px] font-bold text-[#5C8A90] hover:text-[#3b595d] transition-colors cursor-pointer"
+              style={{ color: THEME_COLORS.hex.airKehidupan }}
+              className="inline-flex items-center gap-1 text-[9px] font-bold transition-colors cursor-pointer"
             >
               <Image size={10} />
               <span>Lihat Foto</span>
@@ -195,17 +198,32 @@ export function TodayAttendancePage() {
       header: "Status",
       className: "w-[10%] text-center",
       cell: (row) => {
-        let badgeColor = "bg-gray-50 text-gray-500 border-gray-200/80";
+        let styleObj: React.CSSProperties = { backgroundColor: "#f9fafb", color: "#6b7280" };
         if (row.status === "Hadir") {
-          badgeColor = "bg-[#7FA46D]/10 text-[#516b46] border-[#7FA46D]/20";
+          styleObj = {
+            backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}1A`,
+            color: THEME_COLORS.hex.sawahPertumbuhanText,
+            borderColor: `${THEME_COLORS.hex.sawahPertumbuhan}33`
+          };
         } else if (["Sakit", "Izin", "Izin Masuk", "Cuti"].includes(row.status)) {
-          badgeColor = "bg-[#F2B233]/12 text-[#916715] border-[#F2B233]/20";
+          styleObj = {
+            backgroundColor: `${THEME_COLORS.hex.padiKemakmuran}1F`,
+            color: THEME_COLORS.hex.padiKemakmuranText,
+            borderColor: `${THEME_COLORS.hex.padiKemakmuran}33`
+          };
         } else if (row.status === "Belum Hadir") {
-          badgeColor = "bg-[#e0542c]/10 text-[#c23f1b] border-[#e0542c]/20";
+          styleObj = {
+            backgroundColor: `${THEME_COLORS.hex.primary}1A`,
+            color: THEME_COLORS.hex.primaryHover,
+            borderColor: `${THEME_COLORS.hex.primary}33`
+          };
         }
 
         return (
-          <span className={`text-[9px] font-bold border rounded-md px-2 py-0.5 inline-block text-center min-w-[70px] ${badgeColor}`}>
+          <span
+            style={styleObj}
+            className="text-[9px] font-bold border rounded-md px-2 py-0.5 inline-block text-center min-w-[70px]"
+          >
             {row.status}
           </span>
         );
@@ -219,7 +237,10 @@ export function TodayAttendancePage() {
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Pegawai */}
-        <div className="px-4.5 py-3.5 bg-[#5C8A90] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 cursor-default">
+        <div
+          style={{ backgroundColor: THEME_COLORS.hex.airKehidupan }}
+          className="px-4.5 py-3.5 text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 cursor-default"
+        >
           <div className="flex flex-col text-left min-w-0">
             <span className="text-[10px] font-extrabold text-white/85 uppercase tracking-wider block leading-none mb-1.5">Total Pegawai</span>
             <span className="text-xl font-black text-white tracking-tight leading-none block">{loading ? "..." : `${totalEmployees} Orang`}</span>
@@ -230,7 +251,10 @@ export function TodayAttendancePage() {
         </div>
 
         {/* Hadir */}
-        <div className="px-4.5 py-3.5 bg-[#7FA46D] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 cursor-default">
+        <div
+          style={{ backgroundColor: THEME_COLORS.hex.sawahPertumbuhan }}
+          className="px-4.5 py-3.5 text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 cursor-default"
+        >
           <div className="flex flex-col text-left min-w-0">
             <span className="text-[10px] font-extrabold text-white/85 uppercase tracking-wider block leading-none mb-1.5">Hadir</span>
             <span className="text-xl font-black text-white tracking-tight leading-none block">{loading ? "..." : `${totalHadir} Orang`}</span>
@@ -241,7 +265,10 @@ export function TodayAttendancePage() {
         </div>
 
         {/* Izin/Sakit */}
-        <div className="px-4.5 py-3.5 bg-[#F2B233] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 cursor-default">
+        <div
+          style={{ backgroundColor: THEME_COLORS.hex.padiKemakmuran }}
+          className="px-4.5 py-3.5 text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 cursor-default"
+        >
           <div className="flex flex-col text-left min-w-0">
             <span className="text-[10px] font-extrabold text-white/85 uppercase tracking-wider block leading-none mb-1.5">Izin / Sakit / Cuti</span>
             <span className="text-xl font-black text-white tracking-tight leading-none block">{loading ? "..." : `${totalSakitIzin} Orang`}</span>
@@ -252,7 +279,10 @@ export function TodayAttendancePage() {
         </div>
 
         {/* Belum Hadir */}
-        <div className="px-4.5 py-3.5 bg-[#e0542c] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 cursor-default">
+        <div
+          style={{ backgroundColor: THEME_COLORS.hex.primary }}
+          className="px-4.5 py-3.5 text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 cursor-default"
+        >
           <div className="flex flex-col text-left min-w-0">
             <span className="text-[10px] font-extrabold text-white/85 uppercase tracking-wider block leading-none mb-1.5">Belum Hadir</span>
             <span className="text-xl font-black text-white tracking-tight leading-none block">{loading ? "..." : `${totalBelumHadir} Orang`}</span>

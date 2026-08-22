@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useRouter } from "@/shared/router/router";
 import { createLocation } from "../api/location";
 import { FormField } from "@/shared/components/ui/form-field";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 // Leaflet imports
 import { MapContainer, TileLayer, Marker, Circle, useMap } from "react-leaflet";
@@ -13,7 +14,7 @@ import "leaflet/dist/leaflet.css";
 const officeIcon = L.divIcon({
   className: "custom-office-marker",
   html: `<div style="position: relative; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px;">
-    <div style="position: relative; width: 12px; height: 12px; border-radius: 50%; background-color: #7FA46D; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.25);"></div>
+    <div style="position: relative; width: 12px; height: 12px; border-radius: 50%; background-color: ${THEME_COLORS.hex.sawahPertumbuhan}; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.25);"></div>
   </div>`,
   iconSize: [16, 16],
   iconAnchor: [8, 8]
@@ -167,7 +168,8 @@ export function LocationAddPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-4 py-2 text-xs font-bold text-white bg-[#7FA46D] hover:bg-[#6e935d] rounded-lg shadow-sm shadow-[#7FA46D]/15 transition-colors cursor-pointer disabled:opacity-50"
+                style={{ backgroundColor: THEME_COLORS.hex.sawahPertumbuhan }}
+                className="px-4 py-2 text-xs font-bold text-white rounded-lg shadow-sm transition-colors cursor-pointer disabled:opacity-50 hover:opacity-90"
               >
                 {submitting ? "Menyimpan..." : "Simpan Lokasi"}
               </button>
@@ -179,7 +181,10 @@ export function LocationAddPage() {
         <div className="bg-white border border-gray-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between space-y-4">
           <div className="space-y-3 flex-1 flex flex-col">
             <div className="flex items-center gap-2 text-gray-800">
-              <div className="w-8 h-8 bg-emerald-50 text-[#7FA46D] rounded-lg flex items-center justify-center">
+              <div
+                style={{ color: THEME_COLORS.hex.sawahPertumbuhanText, backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}1A` }}
+                className="w-8 h-8 rounded-lg flex items-center justify-center"
+              >
                 <Navigation size={16} />
               </div>
               <div>
@@ -208,8 +213,8 @@ export function LocationAddPage() {
                         center={[mapLat, mapLng]}
                         radius={formData.radius}
                         pathOptions={{
-                          color: "#7FA46D",
-                          fillColor: "#7FA46D",
+                          color: THEME_COLORS.hex.sawahPertumbuhan,
+                          fillColor: THEME_COLORS.hex.sawahPertumbuhan,
                           fillOpacity: 0.15
                         }}
                       />
@@ -232,7 +237,12 @@ export function LocationAddPage() {
             type="button"
             disabled={gettingLocation}
             onClick={handleGetCurrentLocation}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-bold text-[#7FA46D] bg-[#7FA46D]/10 hover:bg-[#7FA46D]/20 rounded-xl border border-dashed border-[#7FA46D]/30 transition-all cursor-pointer disabled:opacity-50"
+            style={{
+              color: THEME_COLORS.hex.sawahPertumbuhanText,
+              backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}1A`,
+              borderColor: `${THEME_COLORS.hex.sawahPertumbuhan}4D`
+            }}
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-bold rounded-xl border border-dashed transition-all cursor-pointer disabled:opacity-50 hover:opacity-90"
           >
             <MapPin size={16} />
             {gettingLocation ? "Mendeteksi..." : "Ambil Lokasi Saat Ini"}

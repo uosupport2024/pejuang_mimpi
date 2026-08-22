@@ -19,7 +19,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
       <div className="w-full max-w-5xl bg-white rounded-[32px] shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[600px] border border-white/10">
 
         {/* Left Side: Login Form (Warm Cream Background) */}
-        <div className="lg:col-span-6 bg-[#f5f4ed] p-8 md:p-12 flex flex-col justify-center items-center">
+        <div className={`lg:col-span-6 ${c.leftBg} p-8 md:p-12 flex flex-col justify-center items-center`}>
           <LoginForm onLoginSuccess={onLoginSuccess} />
         </div>
 
@@ -29,14 +29,24 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
           {/* Quote Block with tight margins */}
           <div className="max-w-md z-10 text-left">
             {/* Yellow Quote Mark */}
-            <span className="text-5xl font-serif text-[#fee279] leading-none block select-none -mb-3">“</span>
+            <span
+              style={{ color: THEME_COLORS.hex.accent }}
+              className="text-5xl font-serif leading-none block select-none -mb-3"
+            >
+              “
+            </span>
 
             <p className="text-gray-800 text-sm font-semibold leading-relaxed pl-2 relative z-10">
               Konsistensi dimulai dari kehadiran setiap hari. Bekerjalah dengan sepenuh hati hari ini, dan tabunglah hasilnya demi membangun mimpi esok hari. Langkah kecil kita saat ini adalah pondasi kesuksesan di masa depan.
             </p>
 
             {/* Yellow Quote Mark Right */}
-            <span className="text-5xl font-serif text-[#fee279] leading-none block text-right select-none -mt-4">”</span>
+            <span
+              style={{ color: THEME_COLORS.hex.accent }}
+              className="text-5xl font-serif leading-none block text-right select-none -mt-4"
+            >
+              ”
+            </span>
           </div>
 
           {/* Enlarged Coin Image Illustration at Bottom */}

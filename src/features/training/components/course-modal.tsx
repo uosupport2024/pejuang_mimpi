@@ -8,6 +8,7 @@ import {
   SelectItem
 } from "@/shared/components/ui/select";
 import type { Course, CreateCoursePayload } from "../api/course";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface CourseModalProps {
   isOpen: boolean;
@@ -69,9 +70,12 @@ export function CourseModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="px-6 py-5 bg-gradient-to-r from-[#1e2a4a] to-[#2a3b68] text-white flex items-center justify-between">
+        <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="px-6 py-5 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#e0542c] flex items-center justify-center text-white shadow-md shadow-[#e0542c]/30">
+            <div
+              style={{ backgroundColor: THEME_COLORS.hex.primary }}
+              className="w-10 h-10 rounded-2xl flex items-center justify-center text-white shadow-md"
+            >
               <BookOpen size={20} />
             </div>
             <div>
@@ -104,70 +108,56 @@ export function CourseModal({
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Contoh: Orientasi Pegawai Baru 2026"
-              className="w-full px-3.5 py-2.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all"
+              placeholder="Contoh: Pengenalan Dasar Operasional"
+              className="w-full px-3.5 py-2.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none transition-all"
             />
           </div>
 
           {/* Description */}
           <div>
             <label className="block text-xs font-bold text-gray-700 mb-1.5">
-              Deskripsi Singkat
+              Deskripsi Pelatihan
             </label>
             <textarea
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Jelaskan mengenai cakupan dan tujuan dari pelatihan ini..."
-              className="w-full px-3.5 py-2.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all resize-none"
+              placeholder="Jelaskan cakupan pelatihan dan manfaat yang diperoleh..."
+              className="w-full px-3.5 py-2.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none transition-all resize-none"
             />
           </div>
 
           {/* Thumbnail URL */}
           <div>
             <label className="block text-xs font-bold text-gray-700 mb-1.5">
-              URL Banner / Thumbnail Image
+              URL Thumbnail Gambar
             </label>
             <div className="relative">
+              <ImageIcon size={15} className="absolute left-3 top-3 text-gray-400" />
               <input
-                type="url"
+                type="text"
                 value={thumbnailUrl}
                 onChange={(e) => setThumbnailUrl(e.target.value)}
                 placeholder="https://images.unsplash.com/photo-..."
-                className="w-full pl-9 pr-3.5 py-2.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all"
+                className="w-full pl-9 pr-3.5 py-2.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none transition-all"
               />
-              <ImageIcon size={16} className="absolute left-3 top-3 text-gray-400" />
             </div>
-
-            {/* Thumbnail Preview */}
-            {thumbnailUrl.trim() && (
-              <div className="mt-2 relative h-28 rounded-md overflow-hidden border border-gray-200 bg-gray-50">
-                <img
-                  src={thumbnailUrl}
-                  alt="Preview Thumbnail"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLElement).style.display = "none";
-                  }}
-                />
-              </div>
-            )}
           </div>
 
           {/* Icon URL */}
           <div>
             <label className="block text-xs font-bold text-gray-700 mb-1.5">
-              Icon / Badge URL (Opsional)
+              URL Ikon Badge (Opsional)
             </label>
             <div className="relative">
+              <Sparkles size={15} className="absolute left-3 top-3 text-gray-400" />
               <input
                 type="text"
                 value={iconUrl}
                 onChange={(e) => setIconUrl(e.target.value)}
-                placeholder="https://... atau nama ikon"
-                className="w-full pl-9 pr-3.5 py-2.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all"
+                placeholder="https://... atau nama ikon lucide"
+                className="w-full pl-9 pr-3.5 py-2.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none transition-all"
               />
-              <Sparkles size={16} className="absolute left-3 top-3 text-gray-400" />
             </div>
           </div>
 
@@ -205,8 +195,9 @@ export function CourseModal({
             <button
               type="button"
               onClick={() => setIsPublished(!isPublished)}
+              style={isPublished ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
               className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                isPublished ? "bg-[#e0542c]" : "bg-gray-200"
+                isPublished ? "" : "bg-gray-200"
               }`}
             >
               <span
@@ -230,7 +221,8 @@ export function CourseModal({
             <button
               type="submit"
               disabled={loading || !title.trim()}
-              className="px-5 py-2.5 rounded-md bg-[#e0542c] text-white text-xs font-bold shadow-md shadow-[#e0542c]/25 hover:bg-[#c94520] active:scale-98 transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ backgroundColor: THEME_COLORS.hex.primary }}
+              className="px-5 py-2.5 rounded-md text-white text-xs font-bold shadow-md hover:opacity-90 active:scale-98 transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading && <Loader2 size={14} className="animate-spin" />}
               <span>{initialData ? "Simpan Perubahan" : "Buat Pelatihan"}</span>

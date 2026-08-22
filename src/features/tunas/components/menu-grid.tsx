@@ -10,6 +10,7 @@ import {
 } from "@solar-icons/react";
 import { toast } from "sonner";
 import { useRouter } from "@/shared/router/router";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 export function MenuGrid() {
   const { navigate } = useRouter();
@@ -37,7 +38,10 @@ export function MenuGrid() {
         className="flex flex-col items-center group cursor-pointer active:scale-95 transition-all duration-200 w-12.5"
       >
         {/* Glossy Gradient Icon Wrapper */}
-        <div className="w-12.5 h-12.5 rounded-2xl bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] text-white flex items-center justify-center shadow-md shadow-[#e0542c]/15 relative overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-[#e0542c]/25 shrink-0">
+        <div
+          style={{ backgroundColor: THEME_COLORS.hex.primary }}
+          className="w-12.5 h-12.5 rounded-2xl text-white flex items-center justify-center shadow-md relative overflow-hidden transition-all duration-300 group-hover:scale-105 shrink-0"
+        >
           {/* 3D Gloss Highlight effect */}
           <div className="absolute top-0 left-0 right-0 h-1/2 bg-white/15 rounded-t-2xl pointer-events-none" />
           <Icon size={24} weight="Bold" className="relative z-10 transition-transform group-hover:rotate-3 text-white" />

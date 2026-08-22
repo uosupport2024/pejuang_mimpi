@@ -6,6 +6,7 @@ import { DateRangePicker } from "@/shared/components/ui/date-range-picker";
 import { API_BASE_URL } from "@/shared/utils/api";
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
 import patternBg from "@/assets/bg/pattern-background.png";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface LeaveHistoryPageProps {
   user: any;
@@ -15,44 +16,64 @@ const getLeaveStyle = (name: string) => {
   const normName = name.toLowerCase();
   if (normName.includes("cuti")) {
     return {
-      bg: "bg-[#7FA46D]/5",
-      border: "border-[#7FA46D]/20",
-      text: "text-[#516b46]",
-      iconBg: "bg-[#7FA46D]/10",
-      iconText: "text-[#516b46]"
+      style: {
+        backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}0D`,
+        borderColor: `${THEME_COLORS.hex.sawahPertumbuhan}33`,
+        color: THEME_COLORS.hex.sawahPertumbuhanText
+      },
+      iconStyle: {
+        backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}1A`,
+        color: THEME_COLORS.hex.sawahPertumbuhanText
+      }
     };
   } else if (normName.includes("sakit")) {
     return {
-      bg: "bg-rose-50",
-      border: "border-rose-100",
-      text: "text-rose-700",
-      iconBg: "bg-rose-100",
-      iconText: "text-rose-700"
+      style: {
+        backgroundColor: "#fff1f2",
+        borderColor: "#ffe4e6",
+        color: "#be123c"
+      },
+      iconStyle: {
+        backgroundColor: "#ffe4e6",
+        color: "#be123c"
+      }
     };
   } else if (normName.includes("telat")) {
     return {
-      bg: "bg-[#F2B233]/5",
-      border: "border-[#F2B233]/20",
-      text: "text-[#916715]",
-      iconBg: "bg-[#F2B233]/12",
-      iconText: "text-[#916715]"
+      style: {
+        backgroundColor: `${THEME_COLORS.hex.padiKemakmuran}0D`,
+        borderColor: `${THEME_COLORS.hex.padiKemakmuran}33`,
+        color: THEME_COLORS.hex.padiKemakmuranText
+      },
+      iconStyle: {
+        backgroundColor: `${THEME_COLORS.hex.padiKemakmuran}1F`,
+        color: THEME_COLORS.hex.padiKemakmuranText
+      }
     };
   } else if (normName.includes("pulang cepat")) {
     return {
-      bg: "bg-[#F25C2A]/5",
-      border: "border-[#F25C2A]/20",
-      text: "text-[#C54117]",
-      iconBg: "bg-[#F25C2A]/10",
-      iconText: "text-[#C54117]"
+      style: {
+        backgroundColor: `${THEME_COLORS.hex.apiSemangat}0D`,
+        borderColor: `${THEME_COLORS.hex.apiSemangat}33`,
+        color: THEME_COLORS.hex.apiSemangatDark
+      },
+      iconStyle: {
+        backgroundColor: `${THEME_COLORS.hex.apiSemangat}1A`,
+        color: THEME_COLORS.hex.apiSemangatDark
+      }
     };
   } else {
     // Izin Lainnya
     return {
-      bg: "bg-[#5C8A90]/5",
-      border: "border-[#5C8A90]/20",
-      text: "text-[#3b595d]",
-      iconBg: "bg-[#5C8A90]/10",
-      iconText: "text-[#3b595d]"
+      style: {
+        backgroundColor: `${THEME_COLORS.hex.airKehidupan}0D`,
+        borderColor: `${THEME_COLORS.hex.airKehidupan}33`,
+        color: THEME_COLORS.hex.airKehidupanText
+      },
+      iconStyle: {
+        backgroundColor: `${THEME_COLORS.hex.airKehidupan}1A`,
+        color: THEME_COLORS.hex.airKehidupanText
+      }
     };
   }
 };
@@ -79,7 +100,10 @@ export function LeaveHistoryPage({ user }: LeaveHistoryPageProps) {
   return (
     <div className="space-y-4 pb-12 text-left">
       {/* Header Bar */}
-      <div className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl bg-[#1e2a4a] text-white">
+      <div
+        style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+        className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl text-white"
+      >
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
           style={{
@@ -157,7 +181,10 @@ export function LeaveHistoryPage({ user }: LeaveHistoryPageProps) {
                   >
                     {/* Left: Icon & Info */}
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className={`w-9.5 h-9.5 rounded-full flex items-center justify-center shrink-0 ${style.iconBg} ${style.iconText}`}>
+                      <div
+                        style={style.iconStyle}
+                        className="w-9.5 h-9.5 rounded-full flex items-center justify-center shrink-0"
+                      >
                         {item.nama_cuti.toLowerCase().includes("cuti") && <Calendar className="w-5 h-5" />}
                         {item.nama_cuti.toLowerCase().includes("sakit") && <HeartPulse className="w-5 h-5" />}
                         {item.nama_cuti.toLowerCase().includes("telat") && <Clock className="w-5 h-5" />}
@@ -168,7 +195,10 @@ export function LeaveHistoryPage({ user }: LeaveHistoryPageProps) {
                           !item.nama_cuti.toLowerCase().includes("pulang cepat") && <FileText className="w-5 h-5" />}
                       </div>
                       <div className="flex flex-col min-w-0 justify-center gap-0">
-                        <span className={`text-[11px] font-extrabold leading-none pb-1 truncate ${style.text}`}>
+                        <span
+                          style={{ color: style.style.color }}
+                          className="text-[11px] font-extrabold leading-none pb-1 truncate"
+                        >
                           {item.nama_cuti}
                         </span>
                         <div className="flex items-center gap-1.5 mt-0.5 leading-none">
@@ -184,7 +214,8 @@ export function LeaveHistoryPage({ user }: LeaveHistoryPageProps) {
                               <button
                                 type="button"
                                 onClick={() => setPreviewImage(`${API_BASE_URL.replace("/api/v1", "")}/storage/${item.foto_cuti}`)}
-                                className="text-[9.5px] font-extrabold text-[#e0542c] hover:underline cursor-pointer border-0 bg-transparent p-0 inline-block align-baseline"
+                                style={{ color: THEME_COLORS.hex.primary }}
+                                className="text-[9.5px] font-extrabold hover:underline cursor-pointer border-0 bg-transparent p-0 inline-block align-baseline"
                               >
                                 Lampiran
                               </button>
