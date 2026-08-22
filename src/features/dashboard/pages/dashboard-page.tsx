@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  Calendar,
   ChevronDown,
   CheckCircle,
   XCircle,
@@ -13,6 +12,7 @@ import { fetchAdminDashboardAPI } from "@/features/dashboard/api/dashboard";
 import { useRouter } from "@/shared/router/router";
 import { fetchProfileAPI } from "@/features/tunas/api/absensi";
 import { ReusableTable } from "@/shared/components/ui/reusable-table";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 export function DashboardPage() {
   const { navigate } = useRouter();
@@ -94,7 +94,7 @@ export function DashboardPage() {
       title: "Masuk",
       value: `${stats.masuk} Orang`,
       icon: CheckCircle,
-      cardBg: "bg-[#7FA46D]",
+      cardBgColor: THEME_COLORS.hex.sawahPertumbuhan,
       badgeText: `${attendanceRate}% Kehadiran`,
       badgeBg: "bg-white/20 text-white",
     },
@@ -102,7 +102,7 @@ export function DashboardPage() {
       title: "Alfa",
       value: `${stats.alfa} Orang`,
       icon: XCircle,
-      cardBg: "bg-[#e0542c]",
+      cardBgColor: THEME_COLORS.hex.primary,
       badgeText: `${alfaRate}% Tanpa Ket.`,
       badgeBg: "bg-white/20 text-white",
     },
@@ -110,7 +110,7 @@ export function DashboardPage() {
       title: "Sakit",
       value: `${stats.sakit} Orang`,
       icon: Activity,
-      cardBg: "bg-[#F2B233]",
+      cardBgColor: THEME_COLORS.hex.padiKemakmuran,
       badgeText: "Izin Sakit",
       badgeBg: "bg-white/20 text-white",
     },
@@ -118,7 +118,7 @@ export function DashboardPage() {
       title: "Izin",
       value: `${stats.izin} Orang`,
       icon: FileText,
-      cardBg: "bg-[#5C8A90]",
+      cardBgColor: THEME_COLORS.hex.airKehidupan,
       badgeText: "Izin Cuti",
       badgeBg: "bg-white/20 text-white",
     },
@@ -191,7 +191,7 @@ export function DashboardPage() {
     fill: {
       type: "solid"
     },
-    colors: ["#7FA46D"],
+    colors: [THEME_COLORS.hex.sawahPertumbuhan],
     dataLabels: { enabled: false },
     xaxis: {
       categories: charts.map((c: any) => c.label),
@@ -230,18 +230,19 @@ export function DashboardPage() {
       theme: "light",
       style: { fontSize: "10px", fontFamily: "Poppins" },
       y: {
-        formatter: (val: number) => `${val} Pegawai Hadir`
+        formatter: (val: number) => `${val} Orang`
       }
     }
   };
 
   const chart1Series = [
     {
-      name: "Masuk",
-      data: charts.map((c: any) => c.masuk)
+      name: "Pegawai Masuk",
+      data: charts.map((c: any) => Number(c.masuk || 0))
     }
   ];
 
+  // Apex Area Chart Options (Presence & Alfa percentage trend)
   const chart2Options: ApexCharts.ApexOptions = {
     chart: {
       type: "area",
@@ -254,7 +255,7 @@ export function DashboardPage() {
     },
     stroke: {
       curve: "smooth",
-      width: 3.5
+      width: 2.5
     },
     fill: {
       type: "gradient",
@@ -267,11 +268,11 @@ export function DashboardPage() {
         stops: [0, 95, 100]
       }
     },
-    colors: ["#7FA46D", "#e0542c"],
+    colors: [THEME_COLORS.hex.sawahPertumbuhan, THEME_COLORS.hex.primary],
     markers: {
       size: 5,
       colors: ["#ffffff"],
-      strokeColors: ["#7FA46D", "#e0542c"],
+      strokeColors: [THEME_COLORS.hex.sawahPertumbuhan, THEME_COLORS.hex.primary],
       strokeWidth: 3,
       hover: {
         size: 7
@@ -340,66 +341,6 @@ export function DashboardPage() {
     }
   ];
 
-  const genderData = dashboardData?.gender_demographics || { pria: 3, wanita: 2 };
-
-  const chart3Options: ApexCharts.ApexOptions = {
-    chart: {
-      type: "donut",
-      toolbar: { show: false },
-      fontFamily: "Poppins",
-      animations: {
-        enabled: true,
-        speed: 1000
-      }
-    },
-    colors: ["#1e2a4a", "#e0542c"],
-    labels: ["Pria", "Wanita"],
-    plotOptions: {
-      pie: {
-        donut: {
-          size: "72%",
-          labels: {
-            show: true,
-            total: {
-              show: true,
-              label: "Total Pegawai",
-              fontSize: "10px",
-              fontWeight: "700",
-              color: "#9ca3af",
-              formatter: () => `${totalPegawaiTotal || 5}`
-            },
-            value: {
-              fontSize: "16px",
-              fontWeight: "900",
-              color: "#1f2937",
-              offsetY: 2
-            }
-          }
-        }
-      }
-    },
-    dataLabels: { enabled: false },
-    legend: {
-      show: true,
-      position: "bottom",
-      fontSize: "10px",
-      fontFamily: "Poppins",
-      fontWeight: 600,
-      labels: { colors: "#4b5563" },
-      markers: { size: 8 }
-    },
-    stroke: { width: 2, colors: ["#ffffff"] },
-    tooltip: {
-      theme: "light",
-      style: { fontSize: "10px", fontFamily: "Poppins" },
-      y: {
-        formatter: (val: number) => `${val} Pegawai`
-      }
-    }
-  };
-
-  const chart3Series = [genderData.pria || 3, genderData.wanita || 2];
-
   return (
     <div className="space-y-6">
       {/* Top Header Section: Dynamic Greeting on Left + Filter Controls on Right */}
@@ -408,7 +349,7 @@ export function DashboardPage() {
         <div className="space-y-1 text-left">
           <h1 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
             <span>{greeting},</span>
-            <span className="text-[#e0542c]">{userName}</span>
+            <span style={{ color: THEME_COLORS.hex.primary }}>{userName}</span>
           </h1>
           <p className="text-xs font-bold text-gray-500">
             Semangat memperjuangkan impian! Pantau ringkasan kehadiran & performa tim hari ini.
@@ -425,7 +366,7 @@ export function DashboardPage() {
                 const val = e.target.value;
                 setSelectedLokasiId(val ? Number(val) : undefined);
               }}
-              className="appearance-none flex items-center gap-2 px-3.5 py-2 pr-9 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-600 shadow-xs hover:bg-gray-50 transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#e0542c]"
+              className="appearance-none flex items-center gap-2 px-3.5 py-2 pr-9 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-600 shadow-xs hover:bg-gray-50 transition-all cursor-pointer focus:outline-none focus:ring-1"
             >
               <option value="">Semua Lokasi</option>
               {locations.map((loc: any) => (
@@ -438,13 +379,12 @@ export function DashboardPage() {
           </div>
 
           {/* Date Picker Input */}
-          <div className="relative flex items-center bg-white border border-gray-200 rounded-xl px-3.5 py-2 shadow-xs hover:bg-gray-50 transition-colors">
-            <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+          <div className="relative">
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="bg-transparent border-0 text-xs font-bold text-gray-600 focus:outline-none cursor-pointer"
+              className="appearance-none flex items-center gap-2 px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-600 shadow-xs hover:bg-gray-50 transition-all cursor-pointer focus:outline-none focus:ring-1"
             />
           </div>
         </div>
@@ -457,7 +397,8 @@ export function DashboardPage() {
           return (
             <div
               key={i}
-              className={`px-5 py-4 ${card.cardBg} rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 cursor-default text-white relative overflow-hidden`}
+              style={{ backgroundColor: card.cardBgColor }}
+              className="px-5 py-4 rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-250 cursor-default text-white relative overflow-hidden"
             >
               <div className="flex flex-col text-left min-w-0 z-10">
                 <span className="text-[10px] font-extrabold text-white/85 uppercase tracking-wider block leading-none mb-1.5">
@@ -519,10 +460,10 @@ export function DashboardPage() {
                 </div>
                 <div className="flex gap-3 text-[9.5px] font-bold shrink-0 ml-2 pt-0.5">
                   <span className="flex items-center gap-1 text-gray-700">
-                    <span className="w-2 h-2 rounded-full bg-[#7FA46D]"></span> Masuk
+                    <span style={{ backgroundColor: THEME_COLORS.hex.sawahPertumbuhan }} className="w-2 h-2 rounded-full"></span> Masuk
                   </span>
                   <span className="flex items-center gap-1 text-gray-700">
-                    <span className="w-2 h-2 rounded-full bg-[#e0542c]"></span> Alfa
+                    <span style={{ backgroundColor: THEME_COLORS.hex.primary }} className="w-2 h-2 rounded-full"></span> Alfa
                   </span>
                 </div>
               </div>
@@ -558,7 +499,8 @@ export function DashboardPage() {
               </div>
               <button
                 onClick={() => navigate("Leave")}
-                className="inline-flex items-center gap-1 text-xs font-extrabold text-[#e0542c] hover:text-[#c23f1b] transition-colors cursor-pointer shrink-0 ml-2"
+                style={{ color: THEME_COLORS.hex.primary }}
+                className="inline-flex items-center gap-1 text-xs font-extrabold hover:underline transition-colors cursor-pointer shrink-0 ml-2"
               >
                 <span>Kelola Semua</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -573,7 +515,7 @@ export function DashboardPage() {
                       type="checkbox"
                       checked={pendingLeaves.length > 0 && selectedIds.length === pendingLeaves.length}
                       onChange={(e) => handleSelectAll(e.target.checked)}
-                      className="w-4 h-4 rounded border border-[#e0542c] bg-white checked:bg-[#e0542c] checked:border-[#e0542c] cursor-pointer appearance-none flex items-center justify-center after:content-['✓'] after:text-[10px] after:font-extrabold after:text-white after:hidden checked:after:block transition-all focus:outline-none"
+                      className="w-4 h-4 rounded border border-gray-300 bg-white checked:bg-orange-500 checked:border-orange-500 cursor-pointer appearance-none flex items-center justify-center after:content-['✓'] after:text-[10px] after:font-extrabold after:text-white after:hidden checked:after:block transition-all focus:outline-none"
                     />
                   ),
                   sortable: false,
@@ -583,7 +525,7 @@ export function DashboardPage() {
                       type="checkbox"
                       checked={selectedIds.includes(item.id)}
                       onChange={(e) => handleSelectRow(item.id, e.target.checked)}
-                      className="w-4 h-4 rounded border border-[#e0542c] bg-white checked:bg-[#e0542c] checked:border-[#e0542c] cursor-pointer appearance-none flex items-center justify-center after:content-['✓'] after:text-[10px] after:font-extrabold after:text-white after:hidden checked:after:block transition-all focus:outline-none"
+                      className="w-4 h-4 rounded border border-gray-300 bg-white checked:bg-orange-500 checked:border-orange-500 cursor-pointer appearance-none flex items-center justify-center after:content-['✓'] after:text-[10px] after:font-extrabold after:text-white after:hidden checked:after:block transition-all focus:outline-none"
                     />
                   ),
                 },
@@ -601,15 +543,18 @@ export function DashboardPage() {
                   cell: (item: any) => {
                     const name = (item.nama_cuti || "Izin").toLowerCase();
                     const badgeBg = name.includes("cuti")
-                      ? "bg-[#7FA46D]"
+                      ? THEME_COLORS.hex.sawahPertumbuhan
                       : name.includes("sakit")
-                      ? "bg-[#e0542c]"
+                      ? THEME_COLORS.hex.primary
                       : name.includes("telat")
-                      ? "bg-[#F2B233]"
-                      : "bg-[#5C8A90]";
+                      ? THEME_COLORS.hex.padiKemakmuran
+                      : THEME_COLORS.hex.airKehidupan;
                     return (
                       <div>
-                        <span className={`px-2.5 py-0.5 ${badgeBg} text-white rounded-full text-[9px] font-extrabold uppercase shadow-2xs block w-max`}>
+                        <span
+                          style={{ backgroundColor: badgeBg }}
+                          className="px-2.5 py-0.5 text-white rounded-full text-[9px] font-extrabold uppercase shadow-2xs block w-max"
+                        >
                           {item.nama_cuti || "Izin"}
                         </span>
                         <span className="text-[10px] text-gray-400 font-semibold block mt-1">
@@ -640,7 +585,8 @@ export function DashboardPage() {
                   cell: () => (
                     <button
                       onClick={() => navigate("Leave")}
-                      className="px-3 py-1 bg-[#e0542c] hover:bg-[#c84420] text-white rounded-lg text-[10px] font-bold transition-all cursor-pointer border-0 shadow-xs hover:shadow"
+                      style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                      className="px-3 py-1 text-white rounded-lg text-[10px] font-bold transition-all cursor-pointer border-0 shadow-xs hover:shadow hover:opacity-90"
                     >
                       Proses
                     </button>
@@ -658,57 +604,62 @@ export function DashboardPage() {
         </div>
 
         {/* Right Column (4 cols): Quick Actions & Birthday Calendar */}
-        <div className="lg:col-span-4 space-y-6">
-          {/* Chart 3: Employee Gender Demographics Donut (Replaces Aksi Cepat) */}
-          <div className="p-4.5 sm:p-5 bg-white border border-gray-200 rounded-2xl shadow-xs text-left flex flex-col justify-between h-[275px]">
-            <div>
-              <h3 className="text-xs font-black text-gray-900 uppercase tracking-wider">Komposisi Gender Pegawai</h3>
-              <p className="text-[9.5px] font-bold text-gray-400 mt-0.5">Rasio perbandingan jumlah pegawai Pria & Wanita</p>
-            </div>
-
-            {/* Apex Donut Chart */}
-            <div className="relative w-full h-[195px] flex items-center justify-center -mb-1">
-              {loading ? (
-                <div className="h-[195px] w-full flex items-center justify-center text-xs text-gray-400 font-semibold">
-                  Memuat grafik...
+        <div className="lg:col-span-4 space-y-4 sm:space-y-6">
+          {/* Quick Actions Shortcuts */}
+          <div className="p-4.5 sm:p-5 bg-white border border-gray-200 rounded-2xl shadow-xs text-left">
+            <h3 className="text-xs font-black text-gray-900 mb-3">Menu Pintas Cepat</h3>
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                onClick={() => navigate("EmployeeAdd")}
+                className="p-3 bg-gray-50 hover:bg-orange-50/50 rounded-xl border border-gray-100 hover:border-orange-200 transition-all text-left group cursor-pointer"
+              >
+                <div
+                  style={{ backgroundColor: `${THEME_COLORS.hex.primary}1A`, color: THEME_COLORS.hex.primary }}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center mb-2 group-hover:scale-105 transition-transform"
+                >
+                  <FileText className="w-4 h-4" />
                 </div>
-              ) : (
-                <Chart
-                  key={`chart3-${genderData.pria}-${genderData.wanita}`}
-                  options={chart3Options}
-                  series={chart3Series}
-                  type="donut"
-                  height={190}
-                  width="100%"
-                />
-              )}
+                <span className="text-xs font-bold text-gray-800 block">Tambah Karyawan</span>
+                <span className="text-[9.5px] text-gray-400 font-semibold block mt-0.5">Input data baru</span>
+              </button>
+
+              <button
+                onClick={() => navigate("AttendanceToday")}
+                className="p-3 bg-gray-50 hover:bg-emerald-50/50 rounded-xl border border-gray-100 hover:border-emerald-200 transition-all text-left group cursor-pointer"
+              >
+                <div
+                  style={{ backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}1A`, color: THEME_COLORS.hex.sawahPertumbuhan }}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center mb-2 group-hover:scale-105 transition-transform"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-gray-800 block">Presensi Hari Ini</span>
+                <span className="text-[9.5px] text-gray-400 font-semibold block mt-0.5">Live monitoring</span>
+              </button>
             </div>
           </div>
 
-          {/* Ulang Tahun Bulan Ini Mini Calendar Card */}
-          <div className="p-4.5 sm:p-5 bg-white border border-gray-200 rounded-2xl shadow-xs space-y-4 text-left">
-            <div>
-              <h3 className="text-xs font-black text-gray-900 uppercase tracking-wider">Ulang Tahun Bulan Ini</h3>
-              <p className="text-[10px] font-bold text-gray-400 mt-0.5">{currentMonthName}</p>
+          {/* Birthday Calendar Widget */}
+          <div className="p-4.5 sm:p-5 bg-white border border-gray-200 rounded-2xl shadow-xs text-left">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-black text-gray-900">Ulang Tahun Bulan Ini</h3>
+              <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                {currentMonthName}
+              </span>
             </div>
 
             {/* Mini Calendar Grid */}
-            <div className="bg-zinc-50/70 p-3 rounded-2xl border border-zinc-100">
-              <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-gray-400 mb-2">
-                <span>M</span>
-                <span>S</span>
-                <span>S</span>
-                <span>R</span>
-                <span>K</span>
-                <span>J</span>
-                <span>S</span>
+            <div className="bg-gray-50/70 p-3 rounded-2xl border border-gray-100 mb-4">
+              <div className="grid grid-cols-7 gap-1 text-center mb-2">
+                {["M", "S", "S", "R", "K", "J", "S"].map((d, i) => (
+                  <span key={i} className="text-[9px] font-black text-gray-400 uppercase">
+                    {d}
+                  </span>
+                ))}
               </div>
-
-              <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-bold">
-                {getDaysInMonth().map((day, idx) => {
-                  if (day === null) {
-                    return <div key={`empty-${idx}`} className="h-7 w-7" />;
-                  }
+              <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold">
+                {getDaysInMonth().map((day, i) => {
+                  if (!day) return <div key={`empty-${i}`} className="h-7 w-7" />;
 
                   const dayBirthdays = getBirthdaysForDay(day);
                   const hasBirthday = dayBirthdays.length > 0;
@@ -717,9 +668,10 @@ export function DashboardPage() {
                   return (
                     <div
                       key={`day-${day}`}
+                      style={hasBirthday ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
                       className={`h-7 w-7 rounded-full flex items-center justify-center mx-auto relative group ${
                         hasBirthday
-                          ? "bg-[#e0542c] text-white font-black cursor-pointer shadow-xs"
+                          ? "text-white font-black cursor-pointer shadow-xs"
                           : isToday
                           ? "bg-zinc-200 text-gray-900 border border-zinc-300"
                           : "text-gray-600 hover:bg-zinc-100"
@@ -740,7 +692,6 @@ export function DashboardPage() {
 
             {/* Birthday Employees List */}
             <div className="space-y-2">
-              <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider block">Daftar Karyawan Ultah</span>
               <div className="space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
                 {loading ? (
                   <div className="text-center text-[10px] text-gray-400 py-4">Memuat data...</div>
@@ -752,13 +703,19 @@ export function DashboardPage() {
                     const initials = emp.name.substring(0, 2).toUpperCase();
                     return (
                       <div key={emp.id} className="flex items-center gap-2.5 p-2 hover:bg-zinc-50 rounded-xl transition-colors border border-transparent hover:border-gray-100">
-                        <div className="w-7 h-7 rounded-full bg-[#e0542c]/10 text-[#e0542c] font-black flex items-center justify-center text-[10px] shrink-0">
+                        <div
+                          style={{ backgroundColor: `${THEME_COLORS.hex.primary}1A`, color: THEME_COLORS.hex.primary }}
+                          className="w-7 h-7 rounded-full font-black flex items-center justify-center text-[10px] shrink-0"
+                        >
                           {initials}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="text-[11px] font-bold text-gray-800 truncate">{emp.name}</div>
                         </div>
-                        <span className="text-[9px] font-bold text-[#e0542c] bg-[#e0542c]/10 px-2 py-0.5 rounded-full shrink-0">
+                        <span
+                          style={{ backgroundColor: `${THEME_COLORS.hex.primary}1A`, color: THEME_COLORS.hex.primary }}
+                          className="text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0"
+                        >
                           {birthDay} {new Date().toLocaleDateString("id-ID", { month: "short" })}
                         </span>
                       </div>

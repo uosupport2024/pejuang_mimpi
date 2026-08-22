@@ -3,6 +3,7 @@ import { X, Check, Loader2, Mail, ShieldAlert, ChevronLeft, ChevronRight, Clock,
 import type { SarangUser } from "../types/sarang.type";
 import { fetchJadwalHistoryAPI } from "@/features/tunas/api/absensi";
 import { INDONESIAN_BANKS, type BankItem } from "../constants/banks";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface BaseDrawerProps {
   isOpen: boolean;
@@ -92,7 +93,7 @@ export function EditProfileDrawer({ isOpen, onClose, user, onSave }: EditProfile
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-[#e0542c] focus:bg-white transition-colors"
+            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white transition-colors"
           />
         </div>
 
@@ -103,7 +104,7 @@ export function EditProfileDrawer({ isOpen, onClose, user, onSave }: EditProfile
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-[#e0542c] focus:bg-white transition-colors"
+            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white transition-colors"
           />
         </div>
 
@@ -113,7 +114,7 @@ export function EditProfileDrawer({ isOpen, onClose, user, onSave }: EditProfile
             type="tel"
             value={telepon}
             onChange={(e) => setTelepon(e.target.value)}
-            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-[#e0542c] focus:bg-white transition-colors"
+            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white transition-colors"
           />
         </div>
 
@@ -123,7 +124,7 @@ export function EditProfileDrawer({ isOpen, onClose, user, onSave }: EditProfile
             <select
               value={gender}
               onChange={(e) => setGender(e.target.value)}
-              className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-[#e0542c] focus:bg-white transition-colors"
+              className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white transition-colors"
             >
               <option value="Laki-Laki">Laki-Laki</option>
               <option value="Perempuan">Perempuan</option>
@@ -135,7 +136,7 @@ export function EditProfileDrawer({ isOpen, onClose, user, onSave }: EditProfile
             <select
               value={statusNikah}
               onChange={(e) => setStatusNikah(e.target.value)}
-              className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-[#e0542c] focus:bg-white transition-colors"
+              className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white transition-colors"
             >
               <option value="TK/0">Belum Menikah (TK/0)</option>
               <option value="K/0">Menikah (K/0)</option>
@@ -148,7 +149,8 @@ export function EditProfileDrawer({ isOpen, onClose, user, onSave }: EditProfile
         <button
           type="submit"
           disabled={isSaving}
-          className="w-full h-10 bg-[#e0542c] text-white rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:bg-[#c23f1b] transition-colors mt-2"
+          style={{ backgroundColor: THEME_COLORS.hex.primary }}
+          className="w-full h-10 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:opacity-90 transition-opacity mt-2"
         >
           {isSaving ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -243,7 +245,7 @@ export function EditPayrollDrawer({ isOpen, onClose, user, onSave }: EditPayroll
             <button
               type="button"
               onClick={() => setIsOpenDropdown(!isOpenDropdown)}
-              className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl flex items-center justify-between focus:outline-none focus:border-[#e0542c] focus:bg-white transition-colors cursor-pointer text-zinc-700"
+              className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl flex items-center justify-between focus:outline-none focus:bg-white transition-colors cursor-pointer text-zinc-700"
             >
               <span>{bank || "Pilih Bank"}</span>
               <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform ${isOpenDropdown ? "rotate-180" : ""}`} />
@@ -259,7 +261,7 @@ export function EditPayrollDrawer({ isOpen, onClose, user, onSave }: EditPayroll
                     placeholder="Cari bank..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full h-9 pl-9 pr-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-[#e0542c] text-xs"
+                    className="w-full h-9 pl-9 pr-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none text-xs"
                     autoFocus
                   />
                 </div>
@@ -275,8 +277,9 @@ export function EditPayrollDrawer({ isOpen, onClose, user, onSave }: EditPayroll
                           setIsOpenDropdown(false);
                           setSearchQuery("");
                         }}
+                        style={bank === b.name ? { color: THEME_COLORS.hex.primary } : undefined}
                         className={`w-full px-3 py-2 rounded-xl flex items-center justify-between text-left hover:bg-zinc-50 cursor-pointer transition-colors ${
-                          bank === b.name ? "bg-orange-50 text-[#e0542c]" : "text-zinc-700"
+                          bank === b.name ? "bg-orange-50 font-bold" : "text-zinc-700"
                         }`}
                       >
                         <span className="font-bold truncate text-[11px]">{b.name}</span>
@@ -304,14 +307,15 @@ export function EditPayrollDrawer({ isOpen, onClose, user, onSave }: EditPayroll
             placeholder="Masukkan nomor rekening payroll"
             value={rekening}
             onChange={(e) => setRekening(e.target.value)}
-            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-[#e0542c] focus:bg-white transition-colors"
+            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white transition-colors"
           />
         </div>
 
         <button
           type="submit"
           disabled={isSaving}
-          className="w-full h-10 bg-[#e0542c] text-white rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:bg-[#c23f1b] transition-colors mt-2"
+          style={{ backgroundColor: THEME_COLORS.hex.primary }}
+          className="w-full h-10 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:opacity-90 transition-opacity mt-2"
         >
           {isSaving ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -394,7 +398,7 @@ export function ChangePasswordDrawer({ isOpen, onClose, onSave }: ChangePassword
             placeholder="Masukkan password lama"
             value={oldPassword}
             onChange={(e) => setOldPassword(e.target.value)}
-            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-[#e0542c] focus:bg-white transition-colors"
+            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white transition-colors"
           />
         </div>
 
@@ -406,7 +410,7 @@ export function ChangePasswordDrawer({ isOpen, onClose, onSave }: ChangePassword
             placeholder="Minimal 6 karakter"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-[#e0542c] focus:bg-white transition-colors"
+            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white transition-colors"
           />
         </div>
 
@@ -418,14 +422,15 @@ export function ChangePasswordDrawer({ isOpen, onClose, onSave }: ChangePassword
             placeholder="Ketik ulang password baru"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-[#e0542c] focus:bg-white transition-colors"
+            className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white transition-colors"
           />
         </div>
 
         <button
           type="submit"
           disabled={isSaving}
-          className="w-full h-10 bg-[#e0542c] text-white rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:bg-[#c23f1b] transition-colors mt-2"
+          style={{ backgroundColor: THEME_COLORS.hex.primary }}
+          className="w-full h-10 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:opacity-90 transition-opacity mt-2"
         >
           {isSaving ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -440,6 +445,7 @@ export function ChangePasswordDrawer({ isOpen, onClose, onSave }: ChangePassword
     </BaseProfileDrawer>
   );
 }
+
 
 // 4. Jadwal & Shift Kerja Drawer
 export function JadwalShiftDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
@@ -541,7 +547,7 @@ export function JadwalShiftDrawer({ isOpen, onClose }: { isOpen: boolean; onClos
       return "bg-emerald-500"; // Morning Shift
     }
     if (hour >= 14 && hour < 22) {
-      return "bg-[#e0542c]"; // Evening Shift
+      return "bg-orange-500"; // Evening Shift
     }
     return "bg-indigo-500"; // Night Shift
   };
@@ -566,12 +572,20 @@ export function JadwalShiftDrawer({ isOpen, onClose }: { isOpen: boolean; onClos
         key={`day-${day}`}
         type="button"
         onClick={() => setSelectedDate(new Date(year, month, day))}
-        className={`w-8.5 h-8.5 rounded-full flex flex-col items-center justify-center relative cursor-pointer font-bold transition-all text-xs active:scale-90 ${isDaySelected
-            ? "bg-[#1e2a4a] text-white"
+        style={
+          isDaySelected
+            ? { backgroundColor: THEME_COLORS.hex.navBg }
             : isDayToday
-              ? "bg-[#e0542c]/10 text-[#e0542c] border border-[#e0542c]/30"
-              : "text-zinc-700 hover:bg-zinc-100"
-          }`}
+            ? { backgroundColor: `${THEME_COLORS.hex.primary}1A`, color: THEME_COLORS.hex.primary, borderColor: `${THEME_COLORS.hex.primary}4D` }
+            : undefined
+        }
+        className={`w-8.5 h-8.5 rounded-full flex flex-col items-center justify-center relative cursor-pointer font-bold transition-all text-xs active:scale-90 ${
+          isDaySelected
+            ? "text-white"
+            : isDayToday
+            ? "border"
+            : "text-zinc-700 hover:bg-zinc-100"
+        }`}
       >
         <span className="leading-none">{day}</span>
         {dotColor && !isDaySelected && (
@@ -591,9 +605,12 @@ export function JadwalShiftDrawer({ isOpen, onClose }: { isOpen: boolean; onClos
         {/* Today's Shift Card */}
         <div className="space-y-1.5 text-left">
           <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider block">Shift Hari Ini</span>
-          <div className="bg-[#1e2a4a] text-white p-4.5 rounded-2xl flex items-center justify-between shadow-xs border border-white/5">
+          <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="text-white p-4.5 rounded-2xl flex items-center justify-between shadow-xs border border-white/5">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#e0542c]/10 flex items-center justify-center text-[#e0542c] shrink-0">
+              <div
+                style={{ backgroundColor: `${THEME_COLORS.hex.primary}1A`, color: THEME_COLORS.hex.primary }}
+                className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+              >
                 <Clock className="w-5 h-5" />
               </div>
               <div>
@@ -654,7 +671,7 @@ export function JadwalShiftDrawer({ isOpen, onClose }: { isOpen: boolean; onClos
             {/* Calendar Days */}
             {isLoading ? (
               <div className="h-36 flex items-center justify-center">
-                <Loader2 className="w-6 h-6 animate-spin text-[#e0542c]" />
+                <Loader2 style={{ color: THEME_COLORS.hex.primary }} className="w-6 h-6 animate-spin" />
               </div>
             ) : (
               <div className="grid grid-cols-7 gap-y-1.5 justify-items-center">
@@ -670,7 +687,7 @@ export function JadwalShiftDrawer({ isOpen, onClose }: { isOpen: boolean; onClos
               <span>Shift Pagi</span>
             </div>
             <div className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#e0542c]" />
+              <span style={{ backgroundColor: THEME_COLORS.hex.primary }} className="w-1.5 h-1.5 rounded-full" />
               <span>Shift Sore</span>
             </div>
             <div className="flex items-center gap-1">
@@ -691,7 +708,7 @@ export function JadwalShiftDrawer({ isOpen, onClose }: { isOpen: boolean; onClos
                 <div className="flex justify-between items-start">
                   <div>
                     <h4 className="font-extrabold text-zinc-800 text-sm">{selectedSchedule.shift.nama_shift}</h4>
-                    <p className="text-[10.5px] font-bold text-[#e0542c] mt-1 flex items-center gap-1">
+                    <p style={{ color: THEME_COLORS.hex.primary }} className="text-[10.5px] font-bold mt-1 flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5" />
                       <span>{selectedSchedule.shift.jam_masuk.substring(0, 5)} - {selectedSchedule.shift.jam_keluar.substring(0, 5)} WIB</span>
                     </p>

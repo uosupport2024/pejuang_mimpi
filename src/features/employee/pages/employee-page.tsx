@@ -289,15 +289,14 @@ export function EmployeePage() {
       header: "Role",
       cell: (row) => {
         const roleName = row.roles?.[0]?.name || row.is_admin || "user";
+        const isAdmin = roleName === "admin";
         return (
-          <span className={cn(
-            "px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider inline-flex items-center justify-center text-white shadow-2xs",
-            roleName === "admin"
-              ? "bg-[#e0542c]"
-              : roleName === "user"
-                ? "bg-[#7FA46D]"
-                : "bg-gray-500"
-          )}>
+          <span
+            style={{
+              backgroundColor: isAdmin ? THEME_COLORS.hex.primary : THEME_COLORS.hex.sawahPertumbuhan
+            }}
+            className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider inline-flex items-center justify-center text-white shadow-2xs"
+          >
             {roleName}
           </span>
         );

@@ -117,13 +117,14 @@ export function AttendanceLeaderboard() {
         </div>
 
         {/* Tab Toggle Switch */}
-        <div className="flex bg-[#e2dcd0]/50 p-1 rounded-xl border border-zinc-200/40 shadow-inner">
+        <div className="flex bg-zinc-200/50 p-1 rounded-xl border border-zinc-200/40 shadow-inner">
           <button
             type="button"
             onClick={() => setActiveTab("big3")}
+            style={activeTab === "big3" ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
             className={`px-3 py-1 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${
               activeTab === "big3"
-                ? "bg-[#e0542c] text-white shadow-xs"
+                ? "text-white shadow-xs"
                 : "text-zinc-500 hover:text-zinc-700"
             }`}
           >
@@ -132,9 +133,10 @@ export function AttendanceLeaderboard() {
           <button
             type="button"
             onClick={() => setActiveTab("list")}
+            style={activeTab === "list" ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
             className={`px-3 py-1 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${
               activeTab === "list"
-                ? "bg-[#e0542c] text-white shadow-xs"
+                ? "text-white shadow-xs"
                 : "text-zinc-500 hover:text-zinc-700"
             }`}
           >
@@ -162,7 +164,10 @@ export function AttendanceLeaderboard() {
         <div className="space-y-3">
           {/* TOP 3 PODIUM VIEW */}
           {activeTab === "big3" && (
-            <div className="bg-[#1e2a4a] text-white rounded-3xl p-5 pt-6 shadow-lg shadow-[#1e2a4a]/15 border border-white/10 relative overflow-hidden">
+            <div
+              style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+              className="text-white rounded-3xl p-5 pt-6 shadow-lg border border-white/10 relative overflow-hidden"
+            >
               {/* Soft decorative background glow */}
               <div
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-20 blur-xl opacity-20 pointer-events-none rounded-full"
@@ -170,8 +175,11 @@ export function AttendanceLeaderboard() {
               />
 
               <div className="flex items-center justify-between mb-5 z-10 relative">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#fee279] inline-flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#fee279]" />
+                <span
+                  style={{ color: THEME_COLORS.hex.accent }}
+                  className="text-[10px] font-extrabold uppercase tracking-widest inline-flex items-center gap-1.5"
+                >
+                  <Sparkles style={{ color: THEME_COLORS.hex.accent }} className="w-3.5 h-3.5" />
                   Top 3 Bulan Ini
                 </span>
                 <span className="text-[9px] font-bold px-2.5 py-0.5 rounded-full bg-white/10 text-white/80 border border-white/10">
@@ -192,7 +200,10 @@ export function AttendanceLeaderboard() {
                         >
                           {getInitials(rank2.name)}
                         </div>
-                        <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#5C8A90] text-white border-2 border-[#1e2a4a] flex items-center justify-center text-[10px] font-black shadow-xs">
+                        <span
+                          style={{ backgroundColor: THEME_COLORS.hex.airKehidupan, borderColor: THEME_COLORS.hex.navBg }}
+                          className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full text-white border-2 flex items-center justify-center text-[10px] font-black shadow-xs"
+                        >
                           2
                         </span>
                       </div>
@@ -219,7 +230,7 @@ export function AttendanceLeaderboard() {
                 <div className="flex flex-col items-center text-center -mt-3">
                   {rank1 ? (
                     <>
-                      <Crown className="w-5 h-5 text-[#fee279] mb-1 drop-shadow-md animate-pulse" />
+                      <Crown style={{ color: THEME_COLORS.hex.accent }} className="w-5 h-5 mb-1 drop-shadow-md animate-pulse" />
                       <div className="relative mb-2">
                         <div
                           className="w-14 h-14 rounded-full text-zinc-900 flex items-center justify-center font-black text-sm shadow-lg border-2 border-white"
@@ -227,19 +238,28 @@ export function AttendanceLeaderboard() {
                         >
                           {getInitials(rank1.name)}
                         </div>
-                        <span className="absolute -bottom-1 -right-1 w-5.5 h-5.5 rounded-full bg-[#F2B233] text-zinc-900 border-2 border-[#1e2a4a] flex items-center justify-center text-[10px] font-black shadow-xs">
+                        <span
+                          style={{ backgroundColor: THEME_COLORS.hex.padiKemakmuran, borderColor: THEME_COLORS.hex.navBg }}
+                          className="absolute -bottom-1 -right-1 w-5.5 h-5.5 rounded-full text-zinc-900 border-2 flex items-center justify-center text-[10px] font-black shadow-xs"
+                        >
                           1
                         </span>
                       </div>
-                      <span className="text-xs font-black text-[#fee279] truncate max-w-[95px] leading-tight">
+                      <span
+                        style={{ color: THEME_COLORS.hex.accent }}
+                        className="text-xs font-black truncate max-w-[95px] leading-tight"
+                      >
                         {rank1.name}
                       </span>
                       <span className="text-xs font-black text-amber-300 mt-1">
                         {rank1.score} pts
                       </span>
                       {/* Clean Stand */}
-                      <div className="w-full bg-[#F2B233]/20 border border-[#F2B233]/40 rounded-2xl py-4 mt-2.5 flex flex-col items-center shadow-sm">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-[#fee279]">1st</span>
+                      <div
+                        style={{ backgroundColor: `${THEME_COLORS.hex.padiKemakmuran}33`, borderColor: `${THEME_COLORS.hex.padiKemakmuran}66` }}
+                        className="w-full border rounded-2xl py-4 mt-2.5 flex flex-col items-center shadow-sm"
+                      >
+                        <span style={{ color: THEME_COLORS.hex.accent }} className="text-[10px] font-black uppercase tracking-wider">1st</span>
                         <span className="text-[9px] text-white/90 font-bold mt-0.5">{rank1.on_time} Hadir</span>
                       </div>
                     </>
@@ -261,7 +281,10 @@ export function AttendanceLeaderboard() {
                         >
                           {getInitials(rank3.name)}
                         </div>
-                        <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#F25C2A] text-white border-2 border-[#1e2a4a] flex items-center justify-center text-[10px] font-black shadow-xs">
+                        <span
+                          style={{ backgroundColor: THEME_COLORS.hex.apiSemangat, borderColor: THEME_COLORS.hex.navBg }}
+                          className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full text-white border-2 flex items-center justify-center text-[10px] font-black shadow-xs"
+                        >
                           3
                         </span>
                       </div>
@@ -295,17 +318,17 @@ export function AttendanceLeaderboard() {
                 const isRank2 = item.rank === 2;
                 const isRank3 = item.rank === 3;
 
-                let badgeColor = "bg-zinc-100 text-zinc-600 border-zinc-200";
+                let badgeStyle: React.CSSProperties = {};
                 let badgeText = `#${item.rank}`;
 
                 if (isRank1) {
-                  badgeColor = "bg-[#F2B233] text-zinc-900 border-[#F2B233] shadow-xs";
+                  badgeStyle = { backgroundColor: THEME_COLORS.hex.padiKemakmuran, color: "#18181b", borderColor: THEME_COLORS.hex.padiKemakmuran };
                   badgeText = "1";
                 } else if (isRank2) {
-                  badgeColor = "bg-[#5C8A90] text-white border-[#5C8A90] shadow-xs";
+                  badgeStyle = { backgroundColor: THEME_COLORS.hex.airKehidupan, color: "#ffffff", borderColor: THEME_COLORS.hex.airKehidupan };
                   badgeText = "2";
                 } else if (isRank3) {
-                  badgeColor = "bg-[#F25C2A] text-white border-[#F25C2A] shadow-xs";
+                  badgeStyle = { backgroundColor: THEME_COLORS.hex.apiSemangat, color: "#ffffff", borderColor: THEME_COLORS.hex.apiSemangat };
                   badgeText = "3";
                 }
 
@@ -317,13 +340,19 @@ export function AttendanceLeaderboard() {
                     {/* Rank Pill + User Info */}
                     <div className="flex items-center gap-3 min-w-0">
                       {/* Rank Number Badge */}
-                      <div className={`w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black border shrink-0 ${badgeColor}`}>
+                      <div
+                        style={badgeStyle}
+                        className="w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black border shrink-0 bg-zinc-100 text-zinc-600 border-zinc-200"
+                      >
                         {badgeText}
                       </div>
 
                       {/* Avatar Initials & Name */}
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8.5 h-8.5 rounded-full bg-[#1e2a4a]/10 border border-[#1e2a4a]/20 text-[#1e2a4a] flex items-center justify-center font-bold text-xs shrink-0 select-none">
+                        <div
+                          style={{ backgroundColor: `${THEME_COLORS.hex.navBg}15`, borderColor: `${THEME_COLORS.hex.navBg}30`, color: THEME_COLORS.hex.navBg }}
+                          className="w-8.5 h-8.5 rounded-full border flex items-center justify-center font-bold text-xs shrink-0 select-none"
+                        >
                           {getInitials(item.name)}
                         </div>
                         <div className="flex flex-col min-w-0 text-left">
@@ -331,8 +360,8 @@ export function AttendanceLeaderboard() {
                             {item.name}
                           </span>
                           <span className="text-[10px] font-semibold text-zinc-500 leading-none mt-0.5">
-                            <span className="text-[#7FA46D] font-bold">{item.on_time} Hadir</span>
-                            {item.late > 0 && <span className="text-[#F2B233] ml-1.5">• {item.late} Telat</span>}
+                            <span style={{ color: THEME_COLORS.hex.sawahPertumbuhan }} className="font-bold">{item.on_time} Hadir</span>
+                            {item.late > 0 && <span style={{ color: THEME_COLORS.hex.padiKemakmuran }} className="ml-1.5">• {item.late} Telat</span>}
                             {item.absent > 0 && <span className="text-rose-500 ml-1.5">• {item.absent} Alpa</span>}
                           </span>
                         </div>
@@ -340,8 +369,11 @@ export function AttendanceLeaderboard() {
                     </div>
 
                     {/* Score Pill */}
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1e2a4a] text-white text-[10px] font-extrabold shadow-xs shrink-0 ml-2">
-                      <Flame className="w-3 h-3 text-[#fee279] fill-[#fee279]" />
+                    <div
+                      style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white text-[10px] font-extrabold shadow-xs shrink-0 ml-2"
+                    >
+                      <Flame style={{ color: THEME_COLORS.hex.accent, fill: THEME_COLORS.hex.accent }} className="w-3 h-3" />
                       <span>{item.score} pts</span>
                     </div>
                   </div>

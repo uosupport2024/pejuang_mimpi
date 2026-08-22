@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { ReusableTable } from "@/shared/components/ui/reusable-table";
 import { fetchShifts, createShift, updateShift, deleteShift, type BackendShift } from "../api/shift";
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 export function ShiftPage() {
   const [shifts, setShifts] = useState<BackendShift[]>([]);
@@ -143,7 +144,14 @@ export function ShiftPage() {
         if (row.nama_shift.toLowerCase() === "libur") {
           return (
             <span className="flex justify-center">
-              <span className="px-2 py-0.5 text-[10px] font-semibold text-[#516b46] bg-[#7FA46D]/10 border border-[#7FA46D]/20 rounded-full">
+              <span
+                style={{
+                  color: THEME_COLORS.hex.sawahPertumbuhanText,
+                  backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}1A`,
+                  borderColor: `${THEME_COLORS.hex.sawahPertumbuhan}33`
+                }}
+                className="px-2 py-0.5 text-[10px] font-semibold border rounded-full"
+              >
                 Default Shift
               </span>
             </span>
@@ -213,7 +221,7 @@ export function ShiftPage() {
                   value={formData.nama_shift}
                   onChange={(e) => setFormData({ ...formData, nama_shift: e.target.value })}
                   placeholder="Contoh: Shift Pagi, Shift Malam"
-                  className="w-full h-9 px-3 py-2 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#7FA46D] focus:border-[#7FA46D] text-gray-700 font-medium"
+                  className="w-full h-9 px-3 py-2 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none text-gray-700 font-medium"
                 />
               </div>
 
@@ -225,7 +233,7 @@ export function ShiftPage() {
                     required
                     value={formData.jam_masuk}
                     onChange={(e) => setFormData({ ...formData, jam_masuk: e.target.value })}
-                    className="w-full h-9 px-3 py-2 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#7FA46D] focus:border-[#7FA46D] text-gray-700 font-medium"
+                    className="w-full h-9 px-3 py-2 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none text-gray-700 font-medium"
                   />
                 </div>
 
@@ -236,7 +244,7 @@ export function ShiftPage() {
                     required
                     value={formData.jam_keluar}
                     onChange={(e) => setFormData({ ...formData, jam_keluar: e.target.value })}
-                    className="w-full h-9 px-3 py-2 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#7FA46D] focus:border-[#7FA46D] text-gray-700 font-medium"
+                    className="w-full h-9 px-3 py-2 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none text-gray-700 font-medium"
                   />
                 </div>
               </div>
@@ -252,7 +260,8 @@ export function ShiftPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 text-xs font-bold text-white bg-[#7FA46D] hover:bg-[#6e935d] rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                  style={{ backgroundColor: THEME_COLORS.hex.sawahPertumbuhan }}
+                  className="px-4 py-2 text-xs font-bold text-white rounded-lg transition-colors cursor-pointer disabled:opacity-50 hover:opacity-90"
                 >
                   {submitting ? "Menyimpan..." : "Simpan"}
                 </button>

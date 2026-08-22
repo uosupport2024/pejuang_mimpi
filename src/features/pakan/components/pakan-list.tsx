@@ -105,15 +105,16 @@ export function PakanLokerList({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Cari posisi, perusahaan, atau lokasi..."
-            className="w-full pl-10 pr-4 py-3 bg-white border border-zinc-200/80 rounded-2xl text-xs font-semibold text-gray-800 placeholder-zinc-400 focus:outline-hidden focus:border-[#1e2a4a] focus:ring-1 focus:ring-[#1e2a4a]/10 shadow-xs transition-all"
+            className="w-full pl-10 pr-4 py-3 bg-white border border-zinc-200/80 rounded-2xl text-xs font-semibold text-gray-800 placeholder-zinc-400 focus:outline-hidden shadow-xs transition-all"
           />
         </div>
 
-        {/* Orange Filter Button */}
+        {/* Filter Button */}
         <button
           type="button"
           onClick={openFilters}
-          className="w-11 h-10.5 rounded-2xl bg-[#e0542c] hover:bg-[#c23f1b] text-white flex items-center justify-center hover:scale-102 active:scale-98 transition-all cursor-pointer shrink-0"
+          style={{ backgroundColor: THEME_COLORS.hex.primary }}
+          className="w-11 h-10.5 rounded-2xl text-white flex items-center justify-center hover:scale-102 active:scale-98 transition-all cursor-pointer shrink-0 hover:opacity-90"
           title="Filter Lowongan"
         >
           <SlidersHorizontal className="w-4 h-4" />
@@ -157,7 +158,7 @@ export function PakanLokerList({
               onClick={() => navigate(`/mobile/loker/${item.id}`)}
             >
               <div className="flex flex-col text-left min-w-0 flex-1">
-                <span className="text-xs font-bold text-gray-900 group-hover:text-[#e0542c] transition-colors truncate">
+                <span className="text-xs font-bold text-gray-900 transition-colors truncate">
                   {item.position}
                 </span>
                 <span className="text-[10px] text-zinc-400 font-bold truncate mt-0.5">
@@ -179,7 +180,7 @@ export function PakanLokerList({
               </div>
 
               <div className="flex flex-col text-right shrink-0 ml-3 self-center">
-                <span className="text-xs font-bold text-[#e0542c]">{item.salary}</span>
+                <span style={{ color: THEME_COLORS.hex.primary }} className="text-xs font-bold">{item.salary}</span>
               </div>
             </div>
           ))

@@ -4,6 +4,7 @@ import {
   InfoCircle,
 } from "@solar-icons/react"
 import { cn } from "@/shared/lib/utils"
+import { THEME_COLORS } from "@/shared/constants/colors"
 
 export type ConfirmationVariant = "warning" | "danger" | "info"
 
@@ -38,9 +39,9 @@ export function ConfirmationModal({
       case "danger":
         return <DangerCircle size={28} weight="Bold" className="text-rose-600" />
       case "warning":
-        return <DangerTriangle size={28} weight="Bold" className="text-[#e0542c]" /> // Finexy Orange
+        return <DangerTriangle size={28} weight="Bold" style={{ color: THEME_COLORS.hex.primary }} />
       case "info":
-        return <InfoCircle size={28} weight="Bold" className="text-[#5C8A90]" /> // Air Kehidupan Teal
+        return <InfoCircle size={28} weight="Bold" style={{ color: THEME_COLORS.hex.airKehidupan }} />
     }
   }
 
@@ -50,9 +51,9 @@ export function ConfirmationModal({
       case "danger":
         return "bg-rose-50 border border-rose-100"
       case "warning":
-        return "bg-[#e0542c]/10 border border-[#e0542c]/20"
+        return `bg-[${THEME_COLORS.hex.primary}]/10 border border-[${THEME_COLORS.hex.primary}]/20`
       case "info":
-        return "bg-[#5C8A90]/10 border border-[#5C8A90]/20"
+        return `bg-[${THEME_COLORS.hex.airKehidupan}]/10 border border-[${THEME_COLORS.hex.airKehidupan}]/20`
     }
   }
 
@@ -62,9 +63,9 @@ export function ConfirmationModal({
       case "danger":
         return "bg-rose-600 hover:bg-rose-700 shadow-rose-600/10 focus:ring-rose-500"
       case "warning":
-        return "bg-[#e0542c] hover:bg-[#c23f1b] shadow-[#e0542c]/15 focus:ring-[#e0542c]"
+        return `bg-[${THEME_COLORS.hex.primary}] hover:bg-[${THEME_COLORS.hex.primaryHover}] shadow-[${THEME_COLORS.hex.primary}]/15 focus:ring-[${THEME_COLORS.hex.primary}]`
       case "info":
-        return "bg-[#5C8A90] hover:bg-[#496e73] shadow-[#5C8A90]/15 focus:ring-[#5C8A90]"
+        return `bg-[${THEME_COLORS.hex.airKehidupan}] hover:bg-[${THEME_COLORS.hex.airKehidupanDark}] shadow-[${THEME_COLORS.hex.airKehidupan}]/15 focus:ring-[${THEME_COLORS.hex.airKehidupan}]`
     }
   }
 

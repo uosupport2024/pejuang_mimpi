@@ -270,8 +270,8 @@ export function EmployeeImportModal({
                   onClick={() => fileInputRef.current?.click()}
                   className={`border-2 border-dashed rounded-xl p-8 sm:p-10 text-center cursor-pointer transition-all duration-200 flex flex-col items-center justify-center space-y-3 ${
                     isDragging
-                      ? "border-[#5C8A90] bg-[#5C8A90]/10 scale-[1.01]"
-                      : "border-gray-300 hover:border-[#5C8A90] bg-zinc-50/80 hover:bg-[#5C8A90]/5"
+                      ? "border-emerald-500 bg-emerald-50/50 scale-[1.01]"
+                      : "border-gray-300 hover:border-gray-400 bg-zinc-50/80 hover:bg-zinc-100/50"
                   }`}
                 >
                   <div

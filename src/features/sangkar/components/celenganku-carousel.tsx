@@ -52,7 +52,8 @@ export function CelengankuCarousel({ celengans, loading }: CelengankuCarouselPro
         {celengans.length > 0 && !loading && (
           <span
             onClick={() => navigate(`/mobile/celengan?id=${celengans[0].id}`)}
-            className="text-[10px] text-[#e0542c] font-bold cursor-pointer hover:underline"
+            style={{ color: THEME_COLORS.hex.primary }}
+            className="text-[10px] font-bold cursor-pointer hover:underline"
           >
             Lihat Semua
           </span>
@@ -111,9 +112,9 @@ export function CelengankuCarousel({ celengans, loading }: CelengankuCarouselPro
             <motion.div
               onClick={() => navigate("/mobile/celengan/add")}
               whileTap={{ scale: 0.97 }}
-              className="w-28 h-28 border-2 border-dashed border-gray-300 hover:border-[#e0542c]/60 rounded-2xl flex flex-col justify-between p-3.5 shrink-0 snap-start transition-all duration-200 hover:bg-gray-50/50 cursor-pointer group text-gray-400 hover:text-[#e0542c]"
+              className="w-28 h-28 border-2 border-dashed border-gray-300 rounded-2xl flex flex-col justify-between p-3.5 shrink-0 snap-start transition-all duration-200 hover:bg-gray-50/50 cursor-pointer group text-gray-400"
             >
-              <Plus className="w-5 h-5 text-gray-450 group-hover:text-[#e0542c] transition-colors" />
+              <Plus className="w-5 h-5 text-gray-450 transition-colors" />
               <span className="text-xs font-bold tracking-tight text-left leading-tight">Tambah Celengan</span>
             </motion.div>
           </>

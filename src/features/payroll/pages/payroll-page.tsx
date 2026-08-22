@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Download, Printer, CreditCard } from "lucide-react";
+import { Download, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { fetchLocations, type BackendLocation } from "@/features/location/api/location";
 import { fetchRekapData, type RekapItem } from "../api/payroll";
@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 const indonesianMonths = [
   "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
@@ -358,9 +359,9 @@ export function PayrollPage() {
       ),
     },
     {
-      header: <span className="text-left block text-xs font-bold text-[#e0542c] tracking-wider whitespace-nowrap">Aktual Gaji</span>,
+      header: <span style={{ color: THEME_COLORS.hex.primary }} className="text-left block text-xs font-bold tracking-wider whitespace-nowrap">Aktual Gaji</span>,
       cell: (row: RekapItem) => (
-        <span className="text-xs font-extrabold text-[#e0542c] whitespace-nowrap">{formatRupiah(row.aktual_gaji)}</span>
+        <span style={{ color: THEME_COLORS.hex.primary }} className="text-xs font-extrabold whitespace-nowrap">{formatRupiah(row.aktual_gaji)}</span>
       ),
     },
     {
@@ -373,8 +374,28 @@ export function PayrollPage() {
           A/N Rekening {sortConfig.sort === "nama_rekening" && (sortConfig.direction === "asc" ? "↑" : "↓")}
         </button>
       ),
+      className: "w-[12%] text-left",
       cell: (row: RekapItem) => (
-        <span className="text-xs text-gray-655 whitespace-nowrap">{row.nama_rekening || "-"}</span>
+        <span className="text-xs text-gray-600 whitespace-nowrap block truncate max-w-[130px]">
+          {row.nama_rekening || "-"}
+        </span>
+      ),
+    },
+    {
+      header: (
+        <button
+          type="button"
+          onClick={() => handleSort("rekening")}
+          className="flex items-center gap-1 text-left text-xs font-semibold text-gray-500 tracking-wider hover:text-gray-700 cursor-pointer whitespace-nowrap"
+        >
+          No. Rekening {sortConfig.sort === "rekening" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+        </button>
+      ),
+      className: "w-[12%] text-left",
+      cell: (row: RekapItem) => (
+        <span className="text-xs font-mono text-gray-600 whitespace-nowrap block">
+          {row.rekening || "-"}
+        </span>
       ),
     },
     {
@@ -387,143 +408,131 @@ export function PayrollPage() {
           Bank {sortConfig.sort === "bank" && (sortConfig.direction === "asc" ? "↑" : "↓")}
         </button>
       ),
+      className: "w-[8%] text-left",
       cell: (row: RekapItem) => (
-        <span className="text-xs text-gray-655 whitespace-nowrap">{row.bank || "-"}</span>
+        <span className="text-xs text-gray-600 whitespace-nowrap block uppercase font-medium">
+          {row.bank || "-"}
+        </span>
       ),
     },
     {
-      header: (
-        <button
-          type="button"
-          onClick={() => handleSort("rekening")}
-          className="flex items-center gap-1 text-left text-xs font-semibold text-gray-500 tracking-wider hover:text-gray-700 cursor-pointer whitespace-nowrap"
-        >
-          No Rekening {sortConfig.sort === "rekening" && (sortConfig.direction === "asc" ? "↑" : "↓")}
-        </button>
-      ),
-      cell: (row: RekapItem) => (
-        <span className="text-xs text-gray-655 font-mono whitespace-nowrap">{row.rekening || "-"}</span>
-      ),
-    },
-    {
-      header: "Aksi",
-      cell: (row: RekapItem) => (
-        <div className="flex items-center justify-center gap-2">
-          {!row.has_payroll && (
-            <a
-              href={`${API_BASE_URL.replace("/api", "")}/rekap-data/payroll/${row.id}?mulai=${filters.mulai}&akhir=${filters.akhir}`}
-              target="_blank"
-              rel="noreferrer"
-              className="p-1.5 text-[#e0542c] hover:bg-[#e0542c]/10 rounded-md transition-colors cursor-pointer"
-              title="Input Gaji"
+      header: "Slip Gaji",
+      className: "w-[7%] text-center",
+      cell: (row: RekapItem) => {
+        if (!startVal || !endVal) return <span className="text-xs text-gray-400">-</span>;
+        const fromStr = `${startVal.getFullYear()}-${(startVal.getMonth() + 1).toString().padStart(2, "0")}-${startVal.getDate().toString().padStart(2, "0")}`;
+        const toStr = `${endVal.getFullYear()}-${(endVal.getMonth() + 1).toString().padStart(2, "0")}-${endVal.getDate().toString().padStart(2, "0")}`;
+        const slipUrl = `/rekap-data/export-pdf-user/${row.id}?from=${fromStr}&to=${toStr}`;
+
+        return (
+          <div className="flex justify-center">
+            <button
+              onClick={() => handleDownload(slipUrl, `Slip_Gaji_${row.name}.pdf`, true)}
+              style={{ color: THEME_COLORS.hex.primary }}
+              className="p-1.5 hover:bg-zinc-100 rounded-md transition-colors cursor-pointer"
+              title="Cetak Slip Gaji"
             >
-              <CreditCard size={14} />
-            </a>
-          )}
-          <a
-            href={`${API_BASE_URL.replace("/api", "")}/data-absen/export?user_id=${row.id}&mulai=${filters.mulai}&akhir=${filters.akhir}`}
-            className="p-1.5 text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 rounded-md transition-colors cursor-pointer"
-            title="Cetak Absensi Karyawan"
-          >
-            <Printer size={14} />
-          </a>
-        </div>
-      ),
+              <Printer size={16} />
+            </button>
+          </div>
+        );
+      },
     },
   ];
 
   return (
     <div className="w-full space-y-6">
-      {/* Unified Table Card containing Search, Date Range, Location, and Export */}
-      <div className="bg-white border border-gray-200/80 rounded-2xl shadow-xs overflow-hidden">
-        {/* Header Filter Row */}
-        <div className="p-5 border-b border-gray-100 bg-zinc-50/20">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full">
-            {/* Filter inputs */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 flex-1">
-              {/* 1. Search Karyawan */}
-              <div className="relative w-full sm:max-w-[220px]">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
-                  <Magnifier size={18} weight="Linear" />
-                </span>
-                <input
-                  type="text"
-                  value={filters.q}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  placeholder="Cari nama pegawai..."
-                  className="w-full h-9 box-border pl-10 pr-4 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#e0542c] focus:border-[#e0542c] transition-all placeholder-gray-400 text-gray-700 font-medium"
-                />
-              </div>
-
-              {/* 2. Rentang Tanggal */}
-              <div className="w-full sm:w-64">
-                <DateRangePicker
-                  startDate={startVal}
-                  endDate={endVal}
-                  onChange={handleDateRangeChange}
-                  className="h-9"
-                />
-              </div>
-
-              {/* 3. Lokasi Dropdown */}
-              <div className="w-full sm:w-48">
-                <Select
-                  value={filters.lokasi || "all"}
-                  onValueChange={(val) => handleLocationChange(val || "all")}
-                >
-                  <SelectTrigger className="w-full h-9 box-border px-3 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#e0542c] focus:border-[#e0542c] text-gray-700 font-medium flex items-center justify-between cursor-pointer shadow-none">
-                    <SelectValue>
-                      {filters.lokasi
-                        ? locations.find((l) => String(l.id) === filters.lokasi)?.nama_lokasi || "Semua Lokasi"
-                        : "Semua Lokasi"}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border border-gray-200 rounded-lg shadow-md p-1 min-w-[150px]">
-                    <SelectItem value="all" className="text-xs text-gray-700 hover:bg-zinc-50 py-1.5 px-3 rounded-md cursor-pointer flex items-center gap-2">
-                      Semua Lokasi
-                    </SelectItem>
-                    {locations.map((l) => (
-                      <SelectItem
-                        key={l.id}
-                        value={String(l.id)}
-                        className="text-xs text-gray-700 hover:bg-zinc-50 py-1.5 px-3 rounded-md cursor-pointer flex items-center gap-2"
-                      >
-                        {l.nama_lokasi}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+      {/* Control Bar: Filters and Actions */}
+      <div className="bg-white border border-gray-200/80 rounded-2xl p-4 sm:p-5 shadow-xs space-y-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          {/* Left: Filters */}
+          <div className="flex flex-col sm:flex-row flex-wrap items-center gap-3 w-full lg:w-auto">
+            {/* Search Input */}
+            <div className="relative w-full sm:w-[220px]">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                <Magnifier size={16} />
+              </span>
+              <input
+                type="text"
+                placeholder="Cari pegawai..."
+                value={filters.q}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="w-full h-9 box-border pl-10 pr-4 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none transition-all placeholder-gray-400 text-gray-700 font-medium"
+              />
             </div>
 
-            {/* Export Trigger Button */}
+            {/* Date Range Picker */}
+            <div className="w-full sm:w-auto">
+              <DateRangePicker
+                startDate={startVal}
+                endDate={endVal}
+                onChange={handleDateRangeChange}
+              />
+            </div>
+
+            {/* Location Select */}
+            <div className="w-full sm:w-[160px]">
+              <Select
+                value={filters.lokasi || "all"}
+                onValueChange={(val: any) => handleLocationChange(val || "")}
+              >
+                <SelectTrigger className="w-full h-9 box-border px-3 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none text-gray-700 font-medium flex items-center justify-between cursor-pointer shadow-none">
+                  <SelectValue>
+                    {filters.lokasi
+                      ? locations.find((l) => String(l.id) === filters.lokasi)?.nama_lokasi || "Semua Lokasi"
+                      : "Semua Lokasi"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-gray-200 rounded-lg shadow-md p-1 min-w-[160px]">
+                  <SelectItem value="all" className="text-xs text-gray-700 hover:bg-zinc-50 py-1.5 px-3 rounded-md cursor-pointer flex items-center gap-2">
+                    Semua Lokasi
+                  </SelectItem>
+                  {locations.map((l) => (
+                    <SelectItem
+                      key={l.id}
+                      value={String(l.id)}
+                      className="text-xs text-gray-700 hover:bg-zinc-50 py-1.5 px-3 rounded-md cursor-pointer flex items-center gap-2"
+                    >
+                      {l.nama_lokasi}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Right: Actions */}
+          <div className="flex items-center gap-3 w-full sm:w-auto shrink-0 justify-end">
             <button
               type="button"
               onClick={() => setIsExportModalOpen(true)}
-              className="w-full sm:w-auto h-9 px-4 flex items-center justify-center gap-2 bg-[#e0542c] hover:bg-[#c23f1b] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-xs active:scale-98"
+              style={{ backgroundColor: THEME_COLORS.hex.primary }}
+              className="w-full sm:w-auto h-9 px-4 flex items-center justify-center gap-2 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-xs active:scale-98 hover:opacity-90"
             >
-              <DocumentText size={16} className="text-[#fee279]" />
+              <DocumentText size={16} style={{ color: THEME_COLORS.hex.accent }} />
               <span>Export Rekap</span>
             </button>
           </div>
         </div>
-
-        {/* Embedded Reusable Table */}
-        <ReusableTable
-          columns={columns}
-          data={rekapItems}
-          loading={loading}
-          showSearch={false}
-          showPagination={true}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalItems={totalItems}
-          onPageChange={(page) => loadRekapData(page)}
-          className="border-none shadow-none p-0 bg-transparent rounded-none"
-          rowClassName="hover:bg-zinc-50/30"
-          emptyMessage="Tidak ada data rekapitulasi."
-        />
       </div>
+
+      {/* Table Section */}
+      <ReusableTable
+        columns={columns}
+        data={rekapItems}
+        loading={loading}
+        showSearch={false}
+        showPagination={true}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={10}
+        onPageChange={(p) => {
+          setCurrentPage(p);
+          loadRekapData(p);
+        }}
+        emptyMessage="Tidak ada data rekap gaji yang ditemukan."
+      />
 
       {/* Export Modal */}
       {isExportModalOpen && (
@@ -550,8 +559,11 @@ export function PayrollPage() {
 
             {/* Icon & Title Header */}
             <div className="flex items-start gap-4">
-              <div className="p-3 bg-[#e0542c]/10 text-[#e0542c] rounded-xl border border-[#e0542c]/20 shrink-0">
-                <DocumentText size={24} className="text-[#e0542c]" />
+              <div
+                style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}1A`, borderColor: `${THEME_COLORS.hex.primary}33` }}
+                className="p-3 rounded-xl border shrink-0"
+              >
+                <DocumentText size={24} style={{ color: THEME_COLORS.hex.primary }} />
               </div>
               <div className="space-y-1">
                 <h3 className="text-sm font-bold text-gray-800">Export Laporan</h3>
@@ -560,9 +572,15 @@ export function PayrollPage() {
             </div>
 
             {/* Filter Summary */}
-            <div className="bg-[#5C8A90]/10 border border-[#5C8A90]/20 rounded-xl p-3.5 space-y-2">
-              <div className="flex items-center gap-1.5 text-[#3b595d] font-bold text-[10px]">
-                <InfoCircle size={14} className="text-[#5C8A90]" />
+            <div
+              style={{
+                backgroundColor: `${THEME_COLORS.hex.airKehidupan}1A`,
+                borderColor: `${THEME_COLORS.hex.airKehidupan}33`
+              }}
+              className="border rounded-xl p-3.5 space-y-2"
+            >
+              <div style={{ color: THEME_COLORS.hex.airKehidupanText }} className="flex items-center gap-1.5 font-bold text-[10px]">
+                <InfoCircle size={14} style={{ color: THEME_COLORS.hex.airKehidupan }} />
                 <span>Filter Aktif Saat Ini</span>
               </div>
               <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[10px]">
@@ -583,7 +601,7 @@ export function PayrollPage() {
                   </span>
                 </div>
                 {filters.q && (
-                  <div className="col-span-2 border-t border-[#5C8A90]/10 pt-2">
+                  <div style={{ borderColor: `${THEME_COLORS.hex.airKehidupan}1A` }} className="col-span-2 border-t pt-2">
                     <span className="text-gray-400 block text-[9px]">Pencarian Pegawai</span>
                     <span className="font-semibold text-gray-700">"{filters.q}"</span>
                   </div>
@@ -606,7 +624,8 @@ export function PayrollPage() {
                     onClick={() => {
                       handleDownload("/rekap-data/export", "Ringkasan Rekap & Payroll.xlsx");
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-white bg-[#7FA46D] hover:bg-[#6e935d] rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: THEME_COLORS.hex.sawahPertumbuhan }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-white rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
                   >
                     {downloadingEndpoint === "/rekap-data/export" ? (
                       <svg className="animate-spin h-3 w-3 text-white mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -624,7 +643,8 @@ export function PayrollPage() {
                     onClick={() => {
                       handleDownload("/rekap-data/rekap-pdf", "Ringkasan Rekap & Payroll.pdf", true);
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-white bg-[#e0542c] hover:bg-[#c23f1b] rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-white rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
                   >
                     {downloadingEndpoint === "/rekap-data/rekap-pdf" ? (
                       <svg className="animate-spin h-3 w-3 text-white mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -652,7 +672,8 @@ export function PayrollPage() {
                     onClick={() => {
                       handleDownload("/data-absen/export", "Rincian Detail Kehadiran.xlsx");
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-white bg-[#7FA46D] hover:bg-[#6e935d] rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: THEME_COLORS.hex.sawahPertumbuhan }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-white rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
                   >
                     {downloadingEndpoint === "/data-absen/export" ? (
                       <svg className="animate-spin h-3 w-3 text-white mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -670,7 +691,8 @@ export function PayrollPage() {
                     onClick={() => {
                       handleDownload("/rekap-data/detail-pdf", "Rincian Detail Kehadiran.pdf", true);
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-white bg-[#e0542c] hover:bg-[#c23f1b] rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-white rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
                   >
                     {downloadingEndpoint === "/rekap-data/detail-pdf" ? (
                       <svg className="animate-spin h-3 w-3 text-white mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

@@ -5,6 +5,7 @@ import { useRouter } from "@/shared/router/router";
 import { toast } from "sonner";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { fetchJadwalHistoryAPI, fetchShiftsAPI } from "../api/absensi";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 type AttendanceStatus = "Early" | "On Time" | "Late";
 
@@ -28,9 +29,9 @@ interface ShiftOption {
 }
 
 const cardBg: Record<AttendanceStatus, string> = {
-  Early: "bg-[#4A7A80]",
-  "On Time": "bg-[#516B46]",
-  Late: "bg-[#C54117]",
+  Early: "bg-teal-700",
+  "On Time": "bg-emerald-700",
+  Late: "bg-orange-700",
 };
 
 const indonesianDays: Record<string, string> = {
@@ -195,7 +196,10 @@ export function MobileHistoryPage() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl bg-[#1e2a4a] text-white">
+      <div
+        style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+        className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl text-white"
+      >
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
           style={{ backgroundImage: `url(${patternBg})`, backgroundSize: "180px auto", backgroundRepeat: "repeat" }}
@@ -233,7 +237,7 @@ export function MobileHistoryPage() {
           <button
             type="button"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-full h-[38px] flex items-center justify-between gap-2 bg-white border border-zinc-200 rounded-xl px-3 text-left hover:border-[#1e2a4a]/40 transition-colors cursor-pointer min-w-0"
+            className="w-full h-[38px] flex items-center justify-between gap-2 bg-white border border-zinc-200 rounded-xl px-3 text-left hover:border-zinc-400 transition-colors cursor-pointer min-w-0"
           >
             <span className="text-[10px] font-semibold text-zinc-700 truncate leading-none">
               {selectedShift ? selectedShift.nama_shift : "Semua Shift"}
@@ -260,7 +264,8 @@ export function MobileHistoryPage() {
                 <button
                   type="button"
                   onClick={() => handleShiftSelect(null)}
-                  className={`w-full text-left px-3 py-2 text-[10px] font-medium transition-colors hover:bg-zinc-50 ${!selectedShiftId ? "bg-zinc-50 text-[#e0542c] font-bold" : "text-zinc-700"}`}
+                  style={!selectedShiftId ? { color: THEME_COLORS.hex.primary } : undefined}
+                  className={`w-full text-left px-3 py-2 text-[10px] font-medium transition-colors hover:bg-zinc-50 ${!selectedShiftId ? "bg-zinc-50 font-bold" : "text-zinc-700"}`}
                 >
                   Semua Shift
                 </button>
@@ -274,7 +279,8 @@ export function MobileHistoryPage() {
                       key={s.id}
                       type="button"
                       onClick={() => handleShiftSelect(s.id)}
-                      className={`w-full text-left px-3 py-2 text-[10px] font-medium transition-colors hover:bg-zinc-50 ${selectedShiftId === s.id ? "bg-zinc-50 text-[#e0542c] font-bold" : "text-zinc-700"}`}
+                      style={selectedShiftId === s.id ? { color: THEME_COLORS.hex.primary } : undefined}
+                      className={`w-full text-left px-3 py-2 text-[10px] font-medium transition-colors hover:bg-zinc-50 ${selectedShiftId === s.id ? "bg-zinc-50 font-bold" : "text-zinc-700"}`}
                     >
                       <div className="flex justify-between items-center">
                         <span className="truncate">{s.nama_shift}</span>
@@ -294,7 +300,10 @@ export function MobileHistoryPage() {
       {/* Active filter chips */}
       {selectedShift && (
         <div className="flex gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 bg-[#1e2a4a] text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-lg">
+          <div
+            style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+            className="flex items-center gap-1.5 text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-lg"
+          >
             <span>{selectedShift.nama_shift}</span>
             <span className="text-white/60">•</span>
             <span className="text-white/77">{selectedShift.jam_masuk?.substring(0,5)}–{selectedShift.jam_keluar?.substring(0,5)}</span>

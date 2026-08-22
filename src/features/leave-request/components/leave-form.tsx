@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { Input } from "@/shared/components/ui/input";
 import { SingleDatePicker } from "@/shared/components/ui/single-date-picker";
 import { RefreshCw, Upload, FileText, X } from "lucide-react";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface LeaveFormProps {
   hook: any;
@@ -103,12 +104,24 @@ export function LeaveForm({ hook }: LeaveFormProps) {
         />
 
         {fileName ? (
-          <div className="flex items-center justify-between border-2 border-dashed border-[#e0542c]/30 bg-[#e0542c]/2 rounded-2xl p-4 transition-all">
+          <div
+            style={{
+              borderColor: `${THEME_COLORS.hex.primary}4D`,
+              backgroundColor: `${THEME_COLORS.hex.primary}08`
+            }}
+            className="flex items-center justify-between border-2 border-dashed rounded-2xl p-4 transition-all"
+          >
             <div
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center gap-3 min-w-0 cursor-pointer flex-1"
             >
-              <div className="w-10 h-10 rounded-xl bg-[#e0542c]/10 text-[#e0542c] flex items-center justify-center shrink-0">
+              <div
+                style={{
+                  color: THEME_COLORS.hex.primary,
+                  backgroundColor: `${THEME_COLORS.hex.primary}1A`
+                }}
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+              >
                 <FileText className="w-5.5 h-5.5" />
               </div>
               <div className="flex flex-col text-left min-w-0">
@@ -119,7 +132,7 @@ export function LeaveForm({ hook }: LeaveFormProps) {
             <button
               type="button"
               onClick={clearFile}
-              className="w-8 h-8 rounded-full hover:bg-[#e0542c]/10 active:scale-95 transition-all text-zinc-400 hover:text-[#e0542c] border border-zinc-200/60 bg-white flex items-center justify-center shrink-0 cursor-pointer shadow-xs"
+              className="w-8 h-8 rounded-full active:scale-95 transition-all text-zinc-400 border border-zinc-200/60 bg-white flex items-center justify-center shrink-0 cursor-pointer shadow-xs"
             >
               <X className="w-4 h-4" />
             </button>
@@ -147,7 +160,7 @@ export function LeaveForm({ hook }: LeaveFormProps) {
           value={alasanCuti}
           onChange={(e) => setAlasanCuti(e.target.value)}
           placeholder="Tulis alasan permohonan cuti/izin..."
-          className="flex min-h-[90px] w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-xs text-zinc-800 font-medium placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/50"
+          className="flex min-h-[90px] w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-xs text-zinc-800 font-medium placeholder:text-zinc-400 focus:outline-none"
         />
       </div>
 
@@ -165,9 +178,10 @@ export function LeaveForm({ hook }: LeaveFormProps) {
         <button
           type="submit"
           disabled={isSubmitting}
+          style={!isSubmitting ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
           className={`flex-1 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border-0 flex items-center justify-center gap-2 ${isSubmitting
               ? "bg-zinc-200 text-zinc-400 cursor-not-allowed shadow-none"
-              : "bg-[#e0542c] hover:bg-[#c23f1b] text-white shadow-md shadow-[#e0542c]/15 active:scale-[0.98] cursor-pointer"
+              : "text-white shadow-md active:scale-[0.98] cursor-pointer hover:opacity-90"
             }`}
         >
           {isSubmitting ? (

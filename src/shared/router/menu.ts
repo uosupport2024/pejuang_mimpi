@@ -9,7 +9,8 @@ import {
   DocumentText,
   Widget2,
   BookBookmark,
-  ShieldCheck
+  ShieldCheck,
+  SettingsMinimalistic
 } from "@solar-icons/react";
 import type { RouteType } from "./router";
 
@@ -36,6 +37,7 @@ export const menuItems: MenuItem[] = [
   { name: "Shift", route: "Shift", icon: Refresh, group: "Data Master" },
   { name: "Divisi", route: "Organization", icon: Structure, group: "Data Master" },
   { name: "Lokasi", route: "Location", icon: MapPoint, group: "Data Master" },
+  { name: "Konfigurasi Tenant", route: "TenantConfig", icon: SettingsMinimalistic, group: "Data Master" },
 
   // Operasional Group
   {

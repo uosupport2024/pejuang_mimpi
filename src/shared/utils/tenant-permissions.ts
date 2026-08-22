@@ -24,6 +24,7 @@ export const ROUTE_MENU_MAPPING: Record<string, string> = {
   PayrollHistory: "admin-keuangan",
   Leave: "admin-cuti",
   KoreksiAbsenApproval: "admin-koreksi",
+  TenantConfig: "admin-tenant-config",
 
   // Mobile App Routes
   MobileHome: "mobile-home",
@@ -130,6 +131,7 @@ export function isMenuEnabled(menuIdOrRoute: string, _tenantId?: string | number
     menuIdOrRoute === "Dashboard" ||
     menuIdOrRoute === "MobileHome" ||
     menuIdOrRoute === "TenantMapping" ||
+    menuIdOrRoute === "TenantConfig" ||
     menuId === "admin-dashboard" ||
     menuId === "mobile-home"
   ) {

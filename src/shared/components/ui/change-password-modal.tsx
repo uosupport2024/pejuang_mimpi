@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { X, Lock, KeyRound, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { changePasswordOnBackend } from "@/features/sarang/api/profile";
 import { toast } from "sonner";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -108,7 +109,10 @@ export function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProp
         {/* Drawer Header */}
         <div className="px-6 py-5 border-b border-zinc-100 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#1e2a4a]/10 text-[#1e2a4a] flex items-center justify-center shrink-0">
+            <div
+              style={{ backgroundColor: `${THEME_COLORS.hex.navBg}15`, color: THEME_COLORS.hex.navBg }}
+              className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
+            >
               <KeyRound className="w-5 h-5" />
             </div>
             <div>
@@ -248,7 +252,7 @@ export function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProp
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2.5 bg-[#e0542c] hover:bg-[#c84420] text-white rounded-xl font-extrabold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2 active:scale-95 disabled:opacity-70"
+              className={`px-5 py-2.5 ${THEME_COLORS.classes.buttonBg} text-white rounded-xl font-extrabold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2 active:scale-95 disabled:opacity-70`}
             >
               {loading ? (
                 <>

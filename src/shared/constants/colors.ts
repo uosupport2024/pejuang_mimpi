@@ -1,73 +1,109 @@
 /**
  * Configuration for the application's color theme.
- * Custom theme matching the Finexy orange and white layout.
+ * All hex codes are centralized in the `hex` object, and referenced throughout `classes`, `celengan`, `badges`, and `presets`.
  */
+const hex = {
+  outerBg: "#334c7a",       // Dark blue outer background for login
+  leftBg: "#f5f4ed",        // Warm cream left column background for login
+  rightBg: "#ffffff",       // Solid white right column background
+  primary: "#e0542c",       // Finexy Orange
+  primaryHover: "#c23f1b",  // Darker Orange
+  accent: "#fee279",        // Yellow accent
+  accentBlue: "#498fbf",    // Light blue accent for login
+  textDark: "#1f2937",      // Near black text
+  textMuted: "#6b7280",     // Grey text
+  navBg: "#1e2a4a",         // Navigation bar blue
+  navBgHover: "#161f36",    // Darker navigation bar blue for hover
+  
+  // Celengan & Nature Palette
+  sawahPertumbuhan: "#7FA46D",
+  sawahPertumbuhanDark: "#5C824C",
+  sawahPertumbuhanText: "#516b46",
+
+  apiSemangat: "#F25C2A",
+  apiSemangatDark: "#C54117",
+
+  airKehidupan: "#5C8A90",
+  airKehidupanDark: "#3F686D",
+  airKehidupanText: "#3b595d",
+
+  padiKemakmuran: "#F2B233",
+  padiKemakmuranDark: "#C58F1B",
+  padiKemakmuranText: "#916715",
+
+  // Extended Tenant & UI Presets
+  oceanBlue: "#1E40AF",
+  oceanBlueLight: "#3B82F6",
+  modernTeal: "#0F766E",
+  modernTealLight: "#14B8A6",
+  royalIndigo: "#3730A3",
+  royalIndigoLight: "#6366F1",
+  slateClassic: "#334C7A",
+  slateClassicLight: "#64748B",
+
+  danger: "#ef4444",
+} as const;
+
 export const THEME_COLORS = {
-  hex: {
-    outerBg: "#334c7a",       // Dark blue outer background for login
-    leftBg: "#f5f4ed",        // Warm cream left column background for login
-    rightBg: "#ffffff",       // Solid white right column background
-    primary: "#e0542c",       // Finexy Orange
-    primaryHover: "#c23f1b",  // Darker Orange
-    accent: "#fee279",        // Yellow accent
-    textDark: "#1f2937",      // Near black text
-    textMuted: "#6b7280",     // Grey text
-    navBg: "#1e2a4a",         // Navigation bar blue
-    navBgHover: "#161f36",    // Darker navigation bar blue for hover
-    
-    // Celengan & Nature Palette
-    sawahPertumbuhan: "#7FA46D",
-    apiSemangat: "#F25C2A",
-    airKehidupan: "#5C8A90",
-    padiKemakmuran: "#F2B233",
-    danger: "#ef4444",
-  },
+  hex,
 
   classes: {
-    outerBg: "bg-[#334c7a]",
-    leftBg: "bg-[#f5f4ed]",
-    rightBg: "bg-[#ffffff]",
-    textPrimary: "text-[#1f2937] dark:text-[#1f2937]",
-    textAccent: "text-[#fee279]",
-    navBg: "bg-[#1e2a4a] hover:bg-[#161f36]",
+    outerBg: `bg-[${hex.outerBg}]`,
+    leftBg: `bg-[${hex.leftBg}]`,
+    rightBg: `bg-[${hex.rightBg}]`,
+    textPrimary: `text-[${hex.textDark}] dark:text-[${hex.textDark}]`,
+    textAccent: `text-[${hex.accent}]`,
+    navBg: `bg-[${hex.navBg}] hover:bg-[${hex.navBgHover}]`,
     
-    buttonBg: "bg-[#e0542c] hover:bg-[#c23f1b]",
+    buttonBg: `bg-[${hex.primary}] hover:bg-[${hex.primaryHover}]`,
     buttonText: "text-white",
-    buttonShadow: "shadow-md shadow-[#e0542c]/15",
+    buttonShadow: `shadow-md shadow-[${hex.primary}]/15`,
 
     // Added back for Dashboard compatibility
-    badgeBg: "bg-[#e0542c]",
-    badgeIconColor: "text-[#fee279]",
-    heroBg: "bg-[#e0542c]",
+    badgeBg: `bg-[${hex.primary}]`,
+    badgeIconColor: `text-[${hex.accent}]`,
+    heroBg: `bg-[${hex.primary}]`,
     metricNormalBadge: "bg-emerald-500/10 text-emerald-600",
-    metricAccentBadge: "bg-[#fee279]/10 text-[#fee279]",
-    metricPrimaryBadge: "bg-[#e0542c]/10 text-[#e0542c]",
+    metricAccentBadge: `bg-[${hex.accent}]/10 text-[${hex.accent}]`,
+    metricPrimaryBadge: `bg-[${hex.primary}]/10 text-[${hex.primary}]`,
   },
 
   // Celengan/Savings Card configuration
   celengan: {
     rumah: {
-      gradient: "from-[#7FA46D] to-[#5C824C]",
-      solid: "#7FA46D",
+      gradient: `from-[${hex.sawahPertumbuhan}] to-[${hex.sawahPertumbuhanDark}]`,
+      solid: hex.sawahPertumbuhan,
     },
     motor: {
-      gradient: "from-[#F25C2A] to-[#C54117]",
-      solid: "#F25C2A",
+      gradient: `from-[${hex.apiSemangat}] to-[${hex.apiSemangatDark}]`,
+      solid: hex.apiSemangat,
     },
     liburanBali: {
-      gradient: "from-[#5C8A90] to-[#3F686D]",
-      solid: "#5C8A90",
+      gradient: `from-[${hex.airKehidupan}] to-[${hex.airKehidupanDark}]`,
+      solid: hex.airKehidupan,
     },
     laptopBaru: {
-      gradient: "from-[#F2B233] to-[#C58F1B]",
-      solid: "#F2B233",
+      gradient: `from-[${hex.padiKemakmuran}] to-[${hex.padiKemakmuranDark}]`,
+      solid: hex.padiKemakmuran,
     },
   },
 
   // Tunas Loker List badge styles
   badges: {
-    type: "bg-[#7FA46D]/10 text-[#516b46] border border-[#7FA46D]/20",       // Sawah Pertumbuhan (Green)
-    location: "bg-[#F2B233]/12 text-[#916715] border border-[#F2B233]/20",   // Padi Kemakmuran (Yellow)
-    education: "bg-[#5C8A90]/10 text-[#3b595d] border border-[#5C8A90]/20",  // Air Kehidupan (Blue-Teal)
-  }
-}
+    type: `bg-[${hex.sawahPertumbuhan}]/10 text-[${hex.sawahPertumbuhanText}] border border-[${hex.sawahPertumbuhan}]/20`,
+    location: `bg-[${hex.padiKemakmuran}]/12 text-[${hex.padiKemakmuranText}] border border-[${hex.padiKemakmuran}]/20`,
+    education: `bg-[${hex.airKehidupan}]/10 text-[${hex.airKehidupanText}] border border-[${hex.airKehidupan}]/20`,
+  },
+
+  // Tenant Brand Color Presets
+  presets: [
+    { name: "Pejuang Orange", main: hex.primary, sub: hex.padiKemakmuran },
+    { name: "Sawah Hijau", main: hex.sawahPertumbuhan, sub: hex.padiKemakmuran },
+    { name: "Air Kehidupan", main: hex.airKehidupan, sub: hex.sawahPertumbuhan },
+    { name: "Api Semangat", main: hex.apiSemangat, sub: hex.padiKemakmuran },
+    { name: "Ocean Blue", main: hex.oceanBlue, sub: hex.oceanBlueLight },
+    { name: "Modern Teal", main: hex.modernTeal, sub: hex.modernTealLight },
+    { name: "Royal Indigo", main: hex.royalIndigo, sub: hex.royalIndigoLight },
+    { name: "Slate Classic", main: hex.slateClassic, sub: hex.slateClassicLight },
+  ],
+};

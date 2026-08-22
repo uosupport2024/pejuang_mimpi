@@ -114,7 +114,7 @@ export function LessonModal({
               type="submit"
               disabled={loading || !title.trim()}
               style={{ backgroundColor: THEME_COLORS.hex.primary }}
-              className="px-5 py-2 rounded-md text-white text-xs font-bold shadow-md shadow-[#e0542c]/20 hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+              className="px-5 py-2 rounded-md text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
             >
               {loading ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
               <span>Simpan</span>

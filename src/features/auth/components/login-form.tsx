@@ -5,8 +5,6 @@ import { Button } from "@/shared/components/ui/button"
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react"
 import { THEME_COLORS } from "@/shared/constants/colors"
 
-import logoImg from "@/assets/logo/POT–Pejuang_Mimpi–Logo.png"
-
 interface LoginFormProps {
   onLoginSuccess: (response: LoginResponse) => void
 }
@@ -25,17 +23,13 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false)
   const c = THEME_COLORS.classes
 
-
-
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="text-center mb-8">
-        <img 
-          src={logoImg} 
-          alt="Pejuang Mimpi Logo" 
-          className="h-20 mx-auto mb-4 object-contain"
-        />
-        <h2 className="text-3xl font-bold tracking-tight text-[#334c7a] mb-2">
+        <h2
+          style={{ color: THEME_COLORS.hex.outerBg }}
+          className="text-3xl font-bold tracking-tight mb-2"
+        >
           Masuk
         </h2>
         <p className="text-xs text-gray-500 font-light">
@@ -53,11 +47,14 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Username */}
         <div className="space-y-1.5 text-left">
-          <label className="text-xs font-bold text-[#334c7a] flex items-center">
-            Username <span className="text-[#498fbf] ml-0.5">*</span>
+          <label
+            style={{ color: THEME_COLORS.hex.outerBg }}
+            className="text-xs font-bold flex items-center"
+          >
+            Username <span style={{ color: THEME_COLORS.hex.accentBlue }} className="ml-0.5">*</span>
           </label>
           <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#498fbf] transition-colors">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 transition-colors">
               <Mail className="w-4 h-4" />
             </div>
             <input
@@ -65,7 +62,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
               placeholder="Masukkan username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full pl-11 pr-4 py-2.5 bg-white border border-transparent rounded-full text-xs transition-all focus:outline-none focus:ring-2 focus:ring-[#498fbf]/20 focus:border-[#498fbf] shadow-xs placeholder:text-gray-400 text-gray-800"
+              className="w-full pl-11 pr-4 py-2.5 bg-white border border-transparent rounded-full text-xs transition-all focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-400 shadow-xs placeholder:text-gray-400 text-gray-800"
               disabled={isLoading}
             />
           </div>
@@ -77,15 +74,22 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         {/* Password */}
         <div className="space-y-1.5 text-left">
           <div className="flex justify-between items-center">
-            <label className="text-xs font-bold text-[#334c7a] flex items-center">
-              Kata Sandi <span className="text-[#498fbf] ml-0.5">*</span>
+            <label
+              style={{ color: THEME_COLORS.hex.outerBg }}
+              className="text-xs font-bold flex items-center"
+            >
+              Kata Sandi <span style={{ color: THEME_COLORS.hex.accentBlue }} className="ml-0.5">*</span>
             </label>
-            <a href="#" className="text-xs font-medium text-[#498fbf] hover:text-[#334c7a] hover:underline">
+            <a
+              href="#"
+              style={{ color: THEME_COLORS.hex.accentBlue }}
+              className="text-xs font-medium hover:underline"
+            >
               Lupa kata sandi?
             </a>
           </div>
           <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#498fbf] transition-colors">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 transition-colors">
               <Lock className="w-4 h-4" />
             </div>
             <input
@@ -93,7 +97,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
               placeholder="Masukkan kata sandi"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-11 pr-10 py-2.5 bg-white border border-transparent rounded-full text-xs transition-all focus:outline-none focus:ring-2 focus:ring-[#498fbf]/20 focus:border-[#498fbf] shadow-xs placeholder:text-gray-400 text-gray-800"
+              className="w-full pl-11 pr-10 py-2.5 bg-white border border-transparent rounded-full text-xs transition-all focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-400 shadow-xs placeholder:text-gray-400 text-gray-800"
               disabled={isLoading}
             />
             <button
@@ -131,7 +135,11 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       <div className="text-center mt-4">
         <p className="text-xs text-gray-500 font-medium">
           Belum punya akun?{" "}
-          <a href="#" className="text-[#498fbf] font-bold hover:underline">
+          <a
+            href="#"
+            style={{ color: THEME_COLORS.hex.accentBlue }}
+            className="font-bold hover:underline"
+          >
             Daftar
           </a>
         </p>

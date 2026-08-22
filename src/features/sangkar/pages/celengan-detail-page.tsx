@@ -20,6 +20,7 @@ import { Input } from "@/shared/components/ui/input";
 import { getChickenIcon } from "@/shared/utils/icons";
 import { motion } from "motion/react";
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 export function CelenganDetailPage() {
   const { navigate } = useRouter();
@@ -113,7 +114,7 @@ export function CelenganDetailPage() {
     return (
       <div className="flex flex-col min-h-screen bg-[#F7F3EB] text-slate-800 pb-20 relative -mt-6 -mx-5 animate-pulse">
         {/* Top Header Placeholder */}
-        <div className="bg-[#1e2a4a] h-14 w-full" />
+        <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="h-14 w-full" />
         
         <div className="p-4 space-y-4">
           {/* Hero Card Placeholder */}
@@ -153,7 +154,11 @@ export function CelenganDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-[#F7F3EB] text-slate-500 p-6 text-center">
         <span className="text-sm font-semibold">Celengan tidak ditemukan.</span>
-        <button onClick={() => navigate("MobileHome")} className="mt-4 bg-[#e0542c] text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer">
+        <button
+          onClick={() => navigate("MobileHome")}
+          style={{ backgroundColor: THEME_COLORS.hex.primary }}
+          className="mt-4 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer hover:opacity-90"
+        >
           Kembali ke Home
         </button>
       </div>
@@ -168,12 +173,9 @@ export function CelenganDetailPage() {
 
   // Deadline logic (estimated 1 year from creation date or standard default)
   const deadlineDate = celengan.created_at ? new Date(celengan.created_at) : new Date();
-  if (!celengan.created_at) {
-    deadlineDate.setMonth(deadlineDate.getMonth() + 12);
-  } else {
-    deadlineDate.setFullYear(deadlineDate.getFullYear() + 1);
-  }
-  const deadlineStr = deadlineDate.toLocaleDateString("id-ID", {
+  deadlineDate.setFullYear(deadlineDate.getFullYear() + 1);
+
+  const formattedDeadline = deadlineDate.toLocaleDateString("id-ID", {
     day: "numeric",
     month: "long",
     year: "numeric"
@@ -192,7 +194,7 @@ export function CelenganDetailPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#F7F3EB] text-slate-800 pb-20 relative -mt-6 -mx-5">
       {/* Top sticky navigation */}
-      <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden">
+      <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden">
         {/* Background Pattern */}
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
@@ -303,7 +305,7 @@ export function CelenganDetailPage() {
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">Target Selesai</span>
-                <span className="text-sm font-bold text-slate-800 mt-1">{deadlineStr}</span>
+                <span className="text-sm font-bold text-slate-800 mt-1">{formattedDeadline}</span>
               </div>
             </div>
 
@@ -342,14 +344,15 @@ export function CelenganDetailPage() {
         <div className="flex gap-3">
           <button
             onClick={() => setShowDepositModal(true)}
-            className="flex-1 flex items-center justify-center gap-2 bg-[#e0542c] hover:bg-[#c23f1b] text-white py-2.5 rounded-xl font-bold text-xs transition-colors cursor-pointer"
+            style={{ backgroundColor: THEME_COLORS.hex.primary }}
+            className="flex-1 flex items-center justify-center gap-2 text-white py-2.5 rounded-xl font-bold text-xs transition-colors cursor-pointer hover:opacity-90"
           >
             <Plus className="w-4 h-4" />
             Tabung Sekarang
           </button>
           <button
             onClick={() => setShowWithdrawModal(true)}
-            className="flex-1 flex items-center justify-center gap-2 bg-[#b43836] hover:bg-[#b43837] text-white py-2.5 rounded-xl font-bold text-xs transition-colors cursor-pointer"
+            className="flex-1 flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white py-2.5 rounded-xl font-bold text-xs transition-colors cursor-pointer"
           >
             <Minus className="w-4 h-4" />
             Tarik Celengan
@@ -433,7 +436,7 @@ export function CelenganDetailPage() {
                     placeholder="Contoh: 1.000.000"
                     value={transactionAmount}
                     onChange={(e) => setTransactionAmount(formatThousands(e.target.value))}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-3 text-sm font-bold focus-visible:ring-[#e0542c]/20 text-slate-800 text-left"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-3 text-sm font-bold text-slate-800 text-left"
                   />
                 </div>
               </div>
@@ -445,14 +448,15 @@ export function CelenganDetailPage() {
                   placeholder="Setoran celengan..."
                   value={transactionDesc}
                   onChange={(e) => setTransactionDesc(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus-visible:ring-[#e0542c]/20 text-slate-800"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-[#e0542c] hover:bg-[#c23f1b] text-white py-3 rounded-xl font-bold text-sm shadow-md shadow-[#e0542c]/15 transition-all cursor-pointer disabled:opacity-50"
+                style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                className="w-full text-white py-3 rounded-xl font-bold text-sm shadow-md transition-all cursor-pointer disabled:opacity-50 hover:opacity-90"
               >
                 {isSubmitting ? "Memproses..." : "Konfirmasi Tabungan"}
               </button>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { FormField } from "@/shared/components/ui/form-field";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface ProfilePageProps {
   user: {
@@ -105,7 +106,11 @@ export function ProfilePage({ user }: ProfilePageProps) {
 
             <div className="space-y-1">
               <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Email</span>
-              <a href={`mailto:${user.email}`} className="text-xs font-medium text-[#e0542c] hover:underline block truncate">
+              <a
+                href={`mailto:${user.email}`}
+                style={{ color: THEME_COLORS.hex.primary }}
+                className="text-xs font-medium hover:underline block truncate"
+              >
                 {user.email}
               </a>
             </div>
@@ -157,9 +162,10 @@ export function ProfilePage({ user }: ProfilePageProps) {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
+                  style={activeTab === tab.id ? { borderColor: THEME_COLORS.hex.primary, color: THEME_COLORS.hex.primary } : undefined}
                   className={`pb-3 px-3 text-xs font-bold whitespace-nowrap border-b-2 transition-all cursor-pointer ${
                     activeTab === tab.id
-                      ? "border-[#e0542c] text-[#e0542c]"
+                      ? ""
                       : "border-transparent text-gray-400 hover:text-gray-600"
                   }`}
                 >

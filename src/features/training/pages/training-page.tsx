@@ -1,13 +1,14 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   Plus,
-  Edit2,
   Trash2,
   BookOpen,
   Search,
   LayoutGrid,
   List,
   Sparkles,
+  Layers,
+  Edit3,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "@/shared/router/router";
@@ -151,7 +152,10 @@ export function TrainingPage() {
           onClick={() => handleDetailOpen(row)}
           className="flex items-center gap-3 py-1 cursor-pointer group/row"
         >
-          <div className="w-10 h-10 rounded-md bg-gray-100 border border-gray-200 shrink-0 overflow-hidden flex items-center justify-center text-[#e0542c] group-hover/row:border-[#e0542c]/50 transition-colors">
+          <div
+            style={{ color: THEME_COLORS.hex.primary }}
+            className="w-10 h-10 rounded-md bg-gray-100 border border-gray-200 shrink-0 overflow-hidden flex items-center justify-center transition-colors"
+          >
             {row.thumbnail_url ? (
               <img
                 src={row.thumbnail_url}
@@ -166,7 +170,7 @@ export function TrainingPage() {
             )}
           </div>
           <div>
-            <span className="text-xs font-bold text-gray-800 block line-clamp-1 group-hover/row:text-[#e0542c] transition-colors">{row.title}</span>
+            <span className="text-xs font-bold text-gray-800 block line-clamp-1 group-hover/row:text-orange-600 transition-colors">{row.title}</span>
             <span className="text-[11px] text-gray-500 line-clamp-1 max-w-[280px]">
               {row.description || "Tidak ada deskripsi"}
             </span>
@@ -210,18 +214,25 @@ export function TrainingPage() {
       cell: (row: Course) => (
         <div className="flex justify-center gap-1.5">
           <button
-            onClick={() => handleEditOpen(row)}
-            className="p-1.5 text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 rounded-lg transition-colors cursor-pointer"
-            title="Edit Pelatihan"
+            onClick={() => handleDetailOpen(row)}
+            className="p-1.5 hover:bg-gray-100 rounded-md text-gray-500 hover:text-gray-800 transition-colors cursor-pointer"
+            title="Kelola Materi Pelatihan"
           >
-            <Edit2 size={15} />
+            <Layers size={14} />
+          </button>
+          <button
+            onClick={() => handleEditOpen(row)}
+            className="p-1.5 hover:bg-gray-100 rounded-md text-gray-500 hover:text-gray-800 transition-colors cursor-pointer"
+            title="Ubah Informasi"
+          >
+            <Edit3 size={14} />
           </button>
           <button
             onClick={() => handleDeleteClick(row)}
-            className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 hover:bg-red-50 rounded-md text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
             title="Hapus Pelatihan"
           >
-            <Trash2 size={15} />
+            <Trash2 size={14} />
           </button>
         </div>
       ),
@@ -230,79 +241,58 @@ export function TrainingPage() {
   ];
 
   return (
-    <div className="w-full space-y-6">
-      {/* Top Banner Stats Component */}
-      <CourseStatsBanner
-        total={stats.total}
-        published={stats.published}
-        draft={stats.draft}
-      />
+    <div className="space-y-6">
+      <CourseStatsBanner total={stats.total} published={stats.published} draft={stats.draft} />
 
-      {/* Control Bar: Search, Filters, View Mode, Add Button */}
-      <div className="bg-white rounded-2xl border border-gray-200/80 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
-        {/* Left: Compact Search & Status Filter */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          {/* Compact Search Box */}
-          <div className="relative w-full sm:w-64">
+      <div className="bg-white p-4 rounded-xl border border-gray-200/80 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+        <div className="flex flex-1 items-center gap-3">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
             <input
               type="text"
+              placeholder="Cari judul atau deskripsi pelatihan..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari pelatihan..."
-              className="w-full pl-9 pr-3.5 py-2 rounded-md border border-gray-200 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#e0542c]/20 focus:border-[#e0542c] transition-all bg-gray-50/50"
+              className="w-full pl-9 pr-3.5 py-2 rounded-md border border-gray-200 text-xs text-gray-800 focus:outline-none transition-all bg-gray-50/50"
             />
-            <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
           </div>
-
-          {/* Status Filter Select */}
-          <Select
-            value={statusFilter}
-            onValueChange={(val: any) => setStatusFilter(val as "all" | "published" | "draft")}
-          >
-            <SelectTrigger className="w-48 text-xs font-bold bg-gray-50/50 border-gray-200 rounded-md h-9">
-              <SelectValue placeholder="Filter Status" />
+          <Select value={statusFilter} onValueChange={(val: any) => setStatusFilter(val)}>
+            <SelectTrigger className="w-36 text-xs h-9 bg-gray-50/50">
+              <SelectValue placeholder="Semua Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Semua Status ({courses.length})</SelectItem>
-              <SelectItem value="published">Publik ({stats.published})</SelectItem>
-              <SelectItem value="draft">Draft ({stats.draft})</SelectItem>
+              <SelectItem value="all" className="text-xs">Semua Status</SelectItem>
+              <SelectItem value="published" className="text-xs">Publik</SelectItem>
+              <SelectItem value="draft" className="text-xs">Draf</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        {/* Right: View Mode Toggle & Add Button */}
         <div className="flex items-center gap-3 shrink-0 justify-end">
-          {/* View Switcher */}
           <div className="flex bg-gray-100/80 p-1 rounded-md border border-gray-200/50">
             <button
               onClick={() => setViewMode("grid")}
+              style={viewMode === "grid" ? { color: THEME_COLORS.hex.primary } : undefined}
               className={`p-1.5 rounded-lg text-xs transition-all cursor-pointer ${
-                viewMode === "grid"
-                  ? "bg-white text-[#e0542c] shadow-xs"
-                  : "text-gray-500 hover:text-gray-800"
+                viewMode === "grid" ? "bg-white shadow-xs" : "text-gray-500 hover:text-gray-800"
               }`}
-              title="Tampilan Grid Card"
             >
               <LayoutGrid size={16} />
             </button>
             <button
               onClick={() => setViewMode("table")}
+              style={viewMode === "table" ? { color: THEME_COLORS.hex.primary } : undefined}
               className={`p-1.5 rounded-lg text-xs transition-all cursor-pointer ${
-                viewMode === "table"
-                  ? "bg-white text-[#e0542c] shadow-xs"
-                  : "text-gray-500 hover:text-gray-800"
+                viewMode === "table" ? "bg-white shadow-xs" : "text-gray-500 hover:text-gray-800"
               }`}
-              title="Tampilan Tabel"
             >
               <List size={16} />
             </button>
           </div>
-
-          {/* Add Course Button */}
           <button
             onClick={handleCreateOpen}
             style={{ backgroundColor: THEME_COLORS.hex.primary }}
-            className="px-4 py-2 rounded-md text-white text-xs font-bold shadow-md shadow-[#e0542c]/20 hover:opacity-90 active:scale-98 transition-all cursor-pointer flex items-center gap-2 shrink-0"
+            className="px-4 py-2 rounded-md text-white text-xs font-bold shadow-md hover:opacity-90 active:scale-98 transition-all cursor-pointer flex items-center gap-2"
           >
             <Plus size={16} />
             <span>Pelatihan Baru</span>
@@ -310,47 +300,27 @@ export function TrainingPage() {
         </div>
       </div>
 
-      {/* Main Content Area */}
       {loading ? (
-        /* SKELETON LOADING STATE */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {[1, 2, 3, 4, 5, 6].map((idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-2xl border border-gray-200/80 shadow-xs p-5 space-y-4 overflow-hidden"
-            >
-              <Skeleton className="h-40 w-full rounded-md" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-3/4 rounded-md" />
-                <Skeleton className="h-3 w-full rounded-md" />
-                <Skeleton className="h-3 w-5/6 rounded-md" />
-              </div>
-              <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-                <Skeleton className="h-3 w-20 rounded-md" />
-                <div className="flex gap-2">
-                  <Skeleton className="h-6 w-6 rounded-lg" />
-                  <Skeleton className="h-6 w-6 rounded-lg" />
-                </div>
-              </div>
-            </div>
-          ))}
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-64 rounded-2xl" />)}
         </div>
       ) : filteredCourses.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-200 p-12 flex flex-col items-center justify-center text-center shadow-xs min-h-[320px]">
-          <div className="w-14 h-14 rounded-2xl bg-[#e0542c]/10 text-[#e0542c] flex items-center justify-center mb-4">
+          <div
+            style={{ backgroundColor: `${THEME_COLORS.hex.primary}1A`, color: THEME_COLORS.hex.primary }}
+            className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
+          >
             <Sparkles size={24} />
           </div>
           <h3 className="text-base font-bold text-gray-800 mb-1">Belum Ada Pelatihan</h3>
           <p className="text-xs text-gray-500 max-w-sm mb-4">
-            {searchQuery
-              ? `Tidak ditemukan pelatihan dengan kata kunci "${searchQuery}".`
-              : "Mulai buat materi modul pelatihan pertama untuk pegawai Anda."}
+            {searchQuery ? `Tidak ditemukan pelatihan dengan kata kunci "${searchQuery}".` : "Mulai buat materi modul pelatihan pertama untuk pegawai Anda."}
           </p>
           {!searchQuery && (
             <button
               onClick={handleCreateOpen}
               style={{ backgroundColor: THEME_COLORS.hex.primary }}
-              className="px-4 py-2 rounded-md text-white text-xs font-bold shadow-md shadow-[#e0542c]/20 hover:opacity-90 transition-all cursor-pointer flex items-center gap-2"
+              className="px-4 py-2 rounded-md text-white text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer flex items-center gap-2"
             >
               <Plus size={16} />
               <span>Tambah Pelatihan</span>
@@ -358,7 +328,6 @@ export function TrainingPage() {
           )}
         </div>
       ) : viewMode === "grid" ? (
-        /* GRID VIEW WITH PAGINATION */
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredCourses.map((course) => (
@@ -371,24 +340,14 @@ export function TrainingPage() {
               />
             ))}
           </div>
-
-          {/* Grid View Pagination Footer */}
           {totalPages > 1 && (
-            <div className="bg-white rounded-2xl border border-gray-200/80 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
-              <div className="text-xs text-gray-500 font-medium">
-                Menampilkan <span className="text-gray-900 font-bold">{(currentPage - 1) * perPage + 1}</span> sampai{" "}
-                <span className="text-gray-900 font-bold">{Math.min(currentPage * perPage, totalItems)}</span> dari{" "}
-                <span className="text-gray-900 font-bold">{totalItems}</span> pelatihan
-              </div>
-
+            <div className="flex items-center justify-between bg-white px-5 py-3 rounded-xl border border-gray-200/80 shadow-xs">
+              <span className="text-xs text-gray-500 font-medium">
+                Menampilkan <span className="font-bold text-gray-700">{(currentPage - 1) * perPage + 1}</span> -{" "}
+                <span className="font-bold text-gray-700">{Math.min(currentPage * perPage, totalItems)}</span>{" "}
+                dari <span className="font-bold text-gray-700">{totalItems}</span> pelatihan
+              </span>
               <div className="flex items-center gap-1.5">
-                <button
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage(1)}
-                  className="w-8 h-8 flex items-center justify-center text-[11px] font-semibold rounded-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
-                >
-                  &lt;&lt;
-                </button>
                 <button
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
@@ -396,21 +355,18 @@ export function TrainingPage() {
                 >
                   &lt;
                 </button>
-
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
+                    style={currentPage === page ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
                     className={`w-8 h-8 flex items-center justify-center text-[11px] font-semibold rounded-md transition-colors cursor-pointer ${
-                      currentPage === page
-                        ? "bg-[#e0542c] text-white shadow-xs"
-                        : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                      currentPage === page ? "text-white shadow-xs" : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
                     }`}
                   >
                     {page}
                   </button>
                 ))}
-
                 <button
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
@@ -418,33 +374,23 @@ export function TrainingPage() {
                 >
                   &gt;
                 </button>
-                <button
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage(totalPages)}
-                  className="w-8 h-8 flex items-center justify-center text-[11px] font-semibold rounded-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
-                >
-                  &gt;&gt;
-                </button>
               </div>
             </div>
           )}
         </div>
       ) : (
-        /* TABLE VIEW WITH PAGINATION */
         <ReusableTable
           columns={columns}
           data={filteredCourses}
           loading={loading}
-          className="border border-gray-200/80 shadow-xs"
-          rowClassName="hover:bg-zinc-50/40"
           showSearch={false}
-          emptyMessage="Tidak ada data pelatihan."
           showPagination={true}
           currentPage={currentPage}
           totalPages={totalPages}
           totalItems={totalItems}
           itemsPerPage={perPage}
           onPageChange={setCurrentPage}
+          emptyMessage="Tidak ada modul pelatihan."
         />
       )}
 
@@ -454,7 +400,9 @@ export function TrainingPage() {
         onClose={() => setConfirmDelete({ isOpen: false, id: null, title: "" })}
         onConfirm={handleConfirmDelete}
         title="Hapus Pelatihan"
-        message={`Apakah Anda yakin ingin menghapus modul pelatihan "${confirmDelete.title}"? Tindakan ini tidak dapat dibatalkan.`}
+        message={`Apakah Anda yakin ingin menghapus modul pelatihan "${confirmDelete.title}"? Seluruh bab materi dan kuis di dalamnya akan terhapus.`}
+        confirmText={submitting ? "Menghapus..." : "Hapus"}
+        cancelText="Batal"
         variant="danger"
         loading={submitting}
       />

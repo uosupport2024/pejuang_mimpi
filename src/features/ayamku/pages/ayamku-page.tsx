@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Star } from "lucide-react";
 import ayamkuBg from "@/assets/bg/ayamku-bg.jpg";
 import ayamkuPet from "@/assets/bg/ayamku-pet.png";
-import logoWhite from "@/assets/logo/POT–PejuangMimpi–Logo.png";
 import { toast } from "sonner";
 import type { AyamkuPageProps } from "../types/ayamku.type";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 type MisiStatus = "selesai" | "berlangsung" | "terlambat";
 type MisiKategori = "login" | "absen" | "profil" | "pembelajaran" | "notifikasi" | "pencapaian";
@@ -494,6 +495,7 @@ const ACCESSORIES = [
 ];
 
 export function AyamkuPage({ user: _user }: AyamkuPageProps) {
+  const { effectiveLogo, tenantName } = useTenantBranding();
   const totalPoin = MISI_DATA.filter((m) => m.status === "selesai").reduce((a, m) => a + m.poin, 0);
 
   const [activeTab, setActiveTab] = useState<"topi" | "mata" | "leher">("topi");
@@ -553,7 +555,7 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
       {/* Top Header Overlay */}
       <div className="absolute top-10 left-6 right-6 flex justify-between items-center z-10">
         <div className="flex items-center gap-3">
-          <img src={logoWhite} alt="Logo" className="w-12 h-12 object-contain" />
+          <img src={effectiveLogo} alt={tenantName || "Logo"} className="w-12 h-12 object-contain" />
           <div className="flex flex-col text-left">
             <span className="text-[10px] font-bold tracking-wider uppercase text-white/95 drop-shadow-md">
               Peliharaan
@@ -564,7 +566,7 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
           </div>
         </div>
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-xs border border-white/10 text-white text-[10px] font-bold uppercase tracking-wide shadow-xs">
-          <Star className="w-3.5 h-3.5 text-[#fee279]" />
+          <Star style={{ color: THEME_COLORS.hex.accent }} className="w-3.5 h-3.5" />
           {totalPoin} Poin
         </div>
       </div>
@@ -636,8 +638,9 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
+                style={activeTab === tab ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
                 className={`px-3.5 py-1.5 rounded-full text-[9.5px] font-bold uppercase tracking-wider transition-all cursor-pointer ${activeTab === tab
-                  ? "bg-[#e0542c] text-white shadow-xs"
+                  ? "text-white shadow-xs"
                   : "bg-white/10 text-white/70 hover:bg-white/15"
                   }`}
               >
@@ -666,11 +669,15 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
               <button
                 key={acc.id}
                 onClick={() => handleToggleAccessory(acc)}
+                style={isEquipped ? {
+                  backgroundColor: `${THEME_COLORS.hex.primary}33`,
+                  borderColor: THEME_COLORS.hex.primary,
+                  width: "84px"
+                } : { width: "84px" }}
                 className={`shrink-0 flex flex-col items-center justify-between p-2.5 rounded-2xl border transition-all cursor-pointer h-20 ${isEquipped
-                  ? "bg-[#e0542c]/20 border-[#e0542c] shadow-xs shadow-[#e0542c]/10"
+                  ? "shadow-xs"
                   : "bg-white/5 hover:bg-white/10 border-white/5"
                   }`}
-                style={{ width: "84px" }}
               >
                 <div className="h-10 flex items-center justify-center overflow-hidden w-full px-1">
                   <div className="scale-75 w-full flex items-center justify-center">

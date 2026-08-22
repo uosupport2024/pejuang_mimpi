@@ -255,7 +255,7 @@ export function PayrollHistoryPage() {
                 value={filters.q}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 placeholder="Cari pegawai..."
-                className="w-full h-9 box-border pl-10 pr-4 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#e0542c] focus:border-[#e0542c] transition-all placeholder-gray-400 text-gray-700 font-medium"
+                className="w-full h-9 box-border pl-10 pr-4 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none transition-all placeholder-gray-400 text-gray-700 font-medium"
               />
             </div>
 
@@ -265,7 +265,7 @@ export function PayrollHistoryPage() {
                 value={filters.bulan || "all"}
                 onValueChange={(val) => handleMonthChange(val || "all")}
               >
-                <SelectTrigger className="w-full h-9 box-border px-3 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#e0542c] focus:border-[#e0542c] text-gray-700 font-medium flex items-center justify-between cursor-pointer shadow-none">
+                <SelectTrigger className="w-full h-9 box-border px-3 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none text-gray-700 font-medium flex items-center justify-between cursor-pointer shadow-none">
                   <SelectValue>
                     {filters.bulan
                       ? months.find((m) => m.value === filters.bulan)?.label || "Semua Bulan"
@@ -295,7 +295,7 @@ export function PayrollHistoryPage() {
                 value={filters.tahun || "all"}
                 onValueChange={(val) => handleYearChange(val || "all")}
               >
-                <SelectTrigger className="w-full h-9 box-border px-3 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#e0542c] focus:border-[#e0542c] text-gray-700 font-medium flex items-center justify-between cursor-pointer shadow-none">
+                <SelectTrigger className="w-full h-9 box-border px-3 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none text-gray-700 font-medium flex items-center justify-between cursor-pointer shadow-none">
                   <SelectValue>
                     {filters.tahun === "all" || !filters.tahun ? "Semua Tahun" : filters.tahun}
                   </SelectValue>

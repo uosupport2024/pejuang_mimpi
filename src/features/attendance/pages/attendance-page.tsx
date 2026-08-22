@@ -16,6 +16,7 @@ import {
 } from "@/shared/components/ui/select";
 import { getCookie } from "@/shared/utils/cookies";
 import { API_BASE_URL } from "@/shared/utils/api";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 const indonesianMonths = [
   "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
@@ -171,7 +172,7 @@ export function AttendancePage() {
             <head><title>Memuat PDF...</title></head>
             <body style="margin:0; display:flex; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; background:#f4f4f5; color:#71717a;">
               <div style="text-align:center;">
-                <svg style="animation: spin 1s linear infinite; height: 32px; width: 32px; color: #e0542c; margin: 0 auto 12px auto;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg style="animation: spin 1s linear infinite; height: 32px; width: 32px; color: ${THEME_COLORS.hex.primary}; margin: 0 auto 12px auto;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -271,7 +272,7 @@ export function AttendancePage() {
       cell: (row) => (
         <div className="flex flex-col justify-center min-w-0">
           <h4 className="text-xs font-bold text-gray-800 truncate">{row.name}</h4>
-          <span className="text-[10px] text-[#5C8A90] font-medium mt-0.5 block">
+          <span style={{ color: THEME_COLORS.hex.airKehidupan }} className="text-[10px] font-medium mt-0.5 block">
             {row.jabatan_nama}
           </span>
         </div>
@@ -290,7 +291,7 @@ export function AttendancePage() {
         const totalWorked = row.total_hadir ?? 0;
         return (
           <div className="flex items-center gap-2 shrink-0">
-            <CheckCircle2 size={14} className="text-[#7FA46D]" />
+            <CheckCircle2 size={14} style={{ color: THEME_COLORS.hex.sawahPertumbuhan }} />
             <span className="text-xs font-bold text-gray-700">{totalWorked} / {row.total_hari_kerja} Hari</span>
           </div>
         );
@@ -307,7 +308,7 @@ export function AttendancePage() {
       className: "w-[15%] text-left pl-[22px]",
       cell: (row) => (
         <div className="flex items-center gap-2 shrink-0">
-          <Clock size={14} className="text-[#F2B233]" />
+          <Clock size={14} style={{ color: THEME_COLORS.hex.padiKemakmuran }} />
           <span className="text-xs font-bold text-gray-700">{row.jam_lembur}j {row.menit_lembur}m</span>
         </div>
       ),
@@ -323,8 +324,15 @@ export function AttendancePage() {
       className: "w-[15%] text-left pl-[22px]",
       cell: (row) => (
         <div className="flex items-center gap-2 shrink-0">
-          <AlertTriangle size={14} className={row.sakit_dan_izin > 0 ? "text-[#e0542c]" : "text-gray-350"} />
-          <span className={`text-xs font-bold ${row.sakit_dan_izin > 0 ? "text-[#e0542c]" : "text-gray-700"}`}>
+          <AlertTriangle
+            size={14}
+            style={row.sakit_dan_izin > 0 ? { color: THEME_COLORS.hex.primary } : undefined}
+            className={row.sakit_dan_izin > 0 ? "" : "text-gray-350"}
+          />
+          <span
+            style={row.sakit_dan_izin > 0 ? { color: THEME_COLORS.hex.primary } : undefined}
+            className={`text-xs font-bold ${row.sakit_dan_izin > 0 ? "" : "text-gray-700"}`}
+          >
             {row.sakit_dan_izin} Hari
           </span>
         </div>
@@ -343,35 +351,50 @@ export function AttendancePage() {
         const totalWorked = row.total_hadir ?? 0;
         const attendanceRate = row.total_hari_kerja > 0 ? (totalWorked / row.total_hari_kerja) * 100 : 100;
 
-        let rateColor = "text-[#7FA46D]";
-        let barColor = "bg-[#7FA46D]";
+        let rateColor: string = THEME_COLORS.hex.sawahPertumbuhan;
+        let barColor: string = THEME_COLORS.hex.sawahPertumbuhan;
         let statusLabel = "Sangat Baik";
-        let badgeColor = "bg-[#7FA46D]/10 text-[#516b46] border-[#7FA46D]/20";
+        let badgeStyle: React.CSSProperties = {
+          backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}1A`,
+          color: THEME_COLORS.hex.sawahPertumbuhanText,
+          borderColor: `${THEME_COLORS.hex.sawahPertumbuhan}33`
+        };
 
         if (attendanceRate < 90 && attendanceRate >= 75) {
-          rateColor = "text-[#F2B233]";
-          barColor = "bg-[#F2B233]";
+          rateColor = THEME_COLORS.hex.padiKemakmuran;
+          barColor = THEME_COLORS.hex.padiKemakmuran;
           statusLabel = "Cukup Baik";
-          badgeColor = "bg-[#F2B233]/12 text-[#916715] border-[#F2B233]/20";
+          badgeStyle = {
+            backgroundColor: `${THEME_COLORS.hex.padiKemakmuran}1F`,
+            color: THEME_COLORS.hex.padiKemakmuranText,
+            borderColor: `${THEME_COLORS.hex.padiKemakmuran}33`
+          };
         } else if (attendanceRate < 75) {
-          rateColor = "text-[#e0542c]";
-          barColor = "bg-[#e0542c]";
+          rateColor = THEME_COLORS.hex.primary;
+          barColor = THEME_COLORS.hex.primary;
           statusLabel = "Perlu Evaluasi";
-          badgeColor = "bg-[#e0542c]/10 text-[#c23f1b] border-[#e0542c]/20";
+          badgeStyle = {
+            backgroundColor: `${THEME_COLORS.hex.primary}1A`,
+            color: THEME_COLORS.hex.primaryHover,
+            borderColor: `${THEME_COLORS.hex.primary}33`
+          };
         }
 
         return (
           <div className="flex items-center justify-end gap-4 shrink-0">
             <div className="flex items-center gap-2">
-              <span className={`text-xs font-extrabold ${rateColor}`}>{attendanceRate.toFixed(0)}%</span>
+              <span style={{ color: rateColor }} className="text-xs font-extrabold">{attendanceRate.toFixed(0)}%</span>
               <div className="w-16 h-1.5 bg-zinc-150 rounded-full overflow-hidden shrink-0">
                 <div
-                  className={`h-full rounded-full transition-all duration-500 ${barColor}`}
-                  style={{ width: `${Math.min(100, Math.max(0, attendanceRate))}%` }}
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min(100, Math.max(0, attendanceRate))}%`, backgroundColor: barColor }}
                 />
               </div>
             </div>
-            <span className={`text-[9px] font-bold border rounded-md px-2.5 py-1 text-center min-w-[80px] shrink-0 ${badgeColor}`}>
+            <span
+              style={badgeStyle}
+              className="text-[9px] font-bold border rounded-md px-2.5 py-1 text-center min-w-[80px] shrink-0"
+            >
               {statusLabel}
             </span>
           </div>
@@ -392,7 +415,10 @@ export function AttendancePage() {
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Total Pegawai */}
-        <div className="p-4 bg-[#5C8A90] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default">
+        <div
+          style={{ backgroundColor: THEME_COLORS.hex.airKehidupan }}
+          className="p-4 text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default"
+        >
           <div className="space-y-1 text-left">
             <span className="text-[10px] font-extrabold text-white/80 uppercase tracking-wider block">Total Pegawai</span>
             <span className="text-2xl font-black text-white tracking-tight leading-none block">{totalEmployees} Orang</span>
@@ -403,7 +429,10 @@ export function AttendancePage() {
         </div>
 
         {/* Card 2: Kehadiran Rata-rata */}
-        <div className="p-4 bg-[#7FA46D] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default">
+        <div
+          style={{ backgroundColor: THEME_COLORS.hex.sawahPertumbuhan }}
+          className="p-4 text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default"
+        >
           <div className="space-y-1 text-left">
             <span className="text-[10px] font-extrabold text-white/80 uppercase tracking-wider block">Rata-rata Kehadiran</span>
             <span className="text-2xl font-black text-white tracking-tight leading-none block">{averageAttendanceRate.toFixed(0)}%</span>
@@ -414,7 +443,10 @@ export function AttendancePage() {
         </div>
 
         {/* Card 3: Jam Lembur */}
-        <div className="p-4 bg-[#F2B233] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default">
+        <div
+          style={{ backgroundColor: THEME_COLORS.hex.padiKemakmuran }}
+          className="p-4 text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default"
+        >
           <div className="space-y-1 text-left">
             <span className="text-[10px] font-extrabold text-white/80 uppercase tracking-wider block">Total Lembur</span>
             <span className="text-2xl font-black text-white tracking-tight leading-none block">{totalOvertimeHours} Jam</span>
@@ -425,7 +457,10 @@ export function AttendancePage() {
         </div>
 
         {/* Card 4: Sakit / Izin */}
-        <div className="p-4 bg-[#e0542c] text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default">
+        <div
+          style={{ backgroundColor: THEME_COLORS.hex.primary }}
+          className="p-4 text-white rounded-2xl shadow-xs flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default"
+        >
           <div className="space-y-1 text-left">
             <span className="text-[10px] font-extrabold text-white/80 uppercase tracking-wider block">Total Sakit & Izin</span>
             <span className="text-2xl font-black text-white tracking-tight leading-none block">{totalAbsences} Hari</span>
@@ -505,9 +540,10 @@ export function AttendancePage() {
                 <button
                   type="button"
                   onClick={() => setViewMode("list")}
+                  style={viewMode === "list" ? { backgroundColor: THEME_COLORS.hex.airKehidupan } : undefined}
                   className={`w-8 h-8 flex items-center justify-center rounded-md transition-all cursor-pointer ${
                     viewMode === "list"
-                      ? "bg-[#5C8A90] text-white shadow-xs"
+                      ? "text-white shadow-xs"
                       : "text-gray-400 hover:text-gray-600"
                   }`}
                   title="Tampilan List"
@@ -517,9 +553,10 @@ export function AttendancePage() {
                 <button
                   type="button"
                   onClick={() => setViewMode("card")}
+                  style={viewMode === "card" ? { backgroundColor: THEME_COLORS.hex.airKehidupan } : undefined}
                   className={`w-8 h-8 flex items-center justify-center rounded-md transition-all cursor-pointer ${
                     viewMode === "card"
-                      ? "bg-[#5C8A90] text-white shadow-xs"
+                      ? "text-white shadow-xs"
                       : "text-gray-400 hover:text-gray-600"
                   }`}
                   title="Tampilan Card"
@@ -531,9 +568,10 @@ export function AttendancePage() {
               <button
                 type="button"
                 onClick={() => setIsExportModalOpen(true)}
-                className="flex-1 sm:flex-initial h-9 px-4 flex items-center justify-center gap-2 bg-[#e0542c] hover:bg-[#c23f1b] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-xs active:scale-98"
+                style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                className="flex-1 sm:flex-initial h-9 px-4 flex items-center justify-center gap-2 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-xs active:scale-98 hover:opacity-90"
               >
-                <DocumentText size={16} className="text-[#fee279]" />
+                <DocumentText size={16} style={{ color: THEME_COLORS.hex.accent }} />
                 <span>Export Rekap</span>
               </button>
             </div>
@@ -604,21 +642,33 @@ export function AttendancePage() {
                     .toUpperCase();
 
                   // Style indicators
-                  let rateColor = "text-[#7FA46D]";
-                  let barColor = "bg-[#7FA46D]";
+                  let rateColor: string = THEME_COLORS.hex.sawahPertumbuhan;
+                  let barColor: string = THEME_COLORS.hex.sawahPertumbuhan;
                   let statusLabel = "Sangat Baik";
-                  let badgeColor = "bg-[#7FA46D]/10 text-[#516b46] border-[#7FA46D]/20";
+                  let badgeStyle: React.CSSProperties = {
+                    backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}1A`,
+                    color: THEME_COLORS.hex.sawahPertumbuhanText,
+                    borderColor: `${THEME_COLORS.hex.sawahPertumbuhan}33`
+                  };
 
                   if (attendanceRate < 90 && attendanceRate >= 75) {
-                    rateColor = "text-[#F2B233]";
-                    barColor = "bg-[#F2B233]";
+                    rateColor = THEME_COLORS.hex.padiKemakmuran;
+                    barColor = THEME_COLORS.hex.padiKemakmuran;
                     statusLabel = "Cukup Baik";
-                    badgeColor = "bg-[#F2B233]/12 text-[#916715] border-[#F2B233]/20";
+                    badgeStyle = {
+                      backgroundColor: `${THEME_COLORS.hex.padiKemakmuran}1F`,
+                      color: THEME_COLORS.hex.padiKemakmuranText,
+                      borderColor: `${THEME_COLORS.hex.padiKemakmuran}33`
+                    };
                   } else if (attendanceRate < 75) {
-                    rateColor = "text-[#e0542c]";
-                    barColor = "bg-[#e0542c]";
+                    rateColor = THEME_COLORS.hex.primary;
+                    barColor = THEME_COLORS.hex.primary;
                     statusLabel = "Perlu Evaluasi";
-                    badgeColor = "bg-[#e0542c]/10 text-[#c23f1b] border-[#e0542c]/20";
+                    badgeStyle = {
+                      backgroundColor: `${THEME_COLORS.hex.primary}1A`,
+                      color: THEME_COLORS.hex.primaryHover,
+                      borderColor: `${THEME_COLORS.hex.primary}33`
+                    };
                   }
 
                   return (
@@ -630,17 +680,23 @@ export function AttendancePage() {
                       <div className="space-y-4">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-[#e0542c]/10 text-[#e0542c] font-bold text-xs flex items-center justify-center shrink-0">
+                            <div
+                              style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}1A` }}
+                              className="w-10 h-10 rounded-xl font-bold text-xs flex items-center justify-center shrink-0"
+                            >
                               {initials}
                             </div>
                             <div className="min-w-0">
                               <h4 className="text-xs font-bold text-gray-800 truncate">{item.name}</h4>
-                              <span className="text-[10px] text-[#5C8A90] font-medium mt-0.5 block">
+                              <span style={{ color: THEME_COLORS.hex.airKehidupan }} className="text-[10px] font-medium mt-0.5 block">
                                 {item.jabatan_nama}
                               </span>
                             </div>
                           </div>
-                          <span className={`text-[9px] font-bold border rounded-md px-2 py-0.5 shrink-0 ${badgeColor}`}>
+                          <span
+                            style={badgeStyle}
+                            className="text-[9px] font-bold border rounded-md px-2 py-0.5 shrink-0"
+                          >
                             {statusLabel}
                           </span>
                         </div>

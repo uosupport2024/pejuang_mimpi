@@ -76,7 +76,8 @@ export function TunasLokerList() {
         <span className="text-xs font-bold text-gray-900 tracking-wider">Ngais Berlian</span>
         <span
           onClick={() => toast.info("Membuka riwayat lengkap tunas...")}
-          className="text-[10px] text-[#e0542c] font-bold cursor-pointer hover:underline"
+          style={{ color: THEME_COLORS.hex.primary }}
+          className="text-[10px] font-bold cursor-pointer hover:underline"
         >
           Lihat Semua
         </span>
@@ -92,7 +93,7 @@ export function TunasLokerList() {
               onClick={() => navigate(`/mobile/loker/${item.id || idx + 1}`)}
             >
               <div className="flex flex-col text-left min-w-0">
-                <span className="text-xs font-bold text-gray-900 group-hover:text-[#e0542c] transition-colors truncate">{item.position}</span>
+                <span className="text-xs font-bold text-gray-900 group-hover:opacity-80 transition-colors truncate">{item.position}</span>
                 <span className="text-[10px] text-zinc-400 font-bold truncate mt-0.5">{item.company}</span>
 
                 {/* Badges: Type (Green), Location (Yellow), Education (Blue) */}
@@ -110,7 +111,7 @@ export function TunasLokerList() {
               </div>
 
               <div className="flex flex-col text-right shrink-0 ml-3 self-center">
-                <span className="text-xs font-bold text-[#e0542c]">{item.salary}</span>
+                <span style={{ color: THEME_COLORS.hex.primary }} className="text-xs font-bold">{item.salary}</span>
               </div>
             </div>
           );

@@ -5,6 +5,7 @@ import { useRouter } from "@/shared/router/router";
 import { useLeave } from "../hooks/use-leave";
 import { LeaveForm } from "../components/leave-form";
 import patternBg from "@/assets/bg/pattern-background.png";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface LeaveRequestPageProps {
   user: any;
@@ -26,7 +27,10 @@ export function LeaveRequestPage({ user }: LeaveRequestPageProps) {
   return (
     <div className="space-y-4 pb-12">
       {/* Redesigned Premium Header Bar with Pattern Background */}
-      <div className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl bg-[#1e2a4a] text-white">
+      <div
+        style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+        className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl text-white"
+      >
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
           style={{

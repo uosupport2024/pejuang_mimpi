@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { fetchKoreksiAbsenForAdminAPI, approveKoreksiAbsenAPI } from "../api/absensi";
 import { ReusableTable, type ColumnDef } from "@/shared/components/ui/reusable-table";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface ApprovalItem {
   id: number;
@@ -135,7 +136,7 @@ export function KoreksiAbsenApprovalPage() {
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "Approved":
-        return "bg-[#7FA46D] text-white font-bold";
+        return "bg-emerald-600 text-white font-bold";
       case "Rejected":
         return "bg-rose-500/10 text-rose-700 border border-rose-500/20";
       default:
@@ -250,7 +251,7 @@ export function KoreksiAbsenApprovalPage() {
               {row.notes}
             </span>
             {row.approvedByName && (
-              <span className="text-[9px] text-[#5C8A90] font-semibold">
+              <span style={{ color: THEME_COLORS.hex.airKehidupan }} className="text-[9px] font-semibold">
                 oleh {row.approvedByName}
               </span>
             )}
@@ -328,7 +329,7 @@ export function KoreksiAbsenApprovalPage() {
               placeholder="Cari nama pegawai..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-9 pl-10 pr-4 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#e0542c] focus:border-[#e0542c] transition-all placeholder-gray-400 text-gray-700 font-medium"
+              className="w-full h-9 pl-10 pr-4 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none transition-all placeholder-gray-400 text-gray-700 font-medium"
             />
           </div>
 
@@ -339,8 +340,9 @@ export function KoreksiAbsenApprovalPage() {
                 key={tab}
                 type="button"
                 onClick={() => handleTabChange(tab)}
+                style={activeTab === tab ? { color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}1A`, borderColor: `${THEME_COLORS.hex.primary}33` } : undefined}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeTab === tab
-                  ? "bg-[#e0542c]/10 text-[#e0542c] border border-[#e0542c]/20"
+                  ? "border"
                   : "bg-zinc-50 border border-gray-200 text-gray-650 hover:bg-zinc-100/70"
                   }`}
               >
@@ -401,7 +403,7 @@ export function KoreksiAbsenApprovalPage() {
                   onChange={(e) => setAdminNotes(e.target.value)}
                   rows={3}
                   placeholder="Ketik catatan di sini..."
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-xs font-medium text-gray-700 focus:outline-none focus:border-[#e0542c] resize-none"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-xs font-medium text-gray-700 focus:outline-none resize-none"
                 />
               </div>
             </div>

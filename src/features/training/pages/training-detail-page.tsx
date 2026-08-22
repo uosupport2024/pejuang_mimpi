@@ -9,13 +9,13 @@ import {
   HelpCircle,
   Award,
   Sparkles,
-  ChevronDown,
-  FileText
+  ChevronDown
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "@/shared/router/router";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { fetchCourseById, fetchLessonById, type Course, type Lesson, type LessonChunk } from "../api/course";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 // Helper to extract YouTube video ID
 function extractYouTubeId(url: string): string | null {
@@ -201,7 +201,7 @@ export function TrainingDetailPage() {
                     Total Materi
                   </span>
                   <span className="text-gray-800 font-semibold text-xs flex items-center gap-1.5">
-                    <Award size={14} className="text-[#e0542c]" />
+                    <Award size={14} style={{ color: THEME_COLORS.hex.primary }} />
                     <span>{sortedLessons.length} Materi Pelatihan</span>
                   </span>
                 </div>
@@ -223,65 +223,36 @@ export function TrainingDetailPage() {
                     <div key={lesson.id} className="space-y-1">
                       <button
                         onClick={() => handleTocClick(lesson.id)}
+                        style={isCurrentExpanded ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
                         className={`w-full text-left text-xs py-2 px-3 rounded-lg transition-all flex items-center gap-2.5 hover:bg-zinc-50 group/toc cursor-pointer ${isCurrentExpanded
-                          ? "bg-[#e0542c] text-white font-semibold"
+                          ? "text-white font-semibold"
                           : "text-gray-650"
                           }`}
                       >
-                        <span className={`w-4 h-4 rounded-md text-[10px] flex items-center justify-center shrink-0 ${isCurrentExpanded
-                          ? "bg-white text-[#e0542c]"
-                          : "bg-gray-100 text-gray-500 group-hover/toc:bg-gray-200"
-                          }`}>
+                        <span
+                          style={isCurrentExpanded ? { color: THEME_COLORS.hex.primary } : undefined}
+                          className={`w-4 h-4 rounded-md text-[10px] flex items-center justify-center shrink-0 ${isCurrentExpanded
+                            ? "bg-white"
+                            : "bg-gray-100 text-gray-500 group-hover/toc:bg-gray-200"
+                            }`}
+                        >
                           {idx + 1}
                         </span>
                         <span className="line-clamp-2">{lesson.title}</span>
                       </button>
 
                       {/* Nested Chunks List */}
-                      {chunks.length > 0 && (
-                        <div className="pl-4 space-y-1 pb-1.5 pt-0.5 text-[11px] text-gray-400 ml-[18px] relative">
-                          {chunks.map((chunk, cIdx) => {
-                            const chunkTypeLabel =
-                              chunk.chunk_type === "video"
-                                ? "Video"
-                                : chunk.chunk_type === "audio"
-                                  ? "Audio"
-                                  : chunk.chunk_type === "image_step"
-                                    ? "Langkah Gambar"
-                                    : chunk.chunk_type === "text"
-                                      ? "Teks"
-                                      : "Kuis";
-
-                            const getChunkIcon = (type: string) => {
-                              switch (type) {
-                                case "video":
-                                  return <Video size={10} className="text-blue-500" />;
-                                case "audio":
-                                  return <Volume2 size={10} className="text-purple-500" />;
-                                case "image_step":
-                                  return <ImageIcon size={10} className="text-emerald-500" />;
-                                case "text":
-                                  return <FileText size={10} className="text-blue-550" />;
-                                case "quiz":
-                                  return <HelpCircle size={10} className="text-amber-500" />;
-                                default:
-                                  return <HelpCircle size={10} className="text-gray-400" />;
-                              }
-                            };
-
-                            return (
-                              <div key={chunk.id || cIdx} className="flex items-center gap-2 py-0.5 relative pl-2 group/sub">
-                                {/* Tiny Type Icon */}
-                                <span className="shrink-0 flex items-center justify-center w-4 h-4 rounded bg-gray-50 border border-gray-200/50">
-                                  {getChunkIcon(chunk.chunk_type)}
-                                </span>
-
-                                <span className="truncate group-hover/sub:text-gray-700 transition-colors">
-                                  Bagian {cIdx + 1}: {chunkTypeLabel}
-                                </span>
-                              </div>
-                            );
-                          })}
+                      {isCurrentExpanded && chunks.length > 0 && (
+                        <div className="pl-6 pr-2 py-1 space-y-1">
+                          {chunks.map((chunk, cIdx) => (
+                            <div
+                              key={chunk.id}
+                              className="text-[11px] text-gray-500 hover:text-gray-800 flex items-center gap-1.5 py-0.5 line-clamp-1 transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-gray-300 shrink-0" />
+                              <span>Bagian {cIdx + 1}: {chunk.detail?.title || chunk.chunk_type}</span>
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>
@@ -292,26 +263,33 @@ export function TrainingDetailPage() {
           )}
         </div>
 
-        {/* Right Column: Lessons List (col-8) */}
+        {/* Right Area: Lessons & Interactive Content Showcase */}
         <div className="lg:col-span-8 space-y-6">
           {sortedLessons.length === 0 ? (
             <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm">
-              <Sparkles className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <h3 className="text-sm font-bold text-gray-700 mb-1">Materi Kosong</h3>
+              <div
+                style={{ backgroundColor: `${THEME_COLORS.hex.primary}1A`, color: THEME_COLORS.hex.primary }}
+                className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
+              >
+                <Sparkles size={20} />
+              </div>
+              <h3 className="text-sm font-bold text-gray-800 mb-1">Belum Ada Materi</h3>
               <p className="text-xs text-gray-500 max-w-sm mx-auto">
-                Pelatihan ini belum memiliki materi/lesson. Silakan masuk ke menu edit untuk menambah materi.
+                Materi pelatihan ini belum ditambahkan oleh instruktur.
               </p>
             </div>
           ) : (
-            sortedLessons.map((lesson, index) => (
-              <LessonPreviewCard
-                key={lesson.id}
-                lesson={lesson}
-                index={index}
-                isExpanded={activeLessonId === lesson.id}
-                onToggle={() => toggleLesson(lesson.id)}
-              />
-            ))
+            <div className="space-y-4">
+              {sortedLessons.map((lesson, idx) => (
+                <LessonAccordionItem
+                  key={lesson.id}
+                  lesson={lesson}
+                  index={idx}
+                  isExpanded={activeLessonId === lesson.id}
+                  onToggle={() => toggleLesson(lesson.id)}
+                />
+              ))}
+            </div>
           )}
         </div>
       </div>
@@ -319,14 +297,18 @@ export function TrainingDetailPage() {
   );
 }
 
-interface LessonPreviewCardProps {
+// Sub-component for individual Lesson accordion with chunk preview
+function LessonAccordionItem({
+  lesson,
+  index,
+  isExpanded,
+  onToggle,
+}: {
   lesson: Lesson;
   index: number;
   isExpanded: boolean;
   onToggle: () => void;
-}
-
-function LessonPreviewCard({ lesson, index, isExpanded, onToggle }: LessonPreviewCardProps) {
+}) {
   const chunks = lesson.chunks || [];
 
   return (
@@ -340,14 +322,20 @@ function LessonPreviewCard({ lesson, index, isExpanded, onToggle }: LessonPrevie
         className="px-6 py-4 bg-zinc-50/70 border-b border-gray-200 flex items-center justify-between gap-4 cursor-pointer select-none hover:bg-zinc-100/30 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <span className="w-8 h-8 rounded-lg bg-orange-100/85 text-[#e0542c] font-bold text-xs flex items-center justify-center border border-orange-200/40">
+          <span
+            style={{ color: THEME_COLORS.hex.primary }}
+            className="w-8 h-8 rounded-lg bg-orange-100/85 font-bold text-xs flex items-center justify-center border border-orange-200/40"
+          >
             {index + 1}
           </span>
           <h3 className="text-sm font-bold text-gray-800 line-clamp-1">{lesson.title}</h3>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold bg-[#e0542c]/10 text-[#e0542c] border border-[#e0542c]/20">
+          <span
+            style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}1A`, borderColor: `${THEME_COLORS.hex.primary}33` }}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold border"
+          >
             +{lesson.lesson_points || 0} Poin
           </span>
           <ChevronDown
@@ -367,7 +355,7 @@ function LessonPreviewCard({ lesson, index, isExpanded, onToggle }: LessonPrevie
                 <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
                   <span>Bagian {cIdx + 1}</span>
                   <span>•</span>
-                  <span className="text-[#e0542c]">
+                  <span style={{ color: THEME_COLORS.hex.primary }}>
                     {chunk.chunk_type === "image_step"
                       ? "langkah gambar"
                       : chunk.chunk_type === "text"

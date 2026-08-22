@@ -11,6 +11,7 @@ import {
 } from "../api/shift";
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface ShiftTemplate {
   id: number;
@@ -252,15 +253,24 @@ export function EmployeeInputShiftPage() {
     }
     const name = namaShift.toLowerCase();
     if (name.includes("libur")) {
-      return "bg-[#e0542c] text-white border-[#e0542c] hover:bg-[#c84420] shadow-xs";
+      return "text-white shadow-xs";
     }
     if (name.includes("malam")) {
-      return "bg-[#5C8A90] text-white border-[#5C8A90] hover:bg-[#4a7277] shadow-xs";
+      return "text-white shadow-xs";
     }
     if (name.includes("security") || name.includes("3") || name.includes("pagi")) {
-      return "bg-[#7FA46D] text-white border-[#7FA46D] hover:bg-[#6b9159] shadow-xs";
+      return "text-white shadow-xs";
     }
-    return "bg-[#F2B233] text-white border-[#F2B233] hover:bg-[#d99c26] shadow-xs";
+    return "text-white shadow-xs";
+  };
+
+  const getShiftBadgeBg = (namaShift: string, isPast: boolean = false) => {
+    if (isPast) return undefined;
+    const name = namaShift.toLowerCase();
+    if (name.includes("libur")) return THEME_COLORS.hex.primary;
+    if (name.includes("malam")) return THEME_COLORS.hex.airKehidupan;
+    if (name.includes("security") || name.includes("3") || name.includes("pagi")) return THEME_COLORS.hex.sawahPertumbuhan;
+    return THEME_COLORS.hex.padiKemakmuran;
   };
 
   // Handle Drag and Drop Shift to new Date (triggers modal choice)
@@ -378,7 +388,10 @@ export function EmployeeInputShiftPage() {
 
         {employee && (
           <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200/80 px-3.5 py-2 rounded-xl shrink-0 w-full sm:w-auto">
-            <div className="w-8 h-8 rounded-full bg-[#1e2a4a] text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+            <div
+              style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+              className="w-8 h-8 rounded-full text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs"
+            >
               {employee.name.charAt(0).toUpperCase()}
             </div>
             <div className="flex flex-col text-left min-w-0">
@@ -393,7 +406,7 @@ export function EmployeeInputShiftPage() {
         {/* Left: Input Form Card (4 cols on lg) */}
         <div className="lg:col-span-4 bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs space-y-4 h-fit">
           <div className="border-b border-gray-100 pb-3 flex items-center gap-2">
-            <CalendarIcon className="w-4 h-4 text-[#e0542c]" />
+            <CalendarIcon style={{ color: THEME_COLORS.hex.primary }} className="w-4 h-4" />
             <h2 className="text-xs font-black text-gray-900 uppercase tracking-wider">
               Form Penugasan Shift
             </h2>
@@ -409,7 +422,7 @@ export function EmployeeInputShiftPage() {
               <select
                 value={selectedShiftId}
                 onChange={(e) => setSelectedShiftId(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 bg-white focus:outline-none focus:border-[#e0542c] focus:ring-1 focus:ring-[#e0542c] transition-all cursor-pointer shadow-2xs"
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 bg-white focus:outline-none transition-all cursor-pointer shadow-2xs"
                 required
               >
                 {shifts.map((s) => (
@@ -430,7 +443,7 @@ export function EmployeeInputShiftPage() {
                   type="date"
                   value={tanggalMulai}
                   onChange={(e) => setTanggalMulai(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 bg-white focus:outline-none focus:border-[#e0542c] transition-all shadow-2xs"
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 bg-white focus:outline-none transition-all shadow-2xs"
                   required
                 />
               </div>
@@ -443,7 +456,7 @@ export function EmployeeInputShiftPage() {
                   type="date"
                   value={tanggalAkhir}
                   onChange={(e) => setTanggalAkhir(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 bg-white focus:outline-none focus:border-[#e0542c] transition-all shadow-2xs"
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 bg-white focus:outline-none transition-all shadow-2xs"
                   required
                 />
               </div>
@@ -456,11 +469,11 @@ export function EmployeeInputShiftPage() {
                 id="lock_location"
                 checked={lockLocation}
                 onChange={(e) => setLockLocation(e.target.checked)}
-                className="mt-0.5 w-4 h-4 rounded border-2 border-[#e0542c] bg-white checked:bg-[#e0542c] checked:border-[#e0542c] cursor-pointer appearance-none flex items-center justify-center after:content-['✓'] after:text-[10px] after:font-extrabold after:text-white after:hidden checked:after:block transition-all focus:outline-none shrink-0"
+                className="mt-0.5 w-4 h-4 rounded border-2 border-gray-300 bg-white cursor-pointer appearance-none flex items-center justify-center after:content-['✓'] after:text-[10px] after:font-extrabold after:text-white after:hidden checked:after:block transition-all focus:outline-none shrink-0"
               />
               <div className="flex flex-col">
                 <label htmlFor="lock_location" className="text-xs font-bold text-gray-800 cursor-pointer select-none flex items-center gap-1.5">
-                  <Lock className="w-3 h-3 text-[#e0542c]" />
+                  <Lock style={{ color: THEME_COLORS.hex.primary }} className="w-3 h-3" />
                   <span>Kunci Lokasi (Lock Location)</span>
                 </label>
                 <span className="text-[10px] text-gray-500 font-medium leading-normal mt-1">
@@ -473,10 +486,11 @@ export function EmployeeInputShiftPage() {
             <button
               type="submit"
               disabled={submitting}
+              style={!submitting ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
               className={`w-full py-2.5 px-4 rounded-xl text-xs font-extrabold transition-all border-0 flex items-center justify-center gap-2 cursor-pointer shadow-md ${
                 submitting
                   ? "bg-zinc-200 text-zinc-400 cursor-not-allowed shadow-none"
-                  : "bg-[#e0542c] hover:bg-[#c84420] text-white shadow-[#e0542c]/20 hover:shadow-lg active:scale-98"
+                  : "text-white hover:opacity-90 active:scale-98"
               }`}
             >
               {submitting ? "Menyimpan Shift..." : "Terapkan Shift"}
@@ -492,7 +506,10 @@ export function EmployeeInputShiftPage() {
               <h2 className="text-xs sm:text-sm font-black text-gray-900 uppercase tracking-wider">
                 Kalender Shift Kerja
               </h2>
-              <span className="text-[10px] font-bold text-[#e0542c] bg-[#e0542c]/10 px-2 py-0.5 rounded-full">
+              <span
+                style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}1A` }}
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+              >
                 {monthNames[month]} {year}
               </span>
             </div>
@@ -523,14 +540,23 @@ export function EmployeeInputShiftPage() {
           {/* Shift Legend Badges Bar */}
           <div className="flex flex-wrap items-center gap-3 pb-3 mb-3 border-b border-gray-100 text-[10px] font-bold text-gray-600">
             <span className="text-gray-400 uppercase font-black text-[9px] tracking-wider">Legend:</span>
-            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#7FA46D]/15 text-[#5e804d]">
-              <span className="w-2 h-2 rounded-full bg-[#7FA46D]" /> Pagi / Normal
+            <span
+              style={{ color: THEME_COLORS.hex.sawahPertumbuhanText, backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}26` }}
+              className="flex items-center gap-1.5 px-2 py-0.5 rounded-md"
+            >
+              <span style={{ backgroundColor: THEME_COLORS.hex.sawahPertumbuhan }} className="w-2 h-2 rounded-full" /> Pagi / Normal
             </span>
-            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#5C8A90]/15 text-[#426469]">
-              <span className="w-2 h-2 rounded-full bg-[#5C8A90]" /> Malam
+            <span
+              style={{ color: THEME_COLORS.hex.airKehidupanText, backgroundColor: `${THEME_COLORS.hex.airKehidupan}26` }}
+              className="flex items-center gap-1.5 px-2 py-0.5 rounded-md"
+            >
+              <span style={{ backgroundColor: THEME_COLORS.hex.airKehidupan }} className="w-2 h-2 rounded-full" /> Malam
             </span>
-            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#e0542c]/15 text-[#c4401a]">
-              <span className="w-2 h-2 rounded-full bg-[#e0542c]" /> Off / Libur
+            <span
+              style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}26` }}
+              className="flex items-center gap-1.5 px-2 py-0.5 rounded-md"
+            >
+              <span style={{ backgroundColor: THEME_COLORS.hex.primary }} className="w-2 h-2 rounded-full" /> Off / Libur
             </span>
           </div>
 
@@ -610,11 +636,12 @@ export function EmployeeInputShiftPage() {
                           }
                         }}
                         onDrop={(e) => !isPast && handleDropShift(e, day)}
+                        style={isDragTarget ? { borderColor: THEME_COLORS.hex.primary } : undefined}
                         className={`relative min-h-[88px] border p-2 rounded-xl flex flex-col justify-between transition-all group ${
                           isPast
                             ? "bg-zinc-50/70 border-zinc-200/50 opacity-60 cursor-not-allowed select-none"
                             : isDragTarget
-                            ? "bg-[#e0542c]/10 border-2 border-[#e0542c] scale-[1.02] shadow-md z-10 cursor-pointer"
+                            ? "border-2 scale-[1.02] shadow-md z-10 cursor-pointer"
                             : isToday
                             ? "bg-amber-50/40 border-amber-300 shadow-2xs cursor-pointer"
                             : "bg-white border-gray-200/80 hover:border-gray-300 hover:bg-zinc-50/40 cursor-pointer shadow-2xs"
@@ -623,9 +650,10 @@ export function EmployeeInputShiftPage() {
                         {/* Day number & today marker */}
                         <div className="flex justify-between items-center">
                           <span
+                            style={isToday ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
                             className={`text-xs font-black ${
                               isToday
-                                ? "bg-[#e0542c] text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow-xs"
+                                ? "text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow-xs"
                                 : isPast
                                 ? "text-gray-400 font-bold"
                                 : "text-gray-800"
@@ -668,6 +696,9 @@ export function EmployeeInputShiftPage() {
                               setDraggedMapping(null);
                               setDraggedOverDate(null);
                             }}
+                            style={{
+                              backgroundColor: getShiftBadgeBg(mapping.shift?.nama_shift || mapping.status_absen, isPast)
+                            }}
                             className={`mt-1.5 border rounded-lg p-1.5 text-left flex flex-col gap-0.5 relative group/badge overflow-hidden transition-all ${
                               isPast
                                 ? "cursor-not-allowed opacity-75"
@@ -706,9 +737,9 @@ export function EmployeeInputShiftPage() {
                             )}
                           </div>
                         ) : (
-                          <div className="mt-2 text-left">
-                            <span className="text-[9px] font-semibold text-gray-400/80 block select-none">
-                              —
+                          <div className="flex-1 flex items-center justify-center py-2">
+                            <span className="text-[10px] text-gray-300 font-semibold group-hover:text-gray-400 transition-colors">
+                              {!isPast && "+ Shift"}
                             </span>
                           </div>
                         )}
@@ -744,7 +775,10 @@ export function EmployeeInputShiftPage() {
           {/* Modal Content */}
           <div className="bg-white rounded-2xl border border-gray-200/80 shadow-2xl max-w-md w-full p-6 space-y-4 z-50 animate-in zoom-in-95 duration-200">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="p-3 rounded-full flex items-center justify-center w-14 h-14 bg-[#e0542c]/10 border border-[#e0542c]/20 text-[#e0542c]">
+              <div
+                style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}1A`, borderColor: `${THEME_COLORS.hex.primary}33` }}
+                className="p-3 rounded-full flex items-center justify-center w-14 h-14 border"
+              >
                 <CalendarIcon className="w-7 h-7" />
               </div>
 
@@ -753,7 +787,7 @@ export function EmployeeInputShiftPage() {
                   Atur Shift Kalender
                 </h3>
                 <p className="text-xs text-gray-600 font-medium leading-relaxed">
-                  Pilih aksi untuk shift <span className="text-gray-900 font-black">"{dragConfirm.sourceMapping?.shift?.nama_shift || dragConfirm.sourceMapping?.status_absen}"</span> dari tanggal <span className="text-gray-900 font-bold">{dragConfirm.sourceMapping?.tanggal}</span> ke tanggal <span className="text-[#e0542c] font-black">{dragConfirm.targetDateStr}</span>:
+                  Pilih aksi untuk shift <span className="text-gray-900 font-black">"{dragConfirm.sourceMapping?.shift?.nama_shift || dragConfirm.sourceMapping?.status_absen}"</span> dari tanggal <span className="text-gray-900 font-bold">{dragConfirm.sourceMapping?.tanggal}</span> ke tanggal <span style={{ color: THEME_COLORS.hex.primary }} className="font-black">{dragConfirm.targetDateStr}</span>:
                 </p>
               </div>
             </div>
@@ -774,7 +808,8 @@ export function EmployeeInputShiftPage() {
                   type="button"
                   disabled={processingDrag}
                   onClick={() => handleExecuteDragDrop("duplicate")}
-                  className="py-2.5 px-4 text-xs font-extrabold text-white bg-[#1e2a4a] hover:bg-[#161f36] rounded-xl transition-all shadow-xs cursor-pointer disabled:opacity-50 flex items-center justify-center shrink-0"
+                  style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+                  className="py-2.5 px-4 text-xs font-extrabold text-white rounded-xl transition-all shadow-xs cursor-pointer disabled:opacity-50 flex items-center justify-center shrink-0 hover:opacity-90"
                 >
                   {processingDrag ? "Memproses..." : "Duplikat"}
                 </button>
@@ -783,7 +818,8 @@ export function EmployeeInputShiftPage() {
                   type="button"
                   disabled={processingDrag}
                   onClick={() => handleExecuteDragDrop("move")}
-                  className="py-2.5 px-4 text-xs font-extrabold text-white bg-[#e0542c] hover:bg-[#c23f1b] rounded-xl transition-all shadow-xs cursor-pointer disabled:opacity-50 flex items-center justify-center shrink-0"
+                  style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                  className="py-2.5 px-4 text-xs font-extrabold text-white rounded-xl transition-all shadow-xs cursor-pointer disabled:opacity-50 flex items-center justify-center shrink-0 hover:opacity-90"
                 >
                   {processingDrag ? "Memproses..." : "Pindahkan"}
                 </button>
@@ -795,5 +831,3 @@ export function EmployeeInputShiftPage() {
     </div>
   );
 }
-
-

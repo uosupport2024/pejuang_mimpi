@@ -5,6 +5,7 @@ import patternBg from "@/assets/bg/pattern-background.png";
 import { formatThousands } from "@/shared/utils/format";
 import { Input } from "@/shared/components/ui/input";
 import { CHICKEN_ICONS, getChickenIconLabel } from "@/shared/utils/icons";
+import { THEME_COLORS } from "@/shared/constants/colors";
 import { motion } from "motion/react";
 
 export function CelenganAddPage() {
@@ -24,10 +25,6 @@ export function CelenganAddPage() {
 
   const handleIconSelect = (key: string) => {
     setIcon(key);
-    // Autofill name if it is empty or matches a previous chicken icon label
-    if (!name.trim() || Object.values(CHICKEN_ICONS).some((item) => name === item.name)) {
-      setName(getChickenIconLabel(key));
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,7 +35,7 @@ export function CelenganAddPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#F7F3EB] text-slate-800 pb-20 relative -mt-6 -mx-5">
       {/* Top sticky navigation */}
-      <div className="bg-[#1e2a4a] text-white flex items-center gap-3 px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden">
+      <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="text-white flex items-center gap-3 px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden">
         {/* Background Pattern */}
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
@@ -74,7 +71,7 @@ export function CelenganAddPage() {
               placeholder="Contoh: Beli Sepeda, Dana Darurat"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="bg-white border-slate-200/80 rounded-2xl px-4 py-3.5 h-12 text-sm font-semibold text-slate-800 shadow-sm focus-visible:ring-[#e0542c]/20"
+              className="bg-white border-slate-200/80 rounded-2xl px-4 py-3.5 h-12 text-sm font-semibold text-slate-800 shadow-sm"
             />
           </div>
 
@@ -89,7 +86,7 @@ export function CelenganAddPage() {
                 placeholder="Contoh: 15.000.000"
                 value={targetAmount}
                 onChange={(e) => setTargetAmount(formatThousands(e.target.value))}
-                className="bg-white border-slate-200/80 rounded-2xl pl-10 pr-4 py-3.5 h-12 text-sm font-bold text-slate-800 focus-visible:ring-[#e0542c]/20 text-left"
+                className="bg-white border-slate-200/80 rounded-2xl pl-10 pr-4 py-3.5 h-12 text-sm font-bold text-slate-800 text-left"
               />
             </div>
           </div>
@@ -98,7 +95,7 @@ export function CelenganAddPage() {
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <label className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Pilih Icon Celengan</label>
-              <span className="text-[9px] text-[#e0542c] font-black">{getChickenIconLabel(icon)}</span>
+              <span style={{ color: THEME_COLORS.hex.primary }} className="text-[9px] font-black">{getChickenIconLabel(icon)}</span>
             </div>
             <div
               className="grid grid-cols-4 gap-2.5 max-h-60 overflow-y-auto p-2 bg-white rounded-2xl border border-slate-200/50 shadow-inner scrollbar-thin"
@@ -112,9 +109,10 @@ export function CelenganAddPage() {
                     type="button"
                     onClick={() => handleIconSelect(key)}
                     whileTap={{ scale: 0.94 }}
+                    style={isSelected ? { borderColor: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}0D` } : undefined}
                     className={`flex items-center justify-center p-2 rounded-2xl border-2 transition-all cursor-pointer shadow-sm w-16 h-16 bg-white mx-auto ${
                       isSelected
-                        ? "border-[#e0542c] bg-orange-50/10"
+                        ? ""
                         : "border-slate-100 hover:border-slate-200"
                     }`}
                   >
@@ -130,7 +128,8 @@ export function CelenganAddPage() {
             type="submit"
             disabled={isSubmitting}
             whileTap={{ scale: 0.98 }}
-            className="w-full bg-[#e0542c] hover:bg-[#c23f1b] text-white py-3.5 rounded-2xl font-bold text-sm shadow-md shadow-[#e0542c]/15 transition-all cursor-pointer disabled:opacity-50 mt-4"
+            style={{ backgroundColor: THEME_COLORS.hex.primary }}
+            className="w-full text-white py-3.5 rounded-2xl font-bold text-sm shadow-md transition-all cursor-pointer disabled:opacity-50 mt-4 hover:opacity-90"
           >
             {isSubmitting ? "Memproses..." : "Buat Celengan"}
           </motion.button>

@@ -27,6 +27,7 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
   const { goBack } = useSarang();
@@ -221,12 +222,15 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
               className="bg-white rounded-[24px] border border-gray-100/70 p-4 shadow-xs text-left flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-orange-50 flex items-center justify-center text-[#e0542c] shrink-0">
+                <div
+                  style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}1A` }}
+                  className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                >
                   <CreditCard className="w-4.5 h-4.5" />
                 </div>
                 <div>
                   <p className="text-xs font-bold text-zinc-800">Rekening Payroll</p>
-                  <p className="text-[9.5px] text-[#e0542c] font-semibold mt-0.5">Belum diatur</p>
+                  <p style={{ color: THEME_COLORS.hex.primary }} className="text-[9.5px] font-semibold mt-0.5">Belum diatur</p>
                 </div>
               </div>
               <ChevronRight className="w-4.5 h-4.5 text-zinc-400" />
@@ -239,7 +243,10 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
             className="bg-white rounded-[24px] border border-gray-100/70 p-4 shadow-xs text-left flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#5c8a90] flex items-center justify-center text-white shrink-0 shadow-xs shadow-[#5c8a90]/10">
+              <div
+                style={{ backgroundColor: THEME_COLORS.hex.airKehidupan }}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-white shrink-0 shadow-xs"
+              >
                 <Clock className="w-4.5 h-4.5" />
               </div>
               <div>
@@ -256,7 +263,10 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
             className="bg-white rounded-[24px] border border-gray-100/70 p-4 shadow-xs text-left flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#e0542c]/10 flex items-center justify-center text-[#e0542c] shrink-0 shadow-xs shadow-[#e0542c]/5">
+              <div
+                style={{ backgroundColor: `${THEME_COLORS.hex.primary}1A`, color: THEME_COLORS.hex.primary }}
+                className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 shadow-xs"
+              >
                 <CreditCard className="w-4.5 h-4.5" />
               </div>
               <div>
@@ -281,7 +291,10 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
             className="bg-white rounded-[24px] border border-gray-100/70 p-4 shadow-xs text-left flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#334c7a] flex items-center justify-center text-white shrink-0 shadow-xs shadow-[#334c7a]/10">
+              <div
+                style={{ backgroundColor: THEME_COLORS.hex.outerBg }}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-white shrink-0 shadow-xs"
+              >
                 <Lock className="w-4.5 h-4.5" />
               </div>
               <div>
@@ -298,7 +311,10 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
             className="bg-white rounded-[24px] border border-gray-100/70 p-4 shadow-xs text-left flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#7fa46d] flex items-center justify-center text-white shrink-0 shadow-xs shadow-[#7fa46d]/10">
+              <div
+                style={{ backgroundColor: THEME_COLORS.hex.sawahPertumbuhan }}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-white shrink-0 shadow-xs"
+              >
                 <HelpCircle className="w-4.5 h-4.5" />
               </div>
               <div>
@@ -315,7 +331,10 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
             className="bg-white rounded-[24px] border border-gray-100/70 p-4 shadow-xs text-left flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#f25c2a] flex items-center justify-center text-white shrink-0 shadow-xs shadow-[#f25c2a]/10">
+              <div
+                style={{ backgroundColor: THEME_COLORS.hex.apiSemangat }}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-white shrink-0 shadow-xs"
+              >
                 <ShieldAlert className="w-4.5 h-4.5" />
               </div>
               <div>

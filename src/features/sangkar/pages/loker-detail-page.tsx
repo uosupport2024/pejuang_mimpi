@@ -6,6 +6,7 @@ import { fetchLokerDetail, applyLoker, fetchLokers } from "@/features/pakan/api/
 import type { JobOpening } from "@/features/pakan/types/pakan.type";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { motion } from "framer-motion";
+import { THEME_COLORS } from "@/shared/constants/colors";
 
 export function LokerDetailPage() {
   const navigate = useNavigate();
@@ -106,11 +107,23 @@ export function LokerDetailPage() {
     }
   };
 
+  const handleBookmarkToggle = () => {
+    setIsBookmarked((prev) => {
+      const next = !prev;
+      if (next) {
+        toast.success("Lowongan berhasil disimpan ke bookmark!");
+      } else {
+        toast.info("Lowongan dihapus dari bookmark.");
+      }
+      return next;
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen bg-[#F7F3EB] text-slate-800 relative -mt-6 -mx-5 text-left animate-pulse">
         {/* Skeleton Top Header */}
-        <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-4 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden">
+        <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="text-white flex items-center justify-between px-5 pt-4 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden">
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{
@@ -176,7 +189,11 @@ export function LokerDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-white text-slate-500 p-6 text-center">
         <span className="text-sm font-semibold">Lowongan tidak ditemukan.</span>
-        <button onClick={() => navigate("/mobile/home")} className="mt-4 bg-[#e0542c] text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer">
+        <button
+          onClick={() => navigate("/mobile/home")}
+          style={{ backgroundColor: THEME_COLORS.hex.primary }}
+          className="mt-4 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer hover:opacity-90"
+        >
           Kembali ke Dashboard
         </button>
       </div>
@@ -186,7 +203,7 @@ export function LokerDetailPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#F7F3EB] text-slate-800 relative -mt-6 -mx-5 text-left">
       {/* Top sticky navigation */}
-      <div className="bg-[#1e2a4a] text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden">
+      <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden">
         {/* Background Pattern */}
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
@@ -196,57 +213,60 @@ export function LokerDetailPage() {
             backgroundRepeat: "repeat"
           }}
         />
-        <div className="flex items-center gap-3 relative z-10 w-full justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate("/mobile/home")}
-              className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer animate-none"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <span className="text-sm font-bold tracking-tight">Detail Pekerjaan</span>
-          </div>
+        <div className="flex items-center gap-3 relative z-10">
           <button
-            onClick={() => {
-              setIsBookmarked(!isBookmarked);
-              toast.success(isBookmarked ? "Bookmark dihapus" : "Pekerjaan disimpan!");
-            }}
-            className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+            onClick={() => navigate("/mobile/pakan")}
+            className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer animate-none"
           >
-            <Bookmark className={`w-5 h-5 ${isBookmarked ? "fill-orange-500 text-orange-500" : "text-white"}`} />
+            <ArrowLeft className="w-6 h-6" />
           </button>
+          <span className="text-base font-bold tracking-tight">Detail Lowongan</span>
         </div>
+        <button
+          onClick={handleBookmarkToggle}
+          className={`p-2 rounded-xl transition-all duration-200 cursor-pointer relative z-10 ${isBookmarked
+            ? "bg-amber-450/20 text-amber-350"
+            : "bg-white/10 hover:bg-white/20 text-white"
+            }`}
+        >
+          <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`} />
+        </button>
       </div>
 
-      {/* Main Body Content Container */}
-      <div className="p-5 space-y-5 pb-36">
-        {/* Google-like Simple Header Block */}
-        <div className="flex gap-4 items-center mb-1">
-          <div className="w-12 h-12 bg-white border border-zinc-200/80 rounded-full flex items-center justify-center font-black text-sm text-zinc-700 shadow-xs shrink-0 select-none">
-            {loker.company.charAt(0).toUpperCase()}
+      {/* Main Details Body */}
+      <div className="p-5 space-y-5 flex-1 pb-24">
+        {/* Top Company Info Card */}
+        <div className="bg-white p-5 rounded-[24px] border border-gray-100/70 shadow-xs space-y-4">
+          <div className="flex gap-4 items-center">
+            <div className="w-12 h-12 bg-zinc-50 border border-zinc-200/80 rounded-2xl flex items-center justify-center font-extrabold text-base text-zinc-700 shrink-0 shadow-inner">
+              {loker.company.charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base font-bold text-gray-900 leading-snug">{loker.position}</h3>
+              <p className="text-xs font-semibold text-zinc-400 mt-0.5">{loker.company}</p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <h3 className="text-lg font-bold text-zinc-900 tracking-tight leading-tight">{loker.position}</h3>
-            <p className="text-xs text-zinc-550 font-semibold mt-1">
-              {loker.company} <span className="mx-1.5">•</span> {loker.location}
-            </p>
+
+          {/* Badges */}
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            <span className={`text-[9.5px] font-bold px-2.5 py-1 rounded-full ${THEME_COLORS.badges.type}`}>
+              {loker.jobType || "Full-time"}
+            </span>
+            <span className={`text-[9.5px] font-bold px-2.5 py-1 rounded-full ${THEME_COLORS.badges.location}`}>
+              {loker.workplace || "On-site"}
+            </span>
+            <span className={`text-[9.5px] font-bold px-2.5 py-1 rounded-full ${THEME_COLORS.badges.education}`}>
+              {loker.location}
+            </span>
+          </div>
+
+          <div className="flex justify-between items-center pt-3 border-t border-zinc-100">
+            <span className="text-xs font-bold text-zinc-400">Kisaran Gaji</span>
+            <span style={{ color: THEME_COLORS.hex.primary }} className="text-sm font-black">{loker.salary}</span>
           </div>
         </div>
 
-        {/* Pill Badges Row */}
-        <div className="flex flex-wrap gap-1.5">
-          <span className="text-[10px] font-bold px-3 py-1.5 bg-white border border-zinc-200/50 text-zinc-650 rounded-full leading-none">
-            {loker.jobType}
-          </span>
-          <span className="text-[10px] font-bold px-3 py-1.5 bg-white border border-zinc-200/50 text-zinc-650 rounded-full leading-none">
-            {loker.workplace}
-          </span>
-          <span className="text-[10px] font-bold px-3 py-1.5 bg-white border border-zinc-200/50 text-zinc-650 rounded-full leading-none">
-            {loker.salary}
-          </span>
-        </div>
-
-        {/* Segmented Control / Tab bar */}
+        {/* Tab Controls */}
         <div className="flex bg-zinc-200/60 p-1 rounded-full select-none relative">
           <button
             onClick={() => setActiveTab("description")}
@@ -256,7 +276,8 @@ export function LokerDetailPage() {
             {activeTab === "description" && (
               <motion.div
                 layoutId="activeLokerTab"
-                className="absolute inset-0 bg-[#e0542c] rounded-full -z-10 shadow-sm"
+                style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                className="absolute inset-0 rounded-full -z-10 shadow-sm"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
@@ -270,7 +291,8 @@ export function LokerDetailPage() {
             {activeTab === "company" && (
               <motion.div
                 layoutId="activeLokerTab"
-                className="absolute inset-0 bg-[#e0542c] rounded-full -z-10 shadow-sm"
+                style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                className="absolute inset-0 rounded-full -z-10 shadow-sm"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
@@ -284,7 +306,8 @@ export function LokerDetailPage() {
             {activeTab === "reviews" && (
               <motion.div
                 layoutId="activeLokerTab"
-                className="absolute inset-0 bg-[#e0542c] rounded-full -z-10 shadow-sm"
+                style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                className="absolute inset-0 rounded-full -z-10 shadow-sm"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
@@ -349,7 +372,7 @@ export function LokerDetailPage() {
                         {rec.company.charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs font-bold text-zinc-900 group-hover:text-[#e0542c] transition-colors truncate">{rec.position}</p>
+                        <p className="text-xs font-bold text-zinc-900 transition-colors truncate">{rec.position}</p>
                         <p className="text-[10px] text-zinc-450 font-bold truncate mt-0.5">{rec.company} • {rec.location}</p>
                       </div>
                     </div>
@@ -367,9 +390,10 @@ export function LokerDetailPage() {
         <button
           onClick={() => setShowNoteModal(true)}
           disabled={isApplying || isApplied}
+          style={!isApplied ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
           className={`w-full max-w-[440px] mx-auto h-12 rounded-full flex items-center justify-center gap-2 text-xs font-extrabold shadow-md active:scale-98 transition-all cursor-pointer pointer-events-auto ${isApplied
             ? "bg-emerald-500 text-white cursor-default"
-            : "bg-[#e0542c] hover:bg-[#c84620] text-white"
+            : "text-white hover:opacity-90"
             }`}
         >
           {isApplied ? (
@@ -395,7 +419,7 @@ export function LokerDetailPage() {
             </div>
 
             <textarea
-              className="w-full border border-gray-250 rounded-2xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-[#e0542c] focus:border-[#e0542c] text-zinc-750 bg-zinc-50 font-semibold placeholder-zinc-400"
+              className="w-full border border-gray-250 rounded-2xl p-3 text-xs focus:outline-none text-zinc-750 bg-zinc-50 font-semibold placeholder-zinc-400"
               placeholder="Tulis pesan atau catatan Anda di sini..."
               rows={4}
               value={note}
@@ -416,7 +440,8 @@ export function LokerDetailPage() {
               <button
                 type="button"
                 onClick={() => handleApply(note)}
-                className="flex-1 h-9 rounded-full bg-[#e0542c] hover:bg-[#c84620] text-xs font-bold text-white transition-colors cursor-pointer flex items-center justify-center"
+                style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                className="flex-1 h-9 rounded-full text-xs font-bold text-white transition-colors cursor-pointer flex items-center justify-center hover:opacity-90"
               >
                 Kirim Lamaran
               </button>
