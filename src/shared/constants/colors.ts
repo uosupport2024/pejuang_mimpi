@@ -48,51 +48,55 @@ export const THEME_COLORS = {
   hex,
 
   classes: {
-    outerBg: `bg-[${hex.outerBg}]`,
-    leftBg: `bg-[${hex.leftBg}]`,
-    rightBg: `bg-[${hex.rightBg}]`,
-    textPrimary: `text-[${hex.textDark}] dark:text-[${hex.textDark}]`,
-    textAccent: `text-[${hex.accent}]`,
-    navBg: `bg-[${hex.navBg}] hover:bg-[${hex.navBgHover}]`,
+    outerBg: "bg-[#334c7a]",
+    leftBg: "bg-[#f5f4ed]",
+    rightBg: "bg-white",
+    textPrimary: "text-[#1f2937] dark:text-[#1f2937]",
+    textAccent: "text-[#fee279]",
+    navBg: "bg-[#1e2a4a] hover:bg-[#161f36]",
     
-    buttonBg: `bg-[${hex.primary}] hover:bg-[${hex.primaryHover}]`,
+    buttonBg: "bg-[#e0542c] hover:bg-[#c23f1b]",
     buttonText: "text-white",
-    buttonShadow: `shadow-md shadow-[${hex.primary}]/15`,
+    buttonShadow: "shadow-md shadow-[#e0542c]/15",
 
-    // Added back for Dashboard compatibility
-    badgeBg: `bg-[${hex.primary}]`,
-    badgeIconColor: `text-[${hex.accent}]`,
-    heroBg: `bg-[${hex.primary}]`,
+    // Dashboard & layout compatibility
+    badgeBg: "bg-[#e0542c]",
+    badgeIconColor: "text-[#fee279]",
+    heroBg: "bg-[#e0542c]",
     metricNormalBadge: "bg-emerald-500/10 text-emerald-600",
-    metricAccentBadge: `bg-[${hex.accent}]/10 text-[${hex.accent}]`,
-    metricPrimaryBadge: `bg-[${hex.primary}]/10 text-[${hex.primary}]`,
+    metricAccentBadge: "bg-[#fee279]/10 text-[#fee279]",
+    metricPrimaryBadge: "bg-[#e0542c]/10 text-[#e0542c]",
   },
 
-  // Celengan/Savings Card configuration
+  // Celengan/Savings Card configuration with both class and style fallbacks
   celengan: {
     rumah: {
-      gradient: `from-[${hex.sawahPertumbuhan}] to-[${hex.sawahPertumbuhanDark}]`,
+      gradient: "bg-gradient-rumah",
+      gradientStyle: { background: "linear-gradient(135deg, #7FA46D 0%, #5C824C 100%)" },
       solid: hex.sawahPertumbuhan,
     },
     motor: {
-      gradient: `from-[${hex.apiSemangat}] to-[${hex.apiSemangatDark}]`,
+      gradient: "bg-gradient-motor",
+      gradientStyle: { background: "linear-gradient(135deg, #F25C2A 0%, #C54117 100%)" },
       solid: hex.apiSemangat,
     },
     liburanBali: {
-      gradient: `from-[${hex.airKehidupan}] to-[${hex.airKehidupanDark}]`,
+      gradient: "bg-gradient-liburan",
+      gradientStyle: { background: "linear-gradient(135deg, #5C8A90 0%, #3F686D 100%)" },
       solid: hex.airKehidupan,
     },
     laptopBaru: {
-      gradient: `from-[${hex.padiKemakmuran}] to-[${hex.padiKemakmuranDark}]`,
+      gradient: "bg-gradient-laptop",
+      gradientStyle: { background: "linear-gradient(135deg, #F2B233 0%, #C58F1B 100%)" },
       solid: hex.padiKemakmuran,
     },
   },
 
   // Tunas Loker List badge styles
   badges: {
-    type: `bg-[${hex.sawahPertumbuhan}]/10 text-[${hex.sawahPertumbuhanText}] border border-[${hex.sawahPertumbuhan}]/20`,
-    location: `bg-[${hex.padiKemakmuran}]/12 text-[${hex.padiKemakmuranText}] border border-[${hex.padiKemakmuran}]/20`,
-    education: `bg-[${hex.airKehidupan}]/10 text-[${hex.airKehidupanText}] border border-[${hex.airKehidupan}]/20`,
+    type: "badge-type",
+    location: "badge-location",
+    education: "badge-education",
   },
 
   // Tenant Brand Color Presets

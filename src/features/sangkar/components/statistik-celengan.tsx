@@ -185,8 +185,8 @@ export function StatistikCelengan({ celengans, loading }: { celengans: Celengan[
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.25 }}
-          className={`bg-gradient-to-br ${selectedStyle.gradient} text-white p-5 rounded-3xl shadow-lg relative overflow-hidden flex flex-col items-center text-center`}
+          style={selectedStyle.gradientStyle || { backgroundColor: selectedStyle.solid }}
+          className="text-white p-5 rounded-3xl shadow-lg relative overflow-hidden flex flex-col items-center text-center"
         >
           {/* Giant semi-transparent decorative chicken icon */}
           <div className="absolute -right-6 -bottom-6 opacity-10 pointer-events-none">

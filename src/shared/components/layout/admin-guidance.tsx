@@ -152,9 +152,9 @@ export function AdminGuidanceTour({ isOpen, onClose, isSuperAdmin = false }: Adm
       ? [
           {
             id: "tenant-mapping",
-            menuName: "Mapping Tenant",
+            menuName: "Hak Akses Menu",
             category: "Super Admin",
-            title: "Mapping Tenant",
+            title: "Hak Akses Menu",
             route: "TenantMapping" as RouteType,
             desc: "Kelola konfigurasi multi-tenant, toggle menu aktif/nonaktif per perusahaan, dan atur izin hak akses API (RBAC).",
           },

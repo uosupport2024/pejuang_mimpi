@@ -252,7 +252,8 @@ export function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProp
             <button
               type="submit"
               disabled={loading}
-              className={`px-5 py-2.5 ${THEME_COLORS.classes.buttonBg} text-white rounded-xl font-extrabold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2 active:scale-95 disabled:opacity-70`}
+              style={{ backgroundColor: THEME_COLORS.hex.primary }}
+              className="px-5 py-2.5 text-white rounded-xl font-extrabold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2 active:scale-95 disabled:opacity-70"
             >
               {loading ? (
                 <>

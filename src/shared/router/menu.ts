@@ -75,14 +75,14 @@ export const menuItems: MenuItem[] = [
 
   // Super Admin Group (Khusus admin@gmail.com)
   {
-    name: "Manajemen Tenant",
+    name: "Kelola Tenant",
     route: "TenantManagement",
     icon: Buildings3 || Structure,
     group: "Super Admin",
     badge: "Super"
   },
   {
-    name: "Mapping Tenant",
+    name: "Hak Akses Menu",
     route: "TenantMapping",
     icon: ShieldCheck,
     group: "Super Admin",

@@ -18,15 +18,15 @@ interface HistoryItem {
 
 const cardStyles: Record<AttendanceStatus, { bgClass: string; shadowClass: string }> = {
   Early: {
-    bgClass: `bg-gradient-to-br ${THEME_COLORS.celengan.liburanBali.gradient}`,
+    bgClass: "bg-gradient-liburan",
     shadowClass: "shadow-lg",
   },
   "On Time": {
-    bgClass: `bg-gradient-to-br ${THEME_COLORS.celengan.rumah.gradient}`,
+    bgClass: "bg-gradient-rumah",
     shadowClass: "shadow-lg",
   },
   Late: {
-    bgClass: `bg-gradient-to-br ${THEME_COLORS.celengan.laptopBaru.gradient}`, // Yellow/Gold for Late
+    bgClass: "bg-gradient-laptop", // Yellow/Gold for Late
     shadowClass: "shadow-lg",
   },
   Absent: {

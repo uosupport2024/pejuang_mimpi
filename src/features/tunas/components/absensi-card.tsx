@@ -39,7 +39,7 @@ export function AbsensiCard({
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className={`bg-gradient-to-br ${THEME_COLORS.celengan.rumah.gradient} text-white p-3.5 rounded-2xl shadow-md flex flex-col text-left justify-between min-h-[90px] w-full transition-all active:scale-[0.98] hover:shadow-lg cursor-pointer border-0`}
+          className="bg-gradient-rumah text-white p-3.5 rounded-2xl shadow-md flex flex-col text-left justify-between min-h-[90px] w-full transition-all active:scale-[0.98] hover:shadow-lg cursor-pointer border-0"
         >
           <div className="flex items-start gap-2">
             <div className="w-7 h-7 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
@@ -62,7 +62,7 @@ export function AbsensiCard({
         <button
           type="button"
           onClick={() => navigate("MobileLemburAbsensi")}
-          className={`bg-gradient-to-br ${THEME_COLORS.celengan.laptopBaru.gradient} text-white p-3.5 rounded-2xl shadow-md flex flex-col text-right justify-between min-h-[90px] w-full transition-all active:scale-[0.98] hover:shadow-lg cursor-pointer border-0`}
+          className="bg-gradient-laptop text-white p-3.5 rounded-2xl shadow-md flex flex-col text-right justify-between min-h-[90px] w-full transition-all active:scale-[0.98] hover:shadow-lg cursor-pointer border-0"
         >
           <div className="flex items-start gap-2 flex-row-reverse">
             <div className="w-7 h-7 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
@@ -122,7 +122,7 @@ export function AbsensiCard({
                   color: THEME_COLORS.hex.sawahPertumbuhanText
                 } : undefined}
                 className={`flex flex-col gap-2 justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${selectedType === "cuti"
-                  ? `bg-gradient-to-br ${THEME_COLORS.celengan.rumah.gradient} text-white shadow-md border-0`
+                  ? "bg-gradient-rumah text-white shadow-md border-0"
                   : "border-2"
                   }`}
               >
@@ -158,7 +158,7 @@ export function AbsensiCard({
                   color: THEME_COLORS.hex.airKehidupanText
                 } : undefined}
                 className={`flex flex-col gap-2 justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${selectedType === "lainnya"
-                  ? `bg-gradient-to-br ${THEME_COLORS.celengan.liburanBali.gradient} text-white shadow-md border-0`
+                  ? "bg-gradient-liburan text-white shadow-md border-0"
                   : "border-2"
                   }`}
               >
@@ -194,7 +194,7 @@ export function AbsensiCard({
                   color: THEME_COLORS.hex.padiKemakmuranText
                 } : undefined}
                 className={`flex flex-col gap-2 justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${selectedType === "telat"
-                  ? `bg-gradient-to-br ${THEME_COLORS.celengan.laptopBaru.gradient} text-white shadow-md border-0`
+                  ? "bg-gradient-laptop text-white shadow-md border-0"
                   : "border-2"
                   }`}
               >
@@ -230,7 +230,7 @@ export function AbsensiCard({
                   color: THEME_COLORS.hex.apiSemangatDark
                 } : undefined}
                 className={`flex flex-col gap-2 justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${selectedType === "pulang_cepat"
-                  ? `bg-gradient-to-br ${THEME_COLORS.celengan.motor.gradient} text-white shadow-md border-0`
+                  ? "bg-gradient-motor text-white shadow-md border-0"
                   : "border-2"
                   }`}
               >

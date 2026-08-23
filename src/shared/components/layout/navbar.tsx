@@ -186,6 +186,10 @@ export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: Navba
         divisi: "Divisi",
         lokasi: "Lokasi",
         profile: "Profil Saya",
+        "konfigurasi-tenant": "Konfigurasi Tenant",
+        "tenant-mapping": "Hak Akses Menu",
+        "super-admin": "Super Admin",
+        tenants: "Kelola Tenant",
       };
 
       const lastSegment = segments[segments.length - 1];

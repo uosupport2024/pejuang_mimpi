@@ -328,14 +328,14 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                             : "text-white/70 hover:text-white hover:bg-white/10"
                             }`}
                         >
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
                             <Icon
                               size={18}
                               weight="Linear"
                               className={`shrink-0 transition-colors duration-200 ${isAnySubActive ? "text-white" : "text-white/60"
                                 }`}
                             />
-                            <span>{item.name}</span>
+                            <span className="truncate">{item.name}</span>
                           </div>
                           <div className="flex items-center gap-1.5">
                             {((item.name === "Pengajuan" && pendingCount + pendingCutiCount > 0) ||
@@ -416,13 +416,13 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
                         : "text-white/70 hover:text-white hover:bg-white/10"
                         }`}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
                         <Icon size={18} weight="Linear" className="shrink-0 text-white/80" />
-                        <span>{item.name}</span>
+                        <span className="truncate">{item.name}</span>
                       </div>
                       {item.badge && (
                         <span
-                          className={`px-2 py-0.5 rounded-md text-[9px] font-medium ${isActive ? "bg-white/20 text-white" : "bg-rose-500/20 text-rose-300"
+                          className={`px-2 py-0.5 rounded-md text-[9px] font-medium shrink-0 ml-2 ${isActive ? "bg-white/20 text-white" : "bg-rose-500/20 text-rose-300"
                             }`}
                         >
                           {item.badge}

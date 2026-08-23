@@ -280,7 +280,7 @@ export function PakanPage({ user }: PakanPageProps) {
                         <div className="absolute inset-0 bg-black/15" />
                       </>
                     ) : (
-                      <div className={`absolute inset-0 bg-gradient-to-tr ${course.gradientTheme}`} />
+                      <div className={`absolute inset-0 ${course.gradientTheme}`} />
                     )}
                     <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/20 shadow-xs z-10">
                       <IconComp className="w-5 h-5" />
