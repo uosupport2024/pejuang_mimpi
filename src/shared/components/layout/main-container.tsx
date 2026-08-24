@@ -21,6 +21,7 @@ import { LocationPage, LocationAddPage, LocationEditPage } from "@/features/loca
 import { TenantMappingPage } from "@/features/tenant-mapping";
 import { TenantConfigPage } from "@/features/tenant-config";
 import { TenantManagementPage } from "@/features/tenant-management";
+import { MasterIconCelenganPage } from "@/features/master-icon-celengan";
 
 // Feature page imports (Mobile)
 import { SangkarPage, CelenganDetailPage, CelenganAddPage, LokerDetailPage } from "@/features/sangkar";
@@ -117,6 +118,8 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <TenantMappingPage user={user} />;
       case "TenantManagement":
         return <TenantManagementPage user={user} />;
+      case "MasterCelenganIcon":
+        return <MasterIconCelenganPage user={user} />;
       default:
         return <DashboardPage />;
     }

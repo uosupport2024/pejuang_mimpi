@@ -190,6 +190,8 @@ export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: Navba
         "tenant-mapping": "Hak Akses Menu",
         "super-admin": "Super Admin",
         tenants: "Kelola Tenant",
+        icons: "Master Icon Celengan",
+        "master-icon-celengan": "Master Icon Celengan",
       };
 
       const lastSegment = segments[segments.length - 1];

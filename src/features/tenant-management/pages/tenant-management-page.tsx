@@ -7,8 +7,6 @@ import {
   XCircle,
   Copy,
   Check,
-  Mail,
-  Phone,
   Palette,
   UploadCloud,
   Edit2,
@@ -274,15 +272,26 @@ export function TenantManagementPage({ user: _user }: TenantManagementPageProps)
 
   const columns: ColumnDef<TenantAdminItem>[] = [
     {
+      header: "No.",
+      cell: (_, index) => (
+        <span className="text-gray-500 font-medium text-xs">
+          {index + 1}
+        </span>
+      ),
+      className: "w-12 text-center",
+      sortable: false,
+    },
+    {
       header: "Organisasi / Tenant",
+      accessorKey: "name",
       cell: (row) => (
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 shadow-2xs flex items-center justify-center overflow-hidden shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-gray-100 border border-gray-200 shadow-2xs flex items-center justify-center overflow-hidden shrink-0">
             {row.logo_url || row.logo ? (
               <img
                 src={row.logo_url || row.logo || ""}
                 alt={row.name}
-                className="w-full h-full object-contain p-1"
+                className="w-full h-full object-contain p-0.5"
                 onError={(e) => {
                   (e.target as HTMLElement).style.display = "none";
                 }}
@@ -290,42 +299,41 @@ export function TenantManagementPage({ user: _user }: TenantManagementPageProps)
             ) : (
               <span
                 style={{ color: row.main_color || THEME_COLORS.hex.primary }}
-                className="text-xs font-black"
+                className="text-[11px] font-black"
               >
                 {row.name.substring(0, 2).toUpperCase()}
               </span>
             )}
           </div>
-          <div>
-            <span className="font-bold text-gray-900 block text-xs">{row.name}</span>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-[10px] font-mono px-1.5 py-0.2 bg-gray-100 text-gray-600 rounded border border-gray-200">
-                slug: {row.slug}
-              </span>
-              <span className="text-[10px] text-gray-400 font-medium">ID #{row.id}</span>
-            </div>
-          </div>
+          <span className="font-bold text-gray-800 text-xs whitespace-nowrap">{row.name}</span>
         </div>
       ),
     },
     {
-      header: "Kontak & Alamat",
+      header: "Slug",
+      accessorKey: "slug",
       cell: (row) => (
-        <div className="space-y-1 text-xs">
-          {row.email ? (
-            <div className="flex items-center gap-1.5 text-gray-600">
-              <Mail className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-              <span className="truncate max-w-[150px]">{row.email}</span>
-            </div>
-          ) : null}
-          {row.phone ? (
-            <div className="flex items-center gap-1.5 text-gray-600">
-              <Phone className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-              <span>{row.phone}</span>
-            </div>
-          ) : null}
-          {!row.email && !row.phone ? <span className="text-gray-400 text-[11px]">—</span> : null}
-        </div>
+        <span className="text-xs font-mono text-gray-600 bg-gray-50 px-2 py-0.5 rounded border border-gray-200">
+          {row.slug}
+        </span>
+      ),
+    },
+    {
+      header: "Email",
+      accessorKey: "email",
+      cell: (row) => (
+        <span className="text-xs text-gray-600">
+          {row.email || "—"}
+        </span>
+      ),
+    },
+    {
+      header: "No. Telepon",
+      accessorKey: "phone",
+      cell: (row) => (
+        <span className="text-xs text-gray-600">
+          {row.phone || "—"}
+        </span>
       ),
     },
     {
@@ -347,7 +355,7 @@ export function TenantManagementPage({ user: _user }: TenantManagementPageProps)
                 title={`Sekunder: ${sub}`}
               />
             </div>
-            <span className="text-[10px] font-mono font-medium text-gray-500">
+            <span className="text-[11px] font-mono font-medium text-gray-500">
               {main}
             </span>
           </div>
@@ -374,20 +382,19 @@ export function TenantManagementPage({ user: _user }: TenantManagementPageProps)
     },
     {
       header: "Aksi",
-      className: "text-right",
+      className: "w-24 text-center",
       cell: (row) => (
-        <div className="flex items-center justify-end gap-1.5">
+        <div className="flex items-center justify-center gap-1.5">
           <button
             onClick={() => navigate("TenantMapping")}
-            className="px-2.5 py-1 bg-white hover:bg-orange-50 text-gray-700 hover:text-[#E0542C] border border-gray-200 hover:border-orange-200 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
+            className="p-1.5 bg-white hover:bg-orange-50 text-gray-700 hover:text-[#E0542C] border border-gray-200 hover:border-orange-200 rounded-lg transition-colors cursor-pointer shadow-2xs"
             title="Kelola Hak Akses Menu"
           >
             <ShieldCheck className="w-3.5 h-3.5 text-[#E0542C]" />
-            <span>Hak Akses</span>
           </button>
           <button
             onClick={() => openEditModal(row)}
-            className="p-1.5 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-lg transition-colors cursor-pointer shadow-2xs"
+            className="p-1.5 bg-white hover:bg-gray-100 text-gray-700 hover:text-gray-900 border border-gray-200 rounded-lg transition-colors cursor-pointer shadow-2xs"
             title="Edit Tenant"
           >
             <Edit2 className="w-3.5 h-3.5" />

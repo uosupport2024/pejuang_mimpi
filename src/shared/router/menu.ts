@@ -15,6 +15,8 @@ import {
 } from "@solar-icons/react";
 import type { RouteType } from "./router";
 
+import { Sparkles } from "lucide-react";
+
 export interface SubMenuItem {
   name: string;
   route: RouteType;
@@ -78,6 +80,13 @@ export const menuItems: MenuItem[] = [
     name: "Kelola Tenant",
     route: "TenantManagement",
     icon: Buildings3 || Structure,
+    group: "Super Admin",
+    badge: "Super"
+  },
+  {
+    name: "Master Icon Celengan",
+    route: "MasterCelenganIcon",
+    icon: Sparkles,
     group: "Super Admin",
     badge: "Super"
   },

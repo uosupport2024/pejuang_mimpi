@@ -50,7 +50,8 @@ export type RouteType =
   | "Profile"
   | "TenantConfig"
   | "TenantMapping"
-  | "TenantManagement";
+  | "TenantManagement"
+  | "MasterCelenganIcon";
 
 export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   Dashboard: "Dashboard",
@@ -84,6 +85,7 @@ export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   TenantConfig: "Konfigurasi Tenant",
   TenantMapping: "Hak Akses Menu",
   TenantManagement: "Kelola Tenant",
+  MasterCelenganIcon: "Master Icon Celengan",
   MobileHome: "Sangkar",
   MobileLumbung: "Lumbung",
   MobileAyamku: "Ayamku",
@@ -152,6 +154,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   TenantConfig: "/konfigurasi-tenant",
   TenantMapping: "/tenant-mapping",
   TenantManagement: "/super-admin/tenants",
+  MasterCelenganIcon: "/super-admin/icons",
 };
 
 export const PATH_TO_ROUTE: Record<string, RouteType> = {
@@ -203,6 +206,8 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/konfigurasi-tenant": "TenantConfig",
   "/tenant-mapping": "TenantMapping",
   "/super-admin/tenants": "TenantManagement",
+  "/super-admin/icons": "MasterCelenganIcon",
+  "/master-icon-celengan": "MasterCelenganIcon",
 };
 
 interface RouterContextType {

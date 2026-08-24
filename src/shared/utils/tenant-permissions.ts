@@ -126,13 +126,14 @@ export function isPermissionsLoading(): boolean {
 export function isMenuEnabled(menuIdOrRoute: string, _tenantId?: string | number): boolean {
   const menuId = ROUTE_MENU_MAPPING[menuIdOrRoute] || menuIdOrRoute;
 
-  // Always allow Dashboard, MobileHome, TenantMapping, TenantManagement, TenantConfig
+  // Always allow Dashboard, MobileHome, TenantMapping, TenantManagement, TenantConfig, MasterCelenganIcon
   if (
     menuIdOrRoute === "Dashboard" ||
     menuIdOrRoute === "MobileHome" ||
     menuIdOrRoute === "TenantMapping" ||
     menuIdOrRoute === "TenantManagement" ||
     menuIdOrRoute === "TenantConfig" ||
+    menuIdOrRoute === "MasterCelenganIcon" ||
     menuId === "admin-dashboard" ||
     menuId === "mobile-home"
   ) {

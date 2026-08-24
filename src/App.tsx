@@ -124,7 +124,7 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout,
       if (session.user.role === "Administrator") {
         // Strict guard for Super Admin routes (admin@gmail.com only)
         if (
-          (currentRoute === "TenantMapping" || currentRoute === "TenantManagement") &&
+          (currentRoute === "TenantMapping" || currentRoute === "TenantManagement" || currentRoute === "MasterCelenganIcon") &&
           session.user.email?.toLowerCase() !== "admin@gmail.com"
         ) {
           console.warn(
