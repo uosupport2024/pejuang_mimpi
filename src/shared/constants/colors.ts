@@ -112,3 +112,117 @@ export const THEME_COLORS = {
     { name: "Slate Classic", main: hex.slateClassic, sub: hex.slateClassicLight },
   ],
 };
+
+export interface TenantSubColors {
+  sub?: string;
+  accent?: string;
+  accentBlue?: string;
+  sawahPertumbuhan?: string;
+  apiSemangat?: string;
+  airKehidupan?: string;
+  padiKemakmuran?: string;
+  [key: string]: any;
+}
+
+export const DEFAULT_SUB_COLORS: TenantSubColors = {
+  sub: hex.padiKemakmuran,
+  accent: hex.accent,
+  accentBlue: hex.accentBlue,
+  sawahPertumbuhan: hex.sawahPertumbuhan,
+  apiSemangat: hex.apiSemangat,
+  airKehidupan: hex.airKehidupan,
+  padiKemakmuran: hex.padiKemakmuran,
+};
+
+/**
+ * Parse sub_color from backend (supports JSON object, JSON string, or single hex string)
+ */
+export function parseSubColor(value: unknown): TenantSubColors {
+  if (!value) return { ...DEFAULT_SUB_COLORS };
+  
+  if (typeof value === "object" && value !== null) {
+    return {
+      ...DEFAULT_SUB_COLORS,
+      ...(value as TenantSubColors),
+      sub: (value as any).sub || (value as any).secondary || (value as any).accent || (value as any).padiKemakmuran || DEFAULT_SUB_COLORS.sub,
+    };
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (trimmed.startsWith("{")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (typeof parsed === "object" && parsed !== null) {
+          return {
+            ...DEFAULT_SUB_COLORS,
+            ...parsed,
+            sub: parsed.sub || parsed.secondary || parsed.accent || parsed.padiKemakmuran || DEFAULT_SUB_COLORS.sub,
+          };
+        }
+      } catch {
+        // Not valid JSON object string, fallback
+      }
+    }
+    if (trimmed.startsWith("#")) {
+      return {
+        ...DEFAULT_SUB_COLORS,
+        sub: trimmed,
+      };
+    }
+  }
+
+  return { ...DEFAULT_SUB_COLORS };
+}
+
+/**
+ * Safely extract a single HEX string for sub/accent color
+ */
+export function getSubColorHex(value: unknown, fallback: string = hex.padiKemakmuran): string {
+  if (!value) return fallback;
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (trimmed.startsWith("#")) return trimmed;
+    if (trimmed.startsWith("{")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (typeof parsed === "object" && parsed !== null) {
+          return parsed.sub || parsed.secondary || parsed.accent || parsed.padiKemakmuran || fallback;
+        }
+      } catch {}
+    }
+  }
+
+  if (typeof value === "object" && value !== null) {
+    const obj = value as Record<string, any>;
+    return obj.sub || obj.secondary || obj.accent || obj.padiKemakmuran || fallback;
+  }
+
+  return fallback;
+}
+
+/**
+ * Serialize sub_color to JSON string for BE payload
+ */
+export function serializeSubColor(value: TenantSubColors | string | null | undefined): string {
+  if (!value) return JSON.stringify(DEFAULT_SUB_COLORS);
+  if (typeof value === "object") {
+    return JSON.stringify(value);
+  }
+  const trimmed = value.trim();
+  if (trimmed.startsWith("{")) {
+    return trimmed;
+  }
+  if (trimmed.startsWith("#")) {
+    return JSON.stringify({
+      ...DEFAULT_SUB_COLORS,
+      sub: trimmed,
+    });
+  }
+  return JSON.stringify({
+    ...DEFAULT_SUB_COLORS,
+    sub: trimmed,
+  });
+}
+

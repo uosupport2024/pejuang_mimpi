@@ -21,7 +21,11 @@ import {
   type TenantConfigData 
 } from "../api/tenant-config";
 import { setTenantBranding } from "@/shared/utils/tenant-branding";
-import { THEME_COLORS } from "@/shared/constants/colors";
+import { 
+  THEME_COLORS, 
+  parseSubColor, 
+  type TenantSubColors 
+} from "@/shared/constants/colors";
 
 interface TenantConfigPageProps {
   user?: any;
@@ -39,6 +43,13 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
   const [slug, setSlug] = useState("");
   const [mainColor, setMainColor] = useState<string>(THEME_COLORS.hex.primary);
   const [subColor, setSubColor] = useState<string>(THEME_COLORS.hex.padiKemakmuran);
+  const [accentColor, setAccentColor] = useState<string>(THEME_COLORS.hex.accent);
+  const [accentBlueColor, setAccentBlueColor] = useState<string>(THEME_COLORS.hex.accentBlue);
+  const [sawahColor, setSawahColor] = useState<string>(THEME_COLORS.hex.sawahPertumbuhan);
+  const [apiColor, setApiColor] = useState<string>(THEME_COLORS.hex.apiSemangat);
+  const [airColor, setAirColor] = useState<string>(THEME_COLORS.hex.airKehidupan);
+  const [padiColor, setPadiColor] = useState<string>(THEME_COLORS.hex.padiKemakmuran);
+
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [web, setWeb] = useState("");
@@ -47,6 +58,7 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [removeLogo, setRemoveLogo] = useState(false);
+  const [showSubColorDetails, setShowSubColorDetails] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -74,7 +86,16 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
     setName(data.name || "");
     setSlug(data.slug || "");
     setMainColor(data.main_color && data.main_color.startsWith("#") ? data.main_color : THEME_COLORS.hex.primary);
-    setSubColor(data.sub_color && data.sub_color.startsWith("#") ? data.sub_color : THEME_COLORS.hex.padiKemakmuran);
+    
+    const parsedSub = parseSubColor(data.sub_color);
+    setSubColor(parsedSub.sub || THEME_COLORS.hex.padiKemakmuran);
+    setAccentColor(parsedSub.accent || THEME_COLORS.hex.accent);
+    setAccentBlueColor(parsedSub.accentBlue || THEME_COLORS.hex.accentBlue);
+    setSawahColor(parsedSub.sawahPertumbuhan || THEME_COLORS.hex.sawahPertumbuhan);
+    setApiColor(parsedSub.apiSemangat || THEME_COLORS.hex.apiSemangat);
+    setAirColor(parsedSub.airKehidupan || THEME_COLORS.hex.airKehidupan);
+    setPadiColor(parsedSub.padiKemakmuran || THEME_COLORS.hex.padiKemakmuran);
+
     setEmail(data.email || "");
     setPhone(data.phone || "");
     setWeb(data.web || "");
@@ -91,6 +112,7 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
       logo_url: data.logo_url || data.logo,
       main_color: data.main_color,
       sub_color: data.sub_color,
+      subColors: parsedSub,
     });
   };
 
@@ -139,13 +161,23 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
       return;
     }
 
+    const subColorPayload: TenantSubColors = {
+      sub: subColor,
+      accent: accentColor,
+      accentBlue: accentBlueColor,
+      sawahPertumbuhan: sawahColor,
+      apiSemangat: apiColor,
+      airKehidupan: airColor,
+      padiKemakmuran: padiColor,
+    };
+
     try {
       setSaving(true);
       const updated = await updateTenantAPI(tenant.id, {
         name,
         slug,
         main_color: mainColor,
-        sub_color: subColor,
+        sub_color: subColorPayload,
         email,
         phone,
         web,
@@ -159,11 +191,23 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
         setTenantBranding({
           logo: null,
           logo_url: null,
+          main_color: mainColor,
+          sub_color: subColorPayload,
+          subColors: subColorPayload,
+        });
+      } else if (updated) {
+        setTenantBranding({
+          id: updated.id,
+          name: updated.name,
+          slug: updated.slug,
+          logo_url: updated.logo_url || updated.logo || logoPreview,
+          main_color: updated.main_color,
+          sub_color: updated.sub_color,
+          subColors: parseSubColor(updated.sub_color),
         });
       }
-
-      populateForm(updated);
       toast.success("Konfigurasi tenant berhasil disimpan!");
+      await loadTenant();
     } catch (err: any) {
       toast.error(err.message || "Gagal menyimpan konfigurasi tenant");
     } finally {
@@ -316,6 +360,182 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
                   );
                 })}
               </div>
+            </div>
+
+            {/* Token Detail Sub Color (JSON Palette) */}
+            <div className="pt-2 border-t border-gray-100 space-y-3">
+              <button
+                type="button"
+                onClick={() => setShowSubColorDetails(!showSubColorDetails)}
+                className="w-full flex items-center justify-between text-[11px] font-semibold text-gray-600 hover:text-gray-900 transition-colors cursor-pointer py-1"
+              >
+                <span className="flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-gray-400" />
+                  <span>Detail Token Sub Color (JSON)</span>
+                </span>
+                <span className="text-[10px] text-gray-400 font-mono">
+                  {showSubColorDetails ? "Tutup ▲" : "Sesuaikan ▼"}
+                </span>
+              </button>
+
+              {showSubColorDetails && (
+                <div className="p-3 bg-gray-50/90 rounded-xl border border-gray-200/80 space-y-3">
+                  <p className="text-[10px] text-gray-500">
+                    Kustomisasi token sub color tema aplikasi yang disinkronkan dalam format JSON ke server.
+                  </p>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {/* Aksen Kuning */}
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-semibold text-gray-600 block">
+                        Aksen Kuning (accent)
+                      </label>
+                      <div className="flex items-center gap-1.5 p-1 bg-white rounded-lg border border-gray-200">
+                        <input
+                          type="color"
+                          value={accentColor}
+                          onChange={(e) => setAccentColor(e.target.value.toUpperCase())}
+                          className="w-6 h-6 rounded border-0 cursor-pointer p-0 bg-transparent shrink-0"
+                        />
+                        <input
+                          type="text"
+                          maxLength={7}
+                          value={accentColor}
+                          onChange={(e) => setAccentColor(e.target.value.toUpperCase())}
+                          className="w-full text-[10px] font-mono text-gray-700 bg-transparent focus:outline-none uppercase"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Aksen Biru */}
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-semibold text-gray-600 block">
+                        Aksen Biru (accentBlue)
+                      </label>
+                      <div className="flex items-center gap-1.5 p-1 bg-white rounded-lg border border-gray-200">
+                        <input
+                          type="color"
+                          value={accentBlueColor}
+                          onChange={(e) => setAccentBlueColor(e.target.value.toUpperCase())}
+                          className="w-6 h-6 rounded border-0 cursor-pointer p-0 bg-transparent shrink-0"
+                        />
+                        <input
+                          type="text"
+                          maxLength={7}
+                          value={accentBlueColor}
+                          onChange={(e) => setAccentBlueColor(e.target.value.toUpperCase())}
+                          className="w-full text-[10px] font-mono text-gray-700 bg-transparent focus:outline-none uppercase"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Sawah Pertumbuhan */}
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-semibold text-gray-600 block">
+                        Sawah Pertumbuhan
+                      </label>
+                      <div className="flex items-center gap-1.5 p-1 bg-white rounded-lg border border-gray-200">
+                        <input
+                          type="color"
+                          value={sawahColor}
+                          onChange={(e) => setSawahColor(e.target.value.toUpperCase())}
+                          className="w-6 h-6 rounded border-0 cursor-pointer p-0 bg-transparent shrink-0"
+                        />
+                        <input
+                          type="text"
+                          maxLength={7}
+                          value={sawahColor}
+                          onChange={(e) => setSawahColor(e.target.value.toUpperCase())}
+                          className="w-full text-[10px] font-mono text-gray-700 bg-transparent focus:outline-none uppercase"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Api Semangat */}
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-semibold text-gray-600 block">
+                        Api Semangat
+                      </label>
+                      <div className="flex items-center gap-1.5 p-1 bg-white rounded-lg border border-gray-200">
+                        <input
+                          type="color"
+                          value={apiColor}
+                          onChange={(e) => setApiColor(e.target.value.toUpperCase())}
+                          className="w-6 h-6 rounded border-0 cursor-pointer p-0 bg-transparent shrink-0"
+                        />
+                        <input
+                          type="text"
+                          maxLength={7}
+                          value={apiColor}
+                          onChange={(e) => setApiColor(e.target.value.toUpperCase())}
+                          className="w-full text-[10px] font-mono text-gray-700 bg-transparent focus:outline-none uppercase"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Air Kehidupan */}
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-semibold text-gray-600 block">
+                        Air Kehidupan
+                      </label>
+                      <div className="flex items-center gap-1.5 p-1 bg-white rounded-lg border border-gray-200">
+                        <input
+                          type="color"
+                          value={airColor}
+                          onChange={(e) => setAirColor(e.target.value.toUpperCase())}
+                          className="w-6 h-6 rounded border-0 cursor-pointer p-0 bg-transparent shrink-0"
+                        />
+                        <input
+                          type="text"
+                          maxLength={7}
+                          value={airColor}
+                          onChange={(e) => setAirColor(e.target.value.toUpperCase())}
+                          className="w-full text-[10px] font-mono text-gray-700 bg-transparent focus:outline-none uppercase"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Padi Kemakmuran */}
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-semibold text-gray-600 block">
+                        Padi Kemakmuran
+                      </label>
+                      <div className="flex items-center gap-1.5 p-1 bg-white rounded-lg border border-gray-200">
+                        <input
+                          type="color"
+                          value={padiColor}
+                          onChange={(e) => setPadiColor(e.target.value.toUpperCase())}
+                          className="w-6 h-6 rounded border-0 cursor-pointer p-0 bg-transparent shrink-0"
+                        />
+                        <input
+                          type="text"
+                          maxLength={7}
+                          value={padiColor}
+                          onChange={(e) => setPadiColor(e.target.value.toUpperCase())}
+                          className="w-full text-[10px] font-mono text-gray-700 bg-transparent focus:outline-none uppercase"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAccentColor(THEME_COLORS.hex.accent);
+                        setAccentBlueColor(THEME_COLORS.hex.accentBlue);
+                        setSawahColor(THEME_COLORS.hex.sawahPertumbuhan);
+                        setApiColor(THEME_COLORS.hex.apiSemangat);
+                        setAirColor(THEME_COLORS.hex.airKehidupan);
+                        setPadiColor(THEME_COLORS.hex.padiKemakmuran);
+                        toast.info("Token sub color direset ke default");
+                      }}
+                      className="text-[10px] text-gray-500 hover:text-gray-800 underline cursor-pointer"
+                    >
+                      Reset Token ke Default
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

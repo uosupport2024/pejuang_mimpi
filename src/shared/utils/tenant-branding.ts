@@ -1,4 +1,5 @@
 import { API_BASE_URL, getHeaders, dedupFetch } from "./api";
+import { parseSubColor, type TenantSubColors } from "@/shared/constants/colors";
 
 export interface TenantBranding {
   id?: number | string;
@@ -7,7 +8,8 @@ export interface TenantBranding {
   logo?: string | null;
   logo_url?: string | null;
   main_color?: string | null;
-  sub_color?: string | null;
+  sub_color?: string | TenantSubColors | null;
+  subColors?: TenantSubColors;
 }
 
 let currentBranding: TenantBranding | null = null;
@@ -59,6 +61,7 @@ export async function loadTenantBranding(): Promise<TenantBranding | null> {
     const json = await response.json();
     const data = json.data;
     if (data) {
+      const parsedSub = parseSubColor(data.sub_color);
       currentBranding = {
         id: data.id,
         name: data.name,
@@ -67,6 +70,7 @@ export async function loadTenantBranding(): Promise<TenantBranding | null> {
         logo_url: data.logo_url || (data.logo ? `${API_BASE_URL.replace('/api/v1', '')}/storage/${data.logo}` : null),
         main_color: data.main_color,
         sub_color: data.sub_color,
+        subColors: parsedSub,
       };
       notifyListeners();
       return currentBranding;

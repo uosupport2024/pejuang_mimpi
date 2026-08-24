@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getTenantBranding, subscribeTenantBranding, loadTenantBranding, type TenantBranding } from "../utils/tenant-branding";
+import { getSubColorHex, parseSubColor } from "@/shared/constants/colors";
 import logoWhiteImg from "@/assets/logo/POT–PejuangMimpi–Logo.png";
 
 export function useTenantBranding() {
@@ -22,6 +23,9 @@ export function useTenantBranding() {
     };
   }, []);
 
+  const subColors = branding?.subColors || parseSubColor(branding?.sub_color);
+  const subColor = getSubColorHex(branding?.sub_color, subColors.sub);
+
   return {
     branding,
     logoUrl: branding?.logo_url || null,
@@ -29,6 +33,8 @@ export function useTenantBranding() {
     effectiveLogo: branding?.logo_url || logoWhiteImg,
     tenantName: branding?.name || "Pejuang Mimpi",
     mainColor: branding?.main_color || null,
-    subColor: branding?.sub_color || null,
+    subColor: subColor || null,
+    subColors,
   };
 }
+

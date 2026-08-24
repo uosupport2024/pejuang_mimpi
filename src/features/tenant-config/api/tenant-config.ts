@@ -1,5 +1,6 @@
 import { API_BASE_URL, getHeaders, dedupFetch } from "@/shared/utils/api";
 import { getCookie } from "@/shared/utils/cookies";
+import { serializeSubColor, type TenantSubColors } from "@/shared/constants/colors";
 
 export interface TenantConfigData {
   id: number | string;
@@ -14,7 +15,7 @@ export interface TenantConfigData {
   logo?: string | null;
   logo_url?: string | null;
   main_color?: string | null;
-  sub_color?: string | null;
+  sub_color?: string | TenantSubColors | null;
 }
 
 /**
@@ -99,7 +100,7 @@ export async function updateTenantAPI(
     if (payload.name) formData.append("name", payload.name);
     if (payload.slug) formData.append("slug", payload.slug);
     if (payload.main_color !== undefined) formData.append("main_color", payload.main_color || "");
-    if (payload.sub_color !== undefined) formData.append("sub_color", payload.sub_color || "");
+    if (payload.sub_color !== undefined) formData.append("sub_color", payload.sub_color ? serializeSubColor(payload.sub_color) : "");
     if (payload.email !== undefined) formData.append("email", payload.email || "");
     if (payload.phone !== undefined) formData.append("phone", payload.phone || "");
     if (payload.address !== undefined) formData.append("address", payload.address || "");
@@ -135,10 +136,24 @@ export async function updateTenantAPI(
 
   // Otherwise standard JSON PUT
   const { logoFile, removeLogo, ...jsonData } = payload;
+  const processedData = {
+    ...jsonData,
+    ...(payload.sub_color !== undefined
+      ? {
+          sub_color:
+            typeof payload.sub_color === "string" && payload.sub_color.startsWith("{")
+              ? JSON.parse(payload.sub_color)
+              : typeof payload.sub_color === "string" && payload.sub_color.startsWith("#")
+              ? { sub: payload.sub_color }
+              : payload.sub_color,
+        }
+      : {}),
+  };
+
   const response = await fetch(`${API_BASE_URL}/tenants/${tenantId}`, {
     method: "PUT",
     headers: getHeaders(),
-    body: JSON.stringify(jsonData),
+    body: JSON.stringify(processedData),
   });
 
   if (!response.ok) {

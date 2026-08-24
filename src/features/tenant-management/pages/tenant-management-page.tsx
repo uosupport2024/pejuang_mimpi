@@ -26,7 +26,7 @@ import {
   type CreateTenantResult
 } from "../api/tenant-management";
 import { ReusableTable, type ColumnDef } from "@/shared/components/ui/reusable-table";
-import { THEME_COLORS } from "@/shared/constants/colors";
+import { THEME_COLORS, getSubColorHex } from "@/shared/constants/colors";
 import { useRouter } from "@/shared/router/router";
 import { toast } from "sonner";
 
@@ -208,7 +208,7 @@ export function TenantManagementPage({ user: _user }: TenantManagementPageProps)
     setEditDescription(t.description || "");
     setEditIsActive(t.is_active !== false && t.is_active !== 0);
     setEditMainColor(t.main_color && t.main_color.startsWith("#") ? t.main_color : THEME_COLORS.hex.primary);
-    setEditSubColor(t.sub_color && t.sub_color.startsWith("#") ? t.sub_color : THEME_COLORS.hex.padiKemakmuran);
+    setEditSubColor(getSubColorHex(t.sub_color));
     setEditLogoPreview(t.logo_url || t.logo || null);
     setEditLogoFile(null);
     setEditRemoveLogo(false);
@@ -332,7 +332,7 @@ export function TenantManagementPage({ user: _user }: TenantManagementPageProps)
       header: "Warna Brand",
       cell: (row) => {
         const main = row.main_color || THEME_COLORS.hex.primary;
-        const sub = row.sub_color || THEME_COLORS.hex.padiKemakmuran;
+        const sub = getSubColorHex(row.sub_color);
         return (
           <div className="flex items-center gap-1.5">
             <div className="flex -space-x-1 shrink-0">

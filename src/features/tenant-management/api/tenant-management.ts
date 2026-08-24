@@ -1,5 +1,6 @@
 import { API_BASE_URL, getHeaders, dedupFetch } from "@/shared/utils/api";
 import { getCookie } from "@/shared/utils/cookies";
+import { serializeSubColor, type TenantSubColors } from "@/shared/constants/colors";
 
 export interface TenantAdminItem {
   id: number | string;
@@ -14,7 +15,7 @@ export interface TenantAdminItem {
   logo?: string | null;
   logo_url?: string | null;
   main_color?: string | null;
-  sub_color?: string | null;
+  sub_color?: string | TenantSubColors | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -29,7 +30,7 @@ export interface CreateTenantPayload {
   web?: string;
   description?: string;
   main_color?: string;
-  sub_color?: string;
+  sub_color?: string | TenantSubColors;
   logoFile?: File | null;
 }
 
@@ -103,7 +104,7 @@ export async function createTenantAPI(payload: CreateTenantPayload): Promise<Cre
     if (payload.web) formData.append("web", payload.web);
     if (payload.description) formData.append("description", payload.description);
     if (payload.main_color) formData.append("main_color", payload.main_color);
-    if (payload.sub_color) formData.append("sub_color", payload.sub_color);
+    if (payload.sub_color) formData.append("sub_color", serializeSubColor(payload.sub_color));
     formData.append("logo", payload.logoFile);
 
     const response = await fetch(`${API_BASE_URL}/tenants`, {
@@ -127,10 +128,24 @@ export async function createTenantAPI(payload: CreateTenantPayload): Promise<Cre
 
   // JSON POST
   const { logoFile: _file, ...jsonData } = payload;
+  const processedData = {
+    ...jsonData,
+    ...(payload.sub_color !== undefined
+      ? {
+          sub_color:
+            typeof payload.sub_color === "string" && payload.sub_color.startsWith("{")
+              ? JSON.parse(payload.sub_color)
+              : typeof payload.sub_color === "string" && payload.sub_color.startsWith("#")
+              ? { sub: payload.sub_color }
+              : payload.sub_color,
+        }
+      : {}),
+  };
+
   const response = await fetch(`${API_BASE_URL}/tenants`, {
     method: "POST",
     headers: getHeaders(),
-    body: JSON.stringify(jsonData),
+    body: JSON.stringify(processedData),
   });
 
   if (!response.ok) {
@@ -165,7 +180,7 @@ export async function updateTenantAPI(
     if (payload.web !== undefined) formData.append("web", payload.web || "");
     if (payload.description !== undefined) formData.append("description", payload.description || "");
     if (payload.main_color !== undefined) formData.append("main_color", payload.main_color || "");
-    if (payload.sub_color !== undefined) formData.append("sub_color", payload.sub_color || "");
+    if (payload.sub_color !== undefined) formData.append("sub_color", payload.sub_color ? serializeSubColor(payload.sub_color) : "");
 
     if (payload.logoFile) {
       formData.append("logo", payload.logoFile);
@@ -195,10 +210,24 @@ export async function updateTenantAPI(
   }
 
   const { logoFile: _file, removeLogo: _rem, ...jsonData } = payload;
+  const processedData = {
+    ...jsonData,
+    ...(payload.sub_color !== undefined
+      ? {
+          sub_color:
+            typeof payload.sub_color === "string" && payload.sub_color.startsWith("{")
+              ? JSON.parse(payload.sub_color)
+              : typeof payload.sub_color === "string" && payload.sub_color.startsWith("#")
+              ? { sub: payload.sub_color }
+              : payload.sub_color,
+        }
+      : {}),
+  };
+
   const response = await fetch(`${API_BASE_URL}/tenants/${tenantId}`, {
     method: "PUT",
     headers: getHeaders(),
-    body: JSON.stringify(jsonData),
+    body: JSON.stringify(processedData),
   });
 
   if (!response.ok) {
