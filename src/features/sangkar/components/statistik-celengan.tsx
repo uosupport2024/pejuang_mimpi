@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { getCelenganStyle } from "./celenganku-carousel";
 import type { Celengan } from "../types/celengan";
-import logoSad from "@/assets/illustrations/logo_sad.png";
+import { PiggyBank } from "lucide-react";
+import { THEME_COLORS } from "@/shared/constants/colors";
 import { getChickenIcon } from "@/shared/utils/icons";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -130,10 +131,20 @@ export function StatistikCelengan({ celengans, loading }: { celengans: Celengan[
           </span>
           <span className="text-[10px] text-zinc-400 font-bold">Progres Target</span>
         </div>
-        <div className="h-44 flex flex-col items-center justify-center bg-zinc-50/50 rounded-2xl border border-dashed border-gray-250 p-4 text-center">
-          <img src={logoSad} alt="Sedih" className="w-14 h-14 mb-2 opacity-80" />
-          <span className="text-xs text-slate-500 font-bold">Belum ada data celengan</span>
-          <span className="text-[10px] text-slate-405 mt-0.5">Silakan buat celengan baru di atas.</span>
+        <div className="h-44 flex flex-col items-center justify-center bg-white/70 rounded-2xl border border-dashed border-gray-200 p-4 text-center">
+          <div
+            style={{
+              backgroundColor: `${THEME_COLORS.hex.primary}12`,
+              color: THEME_COLORS.hex.primary,
+            }}
+            className="w-12 h-12 rounded-2xl flex items-center justify-center mb-2.5 shadow-xs"
+          >
+            <PiggyBank className="w-6 h-6" />
+          </div>
+          <span className="text-xs text-slate-700 font-bold">Belum ada data celengan</span>
+          <span className="text-[10px] text-slate-400 font-medium mt-0.5">
+            Silakan buat celengan baru di atas untuk mulai menabung.
+          </span>
         </div>
       </div>
     );

@@ -30,24 +30,28 @@ export function LokerDetailPage() {
 
   useEffect(() => {
     if (!idParam) {
-      navigate("/mobile/home");
       return;
     }
+
+    let isMounted = true;
 
     async function loadData() {
       try {
         setLoading(true);
         const data = await fetchLokerDetail(idParam!);
+        if (!isMounted) return;
         setLoker(data);
         setIsApplied(!!data.isApplied);
 
         try {
           const recsRes = await fetchLokers({ per_page: 5 });
+          if (!isMounted) return;
           const filteredRecs = recsRes.data
             .filter((j) => String(j.id) !== String(idParam))
             .slice(0, 3);
           setRecommendations(filteredRecs);
         } catch (e) {
+          if (!isMounted) return;
           console.warn("Failed to load recommendations from server, using local fallback");
           const localRecs = [
             {
@@ -82,14 +86,22 @@ export function LokerDetailPage() {
         }
 
       } catch (err) {
+        if (!isMounted) return;
         console.error(err);
         toast.error("Gagal memuat detail lowongan");
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
+
     loadData();
-  }, [idParam, navigate]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [idParam]);
 
   const handleApply = async (noteValue?: string) => {
     if (!idParam || isApplied) return;
