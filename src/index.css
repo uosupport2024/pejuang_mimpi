@@ -39,6 +39,11 @@ video::-webkit-media-controls-play-button {
   --heading: 'Poppins', sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
+  --theme-primary: #e0542c;
+  --theme-button: #e0542c;
+  --theme-sidebar: #1e2a4a;
+  --theme-navbar: #1e2a4a;
+
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
   color-scheme: light dark;

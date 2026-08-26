@@ -3,6 +3,7 @@ import { ArrowLeft, Mail, Phone, Calendar, User, ShieldCheck, Download } from "l
 import { useRouter } from "@/shared/router/router";
 import { fetchProfileAPI } from "@/features/tunas/api/absensi";
 import patternBg from "@/assets/bg/pattern-background.png";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
 
 interface IdCardPageProps {
   user: any;
@@ -10,6 +11,7 @@ interface IdCardPageProps {
 
 export function IdCardPage({ user }: IdCardPageProps) {
   const { navigate } = useRouter();
+  const { navbarBgStyle, tenantName } = useTenantBranding();
   const [profile, setProfile] = useState<any>(user);
 
   // Fetch full user profile details on mount
@@ -184,7 +186,10 @@ export function IdCardPage({ user }: IdCardPageProps) {
   return (
     <div className="space-y-5 pb-12 text-left">
       {/* Header Bar */}
-      <div className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl bg-[#1e2a4a] text-white">
+      <div
+        style={navbarBgStyle}
+        className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl text-white"
+      >
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
           style={{ backgroundImage: `url(${patternBg})`, backgroundSize: "180px auto", backgroundRepeat: "repeat" }}
@@ -210,7 +215,10 @@ export function IdCardPage({ user }: IdCardPageProps) {
         <div className="space-y-2">
           <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider block px-1">Tampak Depan</span>
           
-          <div className="w-full aspect-[1.586/1] bg-gradient-to-br from-[#1e2a4a] via-[#24345d] to-[#151f38] text-white p-5 rounded-[24px] shadow-lg relative overflow-hidden flex flex-col justify-between border border-white/5">
+          <div
+            style={navbarBgStyle}
+            className="w-full aspect-[1.586/1] text-white p-5 rounded-[24px] shadow-lg relative overflow-hidden flex flex-col justify-between border border-white/5"
+          >
             {/* Cloud Pattern Overlay */}
             <div
               className="absolute inset-0 opacity-10 pointer-events-none"
@@ -223,7 +231,7 @@ export function IdCardPage({ user }: IdCardPageProps) {
             <div className="flex justify-between items-start relative z-10">
               <div>
                 <p className="text-[11px] font-black tracking-[0.2em] text-[#fee279] leading-none">
-                  PEJUANG MIMPI
+                  {tenantName ? tenantName.toUpperCase() : "PEJUANG MIMPI"}
                 </p>
                 <p className="text-[7.5px] font-semibold text-white/60 tracking-widest mt-1 uppercase leading-none">
                   KARTU KARYAWAN DIGITAL
@@ -309,7 +317,10 @@ export function IdCardPage({ user }: IdCardPageProps) {
         <div className="space-y-2">
           <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider block px-1">Tampak Belakang</span>
           
-          <div className="w-full aspect-[1.586/1] bg-gradient-to-br from-[#18233c] to-[#101729] text-white p-5 rounded-[24px] shadow-lg relative overflow-hidden flex flex-col justify-between border border-white/5">
+          <div
+            style={navbarBgStyle}
+            className="w-full aspect-[1.586/1] text-white p-5 rounded-[24px] shadow-lg relative overflow-hidden flex flex-col justify-between border border-white/5"
+          >
             {/* Pattern overlay */}
             <div
               className="absolute inset-0 opacity-5 pointer-events-none"
@@ -320,7 +331,7 @@ export function IdCardPage({ user }: IdCardPageProps) {
             <div className="relative z-10 flex justify-between items-center">
               <div>
                 <p className="text-[10px] font-black tracking-widest text-[#fee279] leading-none">
-                  PEJUANG MIMPI
+                  {tenantName ? tenantName.toUpperCase() : "PEJUANG MIMPI"}
                 </p>
                 <p className="text-[6.5px] font-bold tracking-wider text-white/40 uppercase mt-1 leading-none">
                   KARTU IDENTITAS DIGITAL
@@ -390,7 +401,8 @@ export function IdCardPage({ user }: IdCardPageProps) {
           <button
             type="button"
             onClick={handleDownload}
-            className="w-full h-12 rounded-xl bg-[#e0542c] hover:bg-[#c23f1b] text-white font-bold flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#e0542c]/15 active:scale-95 transition-all border-none text-xs"
+            style={{ background: "var(--theme-button, #e0542c)" }}
+            className="w-full h-12 rounded-xl hover:brightness-105 text-white font-bold flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-95 transition-all border-none text-xs"
           >
             <Download className="w-4 h-4 text-white shrink-0" />
             <span>Unduh Kartu Pegawai (PNG)</span>

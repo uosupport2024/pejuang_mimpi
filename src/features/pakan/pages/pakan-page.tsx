@@ -3,13 +3,10 @@ import { useNavigate } from "react-router-dom";
 import {
   Search,
   BookOpen,
-  GraduationCap,
   Trophy,
   Play,
   CheckCircle2,
-  Timer,
-  Heart,
-  Award
+  Timer
 } from "lucide-react";
 import { toast } from "sonner";
 import type { PakanPageProps } from "../types/pakan.type";
@@ -20,15 +17,15 @@ import {
   type Course as APICourse
 } from "@/features/training/api/course";
 import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
-import { THEME_COLORS } from "@/shared/constants/colors";
+import { THEME_COLORS, buildCssBackground } from "@/shared/constants/colors";
 
 export function PakanPage({ user }: PakanPageProps) {
   const navigate = useNavigate();
-  const { effectiveLogo, tenantName } = useTenantBranding();
+  const { effectiveLogo, tenantName, navbarBgStyle, buttonColor } = useTenantBranding();
   const [courses, setCourses] = useState<APICourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDifficulty, setSelectedDifficulty] = useState<"Semua" | "basic" | "beginner" | "intermediate" | "advanced">("Semua");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("Semua");
 
   const loadCourses = async () => {
     try {
@@ -85,32 +82,28 @@ export function PakanPage({ user }: PakanPageProps) {
         ...c,
         progress: progressVal,
         gradientTheme,
-        instructor: "Trainer POT",
-        excerpt: c.description || "Materi pembelajaran resmi Uo-space.",
       };
     });
   }, [courses]);
 
   const filteredCourses = useMemo(() => {
-    return mappedCourses.filter((course) => {
-      const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesDifficulty =
+    return mappedCourses.filter((c) => {
+      const desc = (c.description || "").toLowerCase();
+      const matchSearch =
+        c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        desc.includes(searchQuery.toLowerCase());
+      
+      const matchDifficulty =
         selectedDifficulty === "Semua" ||
-        (course.difficulty || "basic").toLowerCase() === selectedDifficulty.toLowerCase();
-      return matchesSearch && matchesDifficulty;
+        c.difficulty?.toLowerCase() === selectedDifficulty.toLowerCase();
+
+      return matchSearch && matchDifficulty;
     });
   }, [mappedCourses, searchQuery, selectedDifficulty]);
 
   const handleStartCourse = async (courseId: number) => {
     try {
-      const courseObj = courses.find((c) => c.id === courseId);
-      if (!courseObj) return;
-
-      if (!courseObj.user_progress) {
-        await enrollCourse(courseId);
-        await loadCourses();
-      }
-
+      await enrollCourse(courseId);
       navigate(`/mobile/pakan/learn/${courseId}`);
     } catch (err: any) {
       toast.error(err.message || "Gagal memulai kelas");
@@ -122,7 +115,7 @@ export function PakanPage({ user }: PakanPageProps) {
       {/* Header Banner Card */}
       <div className="-mt-6 -mx-5 relative mb-4">
         <div
-          style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+          style={navbarBgStyle}
           className="w-full text-white rounded-t-none rounded-b-[40px] shadow-lg border-b border-white/10 flex flex-col p-6 pt-11 pb-6 relative overflow-hidden"
         >
           <div
@@ -205,7 +198,7 @@ export function PakanPage({ user }: PakanPageProps) {
           <button
             key={tab.value}
             onClick={() => setSelectedDifficulty(tab.value)}
-            style={selectedDifficulty === tab.value ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
+            style={selectedDifficulty === tab.value ? { background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) } : undefined}
             className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 transition-all cursor-pointer ${
               selectedDifficulty === tab.value
                 ? "text-white shadow-xs"
@@ -236,21 +229,6 @@ export function PakanPage({ user }: PakanPageProps) {
         <div className="grid grid-cols-2 gap-3">
           {filteredCourses.length > 0 ? (
             filteredCourses.map((course) => {
-              const getCourseIcon = (difficulty?: string) => {
-                switch (difficulty?.toLowerCase()) {
-                  case "basic":
-                    return GraduationCap;
-                  case "beginner":
-                    return BookOpen;
-                  case "intermediate":
-                    return Heart;
-                  case "advanced":
-                    return Award;
-                  default:
-                    return GraduationCap;
-                }
-              };
-              const IconComp = getCourseIcon(course.difficulty);
               const getDifficultyLabel = (difficulty?: string) => {
                 switch (difficulty?.toLowerCase()) {
                   case "basic": return "BASIC";
@@ -282,9 +260,6 @@ export function PakanPage({ user }: PakanPageProps) {
                     ) : (
                       <div className={`absolute inset-0 ${course.gradientTheme}`} />
                     )}
-                    <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/20 shadow-xs z-10">
-                      <IconComp className="w-5 h-5" />
-                    </div>
                     <span className="absolute top-2 right-2 inline-flex items-center px-1.5 py-0.5 rounded-full bg-black/25 text-white text-[7.5px] font-bold uppercase tracking-wide backdrop-blur-xs z-10">
                       {getDifficultyLabel(course.difficulty)}
                     </span>
@@ -296,19 +271,20 @@ export function PakanPage({ user }: PakanPageProps) {
                         {course.title}
                       </h3>
                       <p className="text-[8px] text-zinc-400 font-medium leading-normal line-clamp-1">
-                        {course.excerpt}
+                        {course.description || "Tingkatkan keahlian Anda"}
                       </p>
                       <span className="block text-[7.5px] text-zinc-400 font-bold tracking-wider uppercase truncate">
-                        Oleh: {course.instructor}
+                        Oleh: Trainer POT
                       </span>
                     </div>
 
                     <button
                       onClick={() => handleStartCourse(course.id)}
+                      style={course.user_progress?.status !== "completed" ? { background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) } : undefined}
                       className={`w-full py-1.5 rounded-md text-white text-[8.5px] font-bold uppercase tracking-wider shadow-xs active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                         course.user_progress?.status === "completed"
                           ? "bg-gradient-to-tr from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 shadow-green-100/50"
-                          : "bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] hover:from-[#c23f1b] hover:to-[#e0542c]"
+                          : "hover:brightness-105"
                       }`}
                     >
                       {course.user_progress?.status === "completed" ? (

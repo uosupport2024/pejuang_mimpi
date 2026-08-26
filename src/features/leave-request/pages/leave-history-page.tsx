@@ -7,6 +7,7 @@ import { API_BASE_URL } from "@/shared/utils/api";
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { THEME_COLORS } from "@/shared/constants/colors";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
 
 interface LeaveHistoryPageProps {
   user: any;
@@ -38,19 +39,7 @@ const getLeaveStyle = (name: string) => {
         color: "#be123c"
       }
     };
-  } else if (normName.includes("telat")) {
-    return {
-      style: {
-        backgroundColor: `${THEME_COLORS.hex.padiKemakmuran}0D`,
-        borderColor: `${THEME_COLORS.hex.padiKemakmuran}33`,
-        color: THEME_COLORS.hex.padiKemakmuranText
-      },
-      iconStyle: {
-        backgroundColor: `${THEME_COLORS.hex.padiKemakmuran}1F`,
-        color: THEME_COLORS.hex.padiKemakmuranText
-      }
-    };
-  } else if (normName.includes("pulang cepat")) {
+  } else if (normName.includes("izin")) {
     return {
       style: {
         backgroundColor: `${THEME_COLORS.hex.apiSemangat}0D`,
@@ -62,8 +51,7 @@ const getLeaveStyle = (name: string) => {
         color: THEME_COLORS.hex.apiSemangatDark
       }
     };
-  } else {
-    // Izin Lainnya
+  } else if (normName.includes("dinas")) {
     return {
       style: {
         backgroundColor: `${THEME_COLORS.hex.airKehidupan}0D`,
@@ -76,10 +64,22 @@ const getLeaveStyle = (name: string) => {
       }
     };
   }
+  return {
+    style: {
+      backgroundColor: "#f8fafc",
+      borderColor: "#e2e8f0",
+      color: "#475569"
+    },
+    iconStyle: {
+      backgroundColor: "#f1f5f9",
+      color: "#475569"
+    }
+  };
 };
 
 export function LeaveHistoryPage({ user }: LeaveHistoryPageProps) {
   const { navigate } = useRouter();
+  const { navbarBgStyle } = useTenantBranding();
   const hook = useLeave(user);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
@@ -101,7 +101,7 @@ export function LeaveHistoryPage({ user }: LeaveHistoryPageProps) {
     <div className="space-y-4 pb-12 text-left">
       {/* Header Bar */}
       <div
-        style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+        style={navbarBgStyle}
         className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl text-white"
       >
         <div

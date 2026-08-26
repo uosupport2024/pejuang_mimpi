@@ -7,7 +7,8 @@ import { fetchKoreksiAbsenAPI, postKoreksiAbsenAPI, deleteKoreksiAbsenAPI } from
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
 import { SingleDatePicker } from "@/shared/components/ui/single-date-picker";
 import { SingleTimePicker } from "@/shared/components/ui/single-time-picker";
-import { THEME_COLORS } from "@/shared/constants/colors";
+import { THEME_COLORS, buildCssBackground } from "@/shared/constants/colors";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
 
 type KoreksiStatus = "Approved" | "Pending" | "Rejected";
 
@@ -58,6 +59,7 @@ const mapItem = (item: any): KoreksiItem => {
 
 export function MobileKoreksiAbsenPage() {
   const { navigate } = useRouter();
+  const { navbarBgStyle, buttonColor } = useTenantBranding();
 
   // Navigation tabs: "form" | "history"
   const [activeTab, setActiveTab] = useState<"form" | "history">("form");
@@ -223,7 +225,7 @@ export function MobileKoreksiAbsenPage() {
     <div className="space-y-4">
       {/* Header */}
       <div
-        style={{ backgroundColor: THEME_COLORS.hex.primary }}
+        style={navbarBgStyle}
         className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl text-white"
       >
         <div
@@ -249,7 +251,7 @@ export function MobileKoreksiAbsenPage() {
         <button
           type="button"
           onClick={() => setActiveTab("form")}
-          style={activeTab === "form" ? { color: THEME_COLORS.hex.primary } : undefined}
+          style={activeTab === "form" ? { color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary } : undefined}
           className={`flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all cursor-pointer ${activeTab === "form" ? "bg-white shadow-xs" : "text-zinc-500 hover:text-zinc-700"}`}
         >
           Form Pengajuan
@@ -257,7 +259,7 @@ export function MobileKoreksiAbsenPage() {
         <button
           type="button"
           onClick={() => setActiveTab("history")}
-          style={activeTab === "history" ? { color: THEME_COLORS.hex.primary } : undefined}
+          style={activeTab === "history" ? { color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary } : undefined}
           className={`flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all cursor-pointer ${activeTab === "history" ? "bg-white shadow-xs" : "text-zinc-500 hover:text-zinc-700"}`}
         >
           Riwayat Pengajuan
@@ -320,8 +322,8 @@ export function MobileKoreksiAbsenPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            style={{ backgroundColor: THEME_COLORS.hex.primary }}
-            className="w-full h-11 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-50 hover:opacity-90"
+            style={{ background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) }}
+            className="w-full h-11 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-50 hover:brightness-105"
           >
             {isSubmitting ? (
               <><RefreshCw className="w-4 h-4 animate-spin" /> Mengajukan...</>

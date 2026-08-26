@@ -28,10 +28,12 @@ import {
   EyeOff,
 } from "lucide-react";
 import { THEME_COLORS } from "@/shared/constants/colors";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
 
 export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
   const { goBack } = useSarang();
   const { navigate } = useRouter();
+  const { navbarBgStyle } = useTenantBranding();
 
   // State for controlling drawers
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
@@ -118,7 +120,8 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
         <div className="space-y-2">
           <div
             onClick={() => setIsEditPayrollOpen(true)}
-            className="w-full aspect-[1.586/1] bg-gradient-to-br from-[#1e2a4a] via-[#24345d] to-[#151f38] text-white p-5 rounded-[24px] shadow-lg relative overflow-hidden flex flex-col justify-between text-left cursor-pointer group border border-white/5 active:scale-[0.99] transition-transform"
+            style={navbarBgStyle}
+            className="w-full aspect-[1.586/1] text-white p-5 rounded-[24px] shadow-lg relative overflow-hidden flex flex-col justify-between text-left cursor-pointer group border border-white/5 active:scale-[0.99] transition-transform"
           >
             {/* Cloud Pattern Overlay */}
             <div

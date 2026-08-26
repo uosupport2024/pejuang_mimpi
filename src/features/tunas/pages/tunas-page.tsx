@@ -12,7 +12,7 @@ import { PakanLokerList } from "../../pakan/components/pakan-list";
 import { usePakan } from "../../pakan/hooks/use-pakan";
 import { fetchMyApplications, fetchLokerDetail } from "../../pakan/api/loker";
 import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
-import { THEME_COLORS } from "@/shared/constants/colors";
+import { THEME_COLORS, buildCssBackground } from "@/shared/constants/colors";
 
 interface PakanLokerSubPageProps {
   selectedApplication: any | null;
@@ -690,7 +690,7 @@ function PakanLokerSubPage({
       <div className="flex bg-zinc-200/50 p-1 rounded-2xl border border-zinc-200/40 shadow-inner">
         <button
           onClick={() => setSubTab("search")}
-          style={subTab === "search" ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
+          style={subTab === "search" ? { background: "var(--theme-button, #e0542c)" } : undefined}
           className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
             subTab === "search"
               ? "text-white shadow-sm"
@@ -701,7 +701,7 @@ function PakanLokerSubPage({
         </button>
         <button
           onClick={() => setSubTab("history")}
-          style={subTab === "history" ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
+          style={subTab === "history" ? { background: "var(--theme-button, #e0542c)" } : undefined}
           className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
             subTab === "history"
               ? "text-white shadow-sm"
@@ -880,7 +880,7 @@ function PakanLokerSubPage({
 
 export function TunasPage({ user }: TunasPageProps) {
   const { navigate } = useRouter();
-  const { effectiveLogo, tenantName } = useTenantBranding();
+  const { effectiveLogo, tenantName, navbarBgStyle, buttonColor } = useTenantBranding();
   const { clockInTime, clockOutTime, isCheckedIn, dayName, dateString, profileData } = useTunas();
   const [activeView, setActiveView] = useState<"dashboard" | "pakan">("dashboard");
   const [selectedApplication, setSelectedApplication] = useState<any | null>(null);
@@ -984,7 +984,7 @@ export function TunasPage({ user }: TunasPageProps) {
       {/* Header Banner Card - matching the design in Sangkar */}
       <div className="-mt-6 -mx-5 relative mb-4">
         <div
-          style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+          style={navbarBgStyle}
           className="w-full text-white rounded-t-none rounded-b-[40px] shadow-lg border-b border-white/10 flex flex-col p-6 pt-11 pb-6 relative"
         >
           {/* Background Pattern */}
@@ -1016,7 +1016,7 @@ export function TunasPage({ user }: TunasPageProps) {
             <button
               type="button"
               onClick={() => setActiveView("pakan")}
-              style={{ backgroundColor: THEME_COLORS.hex.primary }}
+              style={{ background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) }}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-white text-[9px] font-bold uppercase tracking-wider shadow-sm hover:scale-105 active:scale-95 transition-all cursor-pointer"
             >
               <Briefcase className="w-3.5 h-3.5 text-white/95" />
@@ -1042,7 +1042,7 @@ export function TunasPage({ user }: TunasPageProps) {
 
       {/* Horizontal Clock In / Out & Action Card (Style matching user screenshot, no border) */}
       <div
-        style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+        style={navbarBgStyle}
         className={`w-full text-white p-5 rounded-3xl shadow-lg transition-all duration-300 flex flex-col ${shouldWiggleButton()
         ? "border border-orange-500/45 shadow-[0_0_15px_rgba(224,84,44,0.18)]"
         : "border border-white/5 shadow-black/20"
@@ -1057,7 +1057,7 @@ export function TunasPage({ user }: TunasPageProps) {
           </div>
           <div className="flex flex-col items-end">
             <span className="text-[7.5px] uppercase text-white/50 font-bold tracking-wider leading-none">Lokasi Kantor</span>
-            <span style={{ color: THEME_COLORS.hex.accent }} className="text-xs font-bold mt-1 leading-none uppercase">
+            <span style={{ color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.accent }} className="text-xs font-bold mt-1 leading-none uppercase">
               {profileData?.lokasi?.nama_lokasi || "Kantor Pusat"}
             </span>
           </div>
@@ -1090,7 +1090,7 @@ export function TunasPage({ user }: TunasPageProps) {
             onClick={() => {
               navigate("MobileAbsensi");
             }}
-            style={!(isCheckedIn && clockOutTime !== "--:--") ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
+            style={!(isCheckedIn && clockOutTime !== "--:--") ? { background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) } : undefined}
             className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wide transition-all active:scale-95 cursor-pointer shadow-xs flex items-center gap-1.5 ${isCheckedIn && clockOutTime !== "--:--"
               ? "bg-white/10 text-white/40 cursor-not-allowed"
               : "text-white shadow-md"

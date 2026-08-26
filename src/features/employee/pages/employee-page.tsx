@@ -15,6 +15,7 @@ import { useRouter } from "@/shared/router/router";
 import { getCookie } from "@/shared/utils/cookies";
 import { downloadEmployeeImportTemplate } from "../api/employee-import";
 import { THEME_COLORS } from "@/shared/constants/colors";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
 import { EmployeeImportModal } from "../components/employee-import-modal";
 
 interface EmployeeActionDropdownProps {
@@ -165,6 +166,7 @@ function EmployeeActionDropdown({ employee, onDelete }: EmployeeActionDropdownPr
 
 export function EmployeePage() {
   const { navigate } = useRouter();
+  const { buttonColor } = useTenantBranding();
   const {
     employees,
     loading,
@@ -293,7 +295,7 @@ export function EmployeePage() {
         return (
           <span
             style={{
-              backgroundColor: isAdmin ? THEME_COLORS.hex.primary : THEME_COLORS.hex.sawahPertumbuhan
+              backgroundColor: isAdmin ? (buttonColor || THEME_COLORS.hex.primary) : THEME_COLORS.hex.sawahPertumbuhan
             }}
             className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider inline-flex items-center justify-center text-white shadow-2xs"
           >
@@ -346,7 +348,7 @@ export function EmployeePage() {
               type="button"
               onClick={() => setIsImportModalOpen(true)}
               style={{
-                backgroundColor: THEME_COLORS.hex.primary,
+                backgroundColor: buttonColor || THEME_COLORS.hex.primary,
                 color: "#ffffff",
               }}
               className="h-9 px-4 text-xs font-bold rounded-lg text-white transition-all shadow-sm cursor-pointer hover:opacity-90 shrink-0 gap-2 border-0"

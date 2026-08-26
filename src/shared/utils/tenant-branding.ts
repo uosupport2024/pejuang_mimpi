@@ -23,6 +23,18 @@ export function subscribeTenantBranding(listener: () => void) {
 }
 
 function notifyListeners() {
+  if (typeof document !== "undefined" && currentBranding) {
+    const sub = currentBranding.subColors || parseSubColor(currentBranding.sub_color);
+    const btn = sub.button || sub.accent || sub.sub || currentBranding.main_color || "#E0542C";
+    const side = (typeof sub.sidebar === "string" ? sub.sidebar : (sub.sidebar as any)?.css) || currentBranding.main_color || "#1E2A4A";
+    const nav = (typeof sub.navbar === "string" ? sub.navbar : (sub.navbar as any)?.css) || currentBranding.main_color || "#1E2A4A";
+
+    document.documentElement.style.setProperty("--theme-primary", btn);
+    document.documentElement.style.setProperty("--theme-button", btn);
+    document.documentElement.style.setProperty("--theme-sidebar", side);
+    document.documentElement.style.setProperty("--theme-navbar", nav);
+  }
+
   listeners.forEach((listener) => {
     try {
       listener();

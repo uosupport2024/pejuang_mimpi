@@ -10,6 +10,7 @@ import {
 import { Button } from "./button"
 import { cn } from "@/shared/lib/utils"
 import { THEME_COLORS } from "@/shared/constants/colors"
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding"
 import { Skeleton } from "./skeleton"
 import { Magnifier, SortFromTopToBottom, SortFromBottomToTop, SortVertical } from "@solar-icons/react"
 import { GripVertical } from "lucide-react"
@@ -170,6 +171,8 @@ export function ReusableTable<T>({
   isReorderable = false,
   onReorder,
 }: ReusableTableProps<T>) {
+  const { buttonColor } = useTenantBranding();
+
   // 1. Internal Search State (if uncontrolled)
   const [internalSearchQuery, setInternalSearchQuery] = React.useState("")
   const isSearchControlled = searchQuery !== undefined && onSearchChange !== undefined
@@ -349,13 +352,13 @@ export function ReusableTable<T>({
                   type="button"
                   onClick={onAddClick}
                   style={{
-                    backgroundColor: addButtonColor === "success" ? THEME_COLORS.hex.sawahPertumbuhan : THEME_COLORS.hex.primary
+                    backgroundColor: addButtonColor === "success" ? THEME_COLORS.hex.sawahPertumbuhan : (buttonColor || THEME_COLORS.hex.primary)
                   }}
                   className={cn(
                     "flex items-center justify-center gap-2 px-4 py-2.5 text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer shrink-0 h-9 border-0 hover:opacity-90",
                     addButtonColor === "success"
                       ? "shadow-[#7FA46D]/15 text-white"
-                      : "shadow-[#e0542c]/10 text-white"
+                      : "text-white"
                   )}
                 >
                   {addButtonIcon}
@@ -394,12 +397,12 @@ export function ReusableTable<T>({
                     <div className={cn("flex items-center gap-1.5 min-w-0", isCentered && "justify-center text-center")}>
                       <span className="truncate">{column.header}</span>
                       {canSort && (
-                        <span className="inline-flex items-center shrink-0">
+                        <span className="shrink-0 flex items-center">
                           {isSorted ? (
                             sortDirection === "asc" ? (
-                              <SortFromTopToBottom size={14} className="text-[#e0542c] font-bold" />
+                              <SortFromTopToBottom size={14} style={{ color: buttonColor || THEME_COLORS.hex.primary }} className="font-bold" />
                             ) : (
-                              <SortFromBottomToTop size={14} className="text-[#e0542c] font-bold" />
+                              <SortFromBottomToTop size={14} style={{ color: buttonColor || THEME_COLORS.hex.primary }} className="font-bold" />
                             )
                           ) : (
                             <SortVertical size={14} className="text-gray-300 group-hover:text-gray-500 transition-colors opacity-70" />
@@ -561,10 +564,11 @@ export function ReusableTable<T>({
                       key={`page-${page}`}
                       type="button"
                       onClick={() => handlePageChange(page)}
+                      style={isCurrent ? { background: buttonColor || THEME_COLORS.hex.primary } : undefined}
                       className={cn(
                         "w-8 h-8 flex items-center justify-center text-[11px] font-semibold rounded-md transition-colors cursor-pointer",
                         isCurrent
-                          ? "bg-[#e0542c] text-white shadow-xs"
+                          ? "text-white shadow-xs"
                           : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
                       )}
                     >

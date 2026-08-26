@@ -627,7 +627,8 @@ export function OvertimePage() {
                 <button
                   type="submit"
                   disabled={submittingApproval}
-                  className="h-9 px-4 bg-[#e0542c] hover:bg-[#c23f1b] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-xs"
+                  style={{ background: "var(--theme-button, #e0542c)" }}
+                  className="h-9 px-4 hover:brightness-105 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-xs"
                 >
                   {submittingApproval ? "Menyimpan..." : "Simpan Perubahan"}
                 </button>

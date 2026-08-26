@@ -1,7 +1,8 @@
 import { Camera } from "lucide-react";
 import type { SarangUser } from "../types/sarang.type";
 import patternBg from "@/assets/bg/pattern-background.png";
-import { THEME_COLORS } from "@/shared/constants/colors";
+import { THEME_COLORS, buildCssBackground } from "@/shared/constants/colors";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
 
 interface ProfileHeaderProps {
   user: SarangUser;
@@ -10,6 +11,8 @@ interface ProfileHeaderProps {
 }
 
 export function ProfileHeader({ user }: ProfileHeaderProps) {
+  const { navbarBgStyle, navbarBg, buttonColor } = useTenantBranding();
+
   // Get initials from user name
   const initials = user.name
     .split(" ")
@@ -19,7 +22,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
 
   return (
     <div
-      style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+      style={navbarBgStyle}
       className="-mt-6 -mx-5 px-5 pt-10 pb-6 text-white flex items-center relative overflow-hidden rounded-b-[32px] shadow-md z-10"
     >
       {/* Background Pattern */}
@@ -41,7 +44,10 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
             </div>
           </div>
           <button
-            style={{ backgroundColor: THEME_COLORS.hex.primary, borderColor: THEME_COLORS.hex.navBg }}
+            style={{
+              background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary),
+              borderColor: typeof navbarBg === "string" ? navbarBg : THEME_COLORS.hex.navBg
+            }}
             className="absolute -bottom-1 -right-1 text-white p-1 rounded-full border hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-sm"
           >
             <Camera className="w-2.5 h-2.5" />

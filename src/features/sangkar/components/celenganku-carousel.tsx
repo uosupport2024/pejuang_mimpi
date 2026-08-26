@@ -52,7 +52,7 @@ export function CelengankuCarousel({ celengans, loading }: CelengankuCarouselPro
         {celengans.length > 0 && !loading && (
           <span
             onClick={() => navigate(`/mobile/celengan?id=${celengans[0].id}`)}
-            style={{ color: THEME_COLORS.hex.primary }}
+            style={{ color: "var(--theme-button, #e0542c)" }}
             className="text-[10px] font-bold cursor-pointer hover:underline"
           >
             Lihat Semua

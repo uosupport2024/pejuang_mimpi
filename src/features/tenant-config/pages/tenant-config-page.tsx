@@ -261,7 +261,7 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200/80 pb-4">
         <div>
           <h1 className="text-base font-bold text-gray-800 flex items-center gap-2">
-            <Building2 style={{ color: THEME_COLORS.hex.primary }} className="w-5 h-5" />
+            <Building2 style={{ color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary }} className="w-5 h-5" />
             Konfigurasi Tenant
           </h1>
           <p className="text-xs text-gray-500 mt-0.5">
@@ -271,7 +271,11 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
 
         {tenant && (
           <div
-            style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}15`, borderColor: `${THEME_COLORS.hex.primary}33` }}
+            style={{
+              color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary,
+              backgroundColor: `${typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary}15`,
+              borderColor: `${typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary}33`
+            }}
             className="inline-flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs font-semibold self-start sm:self-auto"
           >
             <Sparkles className="w-3.5 h-3.5" />
@@ -287,7 +291,10 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
           <div className="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-2xs space-y-4">
             <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
               <div
-                style={{ backgroundColor: `${THEME_COLORS.hex.primary}15`, color: THEME_COLORS.hex.primary }}
+                style={{
+                  backgroundColor: `${typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary}15`,
+                  color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary
+                }}
                 className="w-7 h-7 rounded-lg flex items-center justify-center"
               >
                 <Palette className="w-4 h-4" />
@@ -985,7 +992,8 @@ export function TenantConfigPage({ user: _user }: TenantConfigPageProps) {
               <button
                 type="submit"
                 disabled={saving}
-                className="px-5 py-2 bg-[#E0542C] hover:bg-[#c23f1b] active:scale-98 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                style={{ background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) }}
+                className="px-5 py-2 hover:brightness-105 active:scale-98 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
               >
                 {saving ? (
                   <>

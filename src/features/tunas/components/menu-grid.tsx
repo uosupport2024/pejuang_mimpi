@@ -12,12 +12,14 @@ import {
 import { Download, Loader2, X, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "@/shared/router/router";
-import { THEME_COLORS } from "@/shared/constants/colors";
+import { THEME_COLORS, buildCssBackground } from "@/shared/constants/colors";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
 import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
 import { fetchProfileAPI } from "@/features/tunas/api/absensi";
 
 export function MenuGrid() {
   const { navigate } = useRouter();
+  const { buttonColor } = useTenantBranding();
   const [isPayslipModalOpen, setIsPayslipModalOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -117,7 +119,7 @@ export function MenuGrid() {
       >
         {/* Glossy Gradient Icon Wrapper */}
         <div
-          style={{ backgroundColor: THEME_COLORS.hex.primary }}
+          style={{ background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) }}
           className="w-12.5 h-12.5 rounded-2xl text-white flex items-center justify-center shadow-md relative overflow-hidden transition-all duration-300 group-hover:scale-105 shrink-0"
         >
           {/* 3D Gloss Highlight effect */}
@@ -224,8 +226,8 @@ export function MenuGrid() {
                 type="button"
                 onClick={handleDownloadPayslip}
                 disabled={isDownloading}
-                style={{ backgroundColor: THEME_COLORS.hex.primary }}
-                className="flex-1 py-2.5 px-3 text-xs font-bold text-white rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-95"
+                style={{ background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) }}
+                className="flex-1 py-2.5 px-3 text-xs font-bold text-white rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-95 hover:brightness-105"
               >
                 {isDownloading ? (
                   <>

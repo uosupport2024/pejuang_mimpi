@@ -229,7 +229,7 @@ function RouterInnerProvider({ children }: { children: ReactNode }) {
   if (resolvedPath.startsWith("/mobile/loker/")) {
     resolvedPath = "/mobile/loker";
   }
-  if (resolvedPath.startsWith("/mobile/pakan/learn/")) {
+  if (resolvedPath.startsWith("/mobile/pakan/learn") || resolvedPath.startsWith("/mobile/pakan/course")) {
     resolvedPath = "/mobile/pakan/learn";
   }
 
