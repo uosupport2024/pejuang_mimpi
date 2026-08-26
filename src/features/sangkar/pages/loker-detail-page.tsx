@@ -11,7 +11,12 @@ import { THEME_COLORS } from "@/shared/constants/colors";
 export function LokerDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const idParam = location.pathname.split("/").pop() || null;
+  const searchParams = new URLSearchParams(location.search);
+  const idFromQuery = searchParams.get("id");
+  const pathParts = location.pathname.split("/").filter(Boolean);
+  const lastPathPart = pathParts[pathParts.length - 1];
+  const idFromPath = lastPathPart && lastPathPart !== "loker" ? lastPathPart : null;
+  const idParam = idFromQuery || idFromPath || (location.state as any)?.id || null;
 
   const [loker, setLoker] = useState<(JobOpening & { description: string }) | null>(null);
   const [recommendations, setRecommendations] = useState<JobOpening[]>([]);

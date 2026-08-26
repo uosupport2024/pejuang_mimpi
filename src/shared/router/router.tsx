@@ -41,6 +41,7 @@ export type RouteType =
   | "MobileLeaveRequest"
   | "MobileLeaveHistory"
   | "MobileIdCard"
+  | "MobilePayroll"
   | "EmployeeAdd"
   | "EmployeeEdit"
   | "EmployeeInputShift"
@@ -103,6 +104,7 @@ export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   MobileLeaveRequest: "Pengajuan Cuti",
   MobileLeaveHistory: "Riwayat Cuti",
   MobileIdCard: "Kartu Identitas",
+  MobilePayroll: "Payroll Saya",
 };
 
 export const ROUTE_TO_PATH: Record<RouteType, string> = {
@@ -147,6 +149,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   MobileLeaveRequest: "/mobile/leave-request",
   MobileLeaveHistory: "/mobile/leave-history",
   MobileIdCard: "/mobile/id-card",
+  MobilePayroll: "/mobile/payroll",
   EmployeeAdd: "/pegawai/tambah",
   EmployeeEdit: "/pegawai/edit",
   EmployeeInputShift: "/pegawai/shift",
@@ -199,6 +202,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/mobile/leave-request": "MobileLeaveRequest",
   "/mobile/leave-history": "MobileLeaveHistory",
   "/mobile/id-card": "MobileIdCard",
+  "/mobile/payroll": "MobilePayroll",
   "/pegawai/tambah": "EmployeeAdd",
   "/pegawai/edit": "EmployeeEdit",
   "/pegawai/shift": "EmployeeInputShift",

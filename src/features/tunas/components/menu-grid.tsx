@@ -75,7 +75,7 @@ export function MenuGrid() {
   };
 
   const menuItems = [
-    { label: "Payroll", icon: Dollar, action: () => navigate("PayrollHistory") },
+    { label: "Payroll", icon: Dollar, action: () => navigate("MobilePayroll") },
     { label: "Pengajuan Absen", icon: Calendar, action: () => navigate("MobileKoreksiAbsen") },
     { label: "Export Payslip", icon: BillList || DocumentText, action: () => setIsPayslipModalOpen(true) },
     { label: "Riwayat Absen", icon: History, action: () => navigate("MobileHistory") },

@@ -99,7 +99,8 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout,
         currentRoute === "MobileHistory" ||
         currentRoute === "MobileLeaveRequest" ||
         currentRoute === "MobileLeaveHistory" ||
-        currentRoute === "MobileIdCard";
+        currentRoute === "MobileIdCard" ||
+        currentRoute === "MobilePayroll";
 
       // 🛑 TENANT PERMISSION ROUTE BLOCKING GUARD
       // Even if user types/hardcodes link directly in address bar, block if menu is OFF for tenant!

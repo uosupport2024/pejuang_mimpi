@@ -44,6 +44,7 @@ export const ROUTE_MENU_MAPPING: Record<string, string> = {
   MobileCelenganDetail: "mobile-lumbung",
   MobileCelenganAdd: "mobile-lumbung",
   MobileLokerDetail: "mobile-home",
+  MobilePayroll: "mobile-lumbung",
 };
 
 // ============================================================
