@@ -151,7 +151,7 @@ export function MobileKoreksiAbsenPage() {
     e.preventDefault();
 
     if (!tanggal) {
-      toast.error("Silakan pilih tanggal koreksi");
+      toast.error("Silakan pilih tanggal presensi");
       return;
     }
 
@@ -161,7 +161,7 @@ export function MobileKoreksiAbsenPage() {
     }
 
     if (!alasan.trim()) {
-      toast.error("Silakan isi alasan lupa absen / koreksi");
+      toast.error("Silakan isi alasan koreksi presensi");
       return;
     }
 
@@ -238,7 +238,7 @@ export function MobileKoreksiAbsenPage() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex flex-col text-left">
-            <span className="text-[10px] font-bold tracking-widest uppercase text-white/70 leading-none">Lupa Absen</span>
+            <span className="text-[10px] font-bold tracking-widest uppercase text-white/70 leading-none">Layanan Mandiri</span>
             <h1 className="text-base font-bold tracking-tight text-white mt-1.5 leading-none">Koreksi Presensi</h1>
           </div>
         </div>
@@ -269,7 +269,7 @@ export function MobileKoreksiAbsenPage() {
         <form onSubmit={handleSubmit} className="space-y-4 bg-white border border-zinc-200 rounded-2xl p-5 shadow-xs text-left">
           {/* Tanggal */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10.5px] font-bold text-zinc-500 uppercase tracking-wider">Tanggal Lupa Absen</label>
+            <label className="text-[10.5px] font-bold text-zinc-500 uppercase tracking-wider">Tanggal Presensi yang Dikoreksi</label>
             <SingleDatePicker
               value={selectedDate}
               onChange={(date) => {
@@ -277,7 +277,7 @@ export function MobileKoreksiAbsenPage() {
                 setTanggal(date ? date.toLocaleDateString("en-CA") : "");
               }}
               maxDate={new Date()}
-              placeholder="Pilih Tanggal"
+              placeholder="Pilih Tanggal Presensi"
             />
           </div>
 
@@ -305,13 +305,13 @@ export function MobileKoreksiAbsenPage() {
 
           {/* Alasan */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10.5px] font-bold text-zinc-500 uppercase tracking-wider">Alasan Lupa Absen / Koreksi</label>
+            <label className="text-[10.5px] font-bold text-zinc-500 uppercase tracking-wider">Alasan Koreksi Presensi</label>
             <textarea
               required
               rows={3}
               value={alasan}
               onChange={(e) => setAlasan(e.target.value)}
-              placeholder="Jelaskan alasan mengapa Anda tidak melakukan scan absensi tepat waktu..."
+              placeholder="Jelaskan alasan koreksi presensi (misal: kendala perangkat, lupa tap presensi masuk/pulang)..."
               className="w-full border border-zinc-200 rounded-xl px-4 py-3 text-xs font-medium text-zinc-700 focus:outline-none resize-none"
             />
           </div>

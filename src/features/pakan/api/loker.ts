@@ -253,7 +253,10 @@ export async function applyLoker(id: string | number, note?: string): Promise<bo
     body: JSON.stringify({ note: note || null }),
   });
 
-  if (!response.ok) throw new Error("Failed to apply for job");
+  if (!response.ok) {
+    const errorJson = await response.json().catch(() => ({}));
+    throw new Error(errorJson.message || `Gagal melamar pekerjaan (Status: ${response.status})`);
+  }
   const json = await response.json();
   return json.code === 200 || json.code === 201;
 }

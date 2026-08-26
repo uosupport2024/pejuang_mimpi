@@ -50,7 +50,7 @@ export function LeaveRequestPage({ user }: LeaveRequestPageProps) {
             <div className="flex flex-col text-left">
               <span className="text-[10px] font-bold tracking-widest uppercase text-white/70 leading-none">Layanan Mandiri</span>
               <h1 className="text-base font-bold tracking-tight text-white mt-1.5 leading-none">
-                {hook.isEditMode ? "Edit Pengajuan Cuti & Izin" : "Permintaan Cuti Karyawan"}
+                {hook.isEditMode ? `Edit ${hook.jenisCuti}` : `Pengajuan ${hook.jenisCuti}`}
               </h1>
             </div>
           </div>

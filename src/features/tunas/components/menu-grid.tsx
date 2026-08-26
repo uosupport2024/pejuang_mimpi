@@ -76,9 +76,9 @@ export function MenuGrid() {
 
   const menuItems = [
     { label: "Payroll", icon: Dollar, action: () => navigate("MobilePayroll") },
-    { label: "Pengajuan Absen", icon: Calendar, action: () => navigate("MobileKoreksiAbsen") },
+    { label: "Koreksi Presensi", icon: Calendar, action: () => navigate("MobileKoreksiAbsen") },
     { label: "Export Payslip", icon: BillList || DocumentText, action: () => setIsPayslipModalOpen(true) },
-    { label: "Riwayat Absen", icon: History, action: () => navigate("MobileHistory") },
+    { label: "Riwayat Presensi", icon: History, action: () => navigate("MobileHistory") },
     { label: "Riwayat Izin", icon: DocumentText, action: () => navigate("MobileLeaveHistory") },
     { label: "Riwayat Lembur", icon: Refresh, action: () => navigate("MobileLemburHistory") },
     { label: "Kinerja", icon: MedalStar, action: () => toast.info("Membuka menu Kinerja...") },

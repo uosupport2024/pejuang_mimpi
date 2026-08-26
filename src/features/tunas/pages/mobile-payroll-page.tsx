@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { ArrowLeft, Wallet, Download, Calendar, FileText, TrendingUp, Loader2, AlertCircle } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
 import { toast } from "sonner";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { THEME_COLORS } from "@/shared/constants/colors";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
 import { fetchRekapData, fetchPayrollHistory, type RekapItem, type PayrollHistoryItem } from "@/features/payroll/api/payroll";
 import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
 import { fetchProfileAPI } from "@/features/tunas/api/absensi";
@@ -22,6 +23,10 @@ interface MobilePayrollPageProps {
 
 export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
   const { navigate } = useRouter();
+  const { mainColor, subColor } = useTenantBranding();
+  const navBg = mainColor || THEME_COLORS.hex.navBg;
+  const primaryAccent = subColor || THEME_COLORS.hex.primary;
+
   const [activeTab, setActiveTab] = useState<"current" | "history">("current");
 
   // Date filters for current period
@@ -38,7 +43,7 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
   const [isLoadingRekap, setIsLoadingRekap] = useState(true);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [downloadingId, setDownloadingId] = useState<number | string | null>(null);
+  const [downloadingKey, setDownloadingKey] = useState<string | null>(null);
 
   const months = [
     { value: 1, label: "Januari" },
@@ -82,7 +87,6 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
       }
     } catch (err: any) {
       console.warn("Failed to fetch rekap data for user:", err);
-      // Fallback empty rekap
       setRekapItem(null);
     } finally {
       setIsLoadingRekap(false);
@@ -112,21 +116,21 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
   }, [selectedMonth, selectedYear, loadRekap]);
 
   useEffect(() => {
-    if (activeTab === "history") {
-      loadHistory();
-    }
-  }, [activeTab, loadHistory]);
+    loadHistory();
+  }, [loadHistory]);
 
-  const handleDownloadPayslip = async (targetMonth?: number, targetYear?: number, targetId?: number | string) => {
+  const handleDownloadPayslip = async (targetMonth?: number, targetYear?: number, keyIdentifier?: string) => {
     const m = targetMonth || selectedMonth;
     const y = targetYear || selectedYear;
     const lastDay = new Date(y, m, 0).getDate();
     const startDate = `${y}-${String(m).padStart(2, "0")}-01`;
     const endDate = `${y}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
 
+    const downloadKey = keyIdentifier || `${m}-${y}`;
+
     try {
       setIsDownloading(true);
-      setDownloadingId(targetId || "current");
+      setDownloadingKey(downloadKey);
       const profile = await fetchProfileAPI();
       const userId = profile?.id;
       if (!userId) {
@@ -152,31 +156,65 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
 
       const a = document.createElement("a");
       a.href = blobUrl;
-      a.download = `Slip_Gaji_${profile.name || "Pegawai"}_${startDate}_${endDate}.pdf`;
+      const monthName = months.find((mo) => mo.value === m)?.label || `Bulan_${m}`;
+      a.download = `Slip_Gaji_${profile.name || "Pegawai"}_${monthName}_${y}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
 
       setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
-      toast.success("Slip gaji berhasil diunduh!");
+      toast.success(`Slip gaji ${monthName} ${y} berhasil diunduh!`);
     } catch (err: any) {
       toast.error(err.message || "Gagal mengunduh slip gaji");
     } finally {
       setIsDownloading(false);
-      setDownloadingId(null);
+      setDownloadingKey(null);
     }
   };
 
   const selectedMonthLabel = months.find((m) => m.value === selectedMonth)?.label || "";
 
+  // Compute merged slip list: combining finalized backend payrolls and recent monthly periods
+  const availablePayslips = useMemo(() => {
+    // Generate recent 8 months
+    const periods: Array<{
+      month: number;
+      year: number;
+      label: string;
+      historyItem?: PayrollHistoryItem;
+      isCurrentPeriod: boolean;
+    }> = [];
+
+    for (let i = 0; i < 8; i++) {
+      const d = new Date(currentYear, currentMonth - 1 - i, 1);
+      const m = d.getMonth() + 1;
+      const y = d.getFullYear();
+      const mLabel = months.find((item) => item.value === m)?.label || `Bulan ${m}`;
+
+      // Check if this month has a finalized record in historyItems
+      const matched = historyItems.find((h) => h.bulan === m && h.tahun === y);
+      const isCurrent = m === currentMonth && y === currentYear;
+
+      periods.push({
+        month: m,
+        year: y,
+        label: `${mLabel} ${y}`,
+        historyItem: matched,
+        isCurrentPeriod: isCurrent,
+      });
+    }
+
+    return periods;
+  }, [currentMonth, currentYear, historyItems]);
+
   return (
-    <div className="flex flex-col min-h-screen bg-[#F7F3EB] text-slate-800 pb-24 relative -mt-6 -mx-5 text-left">
+    <div className="flex flex-col min-h-screen bg-[#F7F3EB] text-slate-800 pb-24 relative -mt-6 -mx-5 text-left font-sans">
       {/* Top sticky navigation */}
       <div
-        style={{ backgroundColor: THEME_COLORS.hex.navBg }}
-        className="text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden"
+        style={{ backgroundColor: navBg }}
+        className="text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden transition-colors duration-300"
       >
-        {/* Background Pattern */}
+        {/* Background Pattern Overlay */}
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
           style={{
@@ -189,30 +227,30 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
         <div className="flex items-center gap-3 relative z-10">
           <button
             onClick={() => navigate("MobileLumbung")}
-            className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+            className="p-1.5 hover:bg-white/15 rounded-full transition-colors cursor-pointer active:scale-95 flex items-center justify-center"
             title="Kembali"
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-5 h-5 text-white" />
           </button>
           <div>
-            <span className="text-base font-bold tracking-tight block">Payroll & Keuangan</span>
-            <span className="text-[10px] text-white/70 font-medium">Informasi Gaji & Slip Saya</span>
+            <span className="text-base font-extrabold tracking-tight block text-white leading-tight">Payroll & Keuangan</span>
+            <span className="text-[10px] text-white/75 font-medium">Informasi Gaji & Slip Saya</span>
           </div>
         </div>
 
         <button
           onClick={() => handleDownloadPayslip()}
           disabled={isDownloading}
-          style={{ backgroundColor: THEME_COLORS.hex.primary }}
-          className="p-2 rounded-xl text-white shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer relative z-10 flex items-center gap-1 text-[11px] font-bold disabled:opacity-50"
-          title="Download Slip PDF"
+          style={{ backgroundColor: primaryAccent }}
+          className="px-3 py-1.5 rounded-xl text-white shadow-md hover:opacity-90 active:scale-95 transition-all cursor-pointer relative z-10 flex items-center gap-1.5 text-xs font-bold disabled:opacity-50"
+          title="Download Slip PDF Bulan Ini"
         >
-          {isDownloading && downloadingId === "current" ? (
+          {isDownloading && downloadingKey === `${selectedMonth}-${selectedYear}` ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
             <Download className="w-4 h-4" />
           )}
-          <span className="hidden sm:inline">Unduh PDF</span>
+          <span>Unduh PDF</span>
         </button>
       </div>
 
@@ -226,12 +264,13 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
         {/* Period Selector & Tabs */}
         <div className="flex flex-col gap-3">
           {/* Segmented Tab Navigation */}
-          <div className="flex bg-slate-200/80 p-1 rounded-2xl shadow-inner select-none">
+          <div className="flex bg-[#e8e2d5] p-1 rounded-2xl shadow-inner select-none">
             <button
               onClick={() => setActiveTab("current")}
+              style={activeTab === "current" ? { color: THEME_COLORS.hex.textDark } : undefined}
               className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "current"
-                  ? "bg-white text-gray-900 shadow-sm"
+                  ? "bg-white shadow-sm font-extrabold"
                   : "text-gray-500 hover:text-gray-800"
               }`}
             >
@@ -239,9 +278,10 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
             </button>
             <button
               onClick={() => setActiveTab("history")}
+              style={activeTab === "history" ? { color: THEME_COLORS.hex.textDark } : undefined}
               className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "history"
-                  ? "bg-white text-gray-900 shadow-sm"
+                  ? "bg-white shadow-sm font-extrabold"
                   : "text-gray-500 hover:text-gray-800"
               }`}
             >
@@ -255,7 +295,7 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
               <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 shadow-xs focus:outline-none cursor-pointer"
+                className="flex-1 bg-white border border-slate-200/90 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 shadow-xs focus:outline-none cursor-pointer"
               >
                 {months.map((m) => (
                   <option key={m.value} value={m.value}>
@@ -267,7 +307,7 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(Number(e.target.value))}
-                className="w-28 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 shadow-xs focus:outline-none cursor-pointer"
+                className="w-28 bg-white border border-slate-200/90 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 shadow-xs focus:outline-none cursor-pointer"
               >
                 {years.map((y) => (
                   <option key={y} value={y}>
@@ -284,8 +324,8 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
           <div className="space-y-4">
             {/* Take Home Pay Hero Card */}
             <div
-              style={{ backgroundColor: THEME_COLORS.hex.navBg }}
-              className="text-white p-5 rounded-3xl shadow-lg relative overflow-hidden space-y-3.5"
+              style={{ backgroundColor: navBg }}
+              className="text-white p-5 rounded-3xl shadow-xl relative overflow-hidden space-y-3.5"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
 
@@ -296,7 +336,10 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
                     Estimasi Take Home Pay
                   </span>
                 </div>
-                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-white/15 text-white">
+                <span
+                  style={{ backgroundColor: "rgba(255, 255, 255, 0.15)", color: "#ffffff" }}
+                  className="text-[9px] font-bold px-2.5 py-0.5 rounded-full"
+                >
                   {selectedMonthLabel} {selectedYear}
                 </span>
               </div>
@@ -305,17 +348,17 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#fee279]">
                   {isLoadingRekap ? "Memuat..." : formatRupiah(rekapItem?.aktual_gaji ?? (user?.gaji_pokok || 0))}
                 </h2>
-                <p className="text-[10px] text-white/70 font-medium">
+                <p className="text-[10px] text-white/75 font-medium">
                   {rekapItem?.has_payroll
-                    ? "✓ Payroll telah difinalisasi & terbit"
-                    : "• Estimasi berjalan berdasarkan absensi"}
+                    ? "✓ Payroll telah difinalisasi oleh Admin"
+                    : "• Perhitungan realtime berdasarkan absensi"}
                 </p>
               </div>
 
               {/* Bank Account Info Footer */}
-              <div className="pt-3 border-t border-white/10 flex justify-between items-center text-[10px] text-white/80 relative z-10">
+              <div className="pt-3 border-t border-white/15 flex justify-between items-center text-[10px] text-white/85 relative z-10">
                 <span className="font-semibold">
-                  {rekapItem?.bank || user?.bank || "Rekening Payroll"}
+                  {rekapItem?.bank || user?.bank || "Bank Mandiri"}
                 </span>
                 <span className="font-mono font-bold">
                   {rekapItem?.rekening || user?.rekening || "—"}
@@ -325,7 +368,7 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
 
             {/* Breakdown Accordion / List */}
             {isLoadingRekap ? (
-              <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs space-y-3 animate-pulse">
+              <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-xs space-y-3 animate-pulse">
                 <div className="h-4 bg-slate-200 rounded w-1/3" />
                 <div className="space-y-2 pt-2">
                   <div className="h-3 bg-slate-100 rounded w-full" />
@@ -334,17 +377,129 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
                 </div>
               </div>
             ) : rekapItem ? (
-              <div className="space-y-3">
-                {/* Rincian Penerimaan Card */}
-                <div className="bg-white p-4.5 rounded-2xl border border-slate-100 shadow-xs space-y-3 text-left">
+              <div className="space-y-3.5">
+                {/* STATISTIK KEHADIRAN (Finexy Theme Palette) */}
+                <div className="bg-white p-4.5 rounded-2xl border border-slate-100/80 shadow-xs space-y-3 text-left">
                   <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                    <TrendingUp className="w-4 h-4 text-emerald-600" />
-                    <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                    <Calendar
+                      size={16}
+                      style={{ color: THEME_COLORS.hex.airKehidupan }}
+                    />
+                    <h3
+                      style={{ color: THEME_COLORS.hex.textDark }}
+                      className="text-xs font-black uppercase tracking-wider"
+                    >
+                      Statistik Kehadiran
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {/* Hari Kerja (Air Kehidupan Light Palette) */}
+                    <div
+                      style={{
+                        backgroundColor: `${THEME_COLORS.hex.airKehidupan}12`,
+                        borderColor: `${THEME_COLORS.hex.airKehidupan}30`,
+                      }}
+                      className="p-3 rounded-xl border flex flex-col justify-between"
+                    >
+                      <span
+                        style={{ color: THEME_COLORS.hex.airKehidupanText }}
+                        className="text-[10px] font-extrabold uppercase tracking-wide"
+                      >
+                        Hari Kerja
+                      </span>
+                      <p
+                        style={{ color: THEME_COLORS.hex.airKehidupanDark }}
+                        className="text-sm font-black mt-0.5"
+                      >
+                        {rekapItem.total_hari_kerja} Hari
+                      </p>
+                    </div>
+
+                    {/* Total Hadir (Sawah Pertumbuhan Palette) */}
+                    <div
+                      style={{
+                        backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}14`,
+                        borderColor: `${THEME_COLORS.hex.sawahPertumbuhan}35`,
+                      }}
+                      className="p-3 rounded-xl border flex flex-col justify-between"
+                    >
+                      <span
+                        style={{ color: THEME_COLORS.hex.sawahPertumbuhanText }}
+                        className="text-[10px] font-extrabold uppercase tracking-wide"
+                      >
+                        Total Hadir
+                      </span>
+                      <p
+                        style={{ color: THEME_COLORS.hex.sawahPertumbuhanDark }}
+                        className="text-sm font-black mt-0.5"
+                      >
+                        {rekapItem.total_hadir} Hari
+                      </p>
+                    </div>
+
+                    {/* Sakit / Izin (Padi Kemakmuran Palette) */}
+                    <div
+                      style={{
+                        backgroundColor: `${THEME_COLORS.hex.padiKemakmuran}1A`,
+                        borderColor: `${THEME_COLORS.hex.padiKemakmuran}40`,
+                      }}
+                      className="p-3 rounded-xl border flex flex-col justify-between"
+                    >
+                      <span
+                        style={{ color: THEME_COLORS.hex.padiKemakmuranText }}
+                        className="text-[10px] font-extrabold uppercase tracking-wide"
+                      >
+                        Sakit / Izin
+                      </span>
+                      <p
+                        style={{ color: THEME_COLORS.hex.padiKemakmuranDark }}
+                        className="text-sm font-black mt-0.5"
+                      >
+                        {rekapItem.sakit_dan_izin} Hari
+                      </p>
+                    </div>
+
+                    {/* Total Lembur (Api Semangat / Primary Palette) */}
+                    <div
+                      style={{
+                        backgroundColor: `${THEME_COLORS.hex.apiSemangat}14`,
+                        borderColor: `${THEME_COLORS.hex.apiSemangat}30`,
+                      }}
+                      className="p-3 rounded-xl border flex flex-col justify-between"
+                    >
+                      <span
+                        style={{ color: THEME_COLORS.hex.apiSemangatDark }}
+                        className="text-[10px] font-extrabold uppercase tracking-wide"
+                      >
+                        Total Lembur
+                      </span>
+                      <p
+                        style={{ color: THEME_COLORS.hex.apiSemangatDark }}
+                        className="text-sm font-black mt-0.5"
+                      >
+                        {rekapItem.jam_lembur}j {rekapItem.menit_lembur}m
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rincian Penerimaan Card */}
+                <div className="bg-white p-4.5 rounded-2xl border border-slate-100/80 shadow-xs space-y-3 text-left">
+                  <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                    <TrendingUp
+                      size={16}
+                      style={{ color: THEME_COLORS.hex.sawahPertumbuhanDark }}
+                    />
+                    <h3
+                      style={{ color: THEME_COLORS.hex.textDark }}
+                      className="text-xs font-black uppercase tracking-wider"
+                    >
                       Penerimaan / Penghasilan
                     </h3>
                   </div>
 
-                  <div className="divide-y divide-slate-50 text-xs font-semibold space-y-2">
+                  <div className="divide-y divide-slate-100 text-xs font-semibold space-y-2">
                     <div className="flex justify-between items-center pt-1.5">
                       <span className="text-slate-500 font-medium">Gaji Pokok Terhitung</span>
                       <span className="text-slate-900 font-bold">
@@ -361,7 +516,10 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
 
                     <div className="flex justify-between items-center pt-2">
                       <span className="text-slate-500 font-medium">Insentif Kehadiran</span>
-                      <span className="text-emerald-600 font-bold">
+                      <span
+                        style={{ color: THEME_COLORS.hex.sawahPertumbuhanDark }}
+                        className="font-bold"
+                      >
                         +{formatRupiah(rekapItem.insentif_per_hari_kerja)}
                       </span>
                     </div>
@@ -370,80 +528,68 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
                       <span className="text-slate-500 font-medium">
                         Uang Lembur ({rekapItem.jam_lembur}j {rekapItem.menit_lembur}m)
                       </span>
-                      <span className="text-emerald-600 font-bold">
+                      <span
+                        style={{ color: THEME_COLORS.hex.sawahPertumbuhanDark }}
+                        className="font-bold"
+                      >
                         +{formatRupiah(rekapItem.total_lembur_rp)}
                       </span>
                     </div>
 
                     <div className="flex justify-between items-center pt-2">
                       <span className="text-slate-500 font-medium">Tunjangan Tetap</span>
-                      <span className="text-emerald-600 font-bold">+Rp 200.000</span>
+                      <span
+                        style={{ color: THEME_COLORS.hex.sawahPertumbuhanDark }}
+                        className="font-bold"
+                      >
+                        +Rp 200.000
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Rincian Potongan Card */}
-                <div className="bg-white p-4.5 rounded-2xl border border-slate-100 shadow-xs space-y-3 text-left">
+                <div className="bg-white p-4.5 rounded-2xl border border-slate-100/80 shadow-xs space-y-3 text-left">
                   <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                    <AlertCircle className="w-4 h-4 text-rose-500" />
-                    <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                    <AlertCircle
+                      size={16}
+                      style={{ color: THEME_COLORS.hex.apiSemangat }}
+                    />
+                    <h3
+                      style={{ color: THEME_COLORS.hex.textDark }}
+                      className="text-xs font-black uppercase tracking-wider"
+                    >
                       Potongan
                     </h3>
                   </div>
 
-                  <div className="divide-y divide-slate-50 text-xs font-semibold space-y-2">
+                  <div className="divide-y divide-slate-100 text-xs font-semibold space-y-2">
                     <div className="flex justify-between items-center pt-1.5">
                       <span className="text-slate-500 font-medium">
                         Izin & Sakit ({rekapItem.sakit_dan_izin} hari)
                       </span>
-                      <span className="text-rose-500 font-bold">
+                      <span
+                        style={{ color: THEME_COLORS.hex.apiSemangat }}
+                        className="font-bold"
+                      >
                         -{formatRupiah(rekapItem.potongan)}
                       </span>
                     </div>
 
                     <div className="flex justify-between items-center pt-2 border-t border-slate-200 font-extrabold text-slate-900">
                       <span>Total Potongan</span>
-                      <span className="text-rose-600">-{formatRupiah(rekapItem.potongan)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Ringkasan Absensi Periode Card */}
-                <div className="bg-white p-4.5 rounded-2xl border border-slate-100 shadow-xs space-y-3 text-left">
-                  <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                    <Calendar className="w-4 h-4 text-blue-600" />
-                    <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
-                      Statistik Kehadiran
-                    </h3>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase">Hari Kerja</span>
-                      <p className="text-sm font-black text-slate-800">{rekapItem.total_hari_kerja} Hari</p>
-                    </div>
-
-                    <div className="bg-emerald-50/60 p-3 rounded-xl border border-emerald-100">
-                      <span className="text-[10px] font-bold text-emerald-600 uppercase">Total Hadir</span>
-                      <p className="text-sm font-black text-emerald-800">{rekapItem.total_hadir} Hari</p>
-                    </div>
-
-                    <div className="bg-amber-50/60 p-3 rounded-xl border border-amber-100">
-                      <span className="text-[10px] font-bold text-amber-600 uppercase">Sakit / Izin</span>
-                      <p className="text-sm font-black text-amber-800">{rekapItem.sakit_dan_izin} Hari</p>
-                    </div>
-
-                    <div className="bg-blue-50/60 p-3 rounded-xl border border-blue-100">
-                      <span className="text-[10px] font-bold text-blue-600 uppercase">Total Lembur</span>
-                      <p className="text-sm font-black text-blue-800">
-                        {rekapItem.jam_lembur}j {rekapItem.menit_lembur}m
-                      </p>
+                      <span
+                        style={{ color: THEME_COLORS.hex.apiSemangat }}
+                        className="font-black"
+                      >
+                        -{formatRupiah(rekapItem.potongan)}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="bg-white p-6 rounded-2xl border border-slate-100 text-center space-y-2">
+              <div className="bg-white p-8 rounded-2xl border border-dashed border-slate-200 text-center space-y-2">
                 <FileText className="w-8 h-8 text-slate-300 mx-auto" />
                 <h4 className="text-xs font-bold text-slate-700">Belum Ada Data Rekap</h4>
                 <p className="text-[11px] text-slate-400">
@@ -457,6 +603,21 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
         {/* TAB 2: RIWAYAT SLIP GAJI */}
         {activeTab === "history" && (
           <div className="space-y-3">
+            <div className="flex justify-between items-center px-1">
+              <span
+                style={{ color: THEME_COLORS.hex.textDark }}
+                className="text-xs font-black uppercase tracking-wider"
+              >
+                Daftar Dokumen Slip Gaji
+              </span>
+              <span
+                style={{ color: THEME_COLORS.hex.airKehidupan }}
+                className="text-[10px] font-extrabold"
+              >
+                {availablePayslips.length} Periode Tersedia
+              </span>
+            </div>
+
             {isLoadingHistory ? (
               <div className="space-y-2.5">
                 {[1, 2, 3].map((i) => (
@@ -469,52 +630,101 @@ export function MobilePayrollPage({ user }: MobilePayrollPageProps) {
                   </div>
                 ))}
               </div>
-            ) : historyItems.length > 0 ? (
-              historyItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center justify-between gap-3 hover:border-slate-200 transition-all text-left"
-                >
-                  <div className="min-w-0 flex-1 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-black text-slate-900">
-                        {months.find((m) => m.value === item.bulan)?.label || `Bulan ${item.bulan}`} {item.tahun}
-                      </span>
-                      <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
-                        Terbit
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 font-mono font-medium">
-                      No: {item.no_gaji}
-                    </p>
-                    <p className="text-xs font-bold text-emerald-600">
-                      {formatRupiah(item.grand_total)}
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => handleDownloadPayslip(item.bulan, item.tahun, item.id)}
-                    disabled={isDownloading && downloadingId === item.id}
-                    style={{ backgroundColor: THEME_COLORS.hex.primary }}
-                    className="px-3 py-2 rounded-xl text-white text-[11px] font-bold shadow-xs hover:opacity-90 active:scale-95 transition-all flex items-center gap-1 cursor-pointer shrink-0 disabled:opacity-50"
-                  >
-                    {isDownloading && downloadingId === item.id ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Download className="w-3.5 h-3.5" />
-                    )}
-                    <span>Slip PDF</span>
-                  </button>
-                </div>
-              ))
             ) : (
-              <div className="bg-white p-8 rounded-2xl border border-dashed border-slate-200 text-center space-y-2">
-                <FileText className="w-8 h-8 text-slate-300 mx-auto" />
-                <h4 className="text-xs font-bold text-slate-700">Belum Ada Riwayat Slip Gaji</h4>
-                <p className="text-[11px] text-slate-400">
-                  Slip gaji bulanan yang telah difinalisasi akan muncul di sini.
-                </p>
+              <div className="space-y-2.5">
+                {availablePayslips.map((period) => {
+                  const isCurrent = period.isCurrentPeriod;
+                  const hasFinalized = !!period.historyItem;
+                  const slipAmount = period.historyItem
+                    ? period.historyItem.grand_total
+                    : isCurrent
+                    ? rekapItem?.aktual_gaji ?? (user?.gaji_pokok || 0)
+                    : (user?.gaji_pokok || 0);
+
+                  const keyId = `${period.month}-${period.year}`;
+                  const isThisDownloading = isDownloading && downloadingKey === keyId;
+
+                  return (
+                    <div
+                      key={keyId}
+                      className="bg-white p-4 rounded-2xl border border-slate-100/90 shadow-xs flex items-center justify-between gap-3 hover:border-slate-300 transition-all text-left group"
+                    >
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            style={{ color: THEME_COLORS.hex.textDark }}
+                            className="text-xs font-black"
+                          >
+                            {period.label}
+                          </span>
+                          {hasFinalized ? (
+                            <span
+                              style={{
+                                backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}20`,
+                                color: THEME_COLORS.hex.sawahPertumbuhanDark,
+                              }}
+                              className="text-[9px] font-black px-2 py-0.5 rounded-full"
+                            >
+                              Final
+                            </span>
+                          ) : isCurrent ? (
+                            <span
+                              style={{
+                                backgroundColor: `${THEME_COLORS.hex.padiKemakmuran}25`,
+                                color: THEME_COLORS.hex.padiKemakmuranText,
+                              }}
+                              className="text-[9px] font-black px-2 py-0.5 rounded-full"
+                            >
+                              Periode Berjalan
+                            </span>
+                          ) : (
+                            <span
+                              style={{
+                                backgroundColor: `${THEME_COLORS.hex.airKehidupan}18`,
+                                color: THEME_COLORS.hex.airKehidupanText,
+                              }}
+                              className="text-[9px] font-black px-2 py-0.5 rounded-full"
+                            >
+                              Tersedia
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-[10px] text-slate-400 font-mono font-medium truncate">
+                          {period.historyItem?.no_gaji ? `No: ${period.historyItem.no_gaji}` : `Slip Gaji Karyawan • ${user?.name || "Pegawai"}`}
+                        </p>
+
+                        <p
+                          style={{ color: THEME_COLORS.hex.sawahPertumbuhanDark }}
+                          className="text-xs font-black"
+                        >
+                          {formatRupiah(slipAmount)}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDownloadPayslip(period.month, period.year, keyId)}
+                        disabled={isDownloading}
+                        style={{ backgroundColor: primaryAccent }}
+                        className="px-3.5 py-2.5 rounded-xl text-white text-[11px] font-bold shadow-xs hover:opacity-90 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer shrink-0 disabled:opacity-50"
+                        title="Unduh Dokumen PDF Slip Gaji"
+                      >
+                        {isThisDownloading ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            <span>Mengunduh...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Download className="w-3.5 h-3.5" />
+                            <span>Unduh PDF</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
