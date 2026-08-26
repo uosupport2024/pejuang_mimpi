@@ -24,7 +24,7 @@ import {
   type CreateTenantResult
 } from "../api/tenant-management";
 import { ReusableTable, type ColumnDef } from "@/shared/components/ui/reusable-table";
-import { THEME_COLORS, getSubColorHex } from "@/shared/constants/colors";
+import { THEME_COLORS, getSubColorHex, parseSubColor, buildCssBackground } from "@/shared/constants/colors";
 import { useRouter } from "@/shared/router/router";
 import { toast } from "sonner";
 
@@ -339,24 +339,31 @@ export function TenantManagementPage({ user: _user }: TenantManagementPageProps)
     {
       header: "Warna Brand",
       cell: (row) => {
-        const main = row.main_color || THEME_COLORS.hex.primary;
-        const sub = getSubColorHex(row.sub_color);
+        const parsed = parseSubColor(row.sub_color);
+        const sidebar = buildCssBackground(parsed.sidebar || row.main_color, THEME_COLORS.hex.navBg);
+        const navbar = buildCssBackground(parsed.navbar || row.main_color, THEME_COLORS.hex.navBg);
+        const button = buildCssBackground(parsed.button || parsed.sub || row.main_color, THEME_COLORS.hex.primary);
         return (
           <div className="flex items-center gap-1.5">
             <div className="flex -space-x-1 shrink-0">
               <div
                 className="w-4 h-4 rounded-full border-2 border-white shadow-2xs"
-                style={{ backgroundColor: main }}
-                title={`Utama: ${main}`}
+                style={{ background: sidebar }}
+                title="Sidebar"
               />
               <div
                 className="w-4 h-4 rounded-full border-2 border-white shadow-2xs"
-                style={{ backgroundColor: sub }}
-                title={`Sekunder: ${sub}`}
+                style={{ background: navbar }}
+                title="Navbar"
+              />
+              <div
+                className="w-4 h-4 rounded-full border-2 border-white shadow-2xs"
+                style={{ background: button }}
+                title="Tombol"
               />
             </div>
             <span className="text-[11px] font-mono font-medium text-gray-500">
-              {main}
+              {row.main_color || "#1E2A4A"}
             </span>
           </div>
         );

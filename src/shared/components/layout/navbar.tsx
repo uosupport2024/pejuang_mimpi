@@ -22,9 +22,9 @@ interface NavbarProps {
 
 export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: NavbarProps) {
   const { navigate } = useRouter();
-  const { effectiveLogo, mainColor, subColor } = useTenantBranding();
-  const navPrimary = mainColor || THEME_COLORS.hex.navBg;
-  const buttonAccent = subColor || THEME_COLORS.hex.primary;
+  const { effectiveLogo, navbarBg, buttonColor } = useTenantBranding();
+  const navPrimary = navbarBg || THEME_COLORS.hex.navBg;
+  const buttonAccent = buttonColor || THEME_COLORS.hex.primary;
   const [isOpen, setIsOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);

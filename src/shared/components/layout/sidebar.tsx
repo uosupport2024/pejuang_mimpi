@@ -21,9 +21,8 @@ interface SidebarProps {
 
 export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarProps) {
   const { currentRoute, navigate } = useRouter();
-  const { effectiveLogo, tenantName, mainColor, subColor } = useTenantBranding();
-  const sidebarBg = mainColor || THEME_COLORS.hex.navBg;
-  const accentColor = subColor || THEME_COLORS.hex.primary;
+  const { effectiveLogo, tenantName, sidebarBgStyle, sidebarBg, buttonColor } = useTenantBranding();
+  const accentColor = buttonColor || THEME_COLORS.hex.primary;
   const [isCollapsed, setIsCollapsed] = useState(() => {
     return localStorage.getItem("sidebar_collapsed") === "true";
   });
@@ -445,7 +444,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
       {/* DESKTOP FIXED SIDEBAR (DISPLAYED ONLY ON LG AND UP)           */}
       {/* ------------------------------------------------------------- */}
       <aside
-        style={{ backgroundColor: sidebarBg }}
+        style={sidebarBgStyle}
         className={`text-white hidden lg:flex flex-col py-3 shrink-0 h-screen overflow-visible transition-all duration-300 ease-in-out relative z-40 select-none ${isCollapsed ? "w-20 px-2.5" : "w-64 pl-4 pr-[11px]"
           }`}
       >
@@ -482,7 +481,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
               <>
                 <ChevronRight className="w-4 h-4 text-white/80 transition-transform duration-300 group-hover:translate-x-0.5" />
                 <div
-                  style={{ left: "90px", backgroundColor: sidebarBg }}
+                  style={{ left: "90px", ...sidebarBgStyle }}
                   className="fixed px-3 py-1.5 text-white text-xs font-semibold rounded-xl shadow-2xl whitespace-nowrap opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 pointer-events-none z-[9999] border border-white/15 origin-left"
                 >
                   Perluas Sidebar
@@ -509,7 +508,7 @@ export function Sidebar({ user, isMobileOpen = false, onCloseMobile }: SidebarPr
 
         {/* Drawer Container */}
         <div
-          style={{ backgroundColor: sidebarBg }}
+          style={sidebarBgStyle}
           className={`absolute top-0 bottom-0 left-0 w-72 max-w-[85vw] text-white flex flex-col py-4 px-4 shadow-2xl transition-transform duration-300 ease-out select-none ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
             }`}
         >

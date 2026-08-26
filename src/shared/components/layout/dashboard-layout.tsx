@@ -6,7 +6,6 @@ import { AdminGuidanceTour } from "./admin-guidance";
 import patternBg from "@/assets/bg/pattern-background.png";
 
 import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
-import { THEME_COLORS } from "@/shared/constants/colors";
 
 interface DashboardLayoutProps {
   user: {
@@ -19,8 +18,7 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ user, onLogout, children }: DashboardLayoutProps) {
-  const { mainColor } = useTenantBranding();
-  const navbarBg = mainColor || THEME_COLORS.hex.navBg;
+  const { navbarBgStyle } = useTenantBranding();
   const [scrolled, setScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
@@ -67,9 +65,9 @@ export function DashboardLayout({ user, onLogout, children }: DashboardLayoutPro
 
       {/* Right side: Top Navbar + Page Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        {/* Navbar inside right panel with dynamic sidebar background color */}
+        {/* Navbar inside right panel with dynamic navbar background color */}
         <header
-          style={{ backgroundColor: navbarBg }}
+          style={navbarBgStyle}
           className={`sticky top-0 z-40 shrink-0 transition-all duration-300 text-white border-b border-white/10 px-3 sm:px-6 py-2 shadow-sm ${
             scrolled ? "bg-opacity-95 backdrop-blur-md shadow-md" : ""
           }`}
