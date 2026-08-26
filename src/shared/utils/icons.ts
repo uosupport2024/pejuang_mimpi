@@ -92,7 +92,7 @@ export function useCelenganIcons() {
 
           if (Array.isArray(customList) && customList.length > 0) {
             const mapped: CelenganIconOption[] = customList.map((item: any, idx: number) => ({
-              key: item.icon_url || item.icon || `custom-icon-${item.id || idx}`,
+              key: item.icon || item.icon_url || `custom-icon-${item.id || idx}`,
               name: `Icon #${item.id || idx + 1}`,
               url: item.icon_url || getChickenIcon(item.icon),
               isCustom: true,
