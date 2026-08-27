@@ -99,19 +99,32 @@ export async function fetchScheduleEmployees(params: {
   return json.data;
 }
 
+export interface FetchMappingShiftsResponse {
+  current_page: number;
+  data: ScheduleUserEntry[];
+  last_page: number;
+  per_page: number;
+  total: number;
+}
+
 /**
  * Tenant-wide "who's working what, when" view for the given date range —
- * only employees with at least one mapped shift in the range are returned.
+ * paginated by employee (the whole matching roster, not just those with a
+ * mapped shift in range).
  */
 export async function fetchMappingShifts(params: {
   start_date: string;
   end_date: string;
   lokasi_id?: number | string;
-}): Promise<ScheduleUserEntry[]> {
+  per_page?: number;
+  page?: number;
+}): Promise<FetchMappingShiftsResponse> {
   const query = new URLSearchParams();
   query.append("start_date", params.start_date);
   query.append("end_date", params.end_date);
   if (params.lokasi_id) query.append("lokasi_id", String(params.lokasi_id));
+  query.append("per_page", String(params.per_page || 10));
+  query.append("page", String(params.page || 1));
 
   const response = await fetch(`${API_BASE_URL}/mapping-shifts?${query.toString()}`, {
     method: "GET",
@@ -123,7 +136,7 @@ export async function fetchMappingShifts(params: {
   }
 
   const json = await response.json();
-  return json.data || [];
+  return json.data;
 }
 
 export async function bulkAssignShift(payload: {

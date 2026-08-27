@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, ChevronDown, Loader2, CalendarRange, Plus, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, Loader2, CalendarRange, Plus, X, Clock } from "lucide-react";
 import { CalendarMark } from "@solar-icons/react";
 import { ReusableTable } from "@/shared/components/ui/reusable-table";
 import type { ColumnDef } from "@/shared/components/ui/reusable-table";
@@ -165,6 +165,10 @@ export function ScheduleShiftPage() {
   const scheduleCalendarRef = useRef<HTMLDivElement>(null);
   const [scheduleEntries, setScheduleEntries] = useState<ScheduleUserEntry[]>([]);
   const [loadingSchedule, setLoadingSchedule] = useState(true);
+  const [schedulePage, setSchedulePage] = useState(1);
+  const [schedulePerPage, setSchedulePerPage] = useState(10);
+  const [scheduleTotalPages, setScheduleTotalPages] = useState(1);
+  const [scheduleTotalItems, setScheduleTotalItems] = useState(0);
 
   // Cell edit modal — click a day cell in the Jadwal grid to add / change / remove a shift
   const [cellModal, setCellModal] = useState<{
@@ -235,15 +239,26 @@ export function ScheduleShiftPage() {
       start_date: toDateStr(scheduleRangeStart),
       end_date: toDateStr(scheduleRangeEnd),
       lokasi_id: locationFilter || undefined,
+      per_page: schedulePerPage,
+      page: schedulePage,
     })
-      .then(setScheduleEntries)
+      .then((res) => {
+        setScheduleEntries(res.data || []);
+        setScheduleTotalPages(res.last_page || 1);
+        setScheduleTotalItems(res.total || 0);
+      })
       .catch((err: any) => toast.error(err.message || "Gagal memuat jadwal shift."))
       .finally(() => setLoadingSchedule(false));
-  }, [scheduleRangeStart, scheduleRangeEnd, locationFilter]);
+  }, [scheduleRangeStart, scheduleRangeEnd, locationFilter, schedulePerPage, schedulePage]);
 
   useEffect(() => {
     loadSchedule();
   }, [loadSchedule]);
+
+  // Reset to page 1 whenever the filters or page size change (not on schedulePage itself)
+  useEffect(() => {
+    setSchedulePage(1);
+  }, [scheduleRangeStart, scheduleRangeEnd, locationFilter, schedulePerPage]);
 
   const openCellModal = (employeeId: number, employeeName: string, date: Date, existing: ScheduleUserShift | null) => {
     setCellModal({ employeeId, employeeName, date, existing });
@@ -569,8 +584,11 @@ export function ScheduleShiftPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left: Shift & Date panel */}
-        <div className="lg:col-span-4 space-y-4 h-fit lg:sticky lg:top-4">
+        {/* Left: Shift & Date panel — stretches to match the employee section's
+            height on desktop (no sticky/h-fit, so it stays in normal flow and
+            never "floats" independently while scrolling); on mobile the grid
+            collapses to a single column so this is a non-issue there. */}
+        <div className="lg:col-span-4 flex flex-col gap-4">
           {/* Step 1: Shift */}
           <div className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs space-y-3.5">
             <div className="flex items-center gap-2 pb-3 border-b border-gray-100">
@@ -680,20 +698,26 @@ export function ScheduleShiftPage() {
                             className="w-full h-8 px-2.5 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none text-gray-700 font-medium"
                           />
                           <div className="grid grid-cols-2 gap-2">
-                            <input
-                              type="time"
-                              required
-                              value={newShiftStart}
-                              onChange={(e) => setNewShiftStart(e.target.value)}
-                              className="w-full h-8 px-2 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none text-gray-700 font-medium"
-                            />
-                            <input
-                              type="time"
-                              required
-                              value={newShiftEnd}
-                              onChange={(e) => setNewShiftEnd(e.target.value)}
-                              className="w-full h-8 px-2 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none text-gray-700 font-medium"
-                            />
+                            <div className="relative">
+                              <input
+                                type="time"
+                                required
+                                value={newShiftStart}
+                                onChange={(e) => setNewShiftStart(e.target.value)}
+                                className="w-full h-8 pl-2 pr-7 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none text-gray-700 font-medium [&::-webkit-calendar-picker-indicator]:opacity-0"
+                              />
+                              <Clock className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+                            </div>
+                            <div className="relative">
+                              <input
+                                type="time"
+                                required
+                                value={newShiftEnd}
+                                onChange={(e) => setNewShiftEnd(e.target.value)}
+                                className="w-full h-8 pl-2 pr-7 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none text-gray-700 font-medium [&::-webkit-calendar-picker-indicator]:opacity-0"
+                              />
+                              <Clock className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+                            </div>
                           </div>
                           <div className="flex gap-2 pt-0.5">
                             <button
@@ -723,8 +747,10 @@ export function ScheduleShiftPage() {
             )}
           </div>
 
-          {/* Step 2: Dates */}
-          <div className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs space-y-3.5">
+          {/* Step 2: Dates — flex-1 so it absorbs any extra height from the
+              stretched left column, keeping its bottom edge aligned with the
+              employee section's bottom instead of leaving a gap. */}
+          <div className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs space-y-3.5 flex-1 flex flex-col">
             <div className="flex items-center gap-2 pb-3 border-b border-gray-100">
               <span
                 style={{ backgroundColor: THEME_COLORS.hex.primary }}
@@ -1029,7 +1055,7 @@ export function ScheduleShiftPage() {
         ) : scheduleRows.length === 0 ? (
           <div className="py-10 text-center">
             <p className="text-xs text-gray-400 font-semibold">
-              Belum ada jadwal shift pada minggu ini{locationFilter ? " untuk lokasi ini" : ""}.
+              Tidak ada pegawai{locationFilter ? " untuk lokasi ini" : ""}.
             </p>
           </div>
         ) : (
@@ -1112,6 +1138,51 @@ export function ScheduleShiftPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {!loadingSchedule && scheduleRows.length > 0 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 mt-4 border-t border-gray-100">
+            <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
+              <span>
+                Menampilkan <span className="text-gray-900 font-semibold">{(schedulePage - 1) * schedulePerPage + 1}</span> sampai{" "}
+                <span className="text-gray-900 font-semibold">{Math.min(schedulePage * schedulePerPage, scheduleTotalItems)}</span> dari{" "}
+                <span className="text-gray-900 font-semibold">{scheduleTotalItems}</span> pegawai
+              </span>
+              <select
+                value={schedulePerPage}
+                onChange={(e) => setSchedulePerPage(Number(e.target.value))}
+                className="h-7 px-2 text-xs font-bold bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-700 cursor-pointer shadow-2xs"
+              >
+                <option value={10}>10 / halaman</option>
+                <option value={20}>20 / halaman</option>
+                <option value={50}>50 / halaman</option>
+              </select>
+            </div>
+
+            {scheduleTotalPages > 1 && (
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  disabled={schedulePage === 1}
+                  onClick={() => setSchedulePage((p) => p - 1)}
+                  className="w-7 h-7 flex items-center justify-center text-[11px] font-semibold rounded-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </button>
+                <span className="text-xs font-bold text-gray-700 px-1.5">
+                  {schedulePage} / {scheduleTotalPages}
+                </span>
+                <button
+                  type="button"
+                  disabled={schedulePage === scheduleTotalPages}
+                  onClick={() => setSchedulePage((p) => p + 1)}
+                  className="w-7 h-7 flex items-center justify-center text-[11px] font-semibold rounded-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+                >
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
