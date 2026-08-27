@@ -6,8 +6,8 @@ export async function fetchCelengans(): Promise<Celengan[]> {
     method: "GET",
     headers: getHeaders(),
   });
-  if (!response.ok) throw new Error("Failed to fetch celengans");
-  const json = await response.json();
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(json.message || "Failed to fetch celengans");
   if (json.code === 200 && Array.isArray(json.data)) {
     return json.data.map((c: any) => ({
       ...c,
@@ -24,8 +24,8 @@ export async function createCelengan(name: string, targetAmount: number, icon: s
     headers: getHeaders(),
     body: JSON.stringify({ name, target_amount: targetAmount, icon }),
   });
-  if (!response.ok) throw new Error("Failed to create celengan");
-  const json = await response.json();
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(json.message || "Failed to create celengan");
   if (json.code === 201 || json.code === 200) {
     return {
       ...json.data,
@@ -42,8 +42,8 @@ export async function updateCelengan(id: number, name: string, targetAmount: num
     headers: getHeaders(),
     body: JSON.stringify({ name, target_amount: targetAmount, icon }),
   });
-  if (!response.ok) throw new Error("Failed to update celengan");
-  const json = await response.json();
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(json.message || "Failed to update celengan");
   if (json.code === 200) {
     return {
       ...json.data,
@@ -59,8 +59,8 @@ export async function deleteCelengan(id: number): Promise<boolean> {
     method: "DELETE",
     headers: getHeaders(),
   });
-  if (!response.ok) throw new Error("Failed to delete");
-  const json = await response.json();
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(json.message || "Failed to delete");
   return json.code === 200;
 }
 
@@ -70,8 +70,8 @@ export async function depositCelengan(id: number, amount: number, note?: string)
     headers: getHeaders(),
     body: JSON.stringify({ amount, note }),
   });
-  if (!response.ok) throw new Error("Failed to deposit");
-  const json = await response.json();
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(json.message || "Failed to deposit");
   if (json.code === 200) {
     return {
       celengan: {
@@ -91,8 +91,8 @@ export async function withdrawCelengan(id: number, amount: number, note?: string
     headers: getHeaders(),
     body: JSON.stringify({ amount, note }),
   });
-  if (!response.ok) throw new Error("Failed to withdraw");
-  const json = await response.json();
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(json.message || "Failed to withdraw");
   if (json.code === 200) {
     return {
       celengan: {
@@ -111,8 +111,8 @@ export async function fetchCelenganHistory(id: number): Promise<CelenganTransact
     method: "GET",
     headers: getHeaders(),
   });
-  if (!response.ok) throw new Error("Failed to fetch history");
-  const json = await response.json();
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(json.message || "Failed to fetch history");
   if (json.code === 200 && Array.isArray(json.data)) {
     return json.data.map((t: any) => ({
       ...t,
