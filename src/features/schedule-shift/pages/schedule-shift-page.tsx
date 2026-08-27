@@ -13,9 +13,12 @@ import {
   fetchScheduleEmployees,
   fetchMappingShifts,
   bulkAssignShift,
+  updateMappingShift,
+  deleteMappingShift,
   type ShiftOption,
   type ScheduleEmployee,
   type ScheduleUserEntry,
+  type ScheduleUserShift,
 } from "../api/schedule-shift";
 
 function getInitials(name: string): string {
@@ -163,6 +166,17 @@ export function ScheduleShiftPage() {
   const [scheduleEntries, setScheduleEntries] = useState<ScheduleUserEntry[]>([]);
   const [loadingSchedule, setLoadingSchedule] = useState(true);
 
+  // Cell edit modal — click a day cell in the Jadwal grid to add / change / remove a shift
+  const [cellModal, setCellModal] = useState<{
+    employeeId: number;
+    employeeName: string;
+    date: Date;
+    existing: ScheduleUserShift | null;
+  } | null>(null);
+  const [modalShiftId, setModalShiftId] = useState<string>("");
+  const [savingCell, setSavingCell] = useState(false);
+  const [deletingCell, setDeletingCell] = useState(false);
+
   // Load shifts & locations once
   useEffect(() => {
     fetchShiftOptions()
@@ -230,6 +244,51 @@ export function ScheduleShiftPage() {
   useEffect(() => {
     loadSchedule();
   }, [loadSchedule]);
+
+  const openCellModal = (employeeId: number, employeeName: string, date: Date, existing: ScheduleUserShift | null) => {
+    setCellModal({ employeeId, employeeName, date, existing });
+    setModalShiftId(existing ? String(existing.shift_id) : shifts[0] ? String(shifts[0].id) : "");
+  };
+
+  const handleSaveCell = async () => {
+    if (!cellModal || !modalShiftId) return;
+    try {
+      setSavingCell(true);
+      if (cellModal.existing) {
+        await updateMappingShift(cellModal.existing.mapping_shift_id, { shift_id: Number(modalShiftId) });
+        toast.success("Jadwal berhasil diperbarui.");
+      } else {
+        await bulkAssignShift({
+          user_ids: [cellModal.employeeId],
+          shift_id: Number(modalShiftId),
+          start_date: toDateStr(cellModal.date),
+          end_date: toDateStr(cellModal.date),
+        });
+        toast.success("Shift berhasil ditambahkan.");
+      }
+      setCellModal(null);
+      loadSchedule();
+    } catch (err: any) {
+      toast.error(err.message || "Gagal menyimpan jadwal.");
+    } finally {
+      setSavingCell(false);
+    }
+  };
+
+  const handleDeleteCell = async () => {
+    if (!cellModal?.existing) return;
+    try {
+      setDeletingCell(true);
+      await deleteMappingShift(cellModal.existing.mapping_shift_id);
+      toast.success("Jadwal berhasil dihapus.");
+      setCellModal(null);
+      loadSchedule();
+    } catch (err: any) {
+      toast.error(err.message || "Gagal menghapus jadwal.");
+    } finally {
+      setDeletingCell(false);
+    }
+  };
 
   // Close the shift dropdown / schedule date-range popover on outside click
   useEffect(() => {
@@ -1020,9 +1079,11 @@ export function ScheduleShiftPage() {
                       return (
                         <td key={toDateStr(d)} className="text-center py-1.5 px-1 border-b border-gray-50/80">
                           {mapping ? (
-                            <div
+                            <button
+                              type="button"
+                              onClick={() => openCellModal(row.id, row.name, d, mapping)}
                               style={{ backgroundColor: palette!.bg, color: palette!.text }}
-                              className="rounded-lg px-1.5 py-1.5 leading-tight"
+                              className="w-full rounded-lg px-1.5 py-1.5 leading-tight text-left cursor-pointer hover:opacity-80 transition-opacity"
                               title={mapping.shift_name || undefined}
                             >
                               <p className="text-[10px] font-black truncate">{mapping.shift_name || "Shift"}</p>
@@ -1031,11 +1092,15 @@ export function ScheduleShiftPage() {
                                   {mapping.start}-{mapping.end}
                                 </p>
                               )}
-                            </div>
+                            </button>
                           ) : (
-                            <div className="rounded-lg border border-dashed border-gray-200 py-2.5 flex items-center justify-center text-gray-300">
+                            <button
+                              type="button"
+                              onClick={() => openCellModal(row.id, row.name, d, null)}
+                              className="w-full rounded-lg border border-dashed border-gray-200 py-2.5 flex items-center justify-center text-gray-300 hover:border-gray-300 hover:text-gray-400 hover:bg-zinc-50/60 transition-colors cursor-pointer"
+                            >
                               <Plus className="w-3 h-3" />
-                            </div>
+                            </button>
                           )}
                         </td>
                       );
@@ -1050,6 +1115,99 @@ export function ScheduleShiftPage() {
           </div>
         )}
       </div>
+
+      {/* Cell edit modal: add a shift on an empty day, or change/remove one that's already assigned */}
+      {cellModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl border border-gray-200/80 shadow-lg max-w-sm w-full p-6 space-y-4">
+            <div className="flex justify-between items-start border-b border-gray-100 pb-3">
+              <div>
+                <h3 className="text-sm font-black text-gray-900">{cellModal.employeeName}</h3>
+                <p className="text-xs text-gray-400 font-semibold mt-0.5">
+                  {cellModal.date.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCellModal(null)}
+                className="p-1 text-gray-400 hover:text-gray-650 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10.5px] font-bold text-gray-500 uppercase tracking-wider">Pilih Shift</label>
+              {shifts.length === 0 ? (
+                <p className="text-xs text-gray-400 font-medium py-1">Belum ada master shift.</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {shifts.map((s) => {
+                    const palette = shiftPalette(s.id);
+                    const isSelected = String(s.id) === modalShiftId;
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => setModalShiftId(String(s.id))}
+                        style={isSelected ? { backgroundColor: palette.bg, borderColor: palette.text, color: palette.text } : undefined}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold transition-colors cursor-pointer ${
+                          isSelected ? "" : "border-gray-200 text-gray-600 hover:border-gray-300"
+                        }`}
+                      >
+                        <span style={{ backgroundColor: palette.text }} className="w-2 h-2 rounded-full shrink-0" />
+                        {s.nama_shift}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              {modalShiftId && (
+                <p className="text-[10.5px] text-gray-400 font-medium pt-0.5">
+                  {shifts.find((s) => String(s.id) === modalShiftId)?.jam_masuk} - {shifts.find((s) => String(s.id) === modalShiftId)?.jam_keluar}
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between gap-2 pt-3 border-t border-gray-100">
+              {cellModal.existing ? (
+                <button
+                  type="button"
+                  onClick={handleDeleteCell}
+                  disabled={deletingCell || savingCell}
+                  className="px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {deletingCell ? "Menghapus..." : "Hapus Jadwal"}
+                </button>
+              ) : (
+                <span />
+              )}
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCellModal(null)}
+                  disabled={savingCell || deletingCell}
+                  className="px-4 py-2 text-xs font-bold text-gray-700 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveCell}
+                  disabled={!modalShiftId || savingCell || deletingCell}
+                  style={modalShiftId && !savingCell ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
+                  className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer disabled:opacity-50 ${
+                    modalShiftId && !savingCell ? "text-white hover:opacity-90" : "bg-zinc-200 text-zinc-400 cursor-not-allowed"
+                  }`}
+                >
+                  {savingCell ? "Menyimpan..." : "Simpan"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -150,3 +150,31 @@ export async function bulkAssignShift(payload: {
 
   return json.data;
 }
+
+export async function updateMappingShift(
+  id: number,
+  payload: { shift_id: number }
+): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/mapping-shifts/${id}`, {
+    method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errorJson = await response.json().catch(() => ({}));
+    throw new Error(errorJson.message || "Gagal memperbarui jadwal shift");
+  }
+}
+
+export async function deleteMappingShift(id: number): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/mapping-shifts/${id}`, {
+    method: "DELETE",
+    headers: getHeaders(),
+  });
+
+  if (!response.ok) {
+    const errorJson = await response.json().catch(() => ({}));
+    throw new Error(errorJson.message || "Gagal menghapus jadwal shift");
+  }
+}
