@@ -32,13 +32,18 @@ interface ReusableTableProps<T> {
   emptyMessage?: string
   onRowClick?: (row: T) => void
   className?: string
-  rowClassName?: string
+  rowClassName?: string | ((row: T, index: number) => string)
+  // When true, the card fills its flex parent's height and the pagination
+  // footer pins to the bottom instead of following directly after the last
+  // row — use when the parent stretches this card taller than its content.
+  fillHeight?: boolean
 
   // Built-in Search
   showSearch?: boolean
   searchQuery?: string
   onSearchChange?: (query: string) => void
   searchPlaceholder?: string
+  searchContainerClassName?: string
 
   // Built-in Add Action Button
   addButtonText?: string
@@ -148,6 +153,7 @@ export function ReusableTable<T>({
   searchQuery,
   onSearchChange,
   searchPlaceholder = "Cari...",
+  searchContainerClassName = "relative w-full sm:max-w-[220px]",
 
   // Add button props
   addButtonText,
@@ -170,6 +176,7 @@ export function ReusableTable<T>({
   // Reordering props
   isReorderable = false,
   onReorder,
+  fillHeight = false,
 }: ReusableTableProps<T>) {
   const { buttonColor } = useTenantBranding();
 
@@ -325,12 +332,12 @@ export function ReusableTable<T>({
   };
 
   return (
-    <div className={cn("bg-white border border-gray-200/80 rounded-2xl shadow-xs overflow-hidden", className)}>
+    <div className={cn("bg-white border border-gray-200/80 rounded-2xl shadow-xs overflow-hidden", fillHeight && "h-full flex flex-col", className)}>
       {/* Search & Action Row */}
       {(showSearch || onAddClick || customActions) && (
         <div className="p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           {showSearch && (
-            <div className="relative w-full sm:max-w-[220px]">
+            <div className={searchContainerClassName}>
               <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
                 <Magnifier size={18} weight="Linear" />
               </span>
@@ -371,7 +378,7 @@ export function ReusableTable<T>({
       )}
 
       {/* Main Table */}
-      <div className="overflow-x-auto">
+      <div className={cn("overflow-x-auto", fillHeight && "flex-1")}>
         <Table>
           <TableHeader className="bg-zinc-50/70">
             <TableRow className="bg-zinc-50/70 hover:bg-zinc-50/70 border-b border-gray-100">
@@ -484,7 +491,7 @@ export function ReusableTable<T>({
                     isReorderable && draggedIndex === rowIdx && "opacity-40 bg-orange-50/50 border-orange-300",
                     isReorderable && dragOverIndex === rowIdx && draggedIndex !== rowIdx && "bg-orange-50/90 border-y-2 border-[#e0542c]",
                     !isReorderable && "hover:bg-zinc-50/40",
-                    rowClassName
+                    typeof rowClassName === "function" ? rowClassName(row, rowIdx) : rowClassName
                   )}
                 >
                   {isReorderable && (
