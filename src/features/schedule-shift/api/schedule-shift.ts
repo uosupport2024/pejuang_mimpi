@@ -118,6 +118,7 @@ export async function fetchMappingShifts(params: {
   lokasi_id?: number | string;
   per_page?: number;
   page?: number;
+  user_ids?: number[];
 }): Promise<FetchMappingShiftsResponse> {
   const query = new URLSearchParams();
   query.append("start_date", params.start_date);
@@ -125,6 +126,9 @@ export async function fetchMappingShifts(params: {
   if (params.lokasi_id) query.append("lokasi_id", String(params.lokasi_id));
   query.append("per_page", String(params.per_page || 10));
   query.append("page", String(params.page || 1));
+  if (params.user_ids) {
+    params.user_ids.forEach((id) => query.append("user_ids[]", String(id)));
+  }
 
   const response = await fetch(`${API_BASE_URL}/mapping-shifts?${query.toString()}`, {
     method: "GET",

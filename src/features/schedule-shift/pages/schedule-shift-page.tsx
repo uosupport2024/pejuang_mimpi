@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, ChevronDown, Loader2, CalendarRange, Plus, X, Clock, Search } from "lucide-react";
-import { CalendarMark } from "@solar-icons/react";
+import { CalendarMark, UserPlusRounded } from "@solar-icons/react";
 import { ReusableTable } from "@/shared/components/ui/reusable-table";
 import type { ColumnDef } from "@/shared/components/ui/reusable-table";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { THEME_COLORS } from "@/shared/constants/colors";
+import { useRouter } from "@/shared/router/router";
 import { fetchLocations, type BackendLocation } from "@/features/location/api/location";
 import {
   fetchShiftOptions,
@@ -112,6 +113,8 @@ function buildMonthDays(month: Date): (Date | null)[] {
 }
 
 export function ScheduleShiftPage() {
+  const { navigate } = useRouter();
+
   // Master data
   const [shifts, setShifts] = useState<ShiftOption[]>([]);
   const [locations, setLocations] = useState<BackendLocation[]>([]);
@@ -170,6 +173,10 @@ export function ScheduleShiftPage() {
   const [schedulePerPage, setSchedulePerPage] = useState(10);
   const [scheduleTotalPages, setScheduleTotalPages] = useState(1);
   const [scheduleTotalItems, setScheduleTotalItems] = useState(0);
+  const [scheduleSearchQuery, setScheduleSearchQuery] = useState("");
+  const [scheduleLocationFilter, setScheduleLocationFilter] = useState<string>("");
+  const [debouncedScheduleSearch, setDebouncedScheduleSearch] = useState("");
+  const isFirstScheduleSearchRender = useRef(true);
 
   // Cell edit modal — click a day cell in the Jadwal grid to add / change / remove a shift
   const [cellModal, setCellModal] = useState<{
@@ -233,24 +240,57 @@ export function ScheduleShiftPage() {
       .finally(() => setLoadingEmployees(false));
   }, [debouncedSearch, employeePage, locationFilter]);
 
-  const loadSchedule = useCallback(() => {
+  // Debounce the Jadwal name search
+  useEffect(() => {
+    if (isFirstScheduleSearchRender.current) {
+      isFirstScheduleSearchRender.current = false;
+      return;
+    }
+    const t = setTimeout(() => setDebouncedScheduleSearch(scheduleSearchQuery), 400);
+    return () => clearTimeout(t);
+  }, [scheduleSearchQuery]);
+
+  // The mapping-shifts endpoint has no name search of its own, but it does
+  // accept a user_ids filter — so a name search resolves matching employees
+  // via the (already search-capable) employees endpoint first, then filters
+  // the schedule fetch to just those ids. No backend change needed.
+  const loadSchedule = useCallback(async () => {
     if (!scheduleRangeStart || !scheduleRangeEnd) return;
     setLoadingSchedule(true);
-    fetchMappingShifts({
-      start_date: toDateStr(scheduleRangeStart),
-      end_date: toDateStr(scheduleRangeEnd),
-      lokasi_id: locationFilter || undefined,
-      per_page: schedulePerPage,
-      page: schedulePage,
-    })
-      .then((res) => {
-        setScheduleEntries(res.data || []);
-        setScheduleTotalPages(res.last_page || 1);
-        setScheduleTotalItems(res.total || 0);
-      })
-      .catch((err: any) => toast.error(err.message || "Gagal memuat jadwal shift."))
-      .finally(() => setLoadingSchedule(false));
-  }, [scheduleRangeStart, scheduleRangeEnd, locationFilter, schedulePerPage, schedulePage]);
+    try {
+      let userIds: number[] | undefined;
+      if (debouncedScheduleSearch.trim()) {
+        const matches = await fetchScheduleEmployees({
+          q: debouncedScheduleSearch.trim(),
+          per_page: 50,
+          lokasi_id: scheduleLocationFilter || undefined,
+        });
+        userIds = (matches.data || []).map((e) => e.id);
+        if (userIds.length === 0) {
+          setScheduleEntries([]);
+          setScheduleTotalPages(1);
+          setScheduleTotalItems(0);
+          return;
+        }
+      }
+
+      const res = await fetchMappingShifts({
+        start_date: toDateStr(scheduleRangeStart),
+        end_date: toDateStr(scheduleRangeEnd),
+        lokasi_id: scheduleLocationFilter || undefined,
+        per_page: schedulePerPage,
+        page: schedulePage,
+        user_ids: userIds,
+      });
+      setScheduleEntries(res.data || []);
+      setScheduleTotalPages(res.last_page || 1);
+      setScheduleTotalItems(res.total || 0);
+    } catch (err: any) {
+      toast.error(err.message || "Gagal memuat jadwal shift.");
+    } finally {
+      setLoadingSchedule(false);
+    }
+  }, [scheduleRangeStart, scheduleRangeEnd, scheduleLocationFilter, schedulePerPage, schedulePage, debouncedScheduleSearch]);
 
   useEffect(() => {
     loadSchedule();
@@ -259,7 +299,7 @@ export function ScheduleShiftPage() {
   // Reset to page 1 whenever the filters or page size change (not on schedulePage itself)
   useEffect(() => {
     setSchedulePage(1);
-  }, [scheduleRangeStart, scheduleRangeEnd, locationFilter, schedulePerPage]);
+  }, [scheduleRangeStart, scheduleRangeEnd, scheduleLocationFilter, schedulePerPage, debouncedScheduleSearch]);
 
   const openCellModal = (employeeId: number, employeeName: string, date: Date, existing: ScheduleUserShift | null) => {
     setCellModal({ employeeId, employeeName, date, existing });
@@ -914,28 +954,22 @@ export function ScheduleShiftPage() {
             totalItems={employeeTotalItems}
             itemsPerPage={EMPLOYEE_PAGE_SIZE}
             onPageChange={setEmployeePage}
+            addButtonText="Tambah Pegawai"
+            addButtonIcon={<UserPlusRounded size={16} weight="Linear" />}
+            onAddClick={() => navigate("EmployeeAdd")}
             customActions={
-              <div className="flex items-center gap-2.5">
-                <select
-                  value={locationFilter}
-                  onChange={(e) => setLocationFilter(e.target.value)}
-                  className="h-9 px-3 text-xs font-bold bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-700 cursor-pointer shadow-2xs"
-                >
-                  <option value="">Semua Lokasi</option>
-                  {locations.map((l) => (
-                    <option key={l.id} value={l.id}>
-                      {l.nama_lokasi}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  onClick={toggleSelectAllOnPage}
-                  className="h-9 px-3.5 text-xs font-bold text-gray-700 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition-colors cursor-pointer shrink-0"
-                >
-                  {allOnPageSelected ? "Batalkan Halaman Ini" : "Pilih Halaman Ini"}
-                </button>
-              </div>
+              <select
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+                className="h-9 px-3 text-xs font-bold bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-700 cursor-pointer shadow-2xs"
+              >
+                <option value="">Semua Lokasi</option>
+                {locations.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.nama_lokasi}
+                  </option>
+                ))}
+              </select>
             }
           />
 
@@ -976,9 +1010,19 @@ export function ScheduleShiftPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-gray-100 mb-4 gap-3">
           <h2 className="text-xs sm:text-sm font-black text-gray-900 uppercase tracking-wider">Jadwal</h2>
           <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+              <input
+                type="text"
+                value={scheduleSearchQuery}
+                onChange={(e) => setScheduleSearchQuery(e.target.value)}
+                placeholder="Cari nama pegawai..."
+                className="h-9 w-44 sm:w-52 pl-8 pr-2.5 text-xs bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-700 font-medium shadow-2xs"
+              />
+            </div>
             <select
-              value={locationFilter}
-              onChange={(e) => setLocationFilter(e.target.value)}
+              value={scheduleLocationFilter}
+              onChange={(e) => setScheduleLocationFilter(e.target.value)}
               className="h-9 px-3 text-xs font-bold bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-700 cursor-pointer shadow-2xs"
             >
               <option value="">Semua Lokasi</option>
@@ -1087,7 +1131,9 @@ export function ScheduleShiftPage() {
         ) : scheduleRows.length === 0 ? (
           <div className="py-10 text-center">
             <p className="text-xs text-gray-400 font-semibold">
-              Tidak ada pegawai{locationFilter ? " untuk lokasi ini" : ""}.
+              {debouncedScheduleSearch.trim()
+                ? `Tidak ada pegawai yang cocok dengan "${debouncedScheduleSearch.trim()}".`
+                : `Tidak ada pegawai${scheduleLocationFilter ? " untuk lokasi ini" : ""}.`}
             </p>
           </div>
         ) : (
