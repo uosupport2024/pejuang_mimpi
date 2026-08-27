@@ -100,6 +100,7 @@ const DEFAULT_MENU_ITEMS: MenuMappingItem[] = [
   { id: "admin-lokasi", endpointId: 6, title: "Master Lokasi Geofencing", category: "Admin", group: "Data Master", routePath: "/lokasi", enabled: true },
   { id: "admin-absensi-rekap", endpointId: 7, title: "Rekap Data Absensi", category: "Admin", group: "Operasional", routePath: "/absensi", enabled: true },
   { id: "admin-absensi-today", endpointId: 8, title: "Live Tracking Absensi", category: "Admin", group: "Operasional", routePath: "/absensi-hari-ini", enabled: true },
+  { id: "admin-jadwal-shift", endpointId: 24, title: "Jadwal Shift (Batch Schedule)", category: "Admin", group: "Operasional", routePath: "/jadwal-shift", enabled: true },
   { id: "admin-lembur", endpointId: 9, title: "Persetujuan Lembur", category: "Admin", group: "Operasional", routePath: "/overtime", enabled: true },
   { id: "admin-pelatihan", endpointId: 10, title: "Master Pelatihan / LMS", category: "Admin", group: "Operasional", routePath: "/training", enabled: true },
   { id: "admin-keuangan", endpointId: 11, title: "Payroll & Penggajian", category: "Admin", group: "Layanan", routePath: "/keuangan", enabled: true },

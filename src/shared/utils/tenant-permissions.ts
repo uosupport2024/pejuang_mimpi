@@ -15,6 +15,7 @@ export const ROUTE_MENU_MAPPING: Record<string, string> = {
   LocationEdit: "admin-lokasi",
   Attendance: "admin-absensi-rekap",
   AttendanceToday: "admin-absensi-today",
+  ScheduleShift: "admin-jadwal-shift",
   Overtime: "admin-lembur",
   Training: "admin-pelatihan",
   TrainingAdd: "admin-pelatihan",

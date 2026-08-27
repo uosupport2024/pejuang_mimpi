@@ -31,6 +31,10 @@ FROM nginx:stable-alpine
 # Copy the built static files from the builder stage to the Nginx html directory
 COPY --from=builder /app/dist /usr/share/nginx/html
 
+# SPA routing + asset caching (see nginx.conf) — replaces the stock
+# default.conf, which has no fallback for client-side routes
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Expose port 80 to the outside world
 EXPOSE 80
 

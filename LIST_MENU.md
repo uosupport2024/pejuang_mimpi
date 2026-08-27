@@ -72,6 +72,14 @@
       - **Path URL:** `/absensi-hari-ini` | **Route ID:** `AttendanceToday`
       - `GET /api/attendance/today` — Live tracking kehadiran hari ini (Foto Selfie, Koordinat GPS, Status Masuk/Pulang).
 
+  - 🗓️ **Jadwal Shift** (Batch Schedule Shift)
+    - **Path URL:** `/jadwal-shift` | **Route ID:** `ScheduleShift`
+    - **Fitur BE:**
+      - `GET /api/shifts` — List Master Shift untuk dipilih sebagai shift yang akan dijadwalkan.
+      - `GET /api/employees?lokasi_id=&jabatan_id=&q=&page=&per_page=` — List pegawai (dengan filter lokasi/divisi/pencarian) untuk dipilih secara massal.
+      - `GET /api/mapping-shifts?start_date=&end_date=&lokasi_id=` — Pratinjau jadwal shift mingguan (tenant-wide, dikelompokkan per pegawai).
+      - `POST /api/mapping-shifts/bulk` — Terapkan satu shift ke banyak `user_ids` sekaligus untuk rentang tanggal `start_date`–`end_date`.
+
   - ⏰ **Lembur** (Overtime Approval)
     - **Path URL:** `/overtime` | **Route ID:** `Overtime`
     - **Fitur BE:**
