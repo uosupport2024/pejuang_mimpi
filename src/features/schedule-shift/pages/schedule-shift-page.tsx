@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, ChevronDown, Loader2, CalendarRange, Plus, X, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, Loader2, CalendarRange, Plus, X, Clock, Search } from "lucide-react";
 import { CalendarMark } from "@solar-icons/react";
 import { ReusableTable } from "@/shared/components/ui/reusable-table";
 import type { ColumnDef } from "@/shared/components/ui/reusable-table";
@@ -133,6 +133,7 @@ export function ScheduleShiftPage() {
   // Assignment form state
   const [selectedShiftId, setSelectedShiftId] = useState<string>("");
   const [shiftDropdownOpen, setShiftDropdownOpen] = useState(false);
+  const [shiftSearchQuery, setShiftSearchQuery] = useState("");
   const [isAddingShift, setIsAddingShift] = useState(false);
   const [newShiftName, setNewShiftName] = useState("");
   const [newShiftStart, setNewShiftStart] = useState("08:00");
@@ -311,6 +312,7 @@ export function ScheduleShiftPage() {
       if (shiftDropdownRef.current && !shiftDropdownRef.current.contains(e.target as Node)) {
         setShiftDropdownOpen(false);
         setIsAddingShift(false);
+        setShiftSearchQuery("");
       }
       if (scheduleCalendarRef.current && !scheduleCalendarRef.current.contains(e.target as Node)) {
         setScheduleCalendarOpen(false);
@@ -374,6 +376,7 @@ export function ScheduleShiftPage() {
       setNewShiftStart("08:00");
       setNewShiftEnd("17:00");
       setShiftDropdownOpen(false);
+      setShiftSearchQuery("");
     } catch (err: any) {
       toast.error(err.message || "Gagal menambahkan shift baru.");
     } finally {
@@ -491,6 +494,11 @@ export function ScheduleShiftPage() {
   }, [scheduleEntries]);
 
   const selectedShift = shifts.find((s) => String(s.id) === selectedShiftId) || null;
+  const filteredShifts = useMemo(() => {
+    const q = shiftSearchQuery.trim().toLowerCase();
+    if (!q) return shifts;
+    return shifts.filter((s) => s.nama_shift.toLowerCase().includes(q));
+  }, [shifts, shiftSearchQuery]);
   const shiftLabel = selectedShift?.nama_shift;
   const rangeLabel = rangeStart
     ? `${formatDateShort(rangeStart)}${rangeEnd && toDateStr(rangeEnd) !== toDateStr(rangeStart) ? ` - ${formatDateShort(rangeEnd)}` : ""}`
@@ -636,31 +644,52 @@ export function ScheduleShiftPage() {
                 {shiftDropdownOpen && (
                   <div className="absolute z-20 mt-1.5 w-full bg-white border border-gray-200/80 rounded-xl shadow-lg p-1.5 animate-in fade-in zoom-in-95 duration-100">
                     {shifts.length > 0 && (
+                      <div className="relative mb-1.5">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+                        <input
+                          type="text"
+                          autoFocus
+                          value={shiftSearchQuery}
+                          onChange={(e) => setShiftSearchQuery(e.target.value)}
+                          placeholder="Cari shift..."
+                          className="w-full h-8 pl-8 pr-2.5 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none text-gray-700 font-medium"
+                        />
+                      </div>
+                    )}
+
+                    {shifts.length > 0 && (
                       <div className="max-h-48 overflow-y-auto space-y-0.5">
-                        {shifts.map((s) => (
-                          <button
-                            key={s.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedShiftId(String(s.id));
-                              setShiftDropdownOpen(false);
-                            }}
-                            className={`w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-left transition-colors cursor-pointer ${
-                              String(s.id) === selectedShiftId ? "bg-zinc-100" : "hover:bg-zinc-50"
-                            }`}
-                          >
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span
-                                style={{ backgroundColor: shiftPalette(s.id).text }}
-                                className="w-2 h-2 rounded-full shrink-0"
-                              />
-                              <span className="text-xs font-bold text-gray-800 truncate">{s.nama_shift}</span>
-                            </div>
-                            <span className="text-[10px] font-semibold text-gray-400 shrink-0">
-                              {s.jam_masuk} - {s.jam_keluar}
-                            </span>
-                          </button>
-                        ))}
+                        {filteredShifts.length === 0 ? (
+                          <p className="text-[11px] text-gray-400 font-medium text-center py-3">
+                            Tidak ada shift yang cocok.
+                          </p>
+                        ) : (
+                          filteredShifts.map((s) => (
+                            <button
+                              key={s.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedShiftId(String(s.id));
+                                setShiftDropdownOpen(false);
+                                setShiftSearchQuery("");
+                              }}
+                              className={`w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-left transition-colors cursor-pointer ${
+                                String(s.id) === selectedShiftId ? "bg-zinc-100" : "hover:bg-zinc-50"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span
+                                  style={{ backgroundColor: shiftPalette(s.id).text }}
+                                  className="w-2 h-2 rounded-full shrink-0"
+                                />
+                                <span className="text-xs font-bold text-gray-800 truncate">{s.nama_shift}</span>
+                              </div>
+                              <span className="text-[10px] font-semibold text-gray-400 shrink-0">
+                                {s.jam_masuk} - {s.jam_keluar}
+                              </span>
+                            </button>
+                          ))
+                        )}
                       </div>
                     )}
 
@@ -668,7 +697,10 @@ export function ScheduleShiftPage() {
                       {!isAddingShift ? (
                         <button
                           type="button"
-                          onClick={() => setIsAddingShift(true)}
+                          onClick={() => {
+                            setIsAddingShift(true);
+                            setNewShiftName(shiftSearchQuery.trim());
+                          }}
                           className="w-full flex items-center justify-center gap-1.5 py-2 border border-dashed border-gray-300 rounded-lg text-[11px] font-bold text-gray-500 hover:border-gray-400 hover:text-gray-700 hover:bg-zinc-50 transition-colors cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
