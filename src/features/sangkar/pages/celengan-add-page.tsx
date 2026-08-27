@@ -1,10 +1,11 @@
-import { ArrowLeft } from "lucide-react";
+import { useEffect } from "react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
 import { useAddCelengan } from "../hooks/use-celengan";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { formatThousands } from "@/shared/utils/format";
 import { Input } from "@/shared/components/ui/input";
-import { CHICKEN_ICONS, getChickenIconLabel } from "@/shared/utils/icons";
+import { useCelenganIcons, getChickenIconLabel } from "@/shared/utils/icons";
 import { THEME_COLORS } from "@/shared/constants/colors";
 import { motion } from "motion/react";
 
@@ -21,7 +22,13 @@ export function CelenganAddPage() {
     submit
   } = useAddCelengan();
 
-  const iconKeys = Object.keys(CHICKEN_ICONS);
+  const { icons: availableIcons, loading: loadingIcons } = useCelenganIcons();
+
+  useEffect(() => {
+    if (availableIcons.length > 0 && (!icon || !availableIcons.some((i) => i.key === icon))) {
+      setIcon(availableIcons[0].key);
+    }
+  }, [availableIcons]);
 
   const handleIconSelect = (key: string) => {
     setIcon(key);
@@ -91,36 +98,45 @@ export function CelenganAddPage() {
             </div>
           </div>
 
-          {/* Chicken Icon selector */}
+          {/* Dynamic Icon selector */}
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <label className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Pilih Icon Celengan</label>
-              <span style={{ color: THEME_COLORS.hex.primary }} className="text-[9px] font-black">{getChickenIconLabel(icon)}</span>
+              <span style={{ color: THEME_COLORS.hex.primary }} className="text-[9px] font-black">
+                {availableIcons.find((i) => i.key === icon)?.name || getChickenIconLabel(icon)}
+              </span>
             </div>
-            <div
-              className="grid grid-cols-4 gap-2.5 max-h-60 overflow-y-auto p-2 bg-white rounded-2xl border border-slate-200/50 shadow-inner scrollbar-thin"
-            >
-              {iconKeys.map((key) => {
-                const iconSrc = CHICKEN_ICONS[key].url;
-                const isSelected = icon === key;
-                return (
-                  <motion.button
-                    key={key}
-                    type="button"
-                    onClick={() => handleIconSelect(key)}
-                    whileTap={{ scale: 0.94 }}
-                    style={isSelected ? { borderColor: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}0D` } : undefined}
-                    className={`flex items-center justify-center p-2 rounded-2xl border-2 transition-all cursor-pointer shadow-sm w-16 h-16 bg-white mx-auto ${
-                      isSelected
-                        ? ""
-                        : "border-slate-100 hover:border-slate-200"
-                    }`}
-                  >
-                    <img src={iconSrc} alt={key} className="w-12 h-12 object-contain" />
-                  </motion.button>
-                );
-              })}
-            </div>
+
+            {loadingIcons ? (
+              <div className="p-6 bg-white rounded-2xl border border-slate-200/50 flex items-center justify-center text-slate-400 gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
+                <span className="text-xs">Memuat icon...</span>
+              </div>
+            ) : (
+              <div
+                className="grid grid-cols-4 gap-2.5 max-h-60 overflow-y-auto p-2 bg-white rounded-2xl border border-slate-200/50 shadow-inner scrollbar-thin"
+              >
+                {availableIcons.map((item) => {
+                  const isSelected = icon === item.key;
+                  return (
+                    <motion.button
+                      key={item.key}
+                      type="button"
+                      onClick={() => handleIconSelect(item.key)}
+                      whileTap={{ scale: 0.94 }}
+                      style={isSelected ? { borderColor: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}0D` } : undefined}
+                      className={`flex items-center justify-center p-2 rounded-2xl border-2 transition-all cursor-pointer shadow-sm w-16 h-16 bg-white mx-auto ${
+                        isSelected
+                          ? ""
+                          : "border-slate-100 hover:border-slate-200"
+                      }`}
+                    >
+                      <img src={item.url} alt={item.name} className="w-12 h-12 object-contain" />
+                    </motion.button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Submit Button */}

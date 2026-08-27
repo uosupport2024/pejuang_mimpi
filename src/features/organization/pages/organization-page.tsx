@@ -207,7 +207,8 @@ export function OrganizationPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 text-xs font-bold text-white bg-[#e0542c] hover:bg-[#c23f1b] rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                  style={{ background: "var(--theme-button, #e0542c)" }}
+                  className="px-4 py-2 text-xs font-bold text-white hover:brightness-105 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {submitting ? "Menyimpan..." : "Simpan"}
                 </button>

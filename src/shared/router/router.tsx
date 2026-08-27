@@ -41,6 +41,7 @@ export type RouteType =
   | "MobileLeaveRequest"
   | "MobileLeaveHistory"
   | "MobileIdCard"
+  | "MobilePayroll"
   | "EmployeeAdd"
   | "EmployeeEdit"
   | "EmployeeInputShift"
@@ -49,7 +50,9 @@ export type RouteType =
   | "LocationEdit"
   | "Profile"
   | "TenantConfig"
-  | "TenantMapping";
+  | "TenantMapping"
+  | "TenantManagement"
+  | "MasterCelenganIcon";
 
 export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   Dashboard: "Dashboard",
@@ -81,7 +84,9 @@ export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   Login: "Login",
   Profile: "Profil",
   TenantConfig: "Konfigurasi Tenant",
-  TenantMapping: "Mapping Menu Tenant",
+  TenantMapping: "Hak Akses Menu",
+  TenantManagement: "Kelola Tenant",
+  MasterCelenganIcon: "Master Icon Celengan",
   MobileHome: "Sangkar",
   MobileLumbung: "Lumbung",
   MobileAyamku: "Ayamku",
@@ -99,6 +104,7 @@ export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   MobileLeaveRequest: "Pengajuan Cuti",
   MobileLeaveHistory: "Riwayat Cuti",
   MobileIdCard: "Kartu Identitas",
+  MobilePayroll: "Payroll Saya",
 };
 
 export const ROUTE_TO_PATH: Record<RouteType, string> = {
@@ -143,12 +149,15 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   MobileLeaveRequest: "/mobile/leave-request",
   MobileLeaveHistory: "/mobile/leave-history",
   MobileIdCard: "/mobile/id-card",
+  MobilePayroll: "/mobile/payroll",
   EmployeeAdd: "/pegawai/tambah",
   EmployeeEdit: "/pegawai/edit",
   EmployeeInputShift: "/pegawai/shift",
   Profile: "/profile",
   TenantConfig: "/konfigurasi-tenant",
   TenantMapping: "/tenant-mapping",
+  TenantManagement: "/super-admin/tenants",
+  MasterCelenganIcon: "/super-admin/icons",
 };
 
 export const PATH_TO_ROUTE: Record<string, RouteType> = {
@@ -193,12 +202,16 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/mobile/leave-request": "MobileLeaveRequest",
   "/mobile/leave-history": "MobileLeaveHistory",
   "/mobile/id-card": "MobileIdCard",
+  "/mobile/payroll": "MobilePayroll",
   "/pegawai/tambah": "EmployeeAdd",
   "/pegawai/edit": "EmployeeEdit",
   "/pegawai/shift": "EmployeeInputShift",
   "/profile": "Profile",
   "/konfigurasi-tenant": "TenantConfig",
   "/tenant-mapping": "TenantMapping",
+  "/super-admin/tenants": "TenantManagement",
+  "/super-admin/icons": "MasterCelenganIcon",
+  "/master-icon-celengan": "MasterCelenganIcon",
 };
 
 interface RouterContextType {
@@ -216,7 +229,7 @@ function RouterInnerProvider({ children }: { children: ReactNode }) {
   if (resolvedPath.startsWith("/mobile/loker/")) {
     resolvedPath = "/mobile/loker";
   }
-  if (resolvedPath.startsWith("/mobile/pakan/learn/")) {
+  if (resolvedPath.startsWith("/mobile/pakan/learn") || resolvedPath.startsWith("/mobile/pakan/course")) {
     resolvedPath = "/mobile/pakan/learn";
   }
 

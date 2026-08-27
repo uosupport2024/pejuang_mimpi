@@ -99,7 +99,8 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout,
         currentRoute === "MobileHistory" ||
         currentRoute === "MobileLeaveRequest" ||
         currentRoute === "MobileLeaveHistory" ||
-        currentRoute === "MobileIdCard";
+        currentRoute === "MobileIdCard" ||
+        currentRoute === "MobilePayroll";
 
       // 🛑 TENANT PERMISSION ROUTE BLOCKING GUARD
       // Even if user types/hardcodes link directly in address bar, block if menu is OFF for tenant!
@@ -122,8 +123,11 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout,
       }
 
       if (session.user.role === "Administrator") {
-        // Strict guard for TenantMapping route (admin@gmail.com only)
-        if (currentRoute === "TenantMapping" && session.user.email?.toLowerCase() !== "admin@gmail.com") {
+        // Strict guard for Super Admin routes (admin@gmail.com only)
+        if (
+          (currentRoute === "TenantMapping" || currentRoute === "TenantManagement" || currentRoute === "MasterCelenganIcon") &&
+          session.user.email?.toLowerCase() !== "admin@gmail.com"
+        ) {
           console.warn(
             `%c[SUPER ADMIN GUARD] %cUser '${session.user.email}' is not admin@gmail.com. Redirecting to Dashboard...`,
             "background: #e0542c; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;",

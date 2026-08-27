@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Trophy, Crown, Flame, AlertTriangle, Sparkles } from "lucide-react";
 import { fetchAttendanceLeaderboardBig3API, fetchAttendanceLeaderboardListAPI } from "../api/absensi";
-import { THEME_COLORS } from "@/shared/constants/colors";
+import { THEME_COLORS, buildCssBackground } from "@/shared/constants/colors";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
 
 export interface LeaderboardUser {
   user_id: number;
@@ -20,6 +21,7 @@ export interface LeaderboardPeriod {
 }
 
 export function AttendanceLeaderboard() {
+  const { navbarBgStyle, buttonColor } = useTenantBranding();
   const [activeTab, setActiveTab] = useState<"big3" | "list">("big3");
   const [big3Data, setBig3Data] = useState<LeaderboardUser[]>([]);
   const [listData, setListData] = useState<LeaderboardUser[]>([]);
@@ -102,7 +104,7 @@ export function AttendanceLeaderboard() {
         <div className="flex items-center gap-2">
           <div
             className="w-7 h-7 rounded-xl flex items-center justify-center shadow-xs text-white"
-            style={{ backgroundColor: THEME_COLORS.hex.primary }}
+            style={{ background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) }}
           >
             <Trophy className="w-4 h-4 text-white" />
           </div>
@@ -121,7 +123,7 @@ export function AttendanceLeaderboard() {
           <button
             type="button"
             onClick={() => setActiveTab("big3")}
-            style={activeTab === "big3" ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
+            style={activeTab === "big3" ? { background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) } : undefined}
             className={`px-3 py-1 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${
               activeTab === "big3"
                 ? "text-white shadow-xs"
@@ -133,7 +135,7 @@ export function AttendanceLeaderboard() {
           <button
             type="button"
             onClick={() => setActiveTab("list")}
-            style={activeTab === "list" ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
+            style={activeTab === "list" ? { background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) } : undefined}
             className={`px-3 py-1 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${
               activeTab === "list"
                 ? "text-white shadow-xs"
@@ -165,7 +167,7 @@ export function AttendanceLeaderboard() {
           {/* TOP 3 PODIUM VIEW */}
           {activeTab === "big3" && (
             <div
-              style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+              style={navbarBgStyle}
               className="text-white rounded-3xl p-5 pt-6 shadow-lg border border-white/10 relative overflow-hidden"
             >
               {/* Soft decorative background glow */}
@@ -370,7 +372,7 @@ export function AttendanceLeaderboard() {
 
                     {/* Score Pill */}
                     <div
-                      style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+                      style={navbarBgStyle}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white text-[10px] font-extrabold shadow-xs shrink-0 ml-2"
                     >
                       <Flame style={{ color: THEME_COLORS.hex.accent, fill: THEME_COLORS.hex.accent }} className="w-3 h-3" />

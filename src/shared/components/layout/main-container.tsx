@@ -20,10 +20,12 @@ import { OrganizationPage } from "@/features/organization";
 import { LocationPage, LocationAddPage, LocationEditPage } from "@/features/location";
 import { TenantMappingPage } from "@/features/tenant-mapping";
 import { TenantConfigPage } from "@/features/tenant-config";
+import { TenantManagementPage } from "@/features/tenant-management";
+import { MasterIconCelenganPage } from "@/features/master-icon-celengan";
 
 // Feature page imports (Mobile)
 import { SangkarPage, CelenganDetailPage, CelenganAddPage, LokerDetailPage } from "@/features/sangkar";
-import { TunasPage, MobileAbsensiPage, MobileHistoryPage, MobileLemburAbsensiPage, MobileLemburHistoryPage, MobileKoreksiAbsenPage, KoreksiAbsenApprovalPage } from "@/features/tunas";
+import { TunasPage, MobileAbsensiPage, MobileHistoryPage, MobileLemburAbsensiPage, MobileLemburHistoryPage, MobileKoreksiAbsenPage, KoreksiAbsenApprovalPage, MobilePayrollPage } from "@/features/tunas";
 import { AyamkuPage } from "@/features/ayamku";
 import { PakanPage, PakanLearningPage } from "../../../features/pakan";
 import { SarangPage } from "../../../features/sarang";
@@ -114,6 +116,10 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <TenantConfigPage user={user} />;
       case "TenantMapping":
         return <TenantMappingPage user={user} />;
+      case "TenantManagement":
+        return <TenantManagementPage user={user} />;
+      case "MasterCelenganIcon":
+        return <MasterIconCelenganPage user={user} />;
       default:
         return <DashboardPage />;
     }
@@ -156,6 +162,8 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <LeaveHistoryPage user={user} />;
       case "MobileIdCard":
         return <IdCardPage user={user} />;
+      case "MobilePayroll":
+        return <MobilePayrollPage user={user} />;
       default:
         return <SangkarPage user={user} />;
     }

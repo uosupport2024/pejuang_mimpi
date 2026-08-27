@@ -52,7 +52,7 @@ export function CelengankuCarousel({ celengans, loading }: CelengankuCarouselPro
         {celengans.length > 0 && !loading && (
           <span
             onClick={() => navigate(`/mobile/celengan?id=${celengans[0].id}`)}
-            style={{ color: THEME_COLORS.hex.primary }}
+            style={{ color: "var(--theme-button, #e0542c)" }}
             className="text-[10px] font-bold cursor-pointer hover:underline"
           >
             Lihat Semua
@@ -85,7 +85,8 @@ export function CelengankuCarousel({ celengans, loading }: CelengankuCarouselPro
                   key={item.id}
                   onClick={() => navigate(`/mobile/celengan?id=${item.id}`)}
                   whileTap={{ scale: 0.97 }}
-                  className={`w-28 h-28 bg-gradient-to-br ${style.gradient} text-white p-3 rounded-2xl flex flex-col justify-between shrink-0 snap-start shadow-md hover:scale-102 transition-all duration-200 cursor-pointer`}
+                  style={style.gradientStyle || { backgroundColor: style.solid }}
+                  className="w-28 h-28 text-white p-3 rounded-2xl flex flex-col justify-between shrink-0 snap-start shadow-md hover:scale-102 transition-all duration-200 cursor-pointer"
                 >
                   <div className="w-14 h-14 flex items-center justify-center">
                     <motion.img

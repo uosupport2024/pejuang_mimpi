@@ -8,6 +8,7 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
   const mapTypeToName = (type?: string | null) => {
     switch (type) {
       case "cuti": return "Cuti Tahunan";
+      case "sakit": return "Izin Sakit";
       case "lainnya": return "Izin Lainnya";
       case "telat": return "Izin Telat";
       case "pulang_cepat": return "Izin Pulang Cepat";
@@ -44,7 +45,7 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
       setCurrentPage(data.current_page || 1);
     } catch (err: any) {
       console.error(err);
-      toast.error("Gagal mengambil riwayat cuti");
+      toast.error("Gagal mengambil riwayat pengajuan cuti & izin");
     } finally {
       setIsLoadingHistory(false);
     }
@@ -108,11 +109,11 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
     if (!deletingId) return;
     try {
       await deleteCutiAPI(deletingId);
-      toast.success("Pengajuan cuti berhasil dibatalkan.");
+      toast.success("Pengajuan berhasil dibatalkan.");
       fetchHistory(currentPage);
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || "Gagal membatalkan pengajuan cuti.");
+      toast.error(err.message || "Gagal membatalkan pengajuan.");
     } finally {
       setShowDeleteConfirm(false);
       setDeletingId(null);
@@ -150,7 +151,7 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
       return;
     }
     if (!alasanCuti) {
-      toast.error("Alasan cuti wajib diisi.");
+      toast.error(`Alasan ${jenisCuti} wajib diisi.`);
       return;
     }
 
@@ -167,7 +168,7 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
           formData.append("foto_cuti", file);
         }
         await updateCutiAPI(editingId, formData);
-        toast.success("Permintaan cuti berhasil diperbarui!");
+        toast.success(`Pengajuan ${jenisCuti} berhasil diperbarui!`);
       } else {
         if (!tanggalAkhir) {
           toast.error("Tanggal akhir wajib diisi.");
@@ -182,7 +183,7 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
           formData.append("foto_cuti", file);
         }
         await postCutiRequestAPI(formData);
-        toast.success("Permintaan cuti berhasil diajukan!");
+        toast.success(`Pengajuan ${jenisCuti} berhasil diajukan!`);
       }
 
       // Reset form
@@ -197,7 +198,7 @@ export function useLeave(user: any, initialSelectedType?: string | null) {
       if (onSuccess) onSuccess();
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || "Gagal mengirimkan permintaan cuti");
+      toast.error(err.message || `Gagal mengirimkan pengajuan ${jenisCuti}`);
     } finally {
       setIsSubmitting(false);
     }

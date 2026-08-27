@@ -22,7 +22,9 @@ interface NavbarProps {
 
 export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: NavbarProps) {
   const { navigate } = useRouter();
-  const { effectiveLogo } = useTenantBranding();
+  const { effectiveLogo, navbarBg, buttonColor } = useTenantBranding();
+  const navPrimary = navbarBg || THEME_COLORS.hex.navBg;
+  const buttonAccent = buttonColor || THEME_COLORS.hex.primary;
   const [isOpen, setIsOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -184,6 +186,12 @@ export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: Navba
         divisi: "Divisi",
         lokasi: "Lokasi",
         profile: "Profil Saya",
+        "konfigurasi-tenant": "Konfigurasi Tenant",
+        "tenant-mapping": "Hak Akses Menu",
+        "super-admin": "Super Admin",
+        tenants: "Kelola Tenant",
+        icons: "Master Icon Celengan",
+        "master-icon-celengan": "Master Icon Celengan",
       };
 
       const lastSegment = segments[segments.length - 1];
@@ -280,7 +288,7 @@ export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: Navba
             <Bell className="w-3.5 h-3.5" />
             {unreadCount > 0 && (
               <span
-                style={{ backgroundColor: THEME_COLORS.hex.primary, borderColor: THEME_COLORS.hex.navBg }}
+                style={{ backgroundColor: buttonAccent, borderColor: navPrimary }}
                 className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full ring-2 animate-pulse"
               />
             )}
@@ -295,7 +303,7 @@ export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: Navba
                   <h4 className="text-xs font-black text-gray-900">Pemberitahuan</h4>
                   {unreadCount > 0 && (
                     <span
-                      style={{ backgroundColor: `${THEME_COLORS.hex.primary}1A`, color: THEME_COLORS.hex.primary }}
+                      style={{ backgroundColor: `${buttonAccent}1A`, color: buttonAccent }}
                       className="px-2 py-0.5 rounded-full text-[9px] font-black"
                     >
                       {unreadCount} Baru
@@ -416,7 +424,7 @@ export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: Navba
             className="flex items-center gap-2.5 pl-1 pr-3 py-1 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full border border-white/15 shadow-xs transition-all cursor-pointer select-none text-white active:scale-98"
           >
             <div
-              style={{ backgroundColor: THEME_COLORS.hex.primary }}
+              style={{ backgroundColor: buttonAccent }}
               className="w-7 h-7 rounded-full text-white text-[11px] font-extrabold flex items-center justify-center shrink-0 shadow-xs ring-1 ring-white/20"
             >
               {user.name.split(" ").map((n) => n[0]).join("").toUpperCase()}
@@ -434,9 +442,9 @@ export function Navbar({ user, onLogout, onToggleMobileMenu, onOpenTour }: Navba
           {isOpen && (
             <div className="absolute right-0 mt-2.5 w-56 bg-white/95 backdrop-blur-xl border border-zinc-200/60 rounded-2xl shadow-2xl z-50 p-2 text-zinc-800 transition-all animate-in fade-in zoom-in-95 duration-150">
               {/* User Summary Box (Solid Batik Navy Background) */}
-              <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="px-3 py-2.5 mb-1.5 rounded-xl text-white flex items-center gap-3 shadow-xs">
+              <div style={{ backgroundColor: navPrimary }} className="px-3 py-2.5 mb-1.5 rounded-xl text-white flex items-center gap-3 shadow-xs">
                 <div
-                  style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                  style={{ backgroundColor: buttonAccent }}
                   className="w-9 h-9 rounded-full text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs my-auto ring-2 ring-white/20"
                 >
                   {user.name.split(" ").map((n) => n[0]).join("").toUpperCase()}

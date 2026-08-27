@@ -8,18 +8,20 @@ interface LoginPageProps {
 }
 
 export function LoginPage({ onLoginSuccess }: LoginPageProps) {
-
-  const c = THEME_COLORS.classes
-
   return (
-    <div className={`min-h-screen w-full flex items-center justify-center ${c.outerBg} p-4 md:p-8 lg:p-12 font-sans relative overflow-hidden`}>
-
+    <div
+      style={{ backgroundColor: THEME_COLORS.hex.outerBg }}
+      className="min-h-screen w-full flex items-center justify-center p-4 md:p-8 lg:p-12 font-sans relative overflow-hidden"
+    >
 
       {/* Inner Rounded Board Container */}
       <div className="w-full max-w-5xl bg-white rounded-[32px] shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[600px] border border-white/10">
 
         {/* Left Side: Login Form (Warm Cream Background) */}
-        <div className={`lg:col-span-6 ${c.leftBg} p-8 md:p-12 flex flex-col justify-center items-center`}>
+        <div
+          style={{ backgroundColor: THEME_COLORS.hex.leftBg }}
+          className="lg:col-span-6 p-8 md:p-12 flex flex-col justify-center items-center"
+        >
           <LoginForm onLoginSuccess={onLoginSuccess} />
         </div>
 

@@ -3,7 +3,8 @@ import { X, Check, Loader2, Mail, ShieldAlert, ChevronLeft, ChevronRight, Clock,
 import type { SarangUser } from "../types/sarang.type";
 import { fetchJadwalHistoryAPI } from "@/features/tunas/api/absensi";
 import { INDONESIAN_BANKS, type BankItem } from "../constants/banks";
-import { THEME_COLORS } from "@/shared/constants/colors";
+import { THEME_COLORS, buildCssBackground } from "@/shared/constants/colors";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
 
 interface BaseDrawerProps {
   isOpen: boolean;
@@ -57,6 +58,7 @@ interface EditProfileDrawerProps {
 }
 
 export function EditProfileDrawer({ isOpen, onClose, user, onSave }: EditProfileDrawerProps) {
+  const { buttonColor } = useTenantBranding();
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
   const [telepon, setTelepon] = useState(user.telepon || "");
@@ -149,8 +151,8 @@ export function EditProfileDrawer({ isOpen, onClose, user, onSave }: EditProfile
         <button
           type="submit"
           disabled={isSaving}
-          style={{ backgroundColor: THEME_COLORS.hex.primary }}
-          className="w-full h-10 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:opacity-90 transition-opacity mt-2"
+          style={{ background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) }}
+          className="w-full h-10 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:brightness-105 transition-opacity mt-2"
         >
           {isSaving ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -175,6 +177,7 @@ interface EditPayrollDrawerProps {
 }
 
 export function EditPayrollDrawer({ isOpen, onClose, user, onSave }: EditPayrollDrawerProps) {
+  const { buttonColor } = useTenantBranding();
   const [bank, setBank] = useState(user.bank || "Bank Mandiri");
   const [rekening, setRekening] = useState(user.rekening || "");
   const [isSaving, setIsSaving] = useState(false);
@@ -199,23 +202,26 @@ export function EditPayrollDrawer({ isOpen, onClose, user, onSave }: EditPayroll
           return res.json();
         })
         .then((data) => {
-          // Normalize array mapping
-          if (Array.isArray(data)) {
-            const mapped = data.map((b: any) => ({
-              name: b.name || b.nama,
-              code: b.code || b.sandi || "",
+          if (Array.isArray(data) && data.length > 0) {
+            const formatted: BankItem[] = data.map((b: any) => ({
+              name: b.name,
+              code: b.code
             }));
-            if (mapped.length > 0) {
-              setBanksList(mapped);
-            }
+            setBanksList(formatted);
           }
         })
         .catch(() => {
-          // Fallback to static INDONESIAN_BANKS
+          // Fallback to local constants
           setBanksList(INDONESIAN_BANKS);
         });
     }
   }, [user, isOpen]);
+
+  const filteredBanks = banksList.filter(
+    (b) =>
+      b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      b.code.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -228,41 +234,35 @@ export function EditPayrollDrawer({ isOpen, onClose, user, onSave }: EditPayroll
     }
   };
 
-  // Filter bank list by search query
-  const filteredBanks = banksList.filter((b) =>
-    b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    b.code.includes(searchQuery)
-  );
-
   return (
     <BaseProfileDrawer isOpen={isOpen} onClose={onClose} title="Rekening Payroll">
       <form onSubmit={handleSubmit} className="space-y-4 text-xs font-semibold text-zinc-700">
         
         {/* Searchable Bank Input Dropdown */}
-        <div className="space-y-1.5 relative text-left">
+        <div className="space-y-1.5 text-left">
           <label className="text-zinc-500 block">Nama Bank</label>
           <div className="relative">
             <button
               type="button"
               onClick={() => setIsOpenDropdown(!isOpenDropdown)}
-              className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl flex items-center justify-between focus:outline-none focus:bg-white transition-colors cursor-pointer text-zinc-700"
+              className="w-full h-10 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:bg-white flex items-center justify-between text-left cursor-pointer transition-colors"
             >
-              <span>{bank || "Pilih Bank"}</span>
-              <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform ${isOpenDropdown ? "rotate-180" : ""}`} />
+              <span className="truncate">{bank}</span>
+              <ChevronDown className="w-4 h-4 text-zinc-400 shrink-0" />
             </button>
 
-            {/* Dropdown Container */}
+            {/* Dropdown with live search */}
             {isOpenDropdown && (
-              <div className="absolute top-[44px] left-0 right-0 bg-white border border-zinc-200 rounded-2xl shadow-lg z-50 p-2 space-y-2 max-h-60 overflow-hidden flex flex-col">
-                <div className="relative shrink-0">
-                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+              <div className="absolute top-12 left-0 right-0 bg-white border border-zinc-200 rounded-2xl shadow-xl z-20 p-2 flex flex-col max-h-60 animate-in fade-in zoom-in-95 duration-100">
+                <div className="relative mb-2">
+                  <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Cari bank..."
+                    autoFocus
+                    placeholder="Cari nama atau kode bank..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full h-9 pl-9 pr-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none text-xs"
-                    autoFocus
+                    className="w-full h-8 pl-8 pr-3 text-[11px] bg-zinc-50 border border-zinc-200 rounded-lg focus:outline-none focus:bg-white"
                   />
                 </div>
 
@@ -277,7 +277,7 @@ export function EditPayrollDrawer({ isOpen, onClose, user, onSave }: EditPayroll
                           setIsOpenDropdown(false);
                           setSearchQuery("");
                         }}
-                        style={bank === b.name ? { color: THEME_COLORS.hex.primary } : undefined}
+                        style={bank === b.name ? { color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary } : undefined}
                         className={`w-full px-3 py-2 rounded-xl flex items-center justify-between text-left hover:bg-zinc-50 cursor-pointer transition-colors ${
                           bank === b.name ? "bg-orange-50 font-bold" : "text-zinc-700"
                         }`}
@@ -314,8 +314,8 @@ export function EditPayrollDrawer({ isOpen, onClose, user, onSave }: EditPayroll
         <button
           type="submit"
           disabled={isSaving}
-          style={{ backgroundColor: THEME_COLORS.hex.primary }}
-          className="w-full h-10 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:opacity-90 transition-opacity mt-2"
+          style={{ background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) }}
+          className="w-full h-10 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:brightness-105 transition-opacity mt-2"
         >
           {isSaving ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -339,6 +339,7 @@ interface ChangePasswordDrawerProps {
 }
 
 export function ChangePasswordDrawer({ isOpen, onClose, onSave }: ChangePasswordDrawerProps) {
+  const { buttonColor } = useTenantBranding();
   const [oldPassword, setOldPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -429,8 +430,8 @@ export function ChangePasswordDrawer({ isOpen, onClose, onSave }: ChangePassword
         <button
           type="submit"
           disabled={isSaving}
-          style={{ backgroundColor: THEME_COLORS.hex.primary }}
-          className="w-full h-10 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:opacity-90 transition-opacity mt-2"
+          style={{ background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) }}
+          className="w-full h-10 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:brightness-105 transition-opacity mt-2"
         >
           {isSaving ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -449,6 +450,7 @@ export function ChangePasswordDrawer({ isOpen, onClose, onSave }: ChangePassword
 
 // 4. Jadwal & Shift Kerja Drawer
 export function JadwalShiftDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const { navbarBgStyle, buttonColor } = useTenantBranding();
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [schedules, setSchedules] = useState<Record<string, any>>({});
@@ -574,14 +576,18 @@ export function JadwalShiftDrawer({ isOpen, onClose }: { isOpen: boolean; onClos
         onClick={() => setSelectedDate(new Date(year, month, day))}
         style={
           isDaySelected
-            ? { backgroundColor: THEME_COLORS.hex.navBg }
+            ? navbarBgStyle
             : isDayToday
-            ? { backgroundColor: `${THEME_COLORS.hex.primary}1A`, color: THEME_COLORS.hex.primary, borderColor: `${THEME_COLORS.hex.primary}4D` }
+            ? {
+                backgroundColor: `${typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary}1A`,
+                color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary,
+                borderColor: `${typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary}4D`
+              }
             : undefined
         }
         className={`w-8.5 h-8.5 rounded-full flex flex-col items-center justify-center relative cursor-pointer font-bold transition-all text-xs active:scale-90 ${
           isDaySelected
-            ? "text-white"
+            ? "text-white shadow-xs"
             : isDayToday
             ? "border"
             : "text-zinc-700 hover:bg-zinc-100"
@@ -605,10 +611,13 @@ export function JadwalShiftDrawer({ isOpen, onClose }: { isOpen: boolean; onClos
         {/* Today's Shift Card */}
         <div className="space-y-1.5 text-left">
           <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider block">Shift Hari Ini</span>
-          <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="text-white p-4.5 rounded-2xl flex items-center justify-between shadow-xs border border-white/5">
+          <div style={navbarBgStyle} className="text-white p-4.5 rounded-2xl flex items-center justify-between shadow-xs border border-white/5">
             <div className="flex items-center gap-3">
               <div
-                style={{ backgroundColor: `${THEME_COLORS.hex.primary}1A`, color: THEME_COLORS.hex.primary }}
+                style={{
+                  backgroundColor: `${typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary}1A`,
+                  color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary
+                }}
                 className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
               >
                 <Clock className="w-5 h-5" />
@@ -671,7 +680,7 @@ export function JadwalShiftDrawer({ isOpen, onClose }: { isOpen: boolean; onClos
             {/* Calendar Days */}
             {isLoading ? (
               <div className="h-36 flex items-center justify-center">
-                <Loader2 style={{ color: THEME_COLORS.hex.primary }} className="w-6 h-6 animate-spin" />
+                <Loader2 style={{ color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary }} className="w-6 h-6 animate-spin" />
               </div>
             ) : (
               <div className="grid grid-cols-7 gap-y-1.5 justify-items-center">
@@ -708,7 +717,7 @@ export function JadwalShiftDrawer({ isOpen, onClose }: { isOpen: boolean; onClos
                 <div className="flex justify-between items-start">
                   <div>
                     <h4 className="font-extrabold text-zinc-800 text-sm">{selectedSchedule.shift.nama_shift}</h4>
-                    <p style={{ color: THEME_COLORS.hex.primary }} className="text-[10.5px] font-bold mt-1 flex items-center gap-1">
+                    <p style={{ color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary }} className="text-[10.5px] font-bold mt-1 flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5" />
                       <span>{selectedSchedule.shift.jam_masuk.substring(0, 5)} - {selectedSchedule.shift.jam_keluar.substring(0, 5)} WIB</span>
                     </p>

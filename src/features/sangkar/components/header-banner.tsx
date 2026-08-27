@@ -7,7 +7,7 @@ import type { Celengan } from "../types/celengan";
 import { motion } from "motion/react";
 import { animate } from "motion";
 import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
-import { THEME_COLORS } from "@/shared/constants/colors";
+import { THEME_COLORS, buildCssBackground } from "@/shared/constants/colors";
 
 interface HeaderBannerProps {
   user: SangkarUser;
@@ -16,7 +16,7 @@ interface HeaderBannerProps {
 }
 
 export function HeaderBanner({ user, celengans, loading }: HeaderBannerProps) {
-  const { effectiveLogo, tenantName } = useTenantBranding();
+  const { effectiveLogo, tenantName, navbarBgStyle, buttonColor } = useTenantBranding();
   const {
     currentTime,
     showBalance,
@@ -65,9 +65,9 @@ export function HeaderBanner({ user, celengans, loading }: HeaderBannerProps) {
 
   return (
     <div className="-mt-6 -mx-5 relative">
-      {/* Header Banner Card - Solid background color matching Navigation Bottom Bar */}
+      {/* Header Banner Card - Dynamic background color matching Navbar */}
       <div
-        style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+        style={navbarBgStyle}
         className="w-full text-white rounded-t-none rounded-b-[40px] shadow-lg border-b border-white/10 flex flex-col p-6 pt-11 pb-6 relative overflow-hidden"
       >
         {/* Background Pattern - Repeating and subtle (15% opacity) */}
@@ -136,7 +136,10 @@ export function HeaderBanner({ user, celengans, loading }: HeaderBannerProps) {
           {/* Bulan Ini Akan Mendapatkan Footer */}
           <div className="flex justify-between items-center text-xs">
             <span className="font-semibold text-white/80">Bulan ini akan mendapatkan</span>
-            <span className="font-bold text-right bg-orange-500 text-white px-2 py-0.5 rounded-full text-sm">
+            <span
+              style={{ background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) }}
+              className="font-bold text-right text-white px-2.5 py-0.5 rounded-full text-xs shadow-xs"
+            >
               {showBalance ? formatRupiah(animatedIncome) : "Rp ••••••••"}
             </span>
           </div>

@@ -2,6 +2,7 @@ import {
   UsersGroupRounded,
   Refresh,
   Structure,
+  Buildings3,
   MapPoint,
   Calendar,
   ClockCircle,
@@ -13,6 +14,8 @@ import {
   SettingsMinimalistic
 } from "@solar-icons/react";
 import type { RouteType } from "./router";
+
+import { Sparkles } from "lucide-react";
 
 export interface SubMenuItem {
   name: string;
@@ -74,7 +77,21 @@ export const menuItems: MenuItem[] = [
 
   // Super Admin Group (Khusus admin@gmail.com)
   {
-    name: "Mapping Tenant",
+    name: "Kelola Tenant",
+    route: "TenantManagement",
+    icon: Buildings3 || Structure,
+    group: "Super Admin",
+    badge: "Super"
+  },
+  {
+    name: "Master Icon Celengan",
+    route: "MasterCelenganIcon",
+    icon: Sparkles,
+    group: "Super Admin",
+    badge: "Super"
+  },
+  {
+    name: "Hak Akses Menu",
     route: "TenantMapping",
     icon: ShieldCheck,
     group: "Super Admin",

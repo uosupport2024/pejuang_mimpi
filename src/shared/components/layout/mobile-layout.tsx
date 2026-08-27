@@ -4,6 +4,8 @@ import logoWhite from "@/assets/logo/logo-white.png";
 import { SmartHome, Box, MedalStar, User, InfoCircle } from "@solar-icons/react";
 import { MobileGuidanceTour } from "./mobile-guidance";
 import { isMenuEnabled, subscribePermissions } from "@/shared/utils/tenant-permissions";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
+import { THEME_COLORS, buildCssBackground } from "@/shared/constants/colors";
 
 interface MobileLayoutProps {
   children: ReactNode;
@@ -11,6 +13,7 @@ interface MobileLayoutProps {
 
 export function MobileLayout({ children }: MobileLayoutProps) {
   const { currentRoute, navigate } = useRouter();
+  const { sidebarBg, sidebarBgStyle, buttonColor } = useTenantBranding();
   const [isTourOpen, setIsTourOpen] = useState(false);
   const [, setPermissionTick] = useState(0);
 
@@ -71,15 +74,19 @@ export function MobileLayout({ children }: MobileLayoutProps) {
 
         {/* Bottom Tab Bar Navigation */}
         {isTabRoute && activeTabs.length > 0 && (
-          <div className="absolute bottom-0 left-0 right-0 h-[74px] pb-3 pt-1 bg-[#1e2a4a] border-t border-white/10 px-2 flex items-center justify-around z-30">
+          <div
+            style={sidebarBgStyle}
+            className="absolute bottom-0 left-0 right-0 h-[74px] pb-3 pt-1 border-t border-white/10 px-2 flex items-center justify-around z-30"
+          >
             <div className="w-full max-w-[440px] flex items-center justify-between relative h-full">
               
-              {/* Sliding Solid Orange Compact Squarish Active Pill */}
+              {/* Sliding Active Pill */}
               {activeIndex >= 0 && !activeTabs[activeIndex]?.isCenterButton && (
                 <div 
-                  className="absolute top-1/2 -translate-y-1/2 w-14 h-12 bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] rounded-2xl transition-all duration-300 ease-out shadow-md shadow-black/20 z-0"
+                  className="absolute top-1/2 -translate-y-1/2 w-14 h-12 rounded-2xl transition-all duration-300 ease-out shadow-md shadow-black/20 z-0"
                   style={{ 
                     left: `calc(${(activeIndex + 0.5) * (100 / activeTabs.length)}% - 1.75rem)`,
+                    background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary)
                   }}
                 />
               )}
@@ -97,7 +104,11 @@ export function MobileLayout({ children }: MobileLayoutProps) {
                     >
                       <button
                         onClick={() => navigate("MobileAyamku")}
-                        className="relative z-10 w-14 h-14 -translate-y-4 rounded-full bg-gradient-to-tr from-[#e0542c] to-[#ff7e5a] flex items-center justify-center shadow-lg shadow-black/30 border-4 border-[#1e2a4a] hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer group"
+                        style={{
+                          background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary),
+                          borderColor: typeof sidebarBg === "string" ? sidebarBg : THEME_COLORS.hex.navBg
+                        }}
+                        className="relative z-10 w-14 h-14 -translate-y-4 rounded-full flex items-center justify-center shadow-lg shadow-black/30 border-4 hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer group"
                       >
                         <img 
                           src={logoWhite} 
@@ -133,7 +144,8 @@ export function MobileLayout({ children }: MobileLayoutProps) {
         {isTabRoute && !isTourOpen && (
           <button
             onClick={() => setIsTourOpen(true)}
-            className="absolute bottom-22 right-4 w-9 h-9 rounded-full bg-[#1e2a4a]/85 backdrop-blur-xs border border-white/10 text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer z-40"
+            style={sidebarBgStyle}
+            className="absolute bottom-22 right-4 w-9 h-9 rounded-full backdrop-blur-xs border border-white/10 text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer z-40"
           >
             <InfoCircle size={18} weight="Bold" />
           </button>

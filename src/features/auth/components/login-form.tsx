@@ -117,7 +117,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         {/* Submit */}
         <Button
           type="submit"
-          className={`w-full justify-center py-2.5 ${c.buttonBg} ${c.buttonText} rounded-full font-bold ${c.buttonShadow} transition-all cursor-pointer mt-2`}
+          style={{ backgroundColor: THEME_COLORS.hex.primary }}
+          className={`w-full justify-center py-2.5 ${c.buttonText} rounded-full font-bold ${c.buttonShadow} transition-all cursor-pointer mt-2`}
           disabled={isLoading}
         >
           {isLoading ? (

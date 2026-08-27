@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Calendar, Clock, FileText, LogOut, X, HeartPulse } from "lucide-react";
-import { THEME_COLORS } from "@/shared/constants/colors";
+import { THEME_COLORS, buildCssBackground } from "@/shared/constants/colors";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
 import { useRouter } from "@/shared/router/router";
 
 interface AbsensiCardProps {
@@ -23,6 +24,7 @@ export function AbsensiCard({
   totalLemburBulanIni = 0,
 }: AbsensiCardProps) {
   const { navigate } = useRouter();
+  const { buttonColor } = useTenantBranding();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<SelectedLeaveType | null>("cuti");
   const [mounted, setMounted] = useState(false);
@@ -39,7 +41,7 @@ export function AbsensiCard({
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className={`bg-gradient-to-br ${THEME_COLORS.celengan.rumah.gradient} text-white p-3.5 rounded-2xl shadow-md flex flex-col text-left justify-between min-h-[90px] w-full transition-all active:scale-[0.98] hover:shadow-lg cursor-pointer border-0`}
+          className="bg-gradient-rumah text-white p-3.5 rounded-2xl shadow-md flex flex-col text-left justify-between min-h-[90px] w-full transition-all active:scale-[0.98] hover:shadow-lg cursor-pointer border-0"
         >
           <div className="flex items-start gap-2">
             <div className="w-7 h-7 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
@@ -62,7 +64,7 @@ export function AbsensiCard({
         <button
           type="button"
           onClick={() => navigate("MobileLemburAbsensi")}
-          className={`bg-gradient-to-br ${THEME_COLORS.celengan.laptopBaru.gradient} text-white p-3.5 rounded-2xl shadow-md flex flex-col text-right justify-between min-h-[90px] w-full transition-all active:scale-[0.98] hover:shadow-lg cursor-pointer border-0`}
+          className="bg-gradient-laptop text-white p-3.5 rounded-2xl shadow-md flex flex-col text-right justify-between min-h-[90px] w-full transition-all active:scale-[0.98] hover:shadow-lg cursor-pointer border-0"
         >
           <div className="flex items-start gap-2 flex-row-reverse">
             <div className="w-7 h-7 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
@@ -122,7 +124,7 @@ export function AbsensiCard({
                   color: THEME_COLORS.hex.sawahPertumbuhanText
                 } : undefined}
                 className={`flex flex-col gap-2 justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${selectedType === "cuti"
-                  ? `bg-gradient-to-br ${THEME_COLORS.celengan.rumah.gradient} text-white shadow-md border-0`
+                  ? "bg-gradient-rumah text-white shadow-md border-0"
                   : "border-2"
                   }`}
               >
@@ -158,7 +160,7 @@ export function AbsensiCard({
                   color: THEME_COLORS.hex.airKehidupanText
                 } : undefined}
                 className={`flex flex-col gap-2 justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${selectedType === "lainnya"
-                  ? `bg-gradient-to-br ${THEME_COLORS.celengan.liburanBali.gradient} text-white shadow-md border-0`
+                  ? "bg-gradient-liburan text-white shadow-md border-0"
                   : "border-2"
                   }`}
               >
@@ -194,7 +196,7 @@ export function AbsensiCard({
                   color: THEME_COLORS.hex.padiKemakmuranText
                 } : undefined}
                 className={`flex flex-col gap-2 justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${selectedType === "telat"
-                  ? `bg-gradient-to-br ${THEME_COLORS.celengan.laptopBaru.gradient} text-white shadow-md border-0`
+                  ? "bg-gradient-laptop text-white shadow-md border-0"
                   : "border-2"
                   }`}
               >
@@ -230,7 +232,7 @@ export function AbsensiCard({
                   color: THEME_COLORS.hex.apiSemangatDark
                 } : undefined}
                 className={`flex flex-col gap-2 justify-between p-3 rounded-xl transition-all cursor-pointer text-left ${selectedType === "pulang_cepat"
-                  ? `bg-gradient-to-br ${THEME_COLORS.celengan.motor.gradient} text-white shadow-md border-0`
+                  ? "bg-gradient-motor text-white shadow-md border-0"
                   : "border-2"
                   }`}
               >
@@ -287,9 +289,10 @@ export function AbsensiCard({
                 setIsModalOpen(false);
                 navigate("MobileLeaveRequest", { selectedType });
               }}
+              style={selectedType !== null ? { background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) } : undefined}
               className={`w-full py-2.5 rounded-xl text-[10.5px] font-bold uppercase tracking-wider transition-all border-0 flex items-center justify-center gap-2 ${selectedType === null
                 ? "bg-zinc-200 text-zinc-400 cursor-not-allowed shadow-none"
-                : `${THEME_COLORS.classes.buttonBg} text-white ${THEME_COLORS.classes.buttonShadow} active:scale-[0.98] cursor-pointer`
+                : `text-white shadow-md active:scale-[0.98] cursor-pointer hover:brightness-105`
                 }`}
             >
               <Calendar className="w-3.5 h-3.5" />

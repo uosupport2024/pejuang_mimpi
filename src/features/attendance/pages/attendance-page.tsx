@@ -887,7 +887,8 @@ export function AttendancePage() {
                     onClick={() => {
                       handleDownload("/rekap-data/rekap-pdf", "Ringkasan Rekap & Payroll.pdf", true);
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-white bg-[#e0542c] hover:bg-[#c23f1b] rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-white hover:brightness-105 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ background: "var(--theme-button, #e0542c)" }}
                   >
                     {downloadingEndpoint === "/rekap-data/rekap-pdf" ? (
                       <svg className="animate-spin h-3 w-3 text-white mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -933,7 +934,8 @@ export function AttendancePage() {
                     onClick={() => {
                       handleDownload("/rekap-data/detail-pdf", "Rincian Detail Kehadiran.pdf", true);
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-white bg-[#e0542c] hover:bg-[#c23f1b] rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-white hover:brightness-105 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ background: "var(--theme-button, #e0542c)" }}
                   >
                     {downloadingEndpoint === "/rekap-data/detail-pdf" ? (
                       <svg className="animate-spin h-3 w-3 text-white mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

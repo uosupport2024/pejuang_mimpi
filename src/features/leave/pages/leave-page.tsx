@@ -341,25 +341,33 @@ export function LeavePage() {
 
           {/* Right: Tab Chips */}
           <div className="flex flex-wrap items-center gap-1.5">
-            {(["Pending", "Approved", "Rejected", "All"] as const).map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => handleTabChange(tab)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeTab === tab
-                    ? "bg-[#e0542c]/10 text-[#e0542c] border border-[#e0542c]/20"
-                    : "bg-zinc-50 border border-gray-200 text-gray-650 hover:bg-zinc-100/70"
-                  }`}
-              >
-                {tab === "Pending"
-                  ? "Menunggu Approval"
-                  : tab === "Approved"
-                    ? "Disetujui"
-                    : tab === "Rejected"
-                      ? "Ditolak"
-                      : "Semua Pengajuan"}
-              </button>
-            ))}
+            {(["Pending", "Approved", "Rejected", "All"] as const).map((tab) => {
+              const isActive = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => handleTabChange(tab)}
+                  style={isActive ? {
+                    color: "var(--theme-button, #e0542c)",
+                    borderColor: "var(--theme-button, #e0542c)",
+                    backgroundColor: "color-mix(in srgb, var(--theme-button, #e0542c) 12%, transparent)"
+                  } : undefined}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${isActive
+                      ? "border"
+                      : "bg-zinc-50 border border-gray-200 text-gray-650 hover:bg-zinc-100/70"
+                    }`}
+                >
+                  {tab === "Pending"
+                    ? "Menunggu Approval"
+                    : tab === "Approved"
+                      ? "Disetujui"
+                      : tab === "Rejected"
+                        ? "Ditolak"
+                        : "Semua Pengajuan"}
+                </button>
+              );
+            })}
           </div>
         </div>
 

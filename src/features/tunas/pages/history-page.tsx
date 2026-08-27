@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { fetchJadwalHistoryAPI, fetchShiftsAPI } from "../api/absensi";
 import { THEME_COLORS } from "@/shared/constants/colors";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
 
 type AttendanceStatus = "Early" | "On Time" | "Late";
 
@@ -87,6 +88,7 @@ const mapItem = (item: any): HistoryItem => {
 
 export function MobileHistoryPage() {
   const { navigate } = useRouter();
+  const { navbarBgStyle, buttonColor } = useTenantBranding();
 
   const defaultEnd = new Date();
   const defaultStart = new Date();
@@ -104,12 +106,10 @@ export function MobileHistoryPage() {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
 
-  // Search & custom dropdown state
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [shiftSearchQuery, setShiftSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on click outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -184,20 +184,16 @@ export function MobileHistoryPage() {
     loadHistory(next, startDate, endDate, selectedShiftId, true);
   };
 
-
-
   const selectedShift = shifts.find(s => s.id === selectedShiftId);
 
-  // Filter shifts based on search query
   const filteredShifts = shifts.filter(s =>
     s.nama_shift.toLowerCase().includes(shiftSearchQuery.toLowerCase())
   );
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div
-        style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+        style={navbarBgStyle}
         className="relative -mx-5 -mt-6 mb-4 overflow-hidden rounded-b-2xl text-white"
       >
         <div
@@ -218,9 +214,7 @@ export function MobileHistoryPage() {
         </div>
       </div>
 
-      {/* Filters Row */}
       <div className="flex gap-2 items-start relative z-40">
-        {/* Range Date Picker */}
         <div className="flex-1 flex flex-col gap-1">
           <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-400 leading-none">Rentang Tanggal</span>
           <DateRangePicker
@@ -231,7 +225,6 @@ export function MobileHistoryPage() {
           />
         </div>
 
-        {/* Searchable Shift Filter Dropdown (Custom Shadcn combobox style) */}
         <div className="flex-1 flex flex-col gap-1 relative" ref={dropdownRef}>
           <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-400 leading-none">Shift</span>
           <button
@@ -247,7 +240,6 @@ export function MobileHistoryPage() {
 
           {isDropdownOpen && (
             <div className="absolute top-[56px] left-0 right-0 bg-white border border-zinc-200 rounded-xl shadow-xl z-50 overflow-hidden py-1.5 flex flex-col max-h-[220px]">
-              {/* Search input header */}
               <div className="px-2 pb-1.5 pt-0.5 border-b border-zinc-100 flex items-center gap-1.5">
                 <Search className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                 <input
@@ -259,12 +251,11 @@ export function MobileHistoryPage() {
                 />
               </div>
 
-              {/* Scrollable list options */}
               <div className="overflow-y-auto flex-1 mt-1">
                 <button
                   type="button"
                   onClick={() => handleShiftSelect(null)}
-                  style={!selectedShiftId ? { color: THEME_COLORS.hex.primary } : undefined}
+                  style={!selectedShiftId ? { color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary } : undefined}
                   className={`w-full text-left px-3 py-2 text-[10px] font-medium transition-colors hover:bg-zinc-50 ${!selectedShiftId ? "bg-zinc-50 font-bold" : "text-zinc-700"}`}
                 >
                   Semua Shift
@@ -279,7 +270,7 @@ export function MobileHistoryPage() {
                       key={s.id}
                       type="button"
                       onClick={() => handleShiftSelect(s.id)}
-                      style={selectedShiftId === s.id ? { color: THEME_COLORS.hex.primary } : undefined}
+                      style={selectedShiftId === s.id ? { color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary } : undefined}
                       className={`w-full text-left px-3 py-2 text-[10px] font-medium transition-colors hover:bg-zinc-50 ${selectedShiftId === s.id ? "bg-zinc-50 font-bold" : "text-zinc-700"}`}
                     >
                       <div className="flex justify-between items-center">
@@ -297,11 +288,10 @@ export function MobileHistoryPage() {
         </div>
       </div>
 
-      {/* Active filter chips */}
       {selectedShift && (
         <div className="flex gap-2 flex-wrap">
           <div
-            style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+            style={navbarBgStyle}
             className="flex items-center gap-1.5 text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-lg"
           >
             <span>{selectedShift.nama_shift}</span>
@@ -315,7 +305,6 @@ export function MobileHistoryPage() {
         </div>
       )}
 
-      {/* History List */}
       <div className="space-y-2.5 pb-8 relative z-10">
         {isLoading ? (
           <div className="flex flex-col gap-2.5">

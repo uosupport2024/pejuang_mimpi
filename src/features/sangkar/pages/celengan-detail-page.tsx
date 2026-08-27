@@ -225,7 +225,10 @@ export function CelenganDetailPage() {
       {/* Main Container */}
       <div className="p-4 space-y-4">
         {/* Dynamic Theme Color Hero Card */}
-        <div className={`bg-gradient-to-br ${style.gradient} text-white p-5 rounded-3xl shadow-lg relative overflow-hidden`}>
+        <div
+          style={style.gradientStyle || { backgroundColor: style.solid }}
+          className="text-white p-5 rounded-3xl shadow-lg relative overflow-hidden"
+        >
           {/* Decorative graphic element */}
           <div className="absolute -right-4 -bottom-4 opacity-15 pointer-events-none">
             <motion.img

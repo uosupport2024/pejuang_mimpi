@@ -152,18 +152,15 @@ const MOCK_JOBS_DETAIL = [
 ];
 
 export async function fetchLokerDetail(id: string | number): Promise<JobOpening & { description: string; isApplied?: boolean }> {
-  const mockItem = MOCK_JOBS_DETAIL.find(item => item.id === String(id));
-  if (mockItem) {
-    return mockItem as any;
-  }
-
   try {
     const response = await fetch(`${API_BASE_URL}/loker/${id}`, {
       method: "GET",
       headers: getHeaders(),
     });
 
-    if (!response.ok) throw new Error("Failed to fetch loker detail");
+    if (!response.ok) {
+      throw new Error(`Failed to fetch loker detail (Status: ${response.status})`);
+    }
     const json = await response.json();
     if (json.code === 200 && json.data) {
       const item = json.data;
@@ -223,7 +220,7 @@ export async function fetchLokerDetail(id: string | number): Promise<JobOpening 
       return {
         id: String(item.id),
         position: item.title || "",
-        company: item.company || "Perusahaan Mitra",
+        company: item.company || (item.tenant ? item.tenant.name : "Perusahaan Mitra"),
         location: item.location || "Indonesia",
         salary: salaryText,
         category,
@@ -237,8 +234,12 @@ export async function fetchLokerDetail(id: string | number): Promise<JobOpening 
     }
     throw new Error(json.message || "Failed to parse loker detail response");
   } catch (err) {
-    console.warn("API error or ID not found, using fallback mock details:", err);
-    return MOCK_JOBS_DETAIL[0] as any;
+    console.warn("API error fetching loker detail:", err);
+    const mockItem = MOCK_JOBS_DETAIL.find(item => item.id === String(id));
+    if (mockItem) {
+      return mockItem as any;
+    }
+    throw err;
   }
 }
 
@@ -252,7 +253,10 @@ export async function applyLoker(id: string | number, note?: string): Promise<bo
     body: JSON.stringify({ note: note || null }),
   });
 
-  if (!response.ok) throw new Error("Failed to apply for job");
+  if (!response.ok) {
+    const errorJson = await response.json().catch(() => ({}));
+    throw new Error(errorJson.message || `Gagal melamar pekerjaan (Status: ${response.status})`);
+  }
   const json = await response.json();
   return json.code === 200 || json.code === 201;
 }

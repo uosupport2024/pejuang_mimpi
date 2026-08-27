@@ -5,6 +5,8 @@ import { FetchProgressBar } from "./fetch-progress-bar";
 import { AdminGuidanceTour } from "./admin-guidance";
 import patternBg from "@/assets/bg/pattern-background.png";
 
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
+
 interface DashboardLayoutProps {
   user: {
     name: string;
@@ -16,6 +18,7 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ user, onLogout, children }: DashboardLayoutProps) {
+  const { navbarBgStyle } = useTenantBranding();
   const [scrolled, setScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
@@ -62,9 +65,10 @@ export function DashboardLayout({ user, onLogout, children }: DashboardLayoutPro
 
       {/* Right side: Top Navbar + Page Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        {/* Navbar inside right panel with subtle batik navy styling */}
+        {/* Navbar inside right panel with dynamic navbar background color */}
         <header
-          className={`sticky top-0 z-40 shrink-0 transition-all duration-300 bg-[#1e2a4a] text-white border-b border-white/10 px-3 sm:px-6 py-2 shadow-sm ${
+          style={navbarBgStyle}
+          className={`sticky top-0 z-40 shrink-0 transition-all duration-300 text-white border-b border-white/10 px-3 sm:px-6 py-2 shadow-sm ${
             scrolled ? "bg-opacity-95 backdrop-blur-md shadow-md" : ""
           }`}
         >

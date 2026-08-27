@@ -28,7 +28,8 @@ import {
 } from "@/features/training/api/course";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { fetchProfileAPI } from "@/features/tunas/api/absensi";
-import { THEME_COLORS } from "@/shared/constants/colors";
+import { THEME_COLORS, buildCssBackground } from "@/shared/constants/colors";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
 
 function extractYouTubeId(url: string): string | null {
   if (!url) return null;
@@ -40,10 +41,13 @@ function extractYouTubeId(url: string): string | null {
 export function PakanLearningPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const parts = location.pathname.split("/");
-  const courseIdParam = parts[4] || null;
-  const courseIdFromUrl = parts[4] ? Number(parts[4]) : null;
-  const lessonIdFromUrl = parts[6] ? Number(parts[6]) : null;
+  const { navbarBgStyle, buttonColor } = useTenantBranding();
+
+  const matchCourse = location.pathname.match(/\/mobile\/pakan\/(?:learn|course)\/(\d+)/);
+  const matchLesson = location.pathname.match(/\/mobile\/pakan\/(?:learn|course)\/\d+\/lesson\/(\d+)/);
+  const courseIdParam = matchCourse ? matchCourse[1] : (location.state?.courseId ? String(location.state.courseId) : null);
+  const courseIdFromUrl = courseIdParam ? Number(courseIdParam) : null;
+  const lessonIdFromUrl = matchLesson ? Number(matchLesson[1]) : null;
 
   const [course, setCourse] = useState<APICourse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -327,7 +331,7 @@ export function PakanLearningPage() {
     return (
       <div className="flex flex-col min-h-screen bg-zinc-50 relative -mt-6 -mx-5 pb-20">
         {/* Sticky Header */}
-        <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
+        <div style={navbarBgStyle} className="text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{
@@ -387,7 +391,7 @@ export function PakanLearningPage() {
   if (!course) {
     return (
       <div className="flex flex-col min-h-screen bg-zinc-50 relative -mt-6 -mx-5 pb-20">
-        <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="text-white flex items-center gap-3 px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
+        <div style={navbarBgStyle} className="text-white flex items-center gap-3 px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{
@@ -441,7 +445,7 @@ export function PakanLearningPage() {
         }
       `}</style>
       {/* Flutter-like Top Sticky Header / Appbar */}
-      <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
+      <div style={navbarBgStyle} className="text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
         {/* Background Pattern */}
         <div
           className="absolute inset-0 opacity-15 pointer-events-none"
@@ -495,12 +499,12 @@ export function PakanLearningPage() {
               </p>
               <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-3">
                 <div className="flex items-center gap-1.5 text-zinc-800">
-                  <GraduationCap size={16} style={{ color: THEME_COLORS.hex.primary }} />
+                  <GraduationCap size={16} style={{ color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary }} />
                   <span className="text-xs font-bold">
                     {course.lessons?.length || 0} Materi
                   </span>
                 </div>
-                <span style={{ color: THEME_COLORS.hex.primary }} className="text-xs font-bold">
+                <span style={{ color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary }} className="text-xs font-bold">
                   Progres: {course.progress?.percentage_completed ?? course.user_progress?.percentage_completed ?? 0}%
                 </span>
               </div>
@@ -508,7 +512,7 @@ export function PakanLearningPage() {
               <div className="w-full bg-zinc-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
                 <div
                   style={{
-                    backgroundColor: THEME_COLORS.hex.primary,
+                    background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary),
                     width: `${course.progress?.percentage_completed ?? course.user_progress?.percentage_completed ?? 0}%`
                   }}
                   className="h-full rounded-full transition-all duration-300"
@@ -536,7 +540,7 @@ export function PakanLearningPage() {
                   <div
                     key={lesson.id}
                     onClick={() => handleSelectLesson(lesson)}
-                    style={isInProgress ? { borderLeftColor: THEME_COLORS.hex.primary } : undefined}
+                    style={isInProgress ? { borderLeftColor: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary } : undefined}
                     className={`bg-white p-4 rounded-2xl border ${borderClass} hover:border-zinc-300 transition-all flex items-center justify-between cursor-pointer group shadow-xs hover:shadow-sm active:scale-[0.99] duration-200`}
                   >
                     <div className="flex items-center gap-3">
@@ -575,8 +579,8 @@ export function PakanLearningPage() {
                         </span>
                       ) : (
                         <span
-                          style={{ backgroundColor: THEME_COLORS.hex.primary }}
-                          className="px-3 py-1.5 text-[8.5px] font-black uppercase rounded-xl text-white shadow-sm border border-white/10 tracking-wider"
+                          style={{ background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) }}
+                          className="px-3 py-1.5 text-[8.5px] font-black uppercase rounded-xl text-white shadow-sm border border-white/10 tracking-wider hover:brightness-105"
                         >
                           Mulai
                         </span>
@@ -599,7 +603,7 @@ export function PakanLearningPage() {
                   {activeLesson.chunks.map((_, i) => (
                     <div
                       key={i}
-                      style={i <= activeChunkIndex ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
+                      style={i <= activeChunkIndex ? { background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) } : undefined}
                       className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= activeChunkIndex ? "" : "bg-zinc-200"
                         }`}
                     />
@@ -628,7 +632,7 @@ export function PakanLearningPage() {
                         <div className="space-y-3 text-left">
                           <div className="flex items-center justify-between text-zinc-550 font-bold uppercase text-[9.5px] tracking-wider pl-0.5">
                             <div className="flex items-center gap-1.5">
-                              <Video size={14} style={{ color: THEME_COLORS.hex.primary }} />
+                              <Video size={14} style={{ color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary }} />
                               <span>Video Pembelajaran</span>
                             </div>
                             <button
@@ -637,7 +641,11 @@ export function PakanLearningPage() {
                                 setVideoError(false);
                                 toast.success("Memuat ulang video...");
                               }}
-                              style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}0D`, borderColor: `${THEME_COLORS.hex.primary}1A` }}
+                              style={{
+                                color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary,
+                                backgroundColor: `${typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary}0D`,
+                                borderColor: `${typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary}1A`
+                              }}
                               className="text-[8.5px] hover:underline cursor-pointer font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border"
                             >
                               Muat Ulang
@@ -696,7 +704,7 @@ export function PakanLearningPage() {
                       return (
                         <div className="space-y-4 text-left">
                           <div className="flex items-center gap-1.5 text-zinc-550 font-bold uppercase text-[9.5px] tracking-wider pl-0.5">
-                            <Volume2 size={14} style={{ color: THEME_COLORS.hex.primary }} />
+                            <Volume2 size={14} style={{ color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary }} />
                             <span>Audio Pembelajaran</span>
                           </div>
                           <div className="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs flex flex-col items-center justify-center py-7 text-center relative min-h-[160px]">
@@ -709,7 +717,7 @@ export function PakanLearningPage() {
                             ) : (
                               <>
                                 <div
-                                  style={{ backgroundColor: `${THEME_COLORS.hex.airKehidupan}1A`, color: THEME_COLORS.hex.airKehidupan }}
+                                  style={{ backgroundColor: `${typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary}1A`, color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary }}
                                   className="w-14 h-14 rounded-full flex items-center justify-center mb-4"
                                 >
                                   <Volume2 size={26} />
@@ -749,7 +757,7 @@ export function PakanLearningPage() {
                       return (
                         <div className="space-y-3 text-left">
                           <div className="flex items-center gap-1.5 text-zinc-550 font-bold uppercase text-[9.5px] tracking-wider pl-0.5">
-                            <FileImage size={14} style={{ color: THEME_COLORS.hex.primary }} />
+                            <FileImage size={14} style={{ color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary }} />
                             <span>Panduan Gambar</span>
                           </div>
                           {chunk.detail?.image_url ? (
@@ -793,7 +801,7 @@ export function PakanLearningPage() {
                       return (
                         <div className="space-y-3 text-left">
                           <div className="flex items-center gap-1.5 text-zinc-550 font-bold uppercase text-[9.5px] tracking-wider pl-0.5">
-                            <FileText size={14} style={{ color: THEME_COLORS.hex.primary }} />
+                            <FileText size={14} style={{ color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary }} />
                             <span>Materi Teks</span>
                           </div>
                           <div className="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs space-y-4">
@@ -818,7 +826,7 @@ export function PakanLearningPage() {
                       return (
                         <div className="space-y-3 text-left">
                           <div className="flex items-center gap-1.5 text-zinc-550 font-bold uppercase text-[9.5px] tracking-wider pl-0.5">
-                            <HelpCircle size={14} style={{ color: THEME_COLORS.hex.primary }} />
+                            <HelpCircle size={14} style={{ color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary }} />
                             <span>Kuis Pemahaman</span>
                           </div>
 
@@ -843,8 +851,8 @@ export function PakanLearningPage() {
                                  if (isSelected && !isSubmitted) {
                                    optionStyle = "text-zinc-900";
                                    customStyle = {
-                                     borderColor: THEME_COLORS.hex.primary,
-                                     backgroundColor: `${THEME_COLORS.hex.primary}0D`,
+                                     borderColor: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary,
+                                     backgroundColor: `${typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary}0D`,
                                    };
                                  } else if (isSubmitted) {
                                    if (quizAnswerResult.is_correct && isCorrectOpt) {
@@ -890,8 +898,8 @@ export function PakanLearningPage() {
                               <button
                                 onClick={() => handleQuizSubmit(quizId)}
                                 disabled={submittingQuiz || !selectedQuizOptionId}
-                                style={{ backgroundColor: THEME_COLORS.hex.primary }}
-                                className="w-full mt-4 py-2.5 disabled:opacity-40 disabled:pointer-events-none text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-sm hover:opacity-90"
+                                style={{ background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) }}
+                                className="w-full mt-4 py-2.5 disabled:opacity-40 disabled:pointer-events-none text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-sm hover:brightness-105"
                               >
                                 {submittingQuiz ? (
                                   <>
@@ -899,7 +907,7 @@ export function PakanLearningPage() {
                                     Mengirim...
                                   </>
                                 ) : (
-                                  "Submit Jawaban"
+                                  "Kirim Jawaban"
                                 )}
                               </button>
                             )}
@@ -945,8 +953,8 @@ export function PakanLearningPage() {
                     <button
                       onClick={handleNextChunk}
                       disabled={!canProceed}
-                      style={{ backgroundColor: THEME_COLORS.hex.primary }}
-                      className="px-5 py-2.5 disabled:opacity-40 disabled:pointer-events-none text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-colors cursor-pointer shadow-sm hover:opacity-90"
+                      style={{ background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) }}
+                      className="px-5 py-2.5 disabled:opacity-40 disabled:pointer-events-none text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-colors cursor-pointer shadow-sm hover:brightness-105"
                     >
                       {activeChunkIndex === activeLesson.chunks.length - 1
                         ? "Selesai & Kembali"
@@ -977,15 +985,15 @@ export function PakanLearningPage() {
 
             <div className="bg-zinc-50 p-3 rounded-xl border border-zinc-150 inline-block px-6">
               <span className="block text-[10px] text-zinc-400 font-bold uppercase">Poin Didapatkan</span>
-              <span style={{ color: THEME_COLORS.hex.primary }} className="text-lg font-black mt-0.5 block">
+              <span style={{ color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary }} className="text-lg font-black mt-0.5 block">
                 +{earnedPoints} POIN
               </span>
             </div>
 
             <button
               onClick={handleCloseCongratulations}
-              style={{ backgroundColor: THEME_COLORS.hex.primary }}
-              className="w-full py-2.5 text-white rounded-xl text-xs font-bold uppercase tracking-wide transition-colors cursor-pointer hover:opacity-90"
+              style={{ background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) }}
+              className="w-full py-2.5 text-white rounded-xl text-xs font-bold uppercase tracking-wide transition-colors cursor-pointer hover:brightness-105"
             >
               Kembali ke Materi
             </button>

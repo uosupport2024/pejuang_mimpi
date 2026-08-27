@@ -39,6 +39,11 @@ video::-webkit-media-controls-play-button {
   --heading: 'Poppins', sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
+  --theme-primary: #e0542c;
+  --theme-button: #e0542c;
+  --theme-sidebar: #1e2a4a;
+  --theme-navbar: #1e2a4a;
+
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
   color-scheme: light dark;
@@ -521,4 +526,42 @@ html,
 }
 .rich-text-preview table p, .rich-text-content table p, .ProseMirror table p {
   margin: 0;
-}
+}
+
+/* ========================================================= */
+/* Theme Color Gradients & Badges Utility Classes            */
+/* ========================================================= */
+.bg-gradient-rumah {
+  background: linear-gradient(135deg, #7FA46D 0%, #5C824C 100%) !important;
+}
+
+.bg-gradient-motor {
+  background: linear-gradient(135deg, #F25C2A 0%, #C54117 100%) !important;
+}
+
+.bg-gradient-liburan {
+  background: linear-gradient(135deg, #5C8A90 0%, #3F686D 100%) !important;
+}
+
+.bg-gradient-laptop {
+  background: linear-gradient(135deg, #F2B233 0%, #C58F1B 100%) !important;
+}
+
+.badge-type {
+  background-color: rgba(127, 164, 109, 0.12) !important;
+  color: #516b46 !important;
+  border: 1px solid rgba(127, 164, 109, 0.25) !important;
+}
+
+.badge-location {
+  background-color: rgba(242, 178, 51, 0.15) !important;
+  color: #916715 !important;
+  border: 1px solid rgba(242, 178, 51, 0.25) !important;
+}
+
+.badge-education {
+  background-color: rgba(92, 138, 144, 0.12) !important;
+  color: #3b595d !important;
+  border: 1px solid rgba(92, 138, 144, 0.25) !important;
+}
+
