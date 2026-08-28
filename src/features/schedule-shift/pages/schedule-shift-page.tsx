@@ -1306,15 +1306,16 @@ export function ScheduleShiftPage() {
                       >
                         <span style={{ backgroundColor: palette.text }} className="w-2 h-2 rounded-full shrink-0" />
                         {s.nama_shift}
+                        {isSelected && (
+                          <span className="flex items-center gap-1 text-[10px] font-semibold opacity-75 pl-1 border-l border-current/25">
+                            <Clock className="w-3 h-3" />
+                            {s.jam_masuk} - {s.jam_keluar}
+                          </span>
+                        )}
                       </button>
                     );
                   })}
                 </div>
-              )}
-              {modalShiftId && (
-                <p className="text-[10.5px] text-gray-400 font-medium pt-0.5">
-                  {shifts.find((s) => String(s.id) === modalShiftId)?.jam_masuk} - {shifts.find((s) => String(s.id) === modalShiftId)?.jam_keluar}
-                </p>
               )}
             </div>
 
