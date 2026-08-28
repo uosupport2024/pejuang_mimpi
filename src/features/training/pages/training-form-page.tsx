@@ -7,7 +7,9 @@ import {
   Plus,
   Edit2,
   Trash2,
-  Award
+  Award,
+  Tag,
+  X
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "@/shared/router/router";
@@ -57,7 +59,22 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
   const [iconUrl, setIconUrl] = useState("");
   const [isPublished, setIsPublished] = useState(true);
   const [difficulty, setDifficulty] = useState("basic");
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
   const [lessons, setLessons] = useState<Lesson[]>([]);
+
+  const addTag = () => {
+    const value = tagInput.trim();
+    if (!value) return;
+    if (!tags.some((t) => t.toLowerCase() === value.toLowerCase())) {
+      setTags((prev) => [...prev, value]);
+    }
+    setTagInput("");
+  };
+
+  const removeTag = (tag: string) => {
+    setTags((prev) => prev.filter((t) => t !== tag));
+  };
 
   // Lesson Modal State
   const [lessonModal, setLessonModal] = useState<{
@@ -106,7 +123,8 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
       setIconUrl(course.icon_url || "");
       setIsPublished(course.is_published ?? true);
       setDifficulty(course.difficulty || "basic");
-      
+      setTags(course.tags || []);
+
       // Sort lessons by order_index ascending
       const sortedLessons = [...(course.lessons || [])].sort(
         (a, b) => (a.order_index || 0) - (b.order_index || 0)
@@ -156,6 +174,7 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
         icon_url: iconUrl.trim() || undefined,
         is_published: isPublished,
         difficulty: difficulty,
+        tags: tags.length > 0 ? tags : undefined,
       };
 
       if (mode === "edit" && courseId) {
@@ -549,6 +568,49 @@ export function TrainingFormPage({ mode }: TrainingFormPageProps) {
                 <SelectItem value="advanced">Advanced (Mahir)</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Tags */}
+          <div className="space-y-1.5 text-left">
+            <label className="block text-xs font-bold text-gray-700">
+              Tag
+            </label>
+            <div className="relative">
+              <Tag size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <input
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === ",") {
+                    e.preventDefault();
+                    addTag();
+                  }
+                }}
+                placeholder="Ketik tag lalu tekan Enter (mis. onboarding, safety)"
+                className="w-full pl-9 pr-3.5 py-2.5 rounded-md border border-gray-200 text-xs text-gray-900 focus:outline-none transition-all"
+              />
+            </div>
+            {tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {tags.map((tag) => (
+                  <span
+                    key={tag}
+                    style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}1A` }}
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-bold"
+                  >
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
+                      className="hover:opacity-70 transition-opacity cursor-pointer"
+                    >
+                      <X size={11} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Buttons */}

@@ -205,6 +205,24 @@ export function TrainingDetailPage() {
                     <span>{sortedLessons.length} Materi Pelatihan</span>
                   </span>
                 </div>
+                {course.tags && course.tags.length > 0 && (
+                  <div className="col-span-2">
+                    <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider mb-1.5">
+                      Tag
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {course.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}1A` }}
+                          className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
