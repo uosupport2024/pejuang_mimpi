@@ -140,12 +140,12 @@ export function MobileLayout({ children }: MobileLayoutProps) {
           </div>
         )}
 
-        {/* Floating Help Button */}
-        {isTabRoute && !isTourOpen && (
+        {/* Floating Help Button — disembunyikan di page Ayamku */}
+        {isTabRoute && !isTourOpen && currentRoute !== "MobileAyamku" && (
           <button
             onClick={() => setIsTourOpen(true)}
             style={sidebarBgStyle}
-            className="absolute bottom-22 right-4 w-9 h-9 rounded-full backdrop-blur-xs border border-white/10 text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer z-40"
+            className="absolute bottom-22 right-4 w-9 h-9 rounded-full backdrop-blur-xs border border-white/10 text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer z-50"
           >
             <InfoCircle size={18} weight="Bold" />
           </button>

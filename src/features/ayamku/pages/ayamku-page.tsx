@@ -1,11 +1,23 @@
-import { useState } from "react";
-import { Star } from "lucide-react";
-import ayamkuBg from "@/assets/bg/ayamku-bg.jpg";
+import { useState, useEffect, useMemo } from "react";
+import { Star, Ban, Wand2 } from "lucide-react";
+import bgMorning from "@/assets/bg/bg-path-morning.png";
+import bgDay from "@/assets/bg/bg-path.png";
+import bgAfternoon from "@/assets/bg/bg-path-afternoon.png";
+import bgNight from "@/assets/bg/bg-path-night.png";
 import ayamkuPet from "@/assets/bg/ayamku-pet.png";
 import { toast } from "sonner";
 import type { AyamkuPageProps } from "../types/ayamku.type";
-import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
 import { THEME_COLORS } from "@/shared/constants/colors";
+import { motion, AnimatePresence } from "motion/react";
+
+// Pilih background berdasarkan jam device
+function getTimeOfDayBg(): string {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 11) return bgMorning;   // Pagi  05.00 – 10.59
+  if (hour >= 11 && hour < 15) return bgDay;       // Siang 11.00 – 14.59
+  if (hour >= 15 && hour < 18) return bgAfternoon; // Sore  15.00 – 17.59
+  return bgNight;                                   // Malam 18.00 – 04.59
+}
 
 type MisiStatus = "selesai" | "berlangsung" | "terlambat";
 type MisiKategori = "login" | "absen" | "profil" | "pembelajaran" | "notifikasi" | "pencapaian";
@@ -31,48 +43,6 @@ const MISI_DATA: Misi[] = [
     poin: 50,
   },
 ];
-
-// EXACT VECTOR REPLICAS OF THE CHICKEN'S JENGGER & GELAMBIR (Matching reference image exactly)
-const JenggerDefaultSVG = () => (
-  <svg viewBox="0 0 100 80" className="w-full h-full drop-shadow-md">
-    <path
-      d="M20 62 C15 50, 18 35, 32 30 C36 16, 52 14, 65 24 C72 15, 88 18, 90 35 C95 44, 90 56, 80 62"
-      fill="#ff2e2e"
-      stroke="#2c1a04"
-      strokeWidth="4.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M20 62 C35 66, 65 66, 80 62"
-      fill="none"
-      stroke="#2c1a04"
-      strokeWidth="4.5"
-      strokeLinecap="round"
-    />
-  </svg>
-);
-
-const GelambirDefaultSVG = () => (
-  <svg viewBox="0 0 80 80" className="w-full h-full drop-shadow-md">
-    {/* Left Lobe */}
-    <path
-      d="M40 25 C30 25, 20 35, 20 54 C20 68, 38 68, 40 56 Z"
-      fill="#ff2e2e"
-      stroke="#2c1a04"
-      strokeWidth="4.5"
-      strokeLinejoin="round"
-    />
-    {/* Right Lobe */}
-    <path
-      d="M40 25 C50 25, 60 35, 60 54 C60 68, 42 68, 40 56 Z"
-      fill="#ff2e2e"
-      stroke="#2c1a04"
-      strokeWidth="4.5"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 // --- KEPALA (Hats / Headwear) ---
 const StrawHatSVG = () => (
@@ -423,10 +393,10 @@ const BandanaNeckSVG = () => (
 );
 
 
-// 20 ACCESSORIES PER CATEGORY CONFIG
+// CURATED WEARABLE ACCESSORIES
 const ACCESSORIES = [
-  // --- KEPALA (20 Items) ---
-  { id: "comb_default", name: "Jengger Ori (Bawaan)", category: "topi" as const, render: () => <JenggerDefaultSVG />, width: 85, top: "20%", left: "47%" },
+  // --- KEPALA / TOPI ---
+  { id: "none_topi", name: "Bawaan", category: "topi" as const, render: () => <Ban className="w-5 h-5 text-white/40" />, width: 0, top: "0%", left: "0%" },
   { id: "straw", name: "Topi Jerami", category: "topi" as const, render: () => <StrawHatSVG />, width: 170, top: "18%", left: "47%" },
   { id: "tophat", name: "Topi Tinggi", category: "topi" as const, render: () => <TopHatSVG />, width: 115, top: "12%", left: "47%" },
   { id: "crown", name: "Mahkota Emas", category: "topi" as const, render: () => <CrownSVG />, width: 110, top: "18%", left: "47%" },
@@ -448,31 +418,21 @@ const ACCESSORIES = [
   { id: "pirate", name: "Topi Bajak Laut", category: "topi" as const, render: () => <PirateHatSVG />, width: 125, top: "17%", left: "47%" },
   { id: "flower_crown", name: "Bando Bunga", category: "topi" as const, render: () => <FlowerCrownSVG />, width: 110, top: "21%", left: "47%" },
 
-  // --- MATA (20 Items) ---
-  { id: "none_mata", name: "Mata Ori (Bawaan)", category: "mata" as const, render: () => null, width: 0, top: "0%", left: "0%" },
-  { id: "sunglasses", name: "Kacamata Hitam", category: "mata" as const, render: () => <CoolSunglassesSVG />, width: 105, top: "35.5%", left: "46%" },
-  { id: "roundglasses", name: "Kacamata Bulat", category: "mata" as const, render: () => <RoundGlassesSVG />, width: 105, top: "35.5%", left: "46%" },
-  { id: "eyepatch", name: "Penutup Mata", category: "mata" as const, render: () => <PirateEyepatchSVG />, width: 100, top: "35.5%", left: "46%" },
-  { id: "monocle", name: "Monokel Emas", category: "mata" as const, render: () => <MonocleSVG />, width: 95, top: "35.5%", left: "46%" },
-  { id: "heartglasses", name: "Kacamata Hati", category: "mata" as const, render: () => <HeartGlassesSVG />, width: 105, top: "35.5%", left: "46%" },
-  { id: "pixelglasses", name: "Kacamata Pixel", category: "mata" as const, render: () => <PixelThugGlassesSVG />, width: 105, top: "35.5%", left: "46%" },
-  { id: "goggles", name: "Kacamata Goggles", category: "mata" as const, render: () => <GogglesSVG />, width: 105, top: "35.5%", left: "46%" },
-  { id: "threed", name: "Kacamata 3D", category: "mata" as const, render: () => <ThreeDGlassesSVG />, width: 105, top: "35.5%", left: "46%" },
-  { id: "cyborg", name: "Mata Cyborg", category: "mata" as const, render: () => <CyborgEyeSVG />, width: 95, top: "35.5%", left: "46%" },
-  { id: "neonvisor", name: "Visor Neon Cyber", category: "mata" as const, render: () => <VisorNeonSVG />, width: 105, top: "35.5%", left: "46%" },
-  { id: "emoji_sleep", name: "Masker Tidur", category: "mata" as const, render: () => <span className="text-4xl select-none">😴</span>, width: 45, top: "35.5%", left: "46%" },
-  { id: "emoji_star", name: "Mata Bintang", category: "mata" as const, render: () => <span className="text-4xl select-none">🤩</span>, width: 45, top: "35.5%", left: "46%" },
-  { id: "emoji_monocle", name: "Detektif Glass", category: "mata" as const, render: () => <span className="text-4xl select-none">🧐</span>, width: 45, top: "35.5%", left: "46%" },
-  { id: "emoji_nerd", name: "Kacamata Nerd", category: "mata" as const, render: () => <span className="text-4xl select-none">🤓</span>, width: 45, top: "35.5%", left: "46%" },
-  { id: "emoji_dizzy", name: "Mata Pusing", category: "mata" as const, render: () => <span className="text-4xl select-none">🌀</span>, width: 45, top: "35.5%", left: "46%" },
-  { id: "emoji_mask", name: "Masker Medis", category: "mata" as const, render: () => <span className="text-4xl select-none">😷</span>, width: 45, top: "37.5%", left: "46%" },
-  { id: "emoji_tears", name: "Mata Mewek", category: "mata" as const, render: () => <span className="text-4xl select-none">😭</span>, width: 45, top: "35.5%", left: "46%" },
-  { id: "emoji_wink", name: "Mata Genit", category: "mata" as const, render: () => <span className="text-4xl select-none">😉</span>, width: 45, top: "35.5%", left: "46%" },
-  { id: "emoji_fire", name: "Mata Membara", category: "mata" as const, render: () => <span className="text-4xl select-none">🔥</span>, width: 45, top: "35.5%", left: "46%" },
-  { id: "emoji_cool", name: "Visor Gelap", category: "mata" as const, render: () => <span className="text-4xl select-none">🕶️</span>, width: 45, top: "35.5%", left: "46%" },
+  // --- MATA (Kacamata & Visor) ---
+  { id: "none_mata", name: "Bawaan", category: "mata" as const, render: () => <Ban className="w-5 h-5 text-white/40" />, width: 0, top: "0%", left: "0%" },
+  { id: "sunglasses", name: "Kacamata Hitam", category: "mata" as const, render: () => <CoolSunglassesSVG />, width: 105, top: "28%", left: "47.5%" },
+  { id: "roundglasses", name: "Kacamata Bulat", category: "mata" as const, render: () => <RoundGlassesSVG />, width: 105, top: "28%", left: "47.5%" },
+  { id: "eyepatch", name: "Penutup Mata", category: "mata" as const, render: () => <PirateEyepatchSVG />, width: 100, top: "28%", left: "47.5%" },
+  { id: "monocle", name: "Monokel Emas", category: "mata" as const, render: () => <MonocleSVG />, width: 95, top: "28%", left: "47.5%" },
+  { id: "heartglasses", name: "Kacamata Hati", category: "mata" as const, render: () => <HeartGlassesSVG />, width: 105, top: "28%", left: "47.5%" },
+  { id: "pixelglasses", name: "Kacamata Pixel", category: "mata" as const, render: () => <PixelThugGlassesSVG />, width: 105, top: "28%", left: "47.5%" },
+  { id: "goggles", name: "Kacamata Goggles", category: "mata" as const, render: () => <GogglesSVG />, width: 105, top: "28%", left: "47.5%" },
+  { id: "threed", name: "Kacamata 3D", category: "mata" as const, render: () => <ThreeDGlassesSVG />, width: 105, top: "28%", left: "47.5%" },
+  { id: "cyborg", name: "Mata Cyborg", category: "mata" as const, render: () => <CyborgEyeSVG />, width: 95, top: "28%", left: "47.5%" },
+  { id: "neonvisor", name: "Visor Neon Cyber", category: "mata" as const, render: () => <VisorNeonSVG />, width: 105, top: "28%", left: "47.5%" },
 
-  // --- DAGU / LEHER (20 Items) ---
-  { id: "wattle_default", name: "Gelambir Ori (Bawaan)", category: "leher" as const, render: () => <GelambirDefaultSVG />, width: 50, top: "51.5%", left: "45.5%" },
+  // --- LEHER / DASI / KALUNG ---
+  { id: "none_leher", name: "Bawaan", category: "leher" as const, render: () => <Ban className="w-5 h-5 text-white/40" />, width: 0, top: "0%", left: "0%" },
   { id: "redbowtie", name: "Bowtie Merah", category: "leher" as const, render: () => <BowTieSVG />, width: 80, top: "54%", left: "43%" },
   { id: "blackbowtie", name: "Bowtie Hitam", category: "leher" as const, render: () => <BlackBowTieSVG />, width: 80, top: "54%", left: "43%" },
   { id: "redtie", name: "Dasi Strip", category: "leher" as const, render: () => <NecktieSVG />, width: 40, top: "62%", left: "45%" },
@@ -483,21 +443,189 @@ const ACCESSORIES = [
   { id: "magicscarf", name: "Syal Sihir", category: "leher" as const, render: () => <MagicScarfSVG />, width: 115, top: "58%", left: "45%" },
   { id: "bellcollar", name: "Kalung Lonceng", category: "leher" as const, render: () => <BellCollarSVG />, width: 105, top: "55%", left: "45%" },
   { id: "bandananeck", name: "Slayer Merah", category: "leher" as const, render: () => <BandanaNeckSVG />, width: 100, top: "55%", left: "45%" },
-  { id: "emoji_guitar", name: "Gitar Rock", category: "leher" as const, render: () => <span className="text-4xl select-none">🎸</span>, width: 45, top: "68%", left: "48%" },
-  { id: "emoji_medal", name: "Medali Emas", category: "leher" as const, render: () => <span className="text-4xl select-none">🥇</span>, width: 45, top: "58%", left: "46%" },
-  { id: "emoji_trophy", name: "Piala Juara", category: "leher" as const, render: () => <span className="text-4xl select-none">🏆</span>, width: 45, top: "68%", left: "48%" },
-  { id: "emoji_flower", name: "Kalung Hawaii", category: "leher" as const, render: () => <span className="text-4xl select-none">🌸</span>, width: 45, top: "56%", left: "46%" },
-  { id: "emoji_clover", name: "Kalung Semanggi", category: "leher" as const, render: () => <span className="text-4xl select-none">🍀</span>, width: 45, top: "56%", left: "46%" },
-  { id: "emoji_money", name: "Tas Uang", category: "leher" as const, render: () => <span className="text-4xl select-none">💰</span>, width: 45, top: "68%", left: "46%" },
-  { id: "emoji_jalu", name: "Jalu Emas", category: "leher" as const, render: () => <span className="text-4xl select-none">🪙</span>, width: 45, top: "66%", left: "46%" },
-  { id: "emoji_star_chain", name: "Bintang Sheriff", category: "leher" as const, render: () => <span className="text-4xl select-none">⭐</span>, width: 45, top: "56%", left: "46%" },
-  { id: "emoji_microphone", name: "Mic Penyanyi", category: "leher" as const, render: () => <span className="text-4xl select-none">🎤</span>, width: 45, top: "62%", left: "46%" },
 ];
 
+// ANIMATED BLINKING EYES COMPONENT
+function ChickenBlinkingEyes() {
+  const [blinkState, setBlinkState] = useState<"open" | "closed">("open");
+
+  useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const scheduleNextBlink = () => {
+      const delay = 2200 + Math.random() * 3200; // Blink every 2.2 - 5.4 seconds
+      timeoutId = setTimeout(() => {
+        setBlinkState("closed");
+        setTimeout(() => {
+          setBlinkState("open");
+
+          // 30% chance for an expressive quick double-blink
+          if (Math.random() < 0.3) {
+            setTimeout(() => {
+              setBlinkState("closed");
+              setTimeout(() => {
+                setBlinkState("open");
+                scheduleNextBlink();
+              }, 110);
+            }, 130);
+          } else {
+            scheduleNextBlink();
+          }
+        }, 130);
+      }, delay);
+    };
+
+    scheduleNextBlink();
+    return () => clearTimeout(timeoutId);
+  }, []);
+
+  const isClosed = blinkState === "closed";
+
+  // Posisi mata disesuaikan dengan ayamku-pet.png
+  // Image w-110 (440px) dalam container 340px → overflow 50px tiap sisi
+  // Mata di PNG ≈ 33% dari atas → (0.33×440 - 50)/340 ≈ 33%
+  // Mata kiri ≈ 40% dari kiri PNG → (0.40×440 - 50)/340 ≈ 37%
+  // Mata kanan ≈ 60% dari kiri PNG → (0.60×440 - 50)/340 ≈ 63%
+  const eyeTransform = isClosed
+    ? "translate(-50%, -50%) scaleY(0.07)"
+    : "translate(-50%, -50%)";
+
+  const eyeBaseStyle: React.CSSProperties = {
+    position: "absolute",
+    pointerEvents: "none",
+    userSelect: "none",
+    zIndex: 15,
+    width: "24px",
+    height: "29px",
+    transform: eyeTransform,
+    transition: "transform 0.08s cubic-bezier(0.4, 0, 0.2, 1)",
+    transformOrigin: "center 55%",
+  };
+
+  return (
+    <>
+      {/* ── MATA KIRI ── copied exactly from <g id="Mata_Kiri"> in Asset 3.svg */}
+      <div style={{ ...eyeBaseStyle, top: "29%", left: "41%" }}>
+        <svg viewBox="43 106 28 36" xmlns="http://www.w3.org/2000/svg" className="w-full h-full overflow-visible">
+          {/* Sclera putih (background agar pupil terlihat) */}
+          <ellipse cx="57.5" cy="124" rx="11.5" ry="14" fill="#ffffff" />
+          {/* cls-12 path 1 — bentuk utama pupil */}
+          <path fill="#0d182e" d="M67.63,124.17c.32,6.46-4.22,13.99-9.63,13.99s-9.95-7.53-9.63-13.99c.28-5.58,4.28-12.38,9.63-12.38s9.35,6.81,9.63,12.38Z" />
+          {/* cls-12 path 2 — detail outline/shadow (exact copy dari Asset 3.svg) */}
+          <path fill="#0d182e" d="M67.64,121.53c.06-1.56,0-6-3.07-10.01-1.09-1.42-3.94-5.13-8.52-5.24-3.73-.09-6.38,2.27-7.11,2.98-1.94,1.88-2.62,4.1-3.44,6.76-.13.44-.65,2.14-.92,4.47-.16,1.37-.4,3.59,0,6.19.26,1.65.96,4.64,3.21,7.91-3.08-3.31-3.95-6.44-4.24-8.03-.35-1.88-.23-3.47,0-6.65.2-2.73.32-4.23,1.03-6.19.93-2.55,2.31-4.23,2.98-5.04.74-.89,1.74-2.09,3.44-3.17.82-.52,1.92-1.21,3.55-1.53,1.51-.29,2.76-.13,3.44,0,2.18.42,3.59,1.54,4.28,2.1,1.12.91,1.76,1.8,2.25,2.48.32.44,1.56,2.24,2.41,5.04.94,3.14.91,5.96.7,7.91Z" />
+          {/* cls-3 ellipse — highlight putih (exact copy dari Asset 3.svg) */}
+          <ellipse fill="#ffffff" cx="55.55" cy="118.28" rx="2.83" ry="3.44" />
+        </svg>
+      </div>
+
+      {/* ── MATA KANAN ── copied exactly from <g id="Mata_Kanan"> in Asset 3.svg */}
+      <div style={{ ...eyeBaseStyle, top: "29%", left: "53%" }}>
+        <svg viewBox="100 106 28 36" xmlns="http://www.w3.org/2000/svg" className="w-full h-full overflow-visible">
+          {/* Sclera putih (background agar pupil terlihat) */}
+          <ellipse cx="113.4" cy="124" rx="11.5" ry="14" fill="#ffffff" />
+          {/* cls-12 path 1 — bentuk utama pupil */}
+          <path fill="#0d182e" d="M103.77,124.17c-.32,6.46,4.22,13.99,9.63,13.99s9.95-7.53,9.63-13.99c-.28-5.58-4.28-12.38-9.63-12.38s-9.35,6.81-9.63,12.38Z" />
+          {/* cls-12 path 2 — detail outline/shadow (exact copy dari Asset 3.svg) */}
+          <path fill="#0d182e" d="M103.76,121.53c-.06-1.56,0-6,3.07-10.01,1.09-1.42,3.94-5.13,8.52-5.24,3.73-.09,6.38,2.27,7.11,2.98,1.94,1.88,2.62,4.1,3.44,6.76.13.44.65,2.14.92,4.47.16,1.37.4,3.59,0,6.19-.26,1.65-.96,4.64-3.21,7.91,3.08-3.31,3.95-6.44,4.24-8.03.35-1.88.23-3.47,0-6.65-.2-2.73-.32-4.23-1.03-6.19-.93-2.55-2.31-4.23-2.98-5.04-.74-.89-1.74-2.09-3.44-3.17-.82-.52-1.92-1.21-3.55-1.53-1.51-.29-2.76-.13-3.44,0-2.18.42-3.59,1.54-4.28,2.1-1.12.91-1.76,1.8-2.25,2.48-.32.44-1.56,2.24-2.41,5.04-.94,3.14-.91,5.96-.7,7.91Z" />
+          {/* cls-3 ellipse — highlight putih (exact copy dari Asset 3.svg) */}
+          <ellipse fill="#ffffff" cx="110.69" cy="118.25" rx="2.83" ry="3.44" />
+        </svg>
+      </div>
+    </>
+  );
+}
+
+// GENTLE BREEZE & FLOATING PARTICLES EFFECT
+function GentleBreeze() {
+  // Pre-configured wind stream lines
+  const windStreams = [
+    { id: 1, top: "22%", width: 140, duration: 6.5, delay: 0 },
+    { id: 2, top: "45%", width: 180, duration: 7.2, delay: 2.2 },
+    { id: 3, top: "68%", width: 130, duration: 5.8, delay: 4.1 },
+    { id: 4, top: "35%", width: 160, duration: 8.0, delay: 1.2 },
+  ];
+
+  // Pre-configured floating leaves & petals
+  const floatingLeaves = [
+    { id: 1, startTop: "18%", color: "#86efac", size: 10, duration: 9.0, delay: 0, scale: 0.9 },
+    { id: 2, startTop: "32%", color: "#fef08a", size: 12, duration: 11.5, delay: 2.5, scale: 1 },
+    { id: 3, startTop: "50%", color: "#4ade80", size: 8, duration: 8.2, delay: 4.8, scale: 0.8 },
+    { id: 4, startTop: "65%", color: "#fbcfe8", size: 9, duration: 10.0, delay: 1.0, scale: 0.85 },
+    { id: 5, startTop: "28%", color: "#bbf7d0", size: 11, duration: 12.0, delay: 6.2, scale: 0.95 },
+  ];
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-5 select-none">
+      {/* Soft Wind Stream Gusts */}
+      {windStreams.map((w) => (
+        <motion.div
+          key={`wind-${w.id}`}
+          initial={{ x: "-120%", opacity: 0 }}
+          animate={{
+            x: ["-100%", "550%"],
+            opacity: [0, 0.45, 0.6, 0.4, 0],
+          }}
+          transition={{
+            duration: w.duration,
+            repeat: Infinity,
+            delay: w.delay,
+            ease: "easeInOut",
+          }}
+          style={{ top: w.top, width: `${w.width}px` }}
+          className="absolute h-6 flex items-center"
+        >
+          <svg viewBox="0 0 200 24" fill="none" className="w-full h-full stroke-white/40 filter drop-shadow-[0_1px_4px_rgba(255,255,255,0.3)]">
+            <path
+              d="M0 12 C 40 4, 80 20, 130 10 C 160 4, 185 8, 200 12"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeDasharray="160 40"
+            />
+          </svg>
+        </motion.div>
+      ))}
+
+      {/* Floating Gentle Leaves & Petals */}
+      {floatingLeaves.map((leaf) => (
+        <motion.div
+          key={`leaf-${leaf.id}`}
+          initial={{ x: "-10%", y: 0, rotate: 0, opacity: 0 }}
+          animate={{
+            x: ["-10%", "520%"],
+            y: [0, -18, 14, -10, 16, -6, 0],
+            rotate: [0, 90, 180, 290, 360],
+            opacity: [0, 0.75, 0.9, 0.75, 0],
+          }}
+          transition={{
+            duration: leaf.duration,
+            repeat: Infinity,
+            delay: leaf.delay,
+            ease: "linear",
+          }}
+          style={{
+            top: leaf.startTop,
+            width: `${leaf.size}px`,
+            height: `${leaf.size}px`,
+          }}
+          className="absolute"
+        >
+          <svg viewBox="0 0 24 24" fill={leaf.color} className="w-full h-full drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)] opacity-80">
+            {/* Organic leaf petal shape */}
+            <path d="M12 2 C16 6, 22 10, 22 16 C22 20, 18 22, 14 22 C8 22, 2 16, 2 12 C2 6, 8 2, 12 2 Z" />
+          </svg>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
 export function AyamkuPage({ user: _user }: AyamkuPageProps) {
-  const { effectiveLogo, tenantName } = useTenantBranding();
   const totalPoin = MISI_DATA.filter((m) => m.status === "selesai").reduce((a, m) => a + m.poin, 0);
 
+  // Background dinamis berdasarkan jam device — hanya dihitung saat pertama mount
+  const currentBg = useMemo(() => getTimeOfDayBg(), []);
+
+  const [showPanel, setShowPanel] = useState(false);
   const [activeTab, setActiveTab] = useState<"topi" | "mata" | "leher">("topi");
   const [equipped, setEquipped] = useState<{
     topi: typeof ACCESSORIES[number] | null;
@@ -509,16 +637,51 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
     leher: null,
   });
 
+  const [jumpKey, setJumpKey] = useState(0);
+  const [floatingHearts, setFloatingHearts] = useState<Array<{ id: number; x: number; drift: number; rotate: number; emoji: string }>>([]);
+
+  const handlePetTap = () => {
+    setJumpKey((k) => k + 1);
+
+    // Spawn 1-2 floating joy emojis
+    const emojis = ["💖", "✨", "🐣", "⭐", "🎉", "🌾", "❤️"];
+    const chosenEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+    const newHeart = {
+      id: Date.now() + Math.random(),
+      x: (Math.random() - 0.5) * 120,
+      drift: (Math.random() - 0.5) * 60,
+      rotate: (Math.random() - 0.5) * 40,
+      emoji: chosenEmoji,
+    };
+
+    setFloatingHearts((prev) => [...prev.slice(-6), newHeart]);
+  };
+
   const handleToggleAccessory = (acc: typeof ACCESSORIES[number]) => {
+    if (acc.id.startsWith("none_")) {
+      setEquipped((prev) => ({
+        ...prev,
+        [acc.category]: null,
+      }));
+      toast.info("Tampilan Bawaan", {
+        description: `Aksesoris ${acc.category === "topi" ? "topi" : acc.category === "mata" ? "kacamata" : "leher"} dilepas.`
+      });
+      return;
+    }
+
     setEquipped((prev) => {
       const current = prev[acc.category];
       const isSame = current?.id === acc.id;
-      let nextVal = isSame ? null : acc;
+      const nextVal = isSame ? null : acc;
 
       if (nextVal) {
-        toast.success(`${acc.name} berhasil dipakai! 🐔✨`);
+        toast.success("Aksesoris Dipakai", {
+          description: `${acc.name} berhasil dipakai! 🐔✨`
+        });
       } else {
-        toast.info(`${acc.name} dilepas.`);
+        toast.info("Aksesoris Dilepas", {
+          description: `${acc.name} dilepas.`
+        });
       }
 
       return {
@@ -530,168 +693,280 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
 
   const handleResetAccessories = () => {
     setEquipped({ topi: null, mata: null, leher: null });
-    toast.info("Aksesoris dikembalikan ke tampilan bawaan.");
+    toast.info("Tampilan Bawaan", {
+      description: "Semua aksesoris dikembalikan ke tampilan bawaan."
+    });
   };
 
-  // Default overlay configuration:
-  // Render default Jengger on head if no hat is selected.
-  // Render default Gelambir on throat if no neckwear/chin accessory is selected.
-  const activeTopi = equipped.topi || ACCESSORIES.find(a => a.id === "comb_default")!;
-  const activeMata = equipped.mata;
-  const activeLeher = equipped.leher || ACCESSORIES.find(a => a.id === "wattle_default")!;
+  // Only render overlays when an accessory is explicitly equipped (and not "none_")
+  const activeTopi = equipped.topi && !equipped.topi.id.startsWith("none_") ? equipped.topi : null;
+  const activeMata = equipped.mata && !equipped.mata.id.startsWith("none_") ? equipped.mata : null;
+  const activeLeher = equipped.leher && !equipped.leher.id.startsWith("none_") ? equipped.leher : null;
 
   return (
     <div
       className="-mt-6 -mx-5 -mb-20 h-[calc(100vh-64px)] w-[calc(100%+40px)] relative overflow-hidden"
       style={{
-        backgroundImage: `url(${ayamkuBg})`,
+        backgroundImage: `url(${currentBg})`,
         backgroundSize: "cover",
-        backgroundPosition: "center 85%",
+        backgroundPosition: "center 60%",
       }}
     >
       {/* Top Gradient Overlay */}
       <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" />
 
-      {/* Top Header Overlay */}
-      <div className="absolute top-10 left-6 right-6 flex justify-between items-center z-10">
-        <div className="flex items-center gap-3">
-          <img src={effectiveLogo} alt={tenantName || "Logo"} className="w-12 h-12 object-contain" />
-          <div className="flex flex-col text-left">
-            <span className="text-[10px] font-bold tracking-wider uppercase text-white/95 drop-shadow-md">
-              Peliharaan
-            </span>
-            <span className="text-xl font-bold tracking-tight text-white mt-0.5 drop-shadow-md">
-              Ayamku
-            </span>
-          </div>
-        </div>
+      {/* Gentle Breeze Ambient Effect */}
+      <GentleBreeze />
+
+      {/* Top Header Overlay — top disesuaikan dengan notification bar mobile */}
+      <div
+        className="absolute left-6 right-6 flex justify-end items-center gap-2 z-10"
+        style={{ top: "calc(2.5rem + env(safe-area-inset-top, 0px))" }}
+      >
+        {/* Poin Badge — kiri */}
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-xs border border-white/10 text-white text-[10px] font-bold uppercase tracking-wide shadow-xs">
           <Star style={{ color: THEME_COLORS.hex.accent }} className="w-3.5 h-3.5" />
           {totalPoin} Poin
         </div>
+        {/* Makeover toggle button — kanan */}
+        <button
+          onClick={() => setShowPanel((v) => !v)}
+          style={showPanel ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
+          className={`w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all cursor-pointer border border-white/20 backdrop-blur-xs ${showPanel
+            ? "text-white"
+            : "bg-black/40 text-white/80 hover:bg-black/60 hover:text-white"
+            }`}
+          title="Pilih Aksesoris"
+        >
+          <Wand2 className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Pet Chicken with Accessory Overlays */}
-      <div className="absolute inset-0 flex items-center justify-center pt-16 pb-36">
+      <div className="absolute inset-0 flex items-center justify-center pt-36 pb-4">
         <div className="relative w-[340px] h-[340px] flex items-center justify-center translate-y-[25px]">
-          {/* Base Pet Chicken */}
-          <img
-            src={ayamkuPet}
-            alt="Ayamku Pet"
-            className="w-110 h-110 object-contain z-0 select-none"
-            onClick={() => toast.success("Petok petok! Ayam kamu sangat bahagia! 🐔💖")}
+          {/* Floating Joy Particles / Emojis on Tap */}
+          {floatingHearts.map((h) => (
+            <motion.div
+              key={h.id}
+              initial={{ opacity: 1, scale: 0.5, x: h.x, y: 20, rotate: h.rotate }}
+              animate={{
+                opacity: [1, 1, 0],
+                scale: [0.5, 1.4, 1.1],
+                y: -140,
+                x: h.x + h.drift,
+                rotate: h.rotate + 30,
+              }}
+              transition={{ duration: 0.95, ease: "easeOut" }}
+              className="absolute top-[20%] left-1/2 -translate-x-1/2 pointer-events-none select-none z-50 text-3xl filter drop-shadow-md"
+            >
+              {h.emoji}
+            </motion.div>
+          ))}
+
+          {/* Ground Contact Shadows responding to Jumps */}
+          <motion.div
+            key={`shadow-main-${jumpKey}`}
+            animate={
+              jumpKey > 0
+                ? { scale: [1, 0.55, 1], opacity: [1, 0.25, 1] }
+                : { scale: [1, 0.97, 1], opacity: [1, 0.85, 1] }
+            }
+            transition={{
+              duration: jumpKey > 0 ? 0.68 : 4.2,
+              repeat: jumpKey > 0 ? 0 : Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute top-[83%] left-1/2 -translate-x-1/2 w-48 h-4.5 bg-black/25 rounded-[100%] blur-[4px] pointer-events-none z-0"
+          />
+          <motion.div
+            key={`shadow-left-${jumpKey}`}
+            animate={
+              jumpKey > 0
+                ? { scale: [1, 0.55, 1], opacity: [1, 0.2, 1] }
+                : { scale: [1, 0.97, 1], opacity: [1, 0.85, 1] }
+            }
+            transition={{
+              duration: jumpKey > 0 ? 0.68 : 4.2,
+              repeat: jumpKey > 0 ? 0 : Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute top-[83.5%] left-[39%] -translate-x-1/2 w-14 h-2.5 bg-black/45 rounded-[100%] blur-[1.5px] pointer-events-none z-0"
+          />
+          <motion.div
+            key={`shadow-right-${jumpKey}`}
+            animate={
+              jumpKey > 0
+                ? { scale: [1, 0.55, 1], opacity: [1, 0.2, 1] }
+                : { scale: [1, 0.97, 1], opacity: [1, 0.85, 1] }
+            }
+            transition={{
+              duration: jumpKey > 0 ? 0.68 : 4.2,
+              repeat: jumpKey > 0 ? 0 : Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute top-[83.5%] left-[57%] -translate-x-1/2 w-14 h-2.5 bg-black/45 rounded-[100%] blur-[1.5px] pointer-events-none z-0"
           />
 
-          {/* Hat / Topi Overlay (Jengger Default rendered only if no hat overrides it) */}
-          {activeTopi && (
-            <div
-              className="absolute pointer-events-none z-20 select-none"
-              style={{
-                top: activeTopi.top,
-                left: activeTopi.left,
-                width: `${activeTopi.width}px`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              {activeTopi.render()}
-            </div>
-          )}
+          {/* Joyful Bouncing Chicken Body + Accessories */}
+          <motion.div
+            key={`chicken-body-${jumpKey}`}
+            animate={
+              jumpKey > 0
+                ? {
+                    y: [0, 10, -56, -64, -36, 6, -4, 0],
+                    scaleY: [1, 0.82, 1.18, 1.14, 0.94, 1.06, 0.98, 1],
+                    scaleX: [1, 1.16, 0.88, 0.92, 1.06, 0.96, 1.02, 1],
+                    rotate: [0, -3.5, 4, -2, 1.5, 0],
+                  }
+                : {
+                    y: [0, -4, 0],
+                    scaleY: [1, 1.01, 1],
+                    scaleX: [1, 0.99, 1],
+                    rotate: [0, 0.3, -0.3, 0],
+                  }
+            }
+            transition={
+              jumpKey > 0
+                ? { duration: 0.68, ease: "easeOut" }
+                : { duration: 4.2, repeat: Infinity, ease: "easeInOut" }
+            }
+            onClick={handlePetTap}
+            className="relative w-full h-full flex items-center justify-center cursor-pointer select-none"
+          >
+            {/* Base Pet Chicken */}
+            <img
+              src={ayamkuPet}
+              alt="Ayamku Pet"
+              className="w-110 h-110 object-contain relative z-10 select-none pointer-events-none"
+            />
 
-          {/* Eyes / Mata Overlay */}
-          {activeMata && (
-            <div
-              className="absolute pointer-events-none z-30 select-none"
-              style={{
-                top: activeMata.top,
-                left: activeMata.left,
-                width: `${activeMata.width}px`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              {activeMata.render()}
-            </div>
-          )}
+            {/* Animated Blinking Eyes */}
+            <ChickenBlinkingEyes />
 
-          {/* Neck / Leher/Dagu Overlay (Gelambir Default rendered only if no neck accessory overrides it) */}
-          {activeLeher && (
-            <div
-              className="absolute pointer-events-none z-10 select-none"
-              style={{
-                top: activeLeher.top,
-                left: activeLeher.left,
-                width: `${activeLeher.width}px`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              {activeLeher.render()}
-            </div>
-          )}
+            {/* Hat / Topi Overlay */}
+            {activeTopi && (
+              <div
+                className="absolute pointer-events-none z-20 select-none"
+                style={{
+                  top: activeTopi.top,
+                  left: activeTopi.left,
+                  width: `${activeTopi.width}px`,
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                {activeTopi.render()}
+              </div>
+            )}
+
+            {/* Eyes / Mata Overlay */}
+            {activeMata && (
+              <div
+                className="absolute pointer-events-none z-30 select-none"
+                style={{
+                  top: activeMata.top,
+                  left: activeMata.left,
+                  width: `${activeMata.width}px`,
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                {activeMata.render()}
+              </div>
+            )}
+
+            {/* Neck / Leher Overlay */}
+            {activeLeher && (
+              <div
+                className="absolute pointer-events-none z-10 select-none"
+                style={{
+                  top: activeLeher.top,
+                  left: activeLeher.left,
+                  width: `${activeLeher.width}px`,
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                {activeLeher.render()}
+              </div>
+            )}
+          </motion.div>
         </div>
       </div>
 
-      {/* Accessory Selector Panel */}
-      <div className="absolute bottom-6 left-6 right-6 bg-black/60 backdrop-blur-md rounded-3xl p-4 border border-white/10 z-40 flex flex-col gap-3">
-        {/* Category & Reset Action */}
-        <div className="flex justify-between items-center">
-          <div className="flex gap-1.5">
-            {(["topi", "mata", "leher"] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                style={activeTab === tab ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
-                className={`px-3.5 py-1.5 rounded-full text-[9.5px] font-bold uppercase tracking-wider transition-all cursor-pointer ${activeTab === tab
-                  ? "text-white shadow-xs"
-                  : "bg-white/10 text-white/70 hover:bg-white/15"
-                  }`}
-              >
-                {tab === "topi" ? "Topi" : tab === "mata" ? "Mata" : "Leher (Dagu)"}
-              </button>
-            ))}
-          </div>
-          {(equipped.topi || equipped.mata || equipped.leher) && (
-            <button
-              onClick={handleResetAccessories}
-              className="text-[8px] font-bold uppercase text-red-400 hover:text-red-300 tracking-wider px-2.5 py-1 bg-red-500/10 border border-red-500/25 rounded-lg transition-all cursor-pointer"
-            >
-              Default
-            </button>
-          )}
-        </div>
+      {/* Accessory Selector Panel — dikontrol dari icon header */}
+      <AnimatePresence>
+        {showPanel && (
+          <motion.div
+            key="accessory-panel"
+            initial={{ y: -60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -60, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="absolute top-[88px] left-4 right-4 bg-black/60 backdrop-blur-md rounded-3xl p-3.5 border border-white/10 z-40 flex flex-col gap-2.5 shadow-xl"
+          >
+            {/* Category & Action Buttons */}
+            <div className="flex justify-between items-center">
+              <div className="flex gap-1.5">
+                {(["topi", "mata", "leher"] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    style={activeTab === tab ? { backgroundColor: THEME_COLORS.hex.primary } : undefined}
+                    className={`px-3.5 py-1.5 rounded-full text-[9.5px] font-bold uppercase tracking-wider transition-all cursor-pointer ${activeTab === tab
+                      ? "text-white shadow-xs"
+                      : "bg-white/10 text-white/70 hover:bg-white/15"
+                      }`}
+                  >
+                    {tab === "topi" ? "Topi" : tab === "mata" ? "Mata" : "Leher (Dagu)"}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                {(equipped.topi || equipped.mata || equipped.leher) && (
+                  <button
+                    onClick={handleResetAccessories}
+                    className="text-[8px] font-bold uppercase text-red-400 hover:text-red-300 tracking-wider px-2.5 py-1 bg-red-500/10 border border-red-500/25 rounded-lg transition-all cursor-pointer"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+            </div>
 
-        {/* Divider */}
-        <div className="h-[1px] bg-white/10 w-full" />
+            {/* Divider */}
+            <div className="h-[1px] bg-white/10 w-full" />
 
-        {/* Carousel Grid */}
-        <div className="flex gap-2.5 overflow-x-auto pb-1 no-scrollbar min-h-[96px] items-center">
-          {ACCESSORIES.filter((acc) => acc.category === activeTab).map((acc) => {
-            const isEquipped = equipped[acc.category]?.id === acc.id || (!equipped[acc.category] && (acc.id === "comb_default" || acc.id === "wattle_default" || (acc.id === "none_mata" && !equipped.mata)));
-            return (
-              <button
-                key={acc.id}
-                onClick={() => handleToggleAccessory(acc)}
-                style={isEquipped ? {
-                  backgroundColor: `${THEME_COLORS.hex.primary}33`,
-                  borderColor: THEME_COLORS.hex.primary,
-                  width: "84px"
-                } : { width: "84px" }}
-                className={`shrink-0 flex flex-col items-center justify-between p-2.5 rounded-2xl border transition-all cursor-pointer h-20 ${isEquipped
-                  ? "shadow-xs"
-                  : "bg-white/5 hover:bg-white/10 border-white/5"
-                  }`}
-              >
-                <div className="h-10 flex items-center justify-center overflow-hidden w-full px-1">
-                  <div className="scale-75 w-full flex items-center justify-center">
-                    {acc.render() || <span className="text-[10px] font-bold text-white/50">Kosong</span>}
-                  </div>
-                </div>
-                <span className="text-[8.5px] font-bold text-center text-white/90 line-clamp-1 w-full px-0.5 leading-none">
-                  {acc.name}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+            {/* Carousel Grid */}
+            <div className="flex gap-2.5 overflow-x-auto pb-1 no-scrollbar min-h-[80px] items-center">
+              {ACCESSORIES.filter((acc) => acc.category === activeTab).map((acc) => {
+                const currentEquipped = equipped[acc.category];
+                const isEquipped = (!currentEquipped && acc.id.startsWith("none_")) || (currentEquipped?.id === acc.id);
+                return (
+                  <button
+                    key={acc.id}
+                    onClick={() => handleToggleAccessory(acc)}
+                    style={isEquipped ? {
+                      backgroundColor: `${THEME_COLORS.hex.primary}33`,
+                      borderColor: THEME_COLORS.hex.primary,
+                      width: "78px"
+                    } : { width: "78px" }}
+                    className={`shrink-0 flex flex-col items-center justify-between p-2 rounded-2xl border transition-all cursor-pointer h-[72px] ${isEquipped ? "shadow-xs" : "bg-white/5 hover:bg-white/10 border-white/5"
+                      }`}
+                  >
+                    <div className="h-9 flex items-center justify-center overflow-hidden w-full px-1">
+                      <div className="scale-75 w-full flex items-center justify-center">
+                        {acc.render()}
+                      </div>
+                    </div>
+                    <span className="text-[8px] font-bold text-center text-white/90 line-clamp-1 w-full px-0.5 leading-none">
+                      {acc.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { getCelenganStyle } from "./celenganku-carousel";
 import type { Celengan } from "../types/celengan";
+import { sortCelengans } from "../api/celengan";
 import { PiggyBank } from "lucide-react";
 import { THEME_COLORS } from "@/shared/constants/colors";
 import { getChickenIcon } from "@/shared/utils/icons";
@@ -75,8 +76,9 @@ export function StatistikCelengan({ celengans, loading }: { celengans: Celengan[
     return "Rp " + val.toLocaleString("id-ID");
   };
 
-  // Limit display to top 4 celengans
-  const activeCelengans = celengans.slice(0, 4);
+  // Limit display to top 4 celengans (sorted: active/incomplete first, full at the back)
+  const sortedCelengans = sortCelengans(celengans);
+  const activeCelengans = sortedCelengans.slice(0, 4);
 
   const items = activeCelengans.map((item) => {
     const pct = item.target_amount > 0 ? Math.min(Math.round((item.current_amount / item.target_amount) * 100), 100) : 0;

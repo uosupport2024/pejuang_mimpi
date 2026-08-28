@@ -1,6 +1,14 @@
 import type { Celengan, CelenganTransaction } from "../types/celengan";
 import { API_BASE_URL, getHeaders, dedupFetch } from "@/shared/utils/api";
 
+export function sortCelengans(celengans: Celengan[]): Celengan[] {
+  return [...celengans].sort((a, b) => {
+    const aFull = a.target_amount > 0 && a.current_amount >= a.target_amount ? 1 : 0;
+    const bFull = b.target_amount > 0 && b.current_amount >= b.target_amount ? 1 : 0;
+    return aFull - bFull;
+  });
+}
+
 export async function fetchCelengans(): Promise<Celengan[]> {
   const response = await dedupFetch(`${API_BASE_URL}/celengan`, {
     method: "GET",
@@ -9,11 +17,12 @@ export async function fetchCelengans(): Promise<Celengan[]> {
   if (!response.ok) throw new Error("Failed to fetch celengans");
   const json = await response.json();
   if (json.code === 200 && Array.isArray(json.data)) {
-    return json.data.map((c: any) => ({
+    const mapped = json.data.map((c: any) => ({
       ...c,
       target_amount: Number(c.target_amount),
       current_amount: Number(c.current_amount),
     }));
+    return sortCelengans(mapped);
   }
   throw new Error(json.message || "Invalid response format");
 }
