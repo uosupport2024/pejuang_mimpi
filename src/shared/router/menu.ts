@@ -5,6 +5,7 @@ import {
   Buildings3,
   MapPoint,
   Calendar,
+  CalendarMark,
   ClockCircle,
   Dollar,
   DocumentText,
@@ -52,6 +53,7 @@ export const menuItems: MenuItem[] = [
       { name: "Absensi Hari Ini", route: "AttendanceToday" }
     ]
   },
+  { name: "Jadwal Shift", route: "ScheduleShift", icon: CalendarMark, group: "Operasional" },
   { name: "Lembur", route: "Overtime", icon: ClockCircle, group: "Operasional" },
   { name: "Pelatihan", route: "Training", icon: BookBookmark, group: "Operasional" },
 

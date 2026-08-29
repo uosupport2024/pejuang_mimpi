@@ -10,6 +10,7 @@ import { LeavePage } from "@/features/leave";
 import { PayrollPage, PayrollHistoryPage } from "@/features/payroll";
 import { OvertimePage } from "@/features/overtime";
 import { ShiftPage } from "@/features/shift";
+import { ScheduleShiftPage } from "@/features/schedule-shift";
 import { RecruitmentPage } from "@/features/recruitment";
 import { OnboardingPage } from "@/features/onboarding";
 import { AppraisalPage } from "@/features/appraisal";
@@ -82,6 +83,8 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <OvertimePage />;
       case "Shift":
         return <ShiftPage />;
+      case "ScheduleShift":
+        return <ScheduleShiftPage />;
       case "KoreksiAbsenApproval":
         return <KoreksiAbsenApprovalPage />;
       case "Recruitment":
