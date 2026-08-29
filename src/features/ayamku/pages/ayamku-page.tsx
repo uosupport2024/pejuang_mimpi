@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { Star, Ban, Wand2 } from "lucide-react";
-import bgMorning from "@/assets/bg/bg-path-morning.png";
-import bgDay from "@/assets/bg/bg-path.png";
-import bgAfternoon from "@/assets/bg/bg-path-afternoon.png";
-import bgNight from "@/assets/bg/bg-path-night.png";
+import bgMorning from "@/assets/bg/bg-path-morning.webp";
+import bgDay from "@/assets/bg/bg-path.webp";
+import bgAfternoon from "@/assets/bg/bg-path-afternoon.webp";
+import bgNight from "@/assets/bg/bg-path-night.webp";
 import { toast } from "sonner";
 import type { AyamkuPageProps } from "../types/ayamku.type";
 import { THEME_COLORS } from "@/shared/constants/colors";
