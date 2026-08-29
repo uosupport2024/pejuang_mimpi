@@ -9,14 +9,14 @@ import {
   FileImage,
   HelpCircle,
   Loader2,
-  Check,
   Play,
   Heart,
   FileText,
   BookOpen,
   Info,
   Trophy,
-  CheckCircle2
+  CheckCircle2,
+  Maximize2
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -34,6 +34,7 @@ import patternBg from "@/assets/bg/pattern-background.png";
 import { fetchProfileAPI } from "@/features/tunas/api/absensi";
 import { THEME_COLORS, buildCssBackground } from "@/shared/constants/colors";
 import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
+import { LearningPathMap } from "@/features/pakan/components/learning-path-map";
 
 function extractYouTubeId(url: string): string | null {
   if (!url) return null;
@@ -59,6 +60,7 @@ export function PakanLearningPage() {
 
   // Tab View state (Pembelajaran vs Informasi)
   const [mainTab, setMainTab] = useState<"pembelajaran" | "informasi">("pembelajaran");
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Player view states
   const [viewMode, setViewMode] = useState<"lessons" | "player">("lessons");
@@ -423,7 +425,7 @@ export function PakanLearningPage() {
   }
 
   return (
-    <div ref={pageRef} className="flex flex-col min-h-screen bg-zinc-50 relative -mt-6 -mx-5 pb-20">
+    <div ref={pageRef} className={`flex flex-col min-h-screen -mt-6 -mx-5 ${isFullscreen && mainTab === "pembelajaran" ? "bg-[#eaf4e6] p-0 pb-0 min-h-[100dvh] overflow-hidden" : "bg-zinc-50 relative pb-12"}`}>
       <style>{`
         .rich-text-content ul {
           list-style-type: disc !important;
@@ -451,108 +453,162 @@ export function PakanLearningPage() {
           font-weight: 600 !important;
         }
       `}</style>
-      {/* Flutter-like Top Sticky Header / Appbar */}
-      <div style={navbarBgStyle} className="text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
-        {/* Background Pattern */}
-        <div
-          className="absolute inset-0 opacity-15 pointer-events-none"
-          style={{
-            backgroundImage: `url(${patternBg})`,
-            backgroundSize: "180px auto",
-            backgroundRepeat: "repeat"
-          }}
-        />
-
-        <div className="flex items-center gap-3 relative z-10 max-w-[80%]">
-          <button
-            onClick={() => {
-              if (viewMode === "player") {
-                setViewMode("lessons");
-                setActiveLesson(null);
-                navigate(`/mobile/pakan/learn/${courseIdParam}`);
-              } else {
-                navigate("/mobile/pakan");
-              }
+      {/* Flutter-like Top Sticky Header / Appbar (Hidden when in Fullscreen Map Mode) */}
+      {!isFullscreen && (
+        <div style={navbarBgStyle} className="text-white flex items-center justify-between px-5 pt-7 pb-4 sticky -top-6 z-20 shadow-md relative overflow-hidden shrink-0">
+          {/* Background Pattern */}
+          <div
+            className="absolute inset-0 opacity-15 pointer-events-none"
+            style={{
+              backgroundImage: `url(${patternBg})`,
+              backgroundSize: "180px auto",
+              backgroundRepeat: "repeat"
             }}
-            className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer flex items-center justify-center shrink-0"
-          >
-            <ArrowLeft className="w-6 h-6" />
-          </button>
-          <div className="text-left truncate">
-            <h1 className="text-sm font-bold tracking-tight truncate">
-              {viewMode === "player" && activeLesson ? activeLesson.title : course.title}
-            </h1>
-            <p className="text-[10.5px] text-white/70 truncate font-semibold">
-              {viewMode === "player" ? course.title : "Modul Pembelajaran"}
-            </p>
-          </div>
-        </div>
+          />
 
-        {/* Header Right Lives/Points Badge */}
-        <div className="flex items-center gap-1.5 bg-black/25 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10 relative z-10">
-          <Heart size={14} className="text-red-500 fill-current animate-pulse" />
-          <span className="text-xs font-black text-white">{lives}</span>
+          <div className="flex items-center gap-3 relative z-10 max-w-[80%]">
+            <button
+              onClick={() => {
+                if (viewMode === "player") {
+                  setViewMode("lessons");
+                  setActiveLesson(null);
+                  navigate(`/mobile/pakan/learn/${courseIdParam}`);
+                } else {
+                  navigate("/mobile/pakan");
+                }
+              }}
+              className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer flex items-center justify-center shrink-0"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </button>
+            <div className="text-left truncate">
+              <h1 className="text-sm font-bold tracking-tight truncate">
+                {viewMode === "player" && activeLesson ? activeLesson.title : course.title}
+              </h1>
+              <p className="text-[10.5px] text-white/70 truncate font-semibold">
+                {viewMode === "player" ? course.title : "Modul Pembelajaran"}
+              </p>
+            </div>
+          </div>
+
+          {/* Header Right Action: Heart badge during active learning player vs Fullscreen toggle on map tab */}
+          {viewMode === "player" ? (
+            <div className="flex items-center gap-1.5 bg-black/25 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10 relative z-10">
+              <Heart size={14} className="text-red-500 fill-current animate-pulse" />
+              <span className="text-xs font-black text-white">{lives}</span>
+            </div>
+          ) : mainTab === "pembelajaran" ? (
+            <button
+              onClick={() => setIsFullscreen(true)}
+              className="flex items-center justify-center w-8 h-8 bg-black/25 backdrop-blur-md rounded-full border border-white/10 relative z-10 text-white/90 hover:text-white hover:bg-black/40 transition-all cursor-pointer shadow-xs"
+              title="Layar Penuh"
+            >
+              <Maximize2 size={15} />
+            </button>
+          ) : null}
         </div>
-      </div>
+      )}
 
       {/* Main Learning Body */}
-      <div className="p-4 flex-1 flex flex-col">
+      <div className={`${isFullscreen ? "p-0" : "p-4"} flex-1 flex flex-col`}>
         {viewMode === "lessons" ? (
           /* Lessons List View */
           <div className="space-y-3.5 text-left">
-            {/* Top Tab Switcher: Pembelajaran | Informasi */}
-            <div className="grid grid-cols-2 p-1 bg-zinc-200/60 rounded-xl shrink-0">
-              <button
-                onClick={() => setMainTab("pembelajaran")}
-                style={
-                  mainTab === "pembelajaran"
-                    ? {
-                        backgroundColor:
-                          typeof buttonColor === "string" && !buttonColor.includes("gradient")
-                            ? buttonColor
-                            : THEME_COLORS.hex.primary,
-                        color: "#ffffff",
-                      }
-                    : undefined
-                }
-                className={`py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                  mainTab === "pembelajaran"
-                    ? "shadow-xs"
-                    : "text-zinc-600 hover:text-zinc-900"
-                }`}
-              >
-                <BookOpen size={14} />
-                Pembelajaran
-              </button>
-              <button
-                onClick={() => setMainTab("informasi")}
-                style={
-                  mainTab === "informasi"
-                    ? {
-                        backgroundColor:
-                          typeof buttonColor === "string" && !buttonColor.includes("gradient")
-                            ? buttonColor
-                            : THEME_COLORS.hex.primary,
-                        color: "#ffffff",
-                      }
-                    : undefined
-                }
-                className={`py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                  mainTab === "informasi"
-                    ? "shadow-xs"
-                    : "text-zinc-600 hover:text-zinc-900"
-                }`}
-              >
-                <Info size={14} />
-                Informasi
-              </button>
-            </div>
+            {/* Top Tab Switcher: Pembelajaran | Informasi (Hidden when in Fullscreen Map Mode) */}
+            {!isFullscreen && (
+              <div className="grid grid-cols-2 p-1 bg-zinc-200/60 rounded-xl shrink-0">
+                <button
+                  onClick={() => setMainTab("pembelajaran")}
+                  style={
+                    mainTab === "pembelajaran"
+                      ? {
+                          backgroundColor:
+                            typeof buttonColor === "string" && !buttonColor.includes("gradient")
+                              ? buttonColor
+                              : THEME_COLORS.hex.primary,
+                          color: "#ffffff",
+                        }
+                      : undefined
+                  }
+                  className={`py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                    mainTab === "pembelajaran"
+                      ? "shadow-xs"
+                      : "text-zinc-600 hover:text-zinc-900"
+                  }`}
+                >
+                  <BookOpen size={14} />
+                  Pembelajaran
+                </button>
+                <button
+                  onClick={() => setMainTab("informasi")}
+                  style={
+                    mainTab === "informasi"
+                      ? {
+                          backgroundColor:
+                            typeof buttonColor === "string" && !buttonColor.includes("gradient")
+                              ? buttonColor
+                              : THEME_COLORS.hex.primary,
+                          color: "#ffffff",
+                        }
+                      : undefined
+                  }
+                  className={`py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                    mainTab === "informasi"
+                      ? "shadow-xs"
+                      : "text-zinc-600 hover:text-zinc-900"
+                  }`}
+                >
+                  <Info size={14} />
+                  Informasi
+                </button>
+              </div>
+            )}
 
             {mainTab === "pembelajaran" ? (
-              /* TAB 1: PEMBELAJARAN */
-              <>
-                {/* Course Progress Summary */}
-                <div className="bg-white p-3.5 rounded-xl border border-zinc-200/80 shadow-xs space-y-2.5">
+              /* TAB 1: PEMBELAJARAN (GAMIFIED LEARNING PATH MAP) */
+              <div className="w-full">
+                {/* Duolingo-style Winding Learning Path Map */}
+                {course.lessons && course.lessons.length > 0 ? (
+                  <LearningPathMap
+                    lessons={course.lessons}
+                    onSelectLesson={handleSelectLesson}
+                    buttonColor={typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary}
+                    isFullscreen={isFullscreen}
+                    onToggleFullscreen={() => setIsFullscreen((prev) => !prev)}
+                  />
+                ) : (
+                  <div className="text-center py-10 bg-white rounded-xl border border-zinc-100">
+                    <span className="text-xs text-zinc-400 font-bold">
+                      Belum ada materi pembelajaran
+                    </span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* TAB 2: INFORMASI (Single Unified Section) */
+              <div className="bg-white p-4 rounded-xl border border-zinc-200/80 shadow-xs space-y-4 text-left">
+                {/* Course Banner */}
+                {course.thumbnail_url && (
+                  <div className="w-full h-44 rounded-xl overflow-hidden bg-zinc-100 relative shadow-xs">
+                    <img
+                      src={course.thumbnail_url}
+                      alt={course.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = "none";
+                      }}
+                    />
+                    <span
+                      style={{ backgroundColor: THEME_COLORS.hex.slateClassic }}
+                      className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-lg text-white text-[8px] font-bold uppercase tracking-wider shadow-xs"
+                    >
+                      {course.difficulty ? course.difficulty.toUpperCase() : "BASIC"}
+                    </span>
+                  </div>
+                )}
+
+                {/* Progress Pembelajaran Section in Informasi Tab */}
+                <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200/80 space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-zinc-800">
                       <GraduationCap
@@ -585,7 +641,7 @@ export function PakanLearningPage() {
                     </span>
                   </div>
                   {/* Progress Bar */}
-                  <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
+                  <div className="w-full bg-zinc-200/70 h-2 rounded-full overflow-hidden">
                     <div
                       style={{
                         backgroundColor:
@@ -602,142 +658,6 @@ export function PakanLearningPage() {
                     />
                   </div>
                 </div>
-
-                {/* Section Header */}
-                <div className="flex items-center justify-between pl-1 pt-1">
-                  <h3 className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
-                    Daftar Materi Pembelajaran
-                  </h3>
-                  <span className="text-[9.5px] font-bold px-2 py-0.5 rounded-lg bg-zinc-100 text-zinc-600">
-                    {course.lessons?.length || 0} Materi
-                  </span>
-                </div>
-
-                {/* Lessons List */}
-                <div className="space-y-2.5">
-                  {course.lessons?.map((lesson, idx) => {
-                    const isCompleted = lesson.seen_status === "completed";
-                    const isInProgress = lesson.seen_status === "in_progress";
-
-                    return (
-                      <div
-                        key={lesson.id}
-                        onClick={() => handleSelectLesson(lesson)}
-                        className={`bg-white p-3.5 sm:p-4 rounded-xl border transition-all flex items-center justify-between cursor-pointer group shadow-xs hover:shadow-sm active:scale-[0.99] duration-200 ${
-                          isInProgress
-                            ? "border-[#e0542c]/40 bg-[#e0542c]/[0.02]"
-                            : isCompleted
-                            ? "border-zinc-200/70 hover:border-zinc-300"
-                            : "border-zinc-200/80 hover:border-zinc-300"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 min-w-0 pr-2">
-                          {isCompleted ? (
-                            <div
-                              style={{
-                                backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}1A`,
-                                color: THEME_COLORS.hex.sawahPertumbuhanText,
-                              }}
-                              className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border border-[#7FA46D]/20"
-                            >
-                              <Check size={15} className="stroke-[2.5]" />
-                            </div>
-                          ) : isInProgress ? (
-                            <div
-                              style={{
-                                backgroundColor: `${THEME_COLORS.hex.primary}1A`,
-                                color: THEME_COLORS.hex.primary,
-                              }}
-                              className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border border-[#e0542c]/20"
-                            >
-                              <Play size={13} className="fill-current stroke-[2]" />
-                            </div>
-                          ) : (
-                            <span className="w-8 h-8 rounded-xl bg-zinc-100 text-zinc-600 flex items-center justify-center text-xs font-bold shrink-0 border border-zinc-200/60">
-                              {idx + 1}
-                            </span>
-                          )}
-
-                          <div className="text-left min-w-0">
-                            <h4 className="text-xs font-bold text-zinc-900 leading-snug truncate group-hover:text-zinc-800">
-                              {lesson.title}
-                            </h4>
-                            <p className="text-[10px] text-zinc-400 font-medium mt-0.5 truncate">
-                              {lesson.chunks_count || 0} bagian konten &bull;{" "}
-                              {lesson.lesson_points || 10} poin
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center shrink-0">
-                          {isCompleted ? (
-                            <span
-                              style={{
-                                backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}1A`,
-                                color: THEME_COLORS.hex.sawahPertumbuhanText,
-                              }}
-                              className="px-3 py-1.5 text-[8.5px] font-bold uppercase rounded-xl tracking-wider inline-flex items-center gap-1 border border-[#7FA46D]/20"
-                            >
-                              <Check size={11} className="stroke-[3]" />
-                              Selesai
-                            </span>
-                          ) : isInProgress ? (
-                            <span
-                              style={{
-                                backgroundColor:
-                                  typeof buttonColor === "string" &&
-                                  !buttonColor.includes("gradient")
-                                    ? buttonColor
-                                    : THEME_COLORS.hex.primary,
-                              }}
-                              className="px-3.5 py-1.5 text-[8.5px] font-bold uppercase rounded-xl text-white tracking-wider shadow-xs hover:brightness-105 active:scale-95 inline-flex items-center gap-1"
-                            >
-                              <Play size={10} className="fill-current" />
-                              Lanjut
-                            </span>
-                          ) : (
-                            <span
-                              style={{
-                                backgroundColor:
-                                  typeof buttonColor === "string" &&
-                                  !buttonColor.includes("gradient")
-                                    ? buttonColor
-                                    : THEME_COLORS.hex.primary,
-                              }}
-                              className="px-3.5 py-1.5 text-[8.5px] font-bold uppercase rounded-xl text-white tracking-wider shadow-xs hover:brightness-105 active:scale-95 inline-flex items-center gap-1"
-                            >
-                              <Play size={10} className="fill-current" />
-                              Mulai
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
-            ) : (
-              /* TAB 2: INFORMASI (Single Unified Section) */
-              <div className="bg-white p-4 rounded-xl border border-zinc-200/80 shadow-xs space-y-4 text-left">
-                {/* Course Banner */}
-                {course.thumbnail_url && (
-                  <div className="h-44 w-full rounded-xl relative overflow-hidden bg-zinc-100 flex items-center justify-center">
-                    <img
-                      src={course.thumbnail_url}
-                      alt={course.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLElement).style.display = "none";
-                      }}
-                    />
-                    <span
-                      style={{ backgroundColor: THEME_COLORS.hex.slateClassic }}
-                      className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-lg text-white text-[8px] font-bold uppercase tracking-wider shadow-xs"
-                    >
-                      {course.difficulty ? course.difficulty.toUpperCase() : "BASIC"}
-                    </span>
-                  </div>
-                )}
 
                 {/* Title & Description */}
                 <div>
