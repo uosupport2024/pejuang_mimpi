@@ -58,6 +58,23 @@ export function CourseCard({ course, onEdit, onDelete, onViewDetail }: CourseCar
           <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
             {course.description || "Belum ada deskripsi untuk modul pelatihan ini."}
           </p>
+          {course.tags && course.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {course.tags.slice(0, 3).map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-zinc-100 text-gray-600"
+                >
+                  {tag}
+                </span>
+              ))}
+              {course.tags.length > 3 && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-zinc-100 text-gray-500">
+                  +{course.tags.length - 3}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Card Meta Footer */}
