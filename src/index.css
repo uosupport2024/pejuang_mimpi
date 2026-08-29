@@ -365,6 +365,18 @@ code {
   animation: wiggle 1.2s ease-in-out infinite;
 }
 
+/* Ensure maximum font-weight across the entire application does not exceed 600 (semibold) */
+b,
+strong,
+.font-bold,
+.font-extrabold,
+.font-black,
+[class*="font-bold"],
+[class*="font-extrabold"],
+[class*="font-black"] {
+  font-weight: 600 !important;
+}
+
 /* Limit all font weights to maximum 500 (font-medium) in the admin dashboard */
 .admin-dashboard h1,
 .admin-dashboard h2,
@@ -520,7 +532,7 @@ html,
   font-size: 0.85em;
 }
 .rich-text-preview th, .rich-text-content th, .ProseMirror th {
-  font-weight: bold;
+  font-weight: 600;
   text-align: left;
   background-color: #f4f4f5;
 }

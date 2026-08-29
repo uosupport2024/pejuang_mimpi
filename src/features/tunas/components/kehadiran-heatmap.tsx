@@ -52,7 +52,7 @@ export function KehadiranHeatmap() {
         style: {
           colors: "#71717a",
           fontSize: "9px",
-          fontWeight: 700
+          fontWeight: 600
         }
       }
     },
@@ -61,7 +61,7 @@ export function KehadiranHeatmap() {
         style: {
           colors: "#71717a",
           fontSize: "9px",
-          fontWeight: 700
+          fontWeight: 600
         }
       }
     },

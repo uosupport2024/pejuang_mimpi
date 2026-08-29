@@ -242,12 +242,6 @@ function RouterInnerProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const pageTitle = ROUTE_TITLE_MAP[currentRoute] || "Menu";
     document.title = `Pejuang Mimpi | ${pageTitle}`;
-    console.log(
-      `%c[NAVIGATION LOG] %c${pageTitle} %c(${resolvedPath})`,
-      "background: #1e2a4a; color: #fee279; font-weight: bold; padding: 2px 6px; border-radius: 4px;",
-      "color: #1f2937; font-weight: bold;",
-      "color: #6b7280; font-size: 11px;"
-    );
   }, [currentRoute, resolvedPath]);
 
   const navigate = useCallback((route: RouteType, state?: any) => {

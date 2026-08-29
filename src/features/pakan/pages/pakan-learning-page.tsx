@@ -12,7 +12,11 @@ import {
   Check,
   Play,
   Heart,
-  FileText
+  FileText,
+  BookOpen,
+  Info,
+  Trophy,
+  CheckCircle2
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -52,6 +56,9 @@ export function PakanLearningPage() {
   const [course, setCourse] = useState<APICourse | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingLesson, setLoadingLesson] = useState(false);
+
+  // Tab View state (Pembelajaran vs Informasi)
+  const [mainTab, setMainTab] = useState<"pembelajaran" | "informasi">("pembelajaran");
 
   // Player view states
   const [viewMode, setViewMode] = useState<"lessons" | "player">("lessons");
@@ -492,104 +499,397 @@ export function PakanLearningPage() {
       <div className="p-4 flex-1 flex flex-col">
         {viewMode === "lessons" ? (
           /* Lessons List View */
-          <div className="space-y-4 text-left">
-            <div className="bg-white p-4 rounded-2xl border border-zinc-200/80 shadow-xs">
-              <p className="text-xs text-zinc-500 font-medium leading-relaxed">
-                {course.description || "Kelas pelatihan resmi Uo-space."}
-              </p>
-              <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-3">
-                <div className="flex items-center gap-1.5 text-zinc-800">
-                  <GraduationCap size={16} style={{ color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary }} />
-                  <span className="text-xs font-bold">
+          <div className="space-y-3.5 text-left">
+            {/* Top Tab Switcher: Pembelajaran | Informasi */}
+            <div className="grid grid-cols-2 p-1 bg-zinc-200/60 rounded-xl shrink-0">
+              <button
+                onClick={() => setMainTab("pembelajaran")}
+                style={
+                  mainTab === "pembelajaran"
+                    ? {
+                        backgroundColor:
+                          typeof buttonColor === "string" && !buttonColor.includes("gradient")
+                            ? buttonColor
+                            : THEME_COLORS.hex.primary,
+                        color: "#ffffff",
+                      }
+                    : undefined
+                }
+                className={`py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  mainTab === "pembelajaran"
+                    ? "shadow-xs"
+                    : "text-zinc-600 hover:text-zinc-900"
+                }`}
+              >
+                <BookOpen size={14} />
+                Pembelajaran
+              </button>
+              <button
+                onClick={() => setMainTab("informasi")}
+                style={
+                  mainTab === "informasi"
+                    ? {
+                        backgroundColor:
+                          typeof buttonColor === "string" && !buttonColor.includes("gradient")
+                            ? buttonColor
+                            : THEME_COLORS.hex.primary,
+                        color: "#ffffff",
+                      }
+                    : undefined
+                }
+                className={`py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  mainTab === "informasi"
+                    ? "shadow-xs"
+                    : "text-zinc-600 hover:text-zinc-900"
+                }`}
+              >
+                <Info size={14} />
+                Informasi
+              </button>
+            </div>
+
+            {mainTab === "pembelajaran" ? (
+              /* TAB 1: PEMBELAJARAN */
+              <>
+                {/* Course Progress Summary */}
+                <div className="bg-white p-3.5 rounded-xl border border-zinc-200/80 shadow-xs space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-zinc-800">
+                      <GraduationCap
+                        size={16}
+                        style={{
+                          color:
+                            typeof buttonColor === "string" && !buttonColor.includes("gradient")
+                              ? buttonColor
+                              : THEME_COLORS.hex.primary,
+                        }}
+                      />
+                      <span className="text-xs font-bold">
+                        {course.lessons?.length || 0} Materi Pembelajaran
+                      </span>
+                    </div>
+                    <span
+                      style={{
+                        color:
+                          typeof buttonColor === "string" && !buttonColor.includes("gradient")
+                            ? buttonColor
+                            : THEME_COLORS.hex.primary,
+                      }}
+                      className="text-xs font-bold"
+                    >
+                      Progres:{" "}
+                      {course.progress?.percentage_completed ??
+                        course.user_progress?.percentage_completed ??
+                        0}
+                      %
+                    </span>
+                  </div>
+                  {/* Progress Bar */}
+                  <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
+                    <div
+                      style={{
+                        backgroundColor:
+                          typeof buttonColor === "string" && !buttonColor.includes("gradient")
+                            ? buttonColor
+                            : THEME_COLORS.hex.primary,
+                        width: `${
+                          course.progress?.percentage_completed ??
+                          course.user_progress?.percentage_completed ??
+                          0
+                        }%`,
+                      }}
+                      className="h-full rounded-full transition-all duration-300"
+                    />
+                  </div>
+                </div>
+
+                {/* Section Header */}
+                <div className="flex items-center justify-between pl-1 pt-1">
+                  <h3 className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
+                    Daftar Materi Pembelajaran
+                  </h3>
+                  <span className="text-[9.5px] font-bold px-2 py-0.5 rounded-lg bg-zinc-100 text-zinc-600">
                     {course.lessons?.length || 0} Materi
                   </span>
                 </div>
-                <span style={{ color: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary }} className="text-xs font-bold">
-                  Progres: {course.progress?.percentage_completed ?? course.user_progress?.percentage_completed ?? 0}%
-                </span>
-              </div>
-              {/* Progress Bar */}
-              <div className="w-full bg-zinc-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
-                <div
-                  style={{
-                    background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary),
-                    width: `${course.progress?.percentage_completed ?? course.user_progress?.percentage_completed ?? 0}%`
-                  }}
-                  className="h-full rounded-full transition-all duration-300"
-                />
-              </div>
-            </div>
 
-            <h3 className="text-xs font-bold text-zinc-800 uppercase tracking-wider pl-1 pt-1">
-              Daftar Materi Pembelajaran
-            </h3>
+                {/* Lessons List */}
+                <div className="space-y-2.5">
+                  {course.lessons?.map((lesson, idx) => {
+                    const isCompleted = lesson.seen_status === "completed";
+                    const isInProgress = lesson.seen_status === "in_progress";
 
-            <div className="space-y-3">
-              {course.lessons?.map((lesson, idx) => {
-                const isCompleted = lesson.seen_status === "completed";
-                const isInProgress = lesson.seen_status === "in_progress";
+                    return (
+                      <div
+                        key={lesson.id}
+                        onClick={() => handleSelectLesson(lesson)}
+                        className={`bg-white p-3.5 sm:p-4 rounded-xl border transition-all flex items-center justify-between cursor-pointer group shadow-xs hover:shadow-sm active:scale-[0.99] duration-200 ${
+                          isInProgress
+                            ? "border-[#e0542c]/40 bg-[#e0542c]/[0.02]"
+                            : isCompleted
+                            ? "border-zinc-200/70 hover:border-zinc-300"
+                            : "border-zinc-200/80 hover:border-zinc-300"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 min-w-0 pr-2">
+                          {isCompleted ? (
+                            <div
+                              style={{
+                                backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}1A`,
+                                color: THEME_COLORS.hex.sawahPertumbuhanText,
+                              }}
+                              className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border border-[#7FA46D]/20"
+                            >
+                              <Check size={15} className="stroke-[2.5]" />
+                            </div>
+                          ) : isInProgress ? (
+                            <div
+                              style={{
+                                backgroundColor: `${THEME_COLORS.hex.primary}1A`,
+                                color: THEME_COLORS.hex.primary,
+                              }}
+                              className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border border-[#e0542c]/20"
+                            >
+                              <Play size={13} className="fill-current stroke-[2]" />
+                            </div>
+                          ) : (
+                            <span className="w-8 h-8 rounded-xl bg-zinc-100 text-zinc-600 flex items-center justify-center text-xs font-bold shrink-0 border border-zinc-200/60">
+                              {idx + 1}
+                            </span>
+                          )}
 
-                // Border and left accent styling based on completion status
-                const borderClass = isCompleted
-                  ? "border-l-4 border-l-green-500 border-zinc-200/60 bg-green-50/5"
-                  : isInProgress
-                  ? "border-l-4 border-zinc-200/60 bg-amber-500/5"
-                  : "border-l-4 border-l-zinc-300 border-zinc-200/60";
-
-                return (
-                  <div
-                    key={lesson.id}
-                    onClick={() => handleSelectLesson(lesson)}
-                    style={isInProgress ? { borderLeftColor: typeof buttonColor === "string" ? buttonColor : THEME_COLORS.hex.primary } : undefined}
-                    className={`bg-white p-4 rounded-2xl border ${borderClass} hover:border-zinc-300 transition-all flex items-center justify-between cursor-pointer group shadow-xs hover:shadow-sm active:scale-[0.99] duration-200`}
-                  >
-                    <div className="flex items-center gap-3">
-                      {isCompleted ? (
-                        <div className="w-8 h-8 rounded-xl bg-green-100 text-green-600 flex items-center justify-center shrink-0 border border-green-200 shadow-inner">
-                          <Check size={14} className="stroke-[3]" />
+                          <div className="text-left min-w-0">
+                            <h4 className="text-xs font-bold text-zinc-900 leading-snug truncate group-hover:text-zinc-800">
+                              {lesson.title}
+                            </h4>
+                            <p className="text-[10px] text-zinc-400 font-medium mt-0.5 truncate">
+                              {lesson.chunks_count || 0} bagian konten &bull;{" "}
+                              {lesson.lesson_points || 10} poin
+                            </p>
+                          </div>
                         </div>
-                      ) : isInProgress ? (
-                        <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200 animate-pulse">
-                          <Play size={12} className="fill-current stroke-[2]" />
+
+                        <div className="flex items-center shrink-0">
+                          {isCompleted ? (
+                            <span
+                              style={{
+                                backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}1A`,
+                                color: THEME_COLORS.hex.sawahPertumbuhanText,
+                              }}
+                              className="px-3 py-1.5 text-[8.5px] font-bold uppercase rounded-xl tracking-wider inline-flex items-center gap-1 border border-[#7FA46D]/20"
+                            >
+                              <Check size={11} className="stroke-[3]" />
+                              Selesai
+                            </span>
+                          ) : isInProgress ? (
+                            <span
+                              style={{
+                                backgroundColor:
+                                  typeof buttonColor === "string" &&
+                                  !buttonColor.includes("gradient")
+                                    ? buttonColor
+                                    : THEME_COLORS.hex.primary,
+                              }}
+                              className="px-3.5 py-1.5 text-[8.5px] font-bold uppercase rounded-xl text-white tracking-wider shadow-xs hover:brightness-105 active:scale-95 inline-flex items-center gap-1"
+                            >
+                              <Play size={10} className="fill-current" />
+                              Lanjut
+                            </span>
+                          ) : (
+                            <span
+                              style={{
+                                backgroundColor:
+                                  typeof buttonColor === "string" &&
+                                  !buttonColor.includes("gradient")
+                                    ? buttonColor
+                                    : THEME_COLORS.hex.primary,
+                              }}
+                              className="px-3.5 py-1.5 text-[8.5px] font-bold uppercase rounded-xl text-white tracking-wider shadow-xs hover:brightness-105 active:scale-95 inline-flex items-center gap-1"
+                            >
+                              <Play size={10} className="fill-current" />
+                              Mulai
+                            </span>
+                          )}
                         </div>
-                      ) : (
-                        <span className="w-8 h-8 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center text-xs font-extrabold text-zinc-500 shrink-0">
-                          {idx + 1}
-                        </span>
-                      )}
-                      
-                      <div className="text-left">
-                        <h4 className="text-xs font-bold text-zinc-900 leading-snug transition-colors">
-                          {lesson.title}
-                        </h4>
-                        <p className="text-[10px] text-zinc-400 font-medium mt-0.5">
-                          {lesson.chunks_count || 0} bagian konten &bull; {lesson.lesson_points || 10} poin
-                        </p>
                       </div>
-                    </div>
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              /* TAB 2: INFORMASI (Single Unified Section) */
+              <div className="bg-white p-4 rounded-xl border border-zinc-200/80 shadow-xs space-y-4 text-left">
+                {/* Course Banner */}
+                {course.thumbnail_url && (
+                  <div className="h-44 w-full rounded-xl relative overflow-hidden bg-zinc-100 flex items-center justify-center">
+                    <img
+                      src={course.thumbnail_url}
+                      alt={course.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = "none";
+                      }}
+                    />
+                    <span
+                      style={{ backgroundColor: THEME_COLORS.hex.slateClassic }}
+                      className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-lg text-white text-[8px] font-bold uppercase tracking-wider shadow-xs"
+                    >
+                      {course.difficulty ? course.difficulty.toUpperCase() : "BASIC"}
+                    </span>
+                  </div>
+                )}
 
-                    <div className="flex items-center shrink-0">
-                      {isCompleted ? (
-                        <span className="px-3 py-1.5 text-[8.5px] font-black uppercase rounded-xl bg-green-100 text-green-700 border border-green-200 tracking-wider shadow-inner">
-                          Selesai
-                        </span>
-                      ) : isInProgress ? (
-                        <span className="px-3 py-1.5 text-[8.5px] font-black uppercase rounded-xl bg-gradient-to-tr from-amber-500 to-amber-400 text-white shadow-sm border border-amber-500/20 tracking-wider">
-                          Lanjut
-                        </span>
-                      ) : (
-                        <span
-                          style={{ background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) }}
-                          className="px-3 py-1.5 text-[8.5px] font-black uppercase rounded-xl text-white shadow-sm border border-white/10 tracking-wider hover:brightness-105"
-                        >
-                          Mulai
-                        </span>
+                {/* Title & Description */}
+                <div>
+                  <h3 className="text-sm font-bold text-zinc-900 leading-snug">
+                    {course.title}
+                  </h3>
+                  <p className="text-xs text-zinc-600 font-medium leading-relaxed mt-1.5">
+                    {course.description ||
+                      "Modul pembelajaran resmi untuk pengembangan keahlian dan wawasan tim."}
+                  </p>
+                </div>
+
+                {/* Tags */}
+                {course.tags && course.tags.length > 0 && (
+                  <div className="pt-3 border-t border-zinc-100">
+                    <span className="block text-[9.5px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">
+                      Tag Pembelajaran
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(Array.isArray(course.tags) ? course.tags : [course.tags]).map(
+                        (tag: any, idx: number) => (
+                          <span
+                            key={idx}
+                            style={{
+                              backgroundColor: THEME_COLORS.hex.slateClassic,
+                            }}
+                            className="inline-flex items-center px-2 py-0.5 rounded-lg text-[8.5px] font-normal text-white leading-tight"
+                          >
+                            #{typeof tag === "string" ? tag.trim() : tag}
+                          </span>
+                        )
                       )}
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                )}
+
+                {/* Metadata List / Grid (Unified inside container) */}
+                <div className="pt-3 border-t border-zinc-100">
+                  <span className="block text-[9.5px] font-bold uppercase tracking-wider text-zinc-400 mb-2">
+                    Detail Informasi
+                  </span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex items-center gap-2.5 p-2.5 bg-zinc-50 rounded-xl">
+                      <div
+                        style={{
+                          backgroundColor: `${THEME_COLORS.hex.primary}1A`,
+                          color: THEME_COLORS.hex.primary,
+                        }}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                      >
+                        <BookOpen size={14} />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block text-[8px] font-bold text-zinc-400 uppercase tracking-wider truncate">
+                          Total Materi
+                        </span>
+                        <span className="text-xs font-bold text-zinc-800 truncate block">
+                          {course.lessons?.length || 0} Materi
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 p-2.5 bg-zinc-50 rounded-xl">
+                      <div
+                        style={{
+                          backgroundColor: `${THEME_COLORS.hex.sawahPertumbuhan}1A`,
+                          color: THEME_COLORS.hex.sawahPertumbuhanText,
+                        }}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                      >
+                        <Trophy size={14} />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block text-[8px] font-bold text-zinc-400 uppercase tracking-wider truncate">
+                          Total Poin
+                        </span>
+                        <span className="text-xs font-bold text-zinc-800 truncate block">
+                          {course.lessons?.reduce((acc, l) => acc + (l.lesson_points || 10), 0) ||
+                            0}{" "}
+                          Poin
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 p-2.5 bg-zinc-50 rounded-xl">
+                      <div
+                        style={{
+                          backgroundColor: `${THEME_COLORS.hex.slateClassic}1A`,
+                          color: THEME_COLORS.hex.slateClassic,
+                        }}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                      >
+                        <GraduationCap size={14} />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block text-[8px] font-bold text-zinc-400 uppercase tracking-wider truncate">
+                          Tingkat
+                        </span>
+                        <span className="text-xs font-bold text-zinc-800 uppercase truncate block">
+                          {course.difficulty || "Basic"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 p-2.5 bg-zinc-50 rounded-xl">
+                      <div
+                        style={{
+                          backgroundColor:
+                            course.user_progress?.status === "completed"
+                              ? `${THEME_COLORS.hex.sawahPertumbuhan}1A`
+                              : `${THEME_COLORS.hex.primary}1A`,
+                          color:
+                            course.user_progress?.status === "completed"
+                              ? THEME_COLORS.hex.sawahPertumbuhanText
+                              : THEME_COLORS.hex.primary,
+                        }}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                      >
+                        <CheckCircle2 size={14} />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block text-[8px] font-bold text-zinc-400 uppercase tracking-wider truncate">
+                          Status
+                        </span>
+                        <span className="text-xs font-bold text-zinc-800 truncate block">
+                          {course.user_progress?.status === "completed"
+                            ? "Selesai"
+                            : course.user_progress
+                            ? "Berjalan"
+                            : "Belum Mulai"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Button */}
+                <button
+                  onClick={() => setMainTab("pembelajaran")}
+                  style={{
+                    backgroundColor:
+                      typeof buttonColor === "string" && !buttonColor.includes("gradient")
+                        ? buttonColor
+                        : THEME_COLORS.hex.primary,
+                  }}
+                  className="w-full py-2.5 rounded-xl text-white text-xs font-bold uppercase tracking-wider shadow-xs hover:brightness-105 active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Play size={13} className="fill-current" />
+                  Mulai / Lanjutkan Belajar
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           /* Interactive Chunk Player Mode */

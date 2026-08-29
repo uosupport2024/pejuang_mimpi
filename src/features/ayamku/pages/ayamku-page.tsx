@@ -348,7 +348,7 @@ const BossChainSVG = () => (
     <path d="M10 10 Q50 50 90 10" fill="none" stroke="#ffd700" strokeWidth="4.5" />
     <g transform="translate(23, 26)">
       <rect x="0" y="0" width="54" height="24" fill="#ffd700" stroke="#b8860b" strokeWidth="2.5" rx="5" />
-      <text x="27" y="17" fill="#111" fontSize="12" fontWeight="900" textAnchor="middle" letterSpacing="1">
+      <text x="27" y="17" fill="#111" fontSize="12" fontWeight="600" textAnchor="middle" letterSpacing="1">
         BOSS
       </text>
     </g>
