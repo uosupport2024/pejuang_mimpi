@@ -12,7 +12,6 @@ import {
   HelpCenterDrawer,
   TermsAndPrivacyDrawer,
 } from "../components/profile-drawers";
-import patternBg from "@/assets/bg/pattern-background.png";
 import { useRouter } from "@/shared/router/router";
 import { Button } from "@/shared/components/ui/button";
 import { Logout } from "@solar-icons/react";
@@ -23,17 +22,12 @@ import {
   HelpCircle,
   ShieldAlert,
   ChevronRight,
-  Sparkles,
-  Eye,
-  EyeOff,
 } from "lucide-react";
 import { THEME_COLORS } from "@/shared/constants/colors";
-import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
 
 export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
   const { goBack } = useSarang();
   const { navigate } = useRouter();
-  const { navbarBgStyle } = useTenantBranding();
 
   // State for controlling drawers
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
@@ -42,9 +36,6 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
   const [isJadwalShiftOpen, setIsJadwalShiftOpen] = useState(false);
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
   const [isTermsAndPrivacyOpen, setIsTermsAndPrivacyOpen] = useState(false);
-
-  // Card Number visibility toggle
-  const [showCardNumber, setShowCardNumber] = useState(false);
 
   const handleSaveProfile = async (updatedData: any) => {
     try {
@@ -77,22 +68,6 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
     }
   };
 
-  // Format payroll account number like card groups (e.g. 1730 0189 4805 0)
-  const formatCardNumber = (num?: string) => {
-    if (!num) return "••••  ••••  ••••  ••••";
-    const clean = num.replace(/\s+/g, "");
-    const chunks = clean.match(/.{1,4}/g);
-    return chunks ? chunks.join("  ") : num;
-  };
-
-  const maskCardNumber = (num?: string) => {
-    if (!num) return "••••  ••••  ••••  ••••";
-    const clean = num.replace(/\s+/g, "");
-    if (clean.length <= 4) return "••••  ••••  ••••  " + clean;
-    const lastFour = clean.slice(-4);
-    return `••••  ••••  ••••  ${lastFour}`;
-  };
-
   return (
     <div className="space-y-5">
       {/* Profile Header Block */}
@@ -115,7 +90,8 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
         </div>
       )}
 
-      {/* ATM Card: Payroll Account Info (If present) */}
+      {/* ATM Card: Payroll Account Info (Commented out per user request) */}
+      {/*
       {user.rekening && (
         <div className="space-y-2">
           <div
@@ -123,7 +99,6 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
             style={navbarBgStyle}
             className="w-full aspect-[1.586/1] text-white p-5 rounded-[24px] shadow-lg relative overflow-hidden flex flex-col justify-between text-left cursor-pointer group border border-white/5 active:scale-[0.99] transition-transform"
           >
-            {/* Cloud Pattern Overlay */}
             <div
               className="absolute inset-0 opacity-10 pointer-events-none group-hover:opacity-15 transition-opacity"
               style={{
@@ -132,14 +107,11 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
               }}
             />
 
-            {/* Diagonal Reflection Glow & Shine Sweep */}
             <div className="absolute -inset-y-24 -inset-x-40 w-44 bg-white/5 blur-2xl rounded-full rotate-45 pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/20 to-transparent -translate-x-full -translate-y-full group-hover:translate-x-full group-hover:translate-y-full transition-transform duration-1000 ease-out pointer-events-none" />
 
-            {/* Header: EMV Chip and Bank Name */}
             <div className="flex justify-between items-center relative z-10">
-              {/* Gold Chip */}
               <div className="w-9 h-7 bg-amber-400/90 rounded-md border border-amber-300/40 relative overflow-hidden flex flex-col justify-between p-1 shadow-xs">
                 <div className="grid grid-cols-3 gap-0.5 w-full h-full opacity-60">
                   <div className="border border-amber-900/10" />
@@ -150,7 +122,6 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
                   <div className="border border-amber-900/10" />
                 </div>
               </div>
-              {/* Bank Name */}
               <div className="text-right">
                 <p className="text-[10px] font-extrabold tracking-wider text-white/90">
                   {user.bank ? user.bank.toUpperCase() : "MANDIRI"}
@@ -161,7 +132,6 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
               </div>
             </div>
 
-            {/* Card Number with Hide/Show Toggle */}
             <div className="relative z-10 pt-2 flex justify-between items-center pr-1">
               <p className="text-[14px] sm:text-base font-bold tracking-widest font-mono text-zinc-100 filter drop-shadow-[0_1.5px_1.5px_rgba(0,0,0,0.5)]">
                 {showCardNumber ? formatCardNumber(user.rekening) : maskCardNumber(user.rekening)}
@@ -178,7 +148,6 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
               </button>
             </div>
 
-            {/* Footer: Cardholder Name, Expired/Join, and Card Brand */}
             <div className="flex justify-between items-end relative z-10">
               <div className="space-y-0.5">
                 <p className="text-[7px] text-white/50 font-bold tracking-wider leading-none">
@@ -208,6 +177,7 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
           </div>
         </div>
       )}
+      */}
 
 
 
@@ -218,27 +188,27 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
         </span>
 
         <div className="space-y-2.5">
-          {/* Payroll Account Row (If no card/fallback view) */}
-          {!user.rekening && (
-            <div
-              onClick={() => setIsEditPayrollOpen(true)}
-              className="bg-white rounded-[24px] border border-gray-100/70 p-4 shadow-xs text-left flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}1A` }}
-                  className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-                >
-                  <CreditCard className="w-4.5 h-4.5" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-zinc-800">Rekening Payroll</p>
-                  <p style={{ color: THEME_COLORS.hex.primary }} className="text-[9.5px] font-semibold mt-0.5">Belum diatur</p>
-                </div>
+          {/* Payroll Account Row */}
+          <div
+            onClick={() => setIsEditPayrollOpen(true)}
+            className="bg-white rounded-[24px] border border-gray-100/70 p-4 shadow-xs text-left flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div
+                style={{ color: THEME_COLORS.hex.primary, backgroundColor: `${THEME_COLORS.hex.primary}1A` }}
+                className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+              >
+                <CreditCard className="w-4.5 h-4.5" />
               </div>
-              <ChevronRight className="w-4.5 h-4.5 text-zinc-400" />
+              <div>
+                <p className="text-xs font-bold text-zinc-800">Rekening Payroll</p>
+                <p className="text-[9.5px] text-zinc-400 font-semibold mt-0.5">
+                  {user.rekening ? `${user.bank ? user.bank.toUpperCase() : "BANK"} • ${user.rekening}` : "Belum diatur"}
+                </p>
+              </div>
             </div>
-          )}
+            <ChevronRight className="w-4.5 h-4.5 text-zinc-400" />
+          </div>
 
           {/* Work Schedule */}
           <div
