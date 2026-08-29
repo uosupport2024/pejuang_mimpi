@@ -4,11 +4,12 @@ import bgMorning from "@/assets/bg/bg-path-morning.png";
 import bgDay from "@/assets/bg/bg-path.png";
 import bgAfternoon from "@/assets/bg/bg-path-afternoon.png";
 import bgNight from "@/assets/bg/bg-path-night.png";
-import ayamkuPet from "@/assets/bg/ayamku-pet.png";
 import { toast } from "sonner";
 import type { AyamkuPageProps } from "../types/ayamku.type";
 import { THEME_COLORS } from "@/shared/constants/colors";
 import { motion, AnimatePresence } from "motion/react";
+import { useRive, useStateMachineInput, Layout, Fit, Alignment } from "@rive-app/react-canvas";
+import pejuangMimpiRiv from "@/assets/rive/pejuang_mimpi.riv";
 
 // Pilih background berdasarkan jam device
 function getTimeOfDayBg(): string {
@@ -445,93 +446,52 @@ const ACCESSORIES = [
   { id: "bandananeck", name: "Slayer Merah", category: "leher" as const, render: () => <BandanaNeckSVG />, width: 100, top: "55%", left: "45%" },
 ];
 
-// ANIMATED BLINKING EYES COMPONENT
-function ChickenBlinkingEyes() {
-  const [blinkState, setBlinkState] = useState<"open" | "closed">("open");
+// RIVE ANIMATED PET CHICKEN COMPONENT
+function RivePetChicken({ isTalking = false }: { isTalking?: boolean }) {
+  const { rive, RiveComponent } = useRive({
+    src: pejuangMimpiRiv,
+    stateMachines: ["Blink State", "Talking State"],
+    autoplay: true, // False agar Talking State tidak otomatis loop terus menerus
+    layout: new Layout({
+      fit: Fit.Contain,
+      alignment: Alignment.Center,
+    }),
+  });
 
+  const triggerTalking = useStateMachineInput(rive, "Talking State", "Trigger 1");
+
+  // Jalankan animasi Blink secara independen sesuai interval 3 detik
   useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout>;
+    if (!rive) return;
 
-    const scheduleNextBlink = () => {
-      const delay = 2200 + Math.random() * 3200; // Blink every 2.2 - 5.4 seconds
-      timeoutId = setTimeout(() => {
-        setBlinkState("closed");
-        setTimeout(() => {
-          setBlinkState("open");
+    // Pastikan Talking State dalam posisi pause saat awal
+    rive.pause("Talking State");
+    rive.pause("Talking");
 
-          // 30% chance for an expressive quick double-blink
-          if (Math.random() < 0.3) {
-            setTimeout(() => {
-              setBlinkState("closed");
-              setTimeout(() => {
-                setBlinkState("open");
-                scheduleNextBlink();
-              }, 110);
-            }, 130);
-          } else {
-            scheduleNextBlink();
-          }
-        }, 130);
-      }, delay);
-    };
+  }, [rive]);
 
-    scheduleNextBlink();
-    return () => clearTimeout(timeoutId);
-  }, []);
+  // Kontrol Talking State: HANYA berjalan ketika isTalking bernilai true
+  useEffect(() => {
+    if (!rive) return;
 
-  const isClosed = blinkState === "closed";
-
-  // Posisi mata disesuaikan dengan ayamku-pet.png
-  // Image w-110 (440px) dalam container 340px → overflow 50px tiap sisi
-  // Mata di PNG ≈ 33% dari atas → (0.33×440 - 50)/340 ≈ 33%
-  // Mata kiri ≈ 40% dari kiri PNG → (0.40×440 - 50)/340 ≈ 37%
-  // Mata kanan ≈ 60% dari kiri PNG → (0.60×440 - 50)/340 ≈ 63%
-  const eyeTransform = isClosed
-    ? "translate(-50%, -50%) scaleY(0.07)"
-    : "translate(-50%, -50%)";
-
-  const eyeBaseStyle: React.CSSProperties = {
-    position: "absolute",
-    pointerEvents: "none",
-    userSelect: "none",
-    zIndex: 15,
-    width: "24px",
-    height: "29px",
-    transform: eyeTransform,
-    transition: "transform 0.08s cubic-bezier(0.4, 0, 0.2, 1)",
-    transformOrigin: "center 55%",
-  };
+    if (isTalking) {
+      // Nyalakan Talking State saat sedang bicara
+      rive.play("Talking State");
+      rive.play("Talking");
+      if (triggerTalking) {
+        triggerTalking.fire();
+      }
+    } else {
+      // Hentikan/pause Talking State saat selesai bicara
+      rive.pause("Talking State");
+      rive.pause("Talking");
+    }
+  }, [isTalking, rive, triggerTalking]);
 
   return (
-    <>
-      {/* ── MATA KIRI ── copied exactly from <g id="Mata_Kiri"> in Asset 3.svg */}
-      <div style={{ ...eyeBaseStyle, top: "29%", left: "41%" }}>
-        <svg viewBox="43 106 28 36" xmlns="http://www.w3.org/2000/svg" className="w-full h-full overflow-visible">
-          {/* Sclera putih (background agar pupil terlihat) */}
-          <ellipse cx="57.5" cy="124" rx="11.5" ry="14" fill="#ffffff" />
-          {/* cls-12 path 1 — bentuk utama pupil */}
-          <path fill="#0d182e" d="M67.63,124.17c.32,6.46-4.22,13.99-9.63,13.99s-9.95-7.53-9.63-13.99c.28-5.58,4.28-12.38,9.63-12.38s9.35,6.81,9.63,12.38Z" />
-          {/* cls-12 path 2 — detail outline/shadow (exact copy dari Asset 3.svg) */}
-          <path fill="#0d182e" d="M67.64,121.53c.06-1.56,0-6-3.07-10.01-1.09-1.42-3.94-5.13-8.52-5.24-3.73-.09-6.38,2.27-7.11,2.98-1.94,1.88-2.62,4.1-3.44,6.76-.13.44-.65,2.14-.92,4.47-.16,1.37-.4,3.59,0,6.19.26,1.65.96,4.64,3.21,7.91-3.08-3.31-3.95-6.44-4.24-8.03-.35-1.88-.23-3.47,0-6.65.2-2.73.32-4.23,1.03-6.19.93-2.55,2.31-4.23,2.98-5.04.74-.89,1.74-2.09,3.44-3.17.82-.52,1.92-1.21,3.55-1.53,1.51-.29,2.76-.13,3.44,0,2.18.42,3.59,1.54,4.28,2.1,1.12.91,1.76,1.8,2.25,2.48.32.44,1.56,2.24,2.41,5.04.94,3.14.91,5.96.7,7.91Z" />
-          {/* cls-3 ellipse — highlight putih (exact copy dari Asset 3.svg) */}
-          <ellipse fill="#ffffff" cx="55.55" cy="118.28" rx="2.83" ry="3.44" />
-        </svg>
-      </div>
-
-      {/* ── MATA KANAN ── copied exactly from <g id="Mata_Kanan"> in Asset 3.svg */}
-      <div style={{ ...eyeBaseStyle, top: "29%", left: "53%" }}>
-        <svg viewBox="100 106 28 36" xmlns="http://www.w3.org/2000/svg" className="w-full h-full overflow-visible">
-          {/* Sclera putih (background agar pupil terlihat) */}
-          <ellipse cx="113.4" cy="124" rx="11.5" ry="14" fill="#ffffff" />
-          {/* cls-12 path 1 — bentuk utama pupil */}
-          <path fill="#0d182e" d="M103.77,124.17c-.32,6.46,4.22,13.99,9.63,13.99s9.95-7.53,9.63-13.99c-.28-5.58-4.28-12.38-9.63-12.38s-9.35,6.81-9.63,12.38Z" />
-          {/* cls-12 path 2 — detail outline/shadow (exact copy dari Asset 3.svg) */}
-          <path fill="#0d182e" d="M103.76,121.53c-.06-1.56,0-6,3.07-10.01,1.09-1.42,3.94-5.13,8.52-5.24,3.73-.09,6.38,2.27,7.11,2.98,1.94,1.88,2.62,4.1,3.44,6.76.13.44.65,2.14.92,4.47.16,1.37.4,3.59,0,6.19-.26,1.65-.96,4.64-3.21,7.91,3.08-3.31,3.95-6.44,4.24-8.03.35-1.88.23-3.47,0-6.65-.2-2.73-.32-4.23-1.03-6.19-.93-2.55-2.31-4.23-2.98-5.04-.74-.89-1.74-2.09-3.44-3.17-.82-.52-1.92-1.21-3.55-1.53-1.51-.29-2.76-.13-3.44,0-2.18.42-3.59,1.54-4.28,2.1-1.12.91-1.76,1.8-2.25,2.48-.32.44-1.56,2.24-2.41,5.04-.94,3.14-.91,5.96-.7,7.91Z" />
-          {/* cls-3 ellipse — highlight putih (exact copy dari Asset 3.svg) */}
-          <ellipse fill="#ffffff" cx="110.69" cy="118.25" rx="2.83" ry="3.44" />
-        </svg>
-      </div>
-    </>
+    <div className="w-110 h-110 relative z-10 select-none pointer-events-none flex items-center justify-center">
+      <RiveComponent className="w-full h-full" />
+    </div>
   );
 }
 
@@ -637,12 +597,134 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
     leher: null,
   });
 
-  const [jumpKey, setJumpKey] = useState(0);
   const [floatingHearts, setFloatingHearts] = useState<Array<{ id: number; x: number; drift: number; rotate: number; emoji: string }>>([]);
+  const [isTalking, setIsTalking] = useState(true);
+  const [dialogueText, setDialogueText] = useState<string>("Selamat sore! 🌅 Semangat terus ya pejuang mimpi!");
+
+  // Audio effect chirp lucu khas maskot jika browser tidak memiliki voice Indonesia
+  const playPetChirpSound = () => {
+    if (typeof window === "undefined") return;
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      
+      const freqs = [659.25, 880.00, 1046.50]; // E5, A5, C6 (ceria & imut)
+      freqs.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = "sine";
+        const startTime = ctx.currentTime + idx * 0.09;
+        osc.frequency.setValueAtTime(freq, startTime);
+        
+        gain.gain.setValueAtTime(0.06, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.13);
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.start(startTime);
+        osc.stop(startTime + 0.15);
+      });
+    } catch {
+      // Audio fallback silently
+    }
+  };
+
+  // Mencari voice Bahasa Indonesia asli di browser / OS
+  const getIndonesianVoice = (): SpeechSynthesisVoice | null => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices || voices.length === 0) return null;
+
+    // Cari voice yang benar-benar Bahasa Indonesia
+    const idVoices = voices.filter(
+      (v) =>
+        v.lang.toLowerCase().startsWith("id") ||
+        v.lang.toLowerCase().startsWith("in") ||
+        v.name.toLowerCase().includes("indonesia") ||
+        v.name.toLowerCase().includes("bahasa") ||
+        v.name.toLowerCase().includes("gadis") ||
+        v.name.toLowerCase().includes("ardi")
+    );
+
+    if (idVoices.length > 0) {
+      // Prioritaskan suara Natural / Google / Gadis / Ardi
+      const naturalVoice = idVoices.find(
+        (v) =>
+          v.name.toLowerCase().includes("natural") ||
+          v.name.toLowerCase().includes("online") ||
+          v.name.toLowerCase().includes("gadis") ||
+          v.name.toLowerCase().includes("ardi") ||
+          v.name.toLowerCase().includes("google")
+      );
+      return naturalVoice || idVoices[0];
+    }
+
+    return null;
+  };
+
+  const speakGreeting = (text: string) => {
+    setDialogueText(text);
+    setIsTalking(true);
+
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      try {
+        window.speechSynthesis.cancel();
+        const voice = getIndonesianVoice();
+
+        // HANYA gunakan TTS jika OS/browser memiliki voice Indonesia asli
+        // Mencegah voice default bahasa Inggris membaca teks Indonesia yang menimbulkan aksen bule
+        if (voice) {
+          const cleanText = text
+            .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, "")
+            .replace(/!+/g, "!")
+            .trim();
+
+          const utterance = new SpeechSynthesisUtterance(cleanText);
+          utterance.voice = voice;
+          utterance.lang = voice.lang || "id-ID";
+          utterance.rate = 1.05;
+          utterance.pitch = 1.22;
+
+          utterance.onend = () => setIsTalking(false);
+          utterance.onerror = () => setIsTalking(false);
+
+          window.speechSynthesis.speak(utterance);
+        } else {
+          // Jika OS tidak punya voice Indonesia, bunyikan efek suara maskot ceria
+          playPetChirpSound();
+        }
+      } catch {
+        playPetChirpSound();
+      }
+    } else {
+      playPetChirpSound();
+    }
+
+    setTimeout(() => {
+      setIsTalking(false);
+    }, 3800);
+  };
+
+  // Pre-load voices dan bicara sapaan awal
+  useEffect(() => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      // Trigger preload daftar voice di browser
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+
+    const timer = setTimeout(() => {
+      speakGreeting("Selamat sore! 🌅 Semangat terus ya pejuang mimpi!");
+    }, 600);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handlePetTap = () => {
-    setJumpKey((k) => k + 1);
-
     // Spawn 1-2 floating joy emojis
     const emojis = ["💖", "✨", "🐣", "⭐", "🎉", "🌾", "❤️"];
     const chosenEmoji = emojis[Math.floor(Math.random() * emojis.length)];
@@ -655,6 +737,17 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
     };
 
     setFloatingHearts((prev) => [...prev.slice(-6), newHeart]);
+
+    const randomDialogues = [
+      "Selamat sore! 🌅 Tetap semangat ya pejuang mimpi!",
+      "Kukuruyuuuk! 🐔 Kamu hebat, pasti bisa!",
+      "Ayo, selesaikan misimu hari ini ya! 🎯",
+      "Yuk, jangan lupa menabung di celenganmu! 💰",
+      "Setiap langkah kecil membawamu lebih dekat ke impian! ✨",
+      "Aku selalu siap nemenin kamu berjuang, semangat ya! 🐣💛",
+    ];
+    const picked = randomDialogues[Math.floor(Math.random() * randomDialogues.length)];
+    speakGreeting(picked);
   };
 
   const handleToggleAccessory = (acc: typeof ACCESSORIES[number]) => {
@@ -764,85 +857,37 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
             </motion.div>
           ))}
 
-          {/* Ground Contact Shadows responding to Jumps */}
-          <motion.div
-            key={`shadow-main-${jumpKey}`}
-            animate={
-              jumpKey > 0
-                ? { scale: [1, 0.55, 1], opacity: [1, 0.25, 1] }
-                : { scale: [1, 0.97, 1], opacity: [1, 0.85, 1] }
-            }
-            transition={{
-              duration: jumpKey > 0 ? 0.68 : 4.2,
-              repeat: jumpKey > 0 ? 0 : Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute top-[83%] left-1/2 -translate-x-1/2 w-48 h-4.5 bg-black/25 rounded-[100%] blur-[4px] pointer-events-none z-0"
-          />
-          <motion.div
-            key={`shadow-left-${jumpKey}`}
-            animate={
-              jumpKey > 0
-                ? { scale: [1, 0.55, 1], opacity: [1, 0.2, 1] }
-                : { scale: [1, 0.97, 1], opacity: [1, 0.85, 1] }
-            }
-            transition={{
-              duration: jumpKey > 0 ? 0.68 : 4.2,
-              repeat: jumpKey > 0 ? 0 : Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute top-[83.5%] left-[39%] -translate-x-1/2 w-14 h-2.5 bg-black/45 rounded-[100%] blur-[1.5px] pointer-events-none z-0"
-          />
-          <motion.div
-            key={`shadow-right-${jumpKey}`}
-            animate={
-              jumpKey > 0
-                ? { scale: [1, 0.55, 1], opacity: [1, 0.2, 1] }
-                : { scale: [1, 0.97, 1], opacity: [1, 0.85, 1] }
-            }
-            transition={{
-              duration: jumpKey > 0 ? 0.68 : 4.2,
-              repeat: jumpKey > 0 ? 0 : Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute top-[83.5%] left-[57%] -translate-x-1/2 w-14 h-2.5 bg-black/45 rounded-[100%] blur-[1.5px] pointer-events-none z-0"
-          />
+          {/* Ground Contact Shadows (tenang / static) */}
+          <div className="absolute top-[83%] left-1/2 -translate-x-1/2 w-48 h-4.5 bg-black/25 rounded-[100%] blur-[4px] pointer-events-none z-0" />
+          <div className="absolute top-[83.5%] left-[39%] -translate-x-1/2 w-14 h-2.5 bg-black/45 rounded-[100%] blur-[1.5px] pointer-events-none z-0" />
+          <div className="absolute top-[83.5%] left-[57%] -translate-x-1/2 w-14 h-2.5 bg-black/45 rounded-[100%] blur-[1.5px] pointer-events-none z-0" />
 
-          {/* Joyful Bouncing Chicken Body + Accessories */}
-          <motion.div
-            key={`chicken-body-${jumpKey}`}
-            animate={
-              jumpKey > 0
-                ? {
-                    y: [0, 10, -56, -64, -36, 6, -4, 0],
-                    scaleY: [1, 0.82, 1.18, 1.14, 0.94, 1.06, 0.98, 1],
-                    scaleX: [1, 1.16, 0.88, 0.92, 1.06, 0.96, 1.02, 1],
-                    rotate: [0, -3.5, 4, -2, 1.5, 0],
-                  }
-                : {
-                    y: [0, -4, 0],
-                    scaleY: [1, 1.01, 1],
-                    scaleX: [1, 0.99, 1],
-                    rotate: [0, 0.3, -0.3, 0],
-                  }
-            }
-            transition={
-              jumpKey > 0
-                ? { duration: 0.68, ease: "easeOut" }
-                : { duration: 4.2, repeat: Infinity, ease: "easeInOut" }
-            }
+          {/* Chicken Body: Diam dan tenang, tidak meloncat saat ditap */}
+          <div
             onClick={handlePetTap}
             className="relative w-full h-full flex items-center justify-center cursor-pointer select-none"
           >
-            {/* Base Pet Chicken */}
-            <img
-              src={ayamkuPet}
-              alt="Ayamku Pet"
-              className="w-110 h-110 object-contain relative z-10 select-none pointer-events-none"
-            />
+            {/* Speech Bubble saat bicara */}
+            <AnimatePresence>
+              {isTalking && dialogueText && (
+                <motion.div
+                  key="dialogue-speech-bubble"
+                  initial={{ opacity: 0, y: 12, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.85 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="absolute -top-12 left-1/2 -translate-x-1/2 z-40 bg-white/95 text-slate-800 px-3.5 py-1.5 rounded-2xl shadow-xl border border-amber-300/80 text-xs font-bold flex items-center gap-1.5 whitespace-nowrap pointer-events-none drop-shadow-md"
+                >
+                  <span className="text-sm">🐔💬</span>
+                  <span className="leading-none">{dialogueText}</span>
+                  {/* Bubble Pointer */}
+                  <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-6 border-t-white/95" />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* Animated Blinking Eyes */}
-            <ChickenBlinkingEyes />
+            {/* Base Pet Chicken with Rive Animation */}
+            <RivePetChicken isTalking={isTalking} />
 
             {/* Hat / Topi Overlay */}
             {activeTopi && (
@@ -888,7 +933,7 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
                 {activeLeher.render()}
               </div>
             )}
-          </motion.div>
+          </div>
         </div>
       </div>
 
