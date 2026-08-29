@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import { THEME_COLORS } from "@/shared/constants/colors";
 import { useNavigate } from "react-router-dom";
 import type { Celengan } from "../types/celengan";
+import { sortCelengans } from "../api/celengan";
 import { getChickenIcon } from "@/shared/utils/icons";
 import { motion } from "motion/react";
 
@@ -33,25 +34,27 @@ export function CelengankuCarousel({ celengans, loading }: CelengankuCarouselPro
   const navigate = useNavigate();
   const [visibleCount, setVisibleCount] = useState(10);
 
+  const sortedCelengans = sortCelengans(celengans);
+
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
     // Check if scrolled near the end (within 40px of scroll width limit)
     if (target.scrollLeft + target.clientWidth >= target.scrollWidth - 40) {
-      if (visibleCount < celengans.length) {
-        setVisibleCount((prev) => Math.min(prev + 10, celengans.length));
+      if (visibleCount < sortedCelengans.length) {
+        setVisibleCount((prev) => Math.min(prev + 10, sortedCelengans.length));
       }
     }
   };
 
-  const visibleCelengans = celengans.slice(0, visibleCount);
+  const visibleCelengans = sortedCelengans.slice(0, visibleCount);
 
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center px-1">
         <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">Celenganku</span>
-        {celengans.length > 0 && !loading && (
+        {sortedCelengans.length > 0 && !loading && (
           <span
-            onClick={() => navigate(`/mobile/celengan?id=${celengans[0].id}`)}
+            onClick={() => navigate(`/mobile/celengan?id=${sortedCelengans[0].id}`)}
             style={{ color: "var(--theme-button, #e0542c)" }}
             className="text-[10px] font-bold cursor-pointer hover:underline"
           >

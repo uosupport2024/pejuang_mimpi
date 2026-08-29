@@ -86,6 +86,20 @@ export function useCelenganDetail(idParam: string | null, typeParam: string | nu
 
   const deposit = async (amount: number, note?: string) => {
     if (!celengan) return;
+    const remaining = celengan.target_amount - celengan.current_amount;
+    if (remaining <= 0) {
+      toast.error("Target Sudah Tercapai", {
+        description: "Celengan ini sudah mencapai 100% target tabungan."
+      });
+      throw new Error("Target celengan sudah tercapai!");
+    }
+    if (amount > remaining) {
+      toast.error("Melebihi Target", {
+        description: `Nominal tabungan tidak boleh melebihi sisa target (Rp ${remaining.toLocaleString("id-ID")})!`
+      });
+      throw new Error("Nominal tabungan melebihi sisa target!");
+    }
+
     try {
       setIsSubmitting(true);
       const res = await depositCelengan(celengan.id, amount, note);
@@ -94,7 +108,9 @@ export function useCelenganDetail(idParam: string | null, typeParam: string | nu
       setHistory(histData);
       return res;
     } catch (err: any) {
-      toast.error(err.message || "Gagal melakukan deposit.");
+      toast.error("Gagal Menabung", {
+        description: err.message || "Gagal melakukan deposit ke celengan."
+      });
       throw err;
     } finally {
       setIsSubmitting(false);
@@ -111,7 +127,9 @@ export function useCelenganDetail(idParam: string | null, typeParam: string | nu
       setHistory(histData);
       return res;
     } catch (err: any) {
-      toast.error(err.message || "Gagal melakukan penarikan.");
+      toast.error("Gagal Menarik Saldo", {
+        description: err.message || "Gagal melakukan penarikan dana celengan."
+      });
       throw err;
     } finally {
       setIsSubmitting(false);
@@ -123,10 +141,14 @@ export function useCelenganDetail(idParam: string | null, typeParam: string | nu
     try {
       setLoading(true);
       await deleteCelengan(celengan.id);
-      toast.success("Celengan berhasil dihapus.");
+      toast.success("Berhasil Dihapus", {
+        description: "Celengan berhasil dihapus dari daftar."
+      });
       navigate("MobileHome");
     } catch (err) {
-      toast.error("Gagal menghapus celengan.");
+      toast.error("Gagal Menghapus", {
+        description: "Terjadi kesalahan saat menghapus celengan."
+      });
       setLoading(false);
       throw err;
     }
@@ -154,22 +176,30 @@ export function useAddCelengan() {
   const submit = async () => {
     const amountNum = parseThousands(targetAmount);
     if (!name.trim()) {
-      toast.error("Nama celengan tidak boleh kosong!");
+      toast.error("Nama Tidak Boleh Kosong", {
+        description: "Silakan masukkan nama impian celengan Anda."
+      });
       return false;
     }
     if (isNaN(amountNum) || amountNum <= 0) {
-      toast.error("Masukkan nominal target yang valid!");
+      toast.error("Nominal Tidak Valid", {
+        description: "Masukkan nominal target tabungan yang valid."
+      });
       return false;
     }
 
     try {
       setIsSubmitting(true);
       await createCelengan(name.trim(), amountNum, icon);
-      toast.success("Celengan baru berhasil dibuat!");
+      toast.success("Celengan Berhasil Dibuat", {
+        description: `Target impian ${name.trim()} siap untuk ditabung!`
+      });
       navigate("MobileHome");
       return true;
     } catch (error) {
-      toast.error("Gagal membuat celengan.");
+      toast.error("Gagal Membuat Celengan", {
+        description: "Terjadi kesalahan saat membuat celengan baru."
+      });
       return false;
     } finally {
       setIsSubmitting(false);

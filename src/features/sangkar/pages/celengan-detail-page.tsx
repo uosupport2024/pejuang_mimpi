@@ -53,7 +53,24 @@ export function CelenganDetailPage() {
 
     const amountNum = parseThousands(transactionAmount);
     if (isNaN(amountNum) || amountNum <= 0) {
-      toast.error("Masukkan nominal tabungan yang valid!");
+      toast.error("Nominal Tidak Valid", {
+        description: "Masukkan nominal tabungan yang valid!"
+      });
+      return;
+    }
+
+    const remaining = Math.max(celengan.target_amount - celengan.current_amount, 0);
+    if (remaining <= 0) {
+      toast.error("Target Sudah Tercapai", {
+        description: "Celengan ini sudah mencapai 100% target tabungan."
+      });
+      return;
+    }
+
+    if (amountNum > remaining) {
+      toast.error("Melebihi Target", {
+        description: `Nominal tabungan tidak boleh melebihi sisa target (${formatRupiah(remaining)})!`
+      });
       return;
     }
 
@@ -62,7 +79,9 @@ export function CelenganDetailPage() {
       setShowDepositModal(false);
       setTransactionAmount("");
       setTransactionDesc("");
-      toast.success(`Berhasil menambahkan ${formatRupiah(amountNum)} ke Celengan!`);
+      toast.success("Berhasil Menabung", {
+        description: `Berhasil menambahkan ${formatRupiah(amountNum)} ke Celengan!`
+      });
     } catch (error: any) {
       // toast is already handled in hook, but in case:
     }
@@ -74,12 +93,16 @@ export function CelenganDetailPage() {
 
     const amountNum = parseThousands(transactionAmount);
     if (isNaN(amountNum) || amountNum <= 0) {
-      toast.error("Masukkan nominal penarikan yang valid!");
+      toast.error("Nominal Tidak Valid", {
+        description: "Masukkan nominal penarikan yang valid!"
+      });
       return;
     }
 
     if (amountNum > celengan.current_amount) {
-      toast.error("Saldo celengan tidak mencukupi!");
+      toast.error("Saldo Tidak Mencukupi", {
+        description: `Saldo celengan (${formatRupiah(celengan.current_amount)}) tidak mencukupi untuk penarikan ini.`
+      });
       return;
     }
 
@@ -88,7 +111,9 @@ export function CelenganDetailPage() {
       setShowWithdrawModal(false);
       setTransactionAmount("");
       setTransactionDesc("");
-      toast.success(`Berhasil menarik ${formatRupiah(amountNum)} dari Celengan!`);
+      toast.success("Penarikan Berhasil", {
+        description: `Berhasil menarik ${formatRupiah(amountNum)} dari Celengan!`
+      });
     } catch (error: any) {
       // error is handled in hook
     }
@@ -190,6 +215,10 @@ export function CelenganDetailPage() {
     : celengan.name.toLowerCase().includes("laptop") || celengan.name.toLowerCase().includes("computer")
     ? "Upgrade laptop kerja untuk coding dan performa pengerjaan tugas yang lebih kencang."
     : `Celengan tabungan khusus untuk merealisasikan rencana ${celengan.name}.`;
+
+  const remainingTarget = Math.max(target - currentAmount, 0);
+  const parsedDepositAmount = parseThousands(transactionAmount);
+  const isExceedingTarget = parsedDepositAmount > remainingTarget;
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F7F3EB] text-slate-800 pb-20 relative -mt-6 -mx-5">
@@ -320,7 +349,7 @@ export function CelenganDetailPage() {
               <div className="flex flex-col">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">Kekurangan Dana</span>
                 <span className="text-sm font-bold text-slate-800 mt-1">
-                  {formatRupiah(Math.max(target - currentAmount, 0))}
+                  {formatRupiah(remainingTarget)}
                 </span>
               </div>
             </div>
@@ -335,7 +364,7 @@ export function CelenganDetailPage() {
                 <span className="text-xs font-bold text-slate-700 mt-1 leading-relaxed">
                   {currentAmount >= target
                     ? "Target Anda telah tercapai! 🎉"
-                    : `Menabung ${formatRupiah(Math.round((target - currentAmount) / 12))} per bulan selama 12 bulan.`
+                    : `Menabung ${formatRupiah(Math.round(remainingTarget / 12))} per bulan selama 12 bulan.`
                   }
                 </span>
               </div>
@@ -346,9 +375,20 @@ export function CelenganDetailPage() {
         {/* Action Buttons Panel */}
         <div className="flex gap-3">
           <button
-            onClick={() => setShowDepositModal(true)}
+            onClick={() => {
+              if (remainingTarget <= 0) {
+                toast.info("Target Tercapai", {
+                  description: "Target celengan ini sudah 100% terkumpul! 🎉"
+                });
+                return;
+              }
+              setShowDepositModal(true);
+            }}
+            disabled={remainingTarget <= 0}
             style={{ backgroundColor: THEME_COLORS.hex.primary }}
-            className="flex-1 flex items-center justify-center gap-2 text-white py-2.5 rounded-xl font-bold text-xs transition-colors cursor-pointer hover:opacity-90"
+            className={`flex-1 flex items-center justify-center gap-2 text-white py-2.5 rounded-xl font-bold text-xs transition-colors ${
+              remainingTarget <= 0 ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:opacity-90"
+            }`}
           >
             <Plus className="w-4 h-4" />
             Tabung Sekarang
@@ -439,9 +479,30 @@ export function CelenganDetailPage() {
                     placeholder="Contoh: 1.000.000"
                     value={transactionAmount}
                     onChange={(e) => setTransactionAmount(formatThousands(e.target.value))}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-3 text-sm font-bold text-slate-800 text-left"
+                    className={`w-full bg-slate-50 border rounded-xl pl-9 pr-4 py-3 text-sm font-bold text-slate-800 text-left ${
+                      isExceedingTarget ? "border-red-500 focus-visible:ring-red-500/20" : "border-slate-200"
+                    }`}
                   />
                 </div>
+                <div className="flex justify-between items-center mt-1">
+                  <span className="text-[10px] text-slate-400 font-medium">
+                    Sisa Target: {formatRupiah(remainingTarget)}
+                  </span>
+                  {remainingTarget > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setTransactionAmount(formatThousands(String(remainingTarget)))}
+                      className="text-[10px] font-bold text-amber-600 hover:underline cursor-pointer"
+                    >
+                      Isi Sisa Target
+                    </button>
+                  )}
+                </div>
+                {isExceedingTarget && (
+                  <span className="text-[10px] text-red-500 font-bold block mt-0.5">
+                    Nominal tidak boleh melebihi sisa target ({formatRupiah(remainingTarget)})
+                  </span>
+                )}
               </div>
 
               <div className="space-y-1">
@@ -457,7 +518,7 @@ export function CelenganDetailPage() {
 
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isExceedingTarget || remainingTarget <= 0}
                 style={{ backgroundColor: THEME_COLORS.hex.primary }}
                 className="w-full text-white py-3 rounded-xl font-bold text-sm shadow-md transition-all cursor-pointer disabled:opacity-50 hover:opacity-90"
               >

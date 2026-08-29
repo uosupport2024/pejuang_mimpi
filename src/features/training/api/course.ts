@@ -62,6 +62,7 @@ export interface Course {
   lessons?: Lesson[];
   progress?: any;
   difficulty?: string;
+  tags?: string[] | null;
   user_progress?: {
     id: number;
     user_id: number;
@@ -81,6 +82,7 @@ export interface CreateCoursePayload {
   icon_url?: string;
   is_published?: boolean;
   difficulty?: string;
+  tags?: string[];
 }
 
 export interface CreateCourseFullPayload {
@@ -90,6 +92,7 @@ export interface CreateCourseFullPayload {
   icon_url?: string;
   is_published?: boolean;
   difficulty?: string;
+  tags?: string[];
   lessons: {
     title: string;
     icon_url?: string;
@@ -105,6 +108,7 @@ export interface UpdateCoursePayload {
   icon_url?: string;
   is_published?: boolean;
   difficulty?: string;
+  tags?: string[];
 }
 
 export interface CreateLessonPayload {
