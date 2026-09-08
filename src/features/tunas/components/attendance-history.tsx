@@ -30,8 +30,8 @@ const cardStyles: Record<AttendanceStatus, { bgClass: string; shadowClass: strin
     shadowClass: "shadow-lg",
   },
   Absent: {
-    bgClass: "bg-gradient-to-br from-rose-500 to-rose-600", // Red for Alpa (Absent)
-    shadowClass: "shadow-lg",
+    bgClass: "bg-gradient-alpa", // Merah Tua untuk Alpa (Absent)
+    shadowClass: "shadow-md shadow-red-950/20",
   },
   Permit: {
     bgClass: "bg-gradient-to-br from-amber-500 to-amber-600", // Amber for Sakit/Izin/Cuti

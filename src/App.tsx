@@ -173,6 +173,24 @@ function App() {
   // isInitializing=true until we've attempted to read cookies
   const [isInitializing, setIsInitializing] = useState(true)
 
+  // Bridge to Flutter Mobile App for OneSignal tag & identity syncing
+  const notifyFlutterOneSignal = (event: "login" | "logout", userObj?: any, tenantIdVal?: any) => {
+    try {
+      const bridge = (window as any).FlutterOneSignal;
+      if (bridge && typeof bridge.postMessage === "function") {
+        bridge.postMessage(
+          JSON.stringify({
+            event,
+            userId: userObj?.id || userObj?.email,
+            tenantId: tenantIdVal || userObj?.tenant_id || 3,
+          })
+        );
+      }
+    } catch (e) {
+      console.warn("[OneSignal Bridge] Error dispatching to Flutter:", e);
+    }
+  };
+
   // Load session from cookies on mount
   useEffect(() => {
     const token = getCookie("auth_token")
@@ -183,6 +201,7 @@ function App() {
         const user = JSON.parse(userProfileStr) as UserProfile
         const userTenantId = (user as any).tenant_id || (user as any).tenant?.id || (user as any).tenant_list?.[0]?.tenant_id || 3;
         setSession({ token, user })
+        notifyFlutterOneSignal("login", user, userTenantId);
         console.info(
           `%c[AUTH SESSION LOADED] %cLogged in as '${user.name}' (${user.role || "User"}) | Tenant ID: ${userTenantId}`,
           "background: #7FA46D; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;",
@@ -241,6 +260,8 @@ function App() {
       setCookie("auth_token", response.token)
       setCookie("user_profile", JSON.stringify(userProfile))
 
+      notifyFlutterOneSignal("login", response.user, userTenantId);
+
       setSession({
         token: response.token,
         user: userProfile,
@@ -269,6 +290,7 @@ function App() {
       "background: #e0542c; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;",
       "color: #e0542c; font-weight: bold;"
     );
+    notifyFlutterOneSignal("logout");
     // Clear cookies
     eraseCookie("auth_token")
     eraseCookie("user_profile")

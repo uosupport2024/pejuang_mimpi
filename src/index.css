@@ -559,6 +559,10 @@ html,
   background: linear-gradient(135deg, #F2B233 0%, #C58F1B 100%) !important;
 }
 
+.bg-gradient-alpa {
+  background: linear-gradient(135deg, #b43836 0%, #942b29 100%) !important;
+}
+
 .badge-type {
   background-color: rgba(127, 164, 109, 0.12) !important;
   color: #516b46 !important;
