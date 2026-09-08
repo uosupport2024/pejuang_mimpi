@@ -22,6 +22,7 @@ import {
   HelpCircle,
   ShieldAlert,
   ChevronRight,
+  Bell,
 } from "lucide-react";
 import { THEME_COLORS } from "@/shared/constants/colors";
 
@@ -74,7 +75,7 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
       <ProfileHeader
         user={user}
         onBack={goBack}
-        onNotificationClick={() => toast.info("Membuka Kotak Masuk Notifikasi...")}
+        onNotificationClick={() => navigate("MobileNotificationHistory")}
       />
 
       {/* Warning banner if payroll account is not set */}
@@ -245,6 +246,26 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
               <div>
                 <p className="text-xs font-bold text-zinc-800">Kartu Pegawai Digital</p>
                 <p className="text-[9.5px] text-zinc-400 font-semibold mt-0.5">Lihat kartu identitas pegawai</p>
+              </div>
+            </div>
+            <ChevronRight className="w-4.5 h-4.5 text-zinc-400" />
+          </div>
+
+          {/* Notifikasi & Pesan */}
+          <div
+            onClick={() => navigate("MobileNotificationHistory")}
+            className="bg-white rounded-[24px] border border-gray-100/70 p-4 shadow-xs text-left flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div
+                style={{ backgroundColor: `${THEME_COLORS.hex.primary}1A`, color: THEME_COLORS.hex.primary }}
+                className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 shadow-xs"
+              >
+                <Bell className="w-4.5 h-4.5" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-zinc-800">Notifikasi & Pesan</p>
+                <p className="text-[9.5px] text-zinc-400 font-semibold mt-0.5">Riwayat status pengajuan, absensi, & pengumuman</p>
               </div>
             </div>
             <ChevronRight className="w-4.5 h-4.5 text-zinc-400" />

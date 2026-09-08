@@ -46,6 +46,8 @@ export const ROUTE_MENU_MAPPING: Record<string, string> = {
   MobileCelenganAdd: "mobile-lumbung",
   MobileLokerDetail: "mobile-home",
   MobilePayroll: "mobile-lumbung",
+  MobileNotificationHistory: "mobile-notification",
+  MobileKiblat: "mobile-ayamku",
 };
 
 // ============================================================
@@ -126,6 +128,9 @@ export function isMenuEnabled(menuIdOrRoute: string, _tenantId?: string | number
   if (
     menuIdOrRoute === "Dashboard" ||
     menuIdOrRoute === "MobileHome" ||
+    menuIdOrRoute === "MobileNotificationHistory" ||
+    menuIdOrRoute === "MobileKiblat" ||
+    menuIdOrRoute === "MobileProfile" ||
     menuIdOrRoute === "TenantMapping" ||
     menuIdOrRoute === "TenantManagement" ||
     menuIdOrRoute === "TenantConfig" ||

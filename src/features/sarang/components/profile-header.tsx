@@ -1,4 +1,4 @@
-import { Camera } from "lucide-react";
+import { Camera, Bell } from "lucide-react";
 import type { SarangUser } from "../types/sarang.type";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { THEME_COLORS, buildCssBackground } from "@/shared/constants/colors";
@@ -10,7 +10,7 @@ interface ProfileHeaderProps {
   onNotificationClick: () => void;
 }
 
-export function ProfileHeader({ user }: ProfileHeaderProps) {
+export function ProfileHeader({ user, onNotificationClick }: ProfileHeaderProps) {
   const { navbarBgStyle, navbarBg, buttonColor } = useTenantBranding();
 
   // Get initials from user name
@@ -82,6 +82,17 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
             })()}
           </div>
         </div>
+
+        {/* Notification Bell Button */}
+        <button
+          type="button"
+          onClick={onNotificationClick}
+          className="relative p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 transition-all text-white border border-white/15 shrink-0 cursor-pointer shadow-xs"
+          title="Notifikasi"
+        >
+          <Bell className="w-4.5 h-4.5" />
+          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 border border-white" />
+        </button>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
-import { Star, Wand2 } from "lucide-react";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { Star, Wand2, X, Compass } from "lucide-react";
 import bgMorning from "@/assets/bg/bg-path-morning.webp";
 import bgDay from "@/assets/bg/bg-path.webp";
 import bgAfternoon from "@/assets/bg/bg-path-afternoon.webp";
@@ -7,6 +7,7 @@ import bgNight from "@/assets/bg/bg-path-night.webp";
 import type { AyamkuPageProps } from "../types/ayamku.type";
 import { THEME_COLORS } from "@/shared/constants/colors";
 import { motion, AnimatePresence } from "motion/react";
+import { useRouter } from "@/shared/router/router";
 import { useRive, useStateMachineInput, Layout, Fit, Alignment } from "@rive-app/react-canvas";
 import pejuangMimpiRiv from "@/assets/rive/pejuang_mimpi.riv";
 import jaluSvg from "@/assets/accessories/jalu.svg";
@@ -546,6 +547,7 @@ function GentleBreeze() {
 }
 
 export function AyamkuPage({ user: _user }: AyamkuPageProps) {
+  const { navigate } = useRouter();
   const totalPoin = MISI_DATA.filter((m) => m.status === "selesai").reduce((a, m) => a + m.poin, 0);
 
   // Background dinamis berdasarkan jam device — hanya dihitung saat pertama mount
@@ -569,8 +571,21 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
   });
 
   const [floatingHearts, setFloatingHearts] = useState<Array<{ id: number; x: number; drift: number; rotate: number; emoji: string }>>([]);
-  const [isTalking, setIsTalking] = useState(true);
-  const [dialogueText, setDialogueText] = useState<string>("Selamat sore! 🌅 Semangat terus ya pejuang mimpi!");
+  const [isTalking, setIsTalking] = useState(false);
+  const [showBubble, setShowBubble] = useState(false);
+  const [displayedText, setDisplayedText] = useState<string>("");
+  const [isTyping, setIsTyping] = useState<boolean>(false);
+  const typingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Helper pembersih emotikon/emoji agar teks bersih murni
+  const stripEmojis = (str: string): string => {
+    return str
+      .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F000}-\u{1FAFF}\u{FE00}-\u{FE0F}]/gu, "")
+      .replace(/[^\w\s.,!?'"-\/]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
 
   // Audio effect chirp lucu khas maskot jika browser tidak memiliki voice Indonesia
   const playPetChirpSound = () => {
@@ -636,35 +651,53 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
     return null;
   };
 
-  const speakGreeting = (text: string) => {
-    setDialogueText(text);
-    setIsTalking(true);
+  const speakGreeting = (rawText: string) => {
+    const clean = stripEmojis(rawText);
+    if (!clean) return;
 
+    if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+    if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
+
+    setDisplayedText("");
+    setShowBubble(true);
+    setIsTalking(true);
+    setIsTyping(true);
+
+    // Efek ketik karakter per karakter (typewriter)
+    let idx = 0;
+    typingTimerRef.current = setInterval(() => {
+      idx++;
+      if (idx <= clean.length) {
+        setDisplayedText(clean.slice(0, idx));
+      } else {
+        if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+        setIsTyping(false);
+        // Teks selesai mengetik -> Mulut langsung berhenti berbicara!
+        setIsTalking(false);
+      }
+    }, 38);
+
+    // Suara TTS berbicara bersamaan dengan teks yang sedang mengetik
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       try {
         window.speechSynthesis.cancel();
         const voice = getIndonesianVoice();
 
-        // HANYA gunakan TTS jika OS/browser memiliki voice Indonesia asli
-        // Mencegah voice default bahasa Inggris membaca teks Indonesia yang menimbulkan aksen bule
         if (voice) {
-          const cleanText = text
-            .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, "")
-            .replace(/!+/g, "!")
-            .trim();
-
-          const utterance = new SpeechSynthesisUtterance(cleanText);
+          const utterance = new SpeechSynthesisUtterance(clean);
           utterance.voice = voice;
           utterance.lang = voice.lang || "id-ID";
           utterance.rate = 1.05;
           utterance.pitch = 1.22;
 
-          utterance.onend = () => setIsTalking(false);
+          utterance.onend = () => {
+            // Suara selesai -> pastikan mulut langsung berhenti
+            setIsTalking(false);
+          };
           utterance.onerror = () => setIsTalking(false);
 
           window.speechSynthesis.speak(utterance);
         } else {
-          // Jika OS tidak punya voice Indonesia, bunyikan efek suara maskot ceria
           playPetChirpSound();
         }
       } catch {
@@ -674,25 +707,41 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
       playPetChirpSound();
     }
 
-    setTimeout(() => {
+    // Timer penutupan otomatis bubble setelah selesai membaca
+    autoCloseTimerRef.current = setTimeout(() => {
+      setShowBubble(false);
       setIsTalking(false);
-    }, 3800);
+    }, Math.max(4200, clean.length * 38 + 2500));
   };
 
-  // Pre-load voices dan bicara sapaan awal
+  // Pre-load voices dan sapaan awal berdasarkan waktu (tanpa emot)
   useEffect(() => {
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      // Trigger preload daftar voice di browser
       window.speechSynthesis.getVoices();
       window.speechSynthesis.onvoiceschanged = () => {
         window.speechSynthesis.getVoices();
       };
     }
 
+    const hour = new Date().getHours();
+    let initialGreeting = "Selamat pagi! Semangat terus ya pejuang mimpi!";
+    if (hour >= 11 && hour < 15) {
+      initialGreeting = "Selamat siang! Tetap semangat ya pejuang mimpi!";
+    } else if (hour >= 15 && hour < 18) {
+      initialGreeting = "Selamat sore! Semangat terus ya pejuang mimpi!";
+    } else if (hour >= 18 || hour < 5) {
+      initialGreeting = "Selamat malam! Istirahat yang cukup ya pejuang mimpi!";
+    }
+
     const timer = setTimeout(() => {
-      speakGreeting("Selamat sore! 🌅 Semangat terus ya pejuang mimpi!");
+      speakGreeting(initialGreeting);
     }, 600);
-    return () => clearTimeout(timer);
+
+    return () => {
+      clearTimeout(timer);
+      if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+      if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
+    };
   }, []);
 
   const handlePetTap = () => {
@@ -710,12 +759,14 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
     setFloatingHearts((prev) => [...prev.slice(-6), newHeart]);
 
     const randomDialogues = [
-      "Selamat sore! 🌅 Tetap semangat ya pejuang mimpi!",
-      "Kukuruyuuuk! 🐔 Kamu hebat, pasti bisa!",
-      "Ayo, selesaikan misimu hari ini ya! 🎯",
-      "Yuk, jangan lupa menabung di celenganmu! 💰",
-      "Setiap langkah kecil membawamu lebih dekat ke impian! ✨",
-      "Aku selalu siap nemenin kamu berjuang, semangat ya! 🐣💛",
+      "Selamat berjuang! Tetap semangat ya pejuang mimpi!",
+      "Kukuruyuuuk! Kamu hebat, pasti bisa!",
+      "Ayo, selesaikan misimu hari ini ya!",
+      "Yuk, jangan lupa menabung di celenganmu!",
+      "Setiap langkah kecil membawamu lebih dekat ke impian!",
+      "Aku selalu siap menemani kamu berjuang, semangat ya!",
+      "Kerja kerasmu hari ini akan berbuah manis esok hari!",
+      "Fokus pada impianmu, jangan mudah menyerah ya!",
     ];
     const picked = randomDialogues[Math.floor(Math.random() * randomDialogues.length)];
     speakGreeting(picked);
@@ -733,11 +784,6 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
         [acc.category]: nextVal,
       };
     });
-  };
-
-  const handleResetAccessories = () => {
-    const defaultTopi = ACCESSORIES.find((a) => a.id === "jalu") || null;
-    setEquipped({ topi: defaultTopi, mata: null, leher: null });
   };
 
   // Only render overlays when an accessory is explicitly equipped
@@ -760,16 +806,24 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
       {/* Gentle Breeze Ambient Effect */}
       <GentleBreeze />
 
-      {/* Top Header Overlay — top disesuaikan dengan notification bar mobile */}
+      {/* Top Header Overlay — dinaikkan sedikit agar proporsional dan tidak menutupi langit */}
       <div
         className="absolute left-6 right-6 flex justify-end items-center gap-2 z-10"
-        style={{ top: "calc(2.5rem + env(safe-area-inset-top, 0px))" }}
+        style={{ top: "calc(1.25rem + env(safe-area-inset-top, 0px))" }}
       >
         {/* Poin Badge — kiri */}
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-xs border border-white/10 text-white text-[10px] font-bold uppercase tracking-wide shadow-xs">
           <Star style={{ color: THEME_COLORS.hex.accent }} className="w-3.5 h-3.5" />
           {totalPoin} Poin
         </div>
+        {/* Kompas Kiblat navigate button */}
+        <button
+          onClick={() => navigate("MobileKiblat")}
+          className="w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all cursor-pointer border border-white/20 backdrop-blur-xs bg-black/40 text-emerald-400 hover:bg-black/60 hover:text-emerald-300 hover:scale-105 active:scale-95"
+          title="Arah Kiblat"
+        >
+          <Compass className="w-4 h-4" />
+        </button>
         {/* Makeover toggle button — kanan */}
         <button
           onClick={() => setShowPanel((v) => !v)}
@@ -786,6 +840,60 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
 
       {/* Pet Chicken with Accessory Overlays */}
       <div className="absolute inset-0 flex items-center justify-center pt-36 pb-4">
+        {/* Pixel Game Dialogue Box — Terpasang di luar scale agar tidak pernah meluber melewati layar */}
+        <AnimatePresence>
+          {showBubble && displayedText && (
+            <motion.div
+              key="pixel-speech-bubble"
+              initial={{ opacity: 0, y: 8, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: 0.95 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="absolute z-40 left-4 right-4 flex flex-col items-center pointer-events-none select-none"
+              style={{
+                bottom: "calc(50% + 105px)",
+                maxWidth: "320px",
+                marginLeft: "auto",
+                marginRight: "auto",
+              }}
+            >
+              <div className="flex flex-col items-center w-full">
+                {/* Retro Pixel Box Frame dengan styling THEME_COLORS */}
+                <div
+                  className="w-full text-zinc-900 px-4 py-3 relative shadow-2xl"
+                  style={{
+                    backgroundColor: THEME_COLORS.hex.leftBg,
+                    border: `3px solid ${THEME_COLORS.hex.navBg}`,
+                    boxShadow: `0 4px 0 0 ${THEME_COLORS.hex.navBg}, 0 -2px 0 0 ${THEME_COLORS.hex.navBg}, -2px 0 0 0 ${THEME_COLORS.hex.navBg}, 2px 0 0 0 ${THEME_COLORS.hex.navBg}, inset 0 0 0 2px ${THEME_COLORS.hex.accent}`,
+                    imageRendering: "pixelated",
+                  }}
+                >
+                  {/* Typewriter Text (Berjalan seperti ketikan, TANPA header jalu/talk, & TANPA Emotikon) */}
+                  <p
+                    style={{ color: THEME_COLORS.hex.textDark }}
+                    className="font-mono text-xs font-bold leading-relaxed text-center tracking-tight break-words min-h-[1.4em]"
+                  >
+                    {displayedText}
+                    {isTyping && (
+                      <span
+                        style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                        className="inline-block w-1.5 h-3.5 ml-1 animate-pulse align-middle"
+                      />
+                    )}
+                  </p>
+                </div>
+
+                {/* Pixel Stepped Arrow Pointer dengan warna THEME_COLORS.hex.navBg */}
+                <div className="flex flex-col items-center -mt-[1px]">
+                  <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="w-4 h-1.5" />
+                  <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="w-2.5 h-1" />
+                  <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="w-1.5 h-1" />
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="relative w-[340px] h-[340px] flex items-center justify-center translate-y-[25px] scale-[1.2] origin-center">
           {/* Floating Joy Particles / Emojis on Tap */}
           {floatingHearts.map((h) => (
@@ -816,25 +924,6 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
             onClick={handlePetTap}
             className="relative w-full h-full flex items-center justify-center cursor-pointer select-none"
           >
-            {/* Speech Bubble saat bicara */}
-            <AnimatePresence>
-              {isTalking && dialogueText && (
-                <motion.div
-                  key="dialogue-speech-bubble"
-                  initial={{ opacity: 0, y: 12, scale: 0.8 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.85 }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
-                  className="absolute -top-12 left-1/2 -translate-x-1/2 z-40 bg-white/95 text-slate-800 px-3.5 py-1.5 rounded-2xl shadow-xl border border-amber-300/80 text-xs font-bold flex items-center gap-1.5 whitespace-nowrap pointer-events-none drop-shadow-md"
-                >
-                  <span className="text-sm">🐔💬</span>
-                  <span className="leading-none">{dialogueText}</span>
-                  {/* Bubble Pointer */}
-                  <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-6 border-t-white/95" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             {/* Base Pet Chicken with Rive Animation */}
             <RivePetChicken isTalking={isTalking} onLoaded={() => setIsRiveLoaded(true)} />
 
@@ -927,7 +1016,10 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -60, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="absolute top-[88px] left-4 right-4 bg-black/60 backdrop-blur-md rounded-3xl p-3.5 border border-white/10 z-40 flex flex-col gap-2.5 shadow-xl"
+            style={{
+              top: "calc(3.5rem + env(safe-area-inset-top, 0px))",
+            }}
+            className="absolute left-4 right-4 bg-black/60 backdrop-blur-md rounded-3xl p-3.5 border border-white/10 z-40 flex flex-col gap-2.5 shadow-xl"
           >
             {/* Category & Action Buttons */}
             <div className="flex justify-between items-center">
@@ -946,15 +1038,20 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
                   </button>
                 ))}
               </div>
-              <div className="flex items-center gap-2">
-                {(equipped.topi || equipped.mata || equipped.leher) && (
-                  <button
-                    onClick={handleResetAccessories}
-                    className="text-[8px] font-bold uppercase text-red-400 hover:text-red-300 tracking-wider px-2.5 py-1 bg-red-500/10 border border-red-500/25 rounded-lg transition-all cursor-pointer"
-                  >
-                    Reset
-                  </button>
-                )}
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setShowPanel(false)}
+                  style={{
+                    backgroundColor: `${THEME_COLORS.hex.primary}25`,
+                    borderColor: `${THEME_COLORS.hex.primary}60`,
+                    color: "white",
+                  }}
+                  className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-2.5 py-1.5 border rounded-xl transition-all cursor-pointer hover:bg-white/20 active:scale-95 shadow-xs"
+                  title="Tutup Panel Aksesoris"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Tutup</span>
+                </button>
               </div>
             </div>
 

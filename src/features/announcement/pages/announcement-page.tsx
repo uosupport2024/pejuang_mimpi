@@ -2,11 +2,12 @@ import { useState, useEffect, useCallback } from "react";
 import {
   Send,
   Bell,
-  Volume2,
   Users,
   RefreshCw,
   Info,
   CheckCircle2,
+  AlertCircle,
+  Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
@@ -160,11 +161,6 @@ export function AnnouncementPage() {
               <p className="text-xs text-gray-500">Notifikasi akan otomatis tersimpan dalam riwayat per-user</p>
             </div>
           </div>
-
-          <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/60">
-            <Volume2 size={14} className="shrink-0" />
-            <span>Nada Chick Sound</span>
-          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -183,11 +179,10 @@ export function AnnouncementPage() {
                   key={item.value}
                   type="button"
                   onClick={() => setTargetRole(item.value as any)}
-                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                    targetRole === item.value
-                      ? "border-emerald-600 bg-emerald-50/50 ring-2 ring-emerald-500/20"
-                      : "border-gray-200 hover:border-gray-300 bg-white"
-                  }`}
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${targetRole === item.value
+                    ? "border-emerald-600 bg-emerald-50/50 ring-2 ring-emerald-500/20"
+                    : "border-gray-200 hover:border-gray-300 bg-white"
+                    }`}
                 >
                   <div className="text-xs font-semibold text-gray-900">{item.label}</div>
                   <div className="text-[11px] text-gray-500 mt-0.5">{item.desc}</div>
@@ -319,8 +314,8 @@ export function AnnouncementPage() {
                         {item.target_role === "all"
                           ? "Semua"
                           : item.target_role === "User"
-                          ? "Staff"
-                          : "Admin"}
+                            ? "Staff"
+                            : "Admin"}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-xs text-gray-700 font-semibold whitespace-nowrap">
@@ -333,10 +328,25 @@ export function AnnouncementPage() {
                       {item.creator?.name || item.metadata?.creator_name || "Admin"}
                     </td>
                     <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
-                        <CheckCircle2 size={11} />
-                        Tersiar
-                      </span>
+                      {item.metadata?.push_status?.success === true ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60">
+                          <CheckCircle2 size={11} />
+                          Terkirim
+                        </span>
+                      ) : item.metadata?.push_status?.success === false ? (
+                        <span
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200/60 cursor-help"
+                          title={typeof item.metadata?.push_status?.error === "string" ? item.metadata.push_status.error : JSON.stringify(item.metadata?.push_status?.error || "Gagal mengirim")}
+                        >
+                          <AlertCircle size={11} />
+                          Gagal
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/60">
+                          <Clock size={11} />
+                          Tersimpan
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -379,9 +389,8 @@ export function AnnouncementPage() {
         onClose={() => setShowConfirmModal(false)}
         onConfirm={handleConfirmSend}
         title="Kirim Pengumuman ke Seluruh Anggota?"
-        message={`Pengumuman "${title}" akan segera dikirimkan ke perangkat anggota tenant ${
-          tenantName || "ini"
-        } dengan nada dering suara notifikasi.`}
+        message={`Pengumuman "${title}" akan segera dikirimkan ke perangkat anggota tenant ${tenantName || "ini"
+          } dengan nada dering suara notifikasi.`}
         confirmText={isSubmitting ? "Mengirim..." : "Ya, Kirim Sekarang"}
         cancelText="Batal"
         variant="warning"

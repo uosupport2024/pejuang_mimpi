@@ -11,6 +11,13 @@ export interface AnnouncementItem {
   metadata?: {
     creator_name?: string;
     creator_email?: string;
+    push_status?: {
+      success?: boolean;
+      status?: number;
+      error?: string;
+      external_id?: string;
+      recipients?: number;
+    };
   };
   creator?: {
     id: number;
