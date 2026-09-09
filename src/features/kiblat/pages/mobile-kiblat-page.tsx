@@ -134,7 +134,7 @@ function CompassNeedle({
       className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
       style={{
         transform: `rotate(${angle}deg)`,
-        transition: "transform 0.15s cubic-bezier(0.1, 0.9, 0.2, 1)",
+        transition: "transform 0.08s ease-out",
       }}
     >
       <svg
@@ -242,6 +242,10 @@ export function MobileKiblatPage() {
   const unwrappedHeadingRef = useRef<number>(0);
   const hasAbsoluteRef = useRef<boolean>(false);
 
+  // Sensor stability & stationary lock
+  const lastRawHRef = useRef<number>(0);
+  const stationaryFramesRef = useRef<number>(0);
+
   const [hasVibrated, setHasVibrated] = useState<boolean>(false);
   const lastVibrateTime = useRef<number>(0);
   const [needsPermission, setNeedsPermission] = useState<boolean>(false);
@@ -284,23 +288,32 @@ export function MobileKiblatPage() {
     );
   }, []);
 
-  // Filter & smoothing heading untuk mencegah lompat dan drifting saat diam
+  // Filter & smoothing heading dengan Stationary Lock untuk menghentikan drifting
   const processHeading = useCallback((rawH: number) => {
+    const lastRaw = lastRawHRef.current;
+    const rawDiffFromLast = Math.abs(((rawH - lastRaw + 540) % 360) - 180);
+
+    // Deteksi jika perangkat diam / tremor tangan mikro:
+    // Jika perubahan sensor sangat kecil (< 0.7°), hitung frame diam
+    if (rawDiffFromLast < 0.7) {
+      stationaryFramesRef.current += 1;
+      // Jika sudah diam stabil selama 4 frame (~60ms), KUNCI jarum agar tidak geser/drift sama sekali!
+      if (stationaryFramesRef.current >= 4) {
+        return;
+      }
+    } else {
+      stationaryFramesRef.current = 0;
+    }
+    lastRawHRef.current = rawH;
+
     const currentUnwrapped = unwrappedHeadingRef.current;
     const currentNorm = ((currentUnwrapped % 360) + 360) % 360;
 
     // Shortest angular difference between new heading and current heading
     const delta = ((rawH - currentNorm + 540) % 360) - 180;
 
-    // Deadband filter:
-    // Abaikan jitter sensor mikro (< 0.25°) saat perangkat diam agar tidak perlahan bergeser (drift)
-    if (Math.abs(delta) < 0.25) {
-      return;
-    }
-
-    // Dynamic low-pass smoothing:
-    // Respon cepat saat berputar kencang, peredaman halus saat perlahan
-    const smoothingFactor = Math.min(1, Math.max(0.18, Math.abs(delta) / 30));
+    // Respon responsif dan instan tanpa delay mengayun panjang
+    const smoothingFactor = Math.min(1, Math.max(0.35, Math.abs(delta) / 15));
     const nextUnwrapped = currentUnwrapped + delta * smoothingFactor;
 
     unwrappedHeadingRef.current = nextUnwrapped;
@@ -507,7 +520,7 @@ export function MobileKiblatPage() {
             className="relative w-[264px] h-[264px] rounded-full bg-[#fdfbf7] border-2 border-stone-800 overflow-hidden shadow-inner flex items-center justify-center"
             style={{
               transform: `rotate(${dialRotation}deg)`,
-              transition: "transform 0.15s cubic-bezier(0.1, 0.9, 0.2, 1)",
+              transition: "transform 0.08s ease-out",
             }}
           >
             {/* Garis-garis Tick Derajat di Sepanjang Keliling */}
