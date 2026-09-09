@@ -86,12 +86,29 @@ export function PakanPage({ user }: PakanPageProps) {
     });
   }, [courses]);
 
+  const getCourseTags = (tags: any): string[] => {
+    if (!tags) return [];
+    if (Array.isArray(tags)) return tags.map((t) => String(t).trim()).filter(Boolean);
+    if (typeof tags === "string") {
+      try {
+        const parsed = JSON.parse(tags);
+        if (Array.isArray(parsed)) return parsed.map((t) => String(t).trim()).filter(Boolean);
+      } catch {
+        return tags.split(",").map((t) => t.trim()).filter(Boolean);
+      }
+    }
+    return [];
+  };
+
   const filteredCourses = useMemo(() => {
     return mappedCourses.filter((c) => {
       const desc = (c.description || "").toLowerCase();
+      const tags = getCourseTags(c.tags).map((t) => t.toLowerCase());
+      const query = searchQuery.toLowerCase();
       const matchSearch =
-        c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        desc.includes(searchQuery.toLowerCase());
+        c.title.toLowerCase().includes(query) ||
+        desc.includes(query) ||
+        tags.some((t) => t.includes(query));
       
       const matchDifficulty =
         selectedDifficulty === "Semua" ||
@@ -212,21 +229,26 @@ export function PakanPage({ user }: PakanPageProps) {
 
       {/* Loading Skeletons */}
       {loading ? (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-md border border-zinc-100 p-2.5 space-y-3 animate-pulse">
-              <div className="h-22 bg-zinc-200 rounded-md w-full" />
-              <div className="space-y-2">
-                <div className="h-3 bg-zinc-200 rounded-md w-3/4" />
-                <div className="h-2 bg-zinc-200 rounded-md w-1/2" />
-                <div className="h-6 bg-zinc-200 rounded-md w-full" />
+            <div key={i} className="bg-white rounded-2xl border border-zinc-100 p-3 flex flex-col gap-3 animate-pulse">
+              <div className="flex gap-3 items-start">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 bg-zinc-200 rounded-xl shrink-0" />
+                <div className="flex-1 flex flex-col justify-between py-0.5 space-y-2">
+                  <div className="space-y-1.5">
+                    <div className="h-3.5 bg-zinc-200 rounded-md w-4/5" />
+                    <div className="h-2.5 bg-zinc-200 rounded-md w-3/5" />
+                  </div>
+                  <div className="h-3 bg-zinc-200 rounded-md w-1/3" />
+                </div>
               </div>
+              <div className="h-8 bg-zinc-200 rounded-xl w-full" />
             </div>
           ))}
         </div>
       ) : (
-        /* Course List Grid */
-        <div className="grid grid-cols-2 gap-3">
+        /* Course List (Horizontal Single Column with Fullwidth Button) */
+        <div className="grid grid-cols-1 gap-3">
           {filteredCourses.length > 0 ? (
             filteredCourses.map((course) => {
               const getDifficultyLabel = (difficulty?: string) => {
@@ -239,77 +261,111 @@ export function PakanPage({ user }: PakanPageProps) {
                 }
               };
 
+              const courseTags = getCourseTags(course.tags);
+
               return (
                 <div
                   key={course.id}
-                  className="bg-white rounded-md border border-zinc-100 shadow-xs flex flex-col overflow-hidden hover:scale-[1.01] transition-transform duration-200"
+                  className="bg-white rounded-2xl border border-zinc-200/80 p-3 shadow-xs flex flex-col gap-3 hover:shadow-md transition-all duration-200"
                 >
-                  <div className="h-22 relative flex items-center justify-center shrink-0 overflow-hidden bg-zinc-100">
-                    {course.thumbnail_url ? (
-                      <>
-                        <img
-                          src={course.thumbnail_url}
-                          alt={course.title}
-                          className="absolute inset-0 w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLElement).style.display = "none";
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-black/15" />
-                      </>
-                    ) : (
-                      <div className={`absolute inset-0 ${course.gradientTheme}`} />
-                    )}
-                    <span className="absolute top-2 right-2 inline-flex items-center px-1.5 py-0.5 rounded-full bg-black/25 text-white text-[7.5px] font-bold uppercase tracking-wide backdrop-blur-xs z-10">
-                      {getDifficultyLabel(course.difficulty)}
-                    </span>
-                  </div>
-
-                  <div className="p-2.5 flex-1 flex flex-col justify-between space-y-2.5">
-                    <div className="space-y-0.5 text-left">
-                      <h3 className="text-[10px] font-bold text-zinc-900 leading-snug line-clamp-2 min-h-[30px]">
-                        {course.title}
-                      </h3>
-                      <p className="text-[8px] text-zinc-400 font-medium leading-normal line-clamp-1">
-                        {course.description || "Tingkatkan keahlian Anda"}
-                      </p>
-                      <span className="block text-[7.5px] text-zinc-400 font-bold tracking-wider uppercase truncate">
-                        Oleh: Trainer POT
+                  {/* Top Row: Thumbnail on Left, Information on Right */}
+                  <div className="flex flex-row gap-3 items-start">
+                    {/* Left Side: Thumbnail with badge */}
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl relative overflow-hidden shrink-0 bg-zinc-100 flex items-center justify-center">
+                      {course.thumbnail_url ? (
+                        <>
+                          <img
+                            src={course.thumbnail_url}
+                            alt={course.title}
+                            className="absolute inset-0 w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = "none";
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-black/10" />
+                        </>
+                      ) : (
+                        <div className={`absolute inset-0 ${course.gradientTheme}`} />
+                      )}
+                      <span className="absolute top-1.5 left-1.5 inline-flex items-center px-1.5 py-0.5 rounded-md bg-black/35 text-white text-[7.5px] font-bold uppercase tracking-wider backdrop-blur-xs z-10 border border-white/10">
+                        {getDifficultyLabel(course.difficulty)}
                       </span>
                     </div>
 
-                    <button
-                      onClick={() => handleStartCourse(course.id)}
-                      style={course.user_progress?.status !== "completed" ? { background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary) } : undefined}
-                      className={`w-full py-1.5 rounded-md text-white text-[8.5px] font-bold uppercase tracking-wider shadow-xs active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                        course.user_progress?.status === "completed"
-                          ? "bg-gradient-to-tr from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 shadow-green-100/50"
-                          : "hover:brightness-105"
-                      }`}
-                    >
-                      {course.user_progress?.status === "completed" ? (
-                        <>
-                          <CheckCircle2 className="w-3 h-3 shrink-0" />
-                          Selesai
-                        </>
-                      ) : course.user_progress ? (
-                        <>
-                          <Play className="w-2.5 h-2.5 fill-current shrink-0" />
-                          Lanjutkan
-                        </>
-                      ) : (
-                        <>
-                          <Play className="w-2.5 h-2.5 fill-current shrink-0" />
-                          Mulai
-                        </>
+                    {/* Right Side: Information Details */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between self-stretch text-left py-0.5">
+                      <div className="flex flex-col gap-1">
+                        <h3 className="text-xs font-bold text-zinc-900 leading-snug line-clamp-2">
+                          {course.title}
+                        </h3>
+                        <p className="text-[9.5px] text-zinc-500 font-medium leading-relaxed line-clamp-2">
+                          {course.description || "Tingkatkan keahlian Anda melalui modul pembelajaran ini."}
+                        </p>
+                      </div>
+
+                      {courseTags.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1.5 pt-1 mt-auto">
+                          {courseTags.slice(0, 2).map((tag, idx) => (
+                            <span
+                              key={idx}
+                              style={{
+                                backgroundColor: THEME_COLORS.hex.slateClassic,
+                              }}
+                              className="inline-flex items-center px-2 py-0.5 rounded text-[7.5px] font-normal text-white leading-tight truncate max-w-[85px]"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                          {courseTags.length > 2 && (
+                            <span
+                              style={{
+                                backgroundColor: THEME_COLORS.hex.slateClassic,
+                              }}
+                              className="inline-flex items-center px-1.5 py-0.5 rounded text-[7.5px] font-normal text-white leading-tight"
+                            >
+                              +{courseTags.length - 2}
+                            </span>
+                          )}
+                        </div>
                       )}
-                    </button>
+                    </div>
                   </div>
+
+                  {/* Fullwidth Action Button at Bottom */}
+                  <button
+                    onClick={() => handleStartCourse(course.id)}
+                    style={{
+                      backgroundColor:
+                        course.user_progress?.status === "completed"
+                          ? THEME_COLORS.hex.sawahPertumbuhan
+                          : typeof buttonColor === "string" && !buttonColor.includes("gradient")
+                          ? buttonColor
+                          : THEME_COLORS.hex.primary,
+                    }}
+                    className="w-full py-2 rounded-xl text-white text-[9.5px] font-bold uppercase tracking-wider shadow-xs active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-1.5 hover:brightness-105"
+                  >
+                    {course.user_progress?.status === "completed" ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                        Selesai
+                      </>
+                    ) : course.user_progress ? (
+                      <>
+                        <Play className="w-3 h-3 fill-current shrink-0" />
+                        Lanjutkan
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-3 h-3 fill-current shrink-0" />
+                        Mulai
+                      </>
+                    )}
+                  </button>
                 </div>
               );
             })
           ) : (
-            <div className="col-span-2 text-center py-8 bg-white rounded-md border border-zinc-100">
+            <div className="text-center py-8 bg-white rounded-2xl border border-zinc-100">
               <span className="text-xs text-zinc-400 font-bold">Materi tidak ditemukan</span>
             </div>
           )}

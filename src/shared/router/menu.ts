@@ -16,7 +16,7 @@ import {
 } from "@solar-icons/react";
 import type { RouteType } from "./router";
 
-import { Sparkles } from "lucide-react";
+import { Sparkles, Megaphone } from "lucide-react";
 
 export interface SubMenuItem {
   name: string;
@@ -75,6 +75,12 @@ export const menuItems: MenuItem[] = [
       { name: "Cuti & Izin", route: "Leave" },
       { name: "Absensi", route: "KoreksiAbsenApproval" }
     ]
+  },
+  {
+    name: "Pengumuman",
+    route: "Announcement",
+    icon: Megaphone,
+    group: "Layanan",
   },
 
   // Super Admin Group (Khusus admin@gmail.com)

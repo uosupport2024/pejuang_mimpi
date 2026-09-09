@@ -32,6 +32,8 @@ import { PakanPage, PakanLearningPage } from "../../../features/pakan";
 import { SarangPage } from "../../../features/sarang";
 import { LeaveRequestPage, LeaveHistoryPage } from "@/features/leave-request";
 import { IdCardPage } from "@/features/id-card";
+import { MobileNotificationPage } from "@/features/notification";
+import { MobileKiblatPage } from "@/features/kiblat";
 
 interface MainContainerProps {
   user: {
@@ -167,6 +169,10 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <IdCardPage user={user} />;
       case "MobilePayroll":
         return <MobilePayrollPage user={user} />;
+      case "MobileNotificationHistory":
+        return <MobileNotificationPage />;
+      case "MobileKiblat":
+        return <MobileKiblatPage />;
       default:
         return <SangkarPage user={user} />;
     }

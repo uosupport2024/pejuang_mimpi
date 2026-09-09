@@ -152,7 +152,12 @@ export function MobileLayout({ children }: MobileLayoutProps) {
         )}
 
       {/* Mobile Guidance Tour Overlay */}
-      <MobileGuidanceTour isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} onStepChange={handleStepChange} />
+      <MobileGuidanceTour
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+        onStepChange={handleStepChange}
+        activeTabs={activeTabs}
+      />
 
       </div>
     </div>

@@ -100,7 +100,9 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout,
         currentRoute === "MobileLeaveRequest" ||
         currentRoute === "MobileLeaveHistory" ||
         currentRoute === "MobileIdCard" ||
-        currentRoute === "MobilePayroll";
+        currentRoute === "MobilePayroll" ||
+        currentRoute === "MobileNotificationHistory" ||
+        currentRoute === "MobileKiblat";
 
       // 🛑 TENANT PERMISSION ROUTE BLOCKING GUARD
       // Even if user types/hardcodes link directly in address bar, block if menu is OFF for tenant!
@@ -128,45 +130,18 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout,
           (currentRoute === "TenantMapping" || currentRoute === "TenantManagement" || currentRoute === "MasterCelenganIcon") &&
           session.user.email?.toLowerCase() !== "admin@gmail.com"
         ) {
-          console.warn(
-            `%c[SUPER ADMIN GUARD] %cUser '${session.user.email}' is not admin@gmail.com. Redirecting to Dashboard...`,
-            "background: #e0542c; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;",
-            "color: #1e2a4a; font-weight: bold;"
-          );
           navigate("Dashboard");
           return;
         }
 
         // Administrator role must stay on desktop routes
         if (currentRoute === "Login" || window.location.pathname === "/" || isMobileRoute) {
-          console.warn(
-            `%c[ROLE GUARD REDIRECT] %cAdmin '${session.user.name}' tried accessing mobile/login route. Redirecting to Dashboard...`,
-            "background: #e0542c; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;",
-            "color: #1e2a4a; font-weight: bold;"
-          );
           navigate("Dashboard");
-        } else {
-          console.log(
-            `%c[ROLE GUARD PASSED] %cRole: ${session.user.role} | User: ${session.user.name} | Route: ${currentRoute}`,
-            "background: #1e2a4a; color: #fee279; font-weight: bold; padding: 2px 6px; border-radius: 4px;",
-            "color: #1e2a4a; font-weight: bold;"
-          );
         }
       } else {
         // User (Staff) role must stay on mobile routes
         if (currentRoute === "Login" || window.location.pathname === "/" || !isMobileRoute) {
-          console.warn(
-            `%c[ROLE GUARD REDIRECT] %cUser '${session.user.name}' tried accessing desktop/login route. Redirecting to Mobile Home...`,
-            "background: #e0542c; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;",
-            "color: #e0542c; font-weight: bold;"
-          );
           navigate("MobileHome");
-        } else {
-          console.log(
-            `%c[ROLE GUARD PASSED] %cRole: ${session.user.role || "User"} | User: ${session.user.name} | Mobile Route: ${currentRoute}`,
-            "background: #7FA46D; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;",
-            "color: #5e804d; font-weight: bold;"
-          );
         }
       }
     }
@@ -200,6 +175,24 @@ function App() {
   // isInitializing=true until we've attempted to read cookies
   const [isInitializing, setIsInitializing] = useState(true)
 
+  // Bridge to Flutter Mobile App for OneSignal tag & identity syncing
+  const notifyFlutterOneSignal = (event: "login" | "logout", userObj?: any, tenantIdVal?: any) => {
+    try {
+      const bridge = (window as any).FlutterOneSignal;
+      if (bridge && typeof bridge.postMessage === "function") {
+        bridge.postMessage(
+          JSON.stringify({
+            event,
+            userId: userObj?.id || userObj?.email,
+            tenantId: tenantIdVal || userObj?.tenant_id || 3,
+          })
+        );
+      }
+    } catch (e) {
+      console.warn("[OneSignal Bridge] Error dispatching to Flutter:", e);
+    }
+  };
+
   // Load session from cookies on mount
   useEffect(() => {
     const token = getCookie("auth_token")
@@ -210,6 +203,7 @@ function App() {
         const user = JSON.parse(userProfileStr) as UserProfile
         const userTenantId = (user as any).tenant_id || (user as any).tenant?.id || (user as any).tenant_list?.[0]?.tenant_id || 3;
         setSession({ token, user })
+        notifyFlutterOneSignal("login", user, userTenantId);
         console.info(
           `%c[AUTH SESSION LOADED] %cLogged in as '${user.name}' (${user.role || "User"}) | Tenant ID: ${userTenantId}`,
           "background: #7FA46D; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;",
@@ -268,6 +262,8 @@ function App() {
       setCookie("auth_token", response.token)
       setCookie("user_profile", JSON.stringify(userProfile))
 
+      notifyFlutterOneSignal("login", response.user, userTenantId);
+
       setSession({
         token: response.token,
         user: userProfile,
@@ -296,6 +292,7 @@ function App() {
       "background: #e0542c; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;",
       "color: #e0542c; font-weight: bold;"
     );
+    notifyFlutterOneSignal("logout");
     // Clear cookies
     eraseCookie("auth_token")
     eraseCookie("user_profile")
@@ -312,7 +309,7 @@ function App() {
         handleLogout={handleLogout}
         onUpdateUser={handleUpdateUser}
       />
-      <Toaster position="top-center" richColors />
+      <Toaster richColors />
       <ConfirmationModal
         isOpen={showLogoutConfirm}
         onClose={() => setShowLogoutConfirm(false)}

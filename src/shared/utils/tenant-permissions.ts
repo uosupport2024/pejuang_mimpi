@@ -46,6 +46,8 @@ export const ROUTE_MENU_MAPPING: Record<string, string> = {
   MobileCelenganAdd: "mobile-lumbung",
   MobileLokerDetail: "mobile-home",
   MobilePayroll: "mobile-lumbung",
+  MobileNotificationHistory: "mobile-notification",
+  MobileKiblat: "mobile-ayamku",
 };
 
 // ============================================================
@@ -98,12 +100,6 @@ export async function loadTenantPermissions(tenantId: string | number = 3): Prom
       for (const [menuId, allowed] of Object.entries(data)) {
         menuConfig[menuId] = Boolean(allowed);
       }
-      console.info(
-        `%c[Permission] %cLoaded menu config for tenant ${tenantId}:`,
-        "background: #1e2a4a; color: #fee279; font-weight: bold; padding: 2px 6px; border-radius: 4px;",
-        "color: #1e2a4a; font-weight: bold;",
-        menuConfig
-      );
     } else {
       console.warn("[Permission] Unexpected response format, defaulting all menus to enabled.", data);
       menuConfig = {};
@@ -132,6 +128,9 @@ export function isMenuEnabled(menuIdOrRoute: string, _tenantId?: string | number
   if (
     menuIdOrRoute === "Dashboard" ||
     menuIdOrRoute === "MobileHome" ||
+    menuIdOrRoute === "MobileNotificationHistory" ||
+    menuIdOrRoute === "MobileKiblat" ||
+    menuIdOrRoute === "MobileProfile" ||
     menuIdOrRoute === "TenantMapping" ||
     menuIdOrRoute === "TenantManagement" ||
     menuIdOrRoute === "TenantConfig" ||

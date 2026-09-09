@@ -1,14 +1,22 @@
-import { useState, useEffect, useMemo } from "react";
-import { Star, Ban, Wand2 } from "lucide-react";
-import bgMorning from "@/assets/bg/bg-path-morning.png";
-import bgDay from "@/assets/bg/bg-path.png";
-import bgAfternoon from "@/assets/bg/bg-path-afternoon.png";
-import bgNight from "@/assets/bg/bg-path-night.png";
-import ayamkuPet from "@/assets/bg/ayamku-pet.png";
-import { toast } from "sonner";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { Star, Wand2, X, Compass } from "lucide-react";
+import bgMorning from "@/assets/bg/bg-path-morning.webp";
+import bgDay from "@/assets/bg/bg-path.webp";
+import bgAfternoon from "@/assets/bg/bg-path-afternoon.webp";
+import bgNight from "@/assets/bg/bg-path-night.webp";
 import type { AyamkuPageProps } from "../types/ayamku.type";
 import { THEME_COLORS } from "@/shared/constants/colors";
 import { motion, AnimatePresence } from "motion/react";
+import { useRouter } from "@/shared/router/router";
+import { useRive, useStateMachineInput, Layout, Fit, Alignment } from "@rive-app/react-canvas";
+import pejuangMimpiRiv from "@/assets/rive/pejuang_mimpi.riv";
+import jaluSvg from "@/assets/accessories/jalu.svg";
+import sorbanImg from "@/assets/accessories/sorban.webp";
+import sorban1Img from "@/assets/accessories/sorban-1.webp";
+import sorban2Img from "@/assets/accessories/sorban-2.webp";
+import sorban3Img from "@/assets/accessories/sorban-3.webp";
+import sorban4Img from "@/assets/accessories/sorban-4.webp";
+import sorban5Img from "@/assets/accessories/sorban-5.webp";
 
 // Pilih background berdasarkan jam device
 function getTimeOfDayBg(): string {
@@ -44,494 +52,413 @@ const MISI_DATA: Misi[] = [
   },
 ];
 
-// --- KEPALA (Hats / Headwear) ---
-const StrawHatSVG = () => (
-  <svg viewBox="0 0 120 60" className="w-full h-full drop-shadow-md">
-    <ellipse cx="60" cy="45" rx="55" ry="12" fill="#e6c280" stroke="#9e7030" strokeWidth="2" />
-    <path d="M32 40 C32 12, 88 12, 88 40 Z" fill="#f0d5a6" stroke="#9e7030" strokeWidth="2" />
-    <path d="M33 38 C45 36, 75 36, 87 38 L86 42 C75 40, 45 40, 34 42 Z" fill="#ff2e2e" />
-  </svg>
-);
+// PALET WARNA PECI
+const PECI_COLORS = [
+  { name: "Hitam Klasik", hex: "#231f20" },
+  { name: "Putih", hex: "#f8fafc" },
+  { name: "Merah Marun", hex: "#7f1d1d" },
+  { name: "Hijau Santri", hex: "#15803d" },
+  { name: "Biru Dongker", hex: "#1e3a8a" },
+  { name: "Coklat", hex: "#582f0e" },
+  { name: "Ungu", hex: "#581c87" },
+  { name: "Kuning Emas", hex: "#b45309" },
+];
 
-const TopHatSVG = () => (
-  <svg viewBox="0 0 100 80" className="w-full h-full drop-shadow-md">
-    <ellipse cx="50" cy="65" rx="45" ry="8" fill="#333" stroke="#111" strokeWidth="2" />
-    <path d="M22 62 L28 15 C28 12, 72 12, 72 15 L78 62 Z" fill="#1e1e1e" stroke="#111" strokeWidth="2" />
-    <path d="M22 60 C35 58, 65 58, 78 60 L76 50 C65 48, 35 48, 24 50 Z" fill="#ff2e2e" />
-    <rect x="45" y="48" width="10" height="12" fill="#ffd700" rx="1" />
-    <rect x="48" y="51" width="4" height="6" fill="#ff2e2e" />
-  </svg>
-);
+// DAFTAR MOTIF / POLA PECI
+const PECI_PATTERNS = [
+  { id: "polos", name: "Polos" },
+  { id: "garis_emas", name: "List Emas" },
+  { id: "batik_kawung", name: "Batik Kawung" },
+  { id: "bintang_islami", name: "Bintang Islami" },
+  { id: "songket_emas", name: "Tenun Songket" },
+  { id: "ukir_sulur", name: "Ukir Sulur" },
+];
 
-const CrownSVG = () => (
-  <svg viewBox="0 0 100 65" className="w-full h-full drop-shadow-md">
-    <path d="M10 52 L10 25 L30 38 L50 15 L70 38 L90 25 L90 52 Z" fill="#ffd700" stroke="#b8860b" strokeWidth="2" />
-    <rect x="10" y="47" width="80" height="6" fill="#d4af37" rx="1" />
-    <circle cx="10" cy="25" r="3.5" fill="#ff0000" />
-    <circle cx="50" cy="15" r="4.5" fill="#0000ff" />
-    <circle cx="90" cy="25" r="3.5" fill="#ff0000" />
-  </svg>
-);
+// KOMPONEN SVG PECI DENGAN WARNA DINAMIS, MOTIF/POLA, DAN BORDER HITAM
+function PeciSVG({
+  color = "#231f20",
+  pattern = "polos",
+  className = "w-full h-full object-contain filter drop-shadow-md",
+}: {
+  color?: string;
+  pattern?: string;
+  className?: string;
+}) {
+  const isLight = color === "#f8fafc" || color.toLowerCase() === "#ffffff" || color.toLowerCase() === "#fff";
+  const goldColor = isLight ? "#b45309" : "#fbbf24";
+  const goldAccent = isLight ? "#d97706" : "#fef08a";
 
-const BuilderHatSVG = () => (
-  <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
-    <path d="M15 45 C15 20, 85 20, 85 45 Z" fill="#ffcc00" stroke="#cc9900" strokeWidth="2" />
-    <ellipse cx="50" cy="45" rx="42" ry="6" fill="#ffcc00" stroke="#cc9900" strokeWidth="1.5" />
-    <rect x="46" y="22" width="8" height="20" fill="#e5b800" rx="1" />
-  </svg>
-);
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109.76 61.91" className={className}>
+      <defs>
+        {/* Clip Path yang mengikuti kontur badan peci */}
+        <clipPath id="peciBodyClip">
+          <path d="M1.34,58.73c.21-.52.57-1.33,1.15-2.24,1.5-2.4,4.03-4.84,8.79-6.83,8.63-3.59,20.72-4.05,27.32-4.21,5.18-.13,11.2-.26,19.58,0,5.08.16,13,1.07,28.85,2.9.83.1,6.82.83,12.42,3.74,0,0,0,0,0,0,.84.45,1.44.96,1.97,1.45,1.98,1.86,3.16,3.57,3.16,3.57.45.65.77,1.2,1.4,2.29.58,1.01,1.04,1.87,1.36,2.5.81-.9,1.62-1.81,2.43-2.71l-1.34-10.85-3.73-30.85c-4.06-3.27-10.14-7.53-18.24-11.13C81,3.95,73.3.54,62.85.01c-3.08-.16-9.66,1.04-22.83,3.44-12.59,2.29-18.91,3.9-24.26,9.09-1.4,1.36-2.41,2.65-3.06,3.55-3.6,11.16-7.2,22.31-10.79,33.47-.64,1.9-1.27,3.8-1.91,5.7l1.34,3.46Z" />
+        </clipPath>
 
-const BaseballCapSVG = () => (
-  <svg viewBox="0 0 110 60" className="w-full h-full drop-shadow-md">
-    <path d="M20 42 C20 15, 80 15, 80 42 Z" fill="#3b82f6" stroke="#1d4ed8" strokeWidth="2" />
-    <path d="M15 40 C40 38, 70 38, 95 44 C95 44, 90 49, 75 48 C60 47, 25 45, 15 40 Z" fill="#ef4444" stroke="#b91c1c" strokeWidth="1.5" />
-    <circle cx="50" cy="16" r="3" fill="#ffffff" />
-  </svg>
-);
+        {/* Pattern: Batik Kawung */}
+        <pattern id="patternKawung" width="10" height="10" patternUnits="userSpaceOnUse">
+          <ellipse cx="5" cy="2" rx="3.5" ry="1.8" fill="none" stroke={goldColor} strokeWidth="0.5" opacity="0.32" />
+          <ellipse cx="5" cy="8" rx="3.5" ry="1.8" fill="none" stroke={goldColor} strokeWidth="0.5" opacity="0.32" />
+          <ellipse cx="2" cy="5" rx="1.8" ry="3.5" fill="none" stroke={goldColor} strokeWidth="0.5" opacity="0.32" />
+          <ellipse cx="8" cy="5" rx="1.8" ry="3.5" fill="none" stroke={goldColor} strokeWidth="0.5" opacity="0.32" />
+          <circle cx="5" cy="5" r="0.75" fill={goldAccent} opacity="0.4" />
+        </pattern>
 
-const FirefighterHatSVG = () => (
-  <svg viewBox="0 0 110 70" className="w-full h-full drop-shadow-md">
-    <path d="M25 48 C25 20, 85 20, 85 48 Z" fill="#dc2626" stroke="#991b1b" strokeWidth="2.5" />
-    <ellipse cx="55" cy="48" rx="50" ry="8" fill="#dc2626" stroke="#991b1b" strokeWidth="2" />
-    <path d="M45 42 L65 42 L60 28 L50 28 Z" fill="#fbbf24" />
-    <circle cx="55" cy="35" r="3.5" fill="#dc2626" />
-  </svg>
-);
+        {/* Pattern: Bintang Islami */}
+        <pattern id="patternBintang" width="12" height="12" patternUnits="userSpaceOnUse">
+          <rect x="3" y="3" width="6" height="6" fill="none" stroke={goldColor} strokeWidth="0.5" transform="rotate(45 6 6)" opacity="0.32" />
+          <rect x="3" y="3" width="6" height="6" fill="none" stroke={goldColor} strokeWidth="0.5" opacity="0.32" />
+          <circle cx="6" cy="6" r="1" fill={goldAccent} opacity="0.38" />
+        </pattern>
 
-const ConicalHatSVG = () => (
-  <svg viewBox="0 0 120 60" className="w-full h-full drop-shadow-md">
-    <polygon points="60,10 5,50 115,50" fill="#d7c49e" stroke="#b09b74" strokeWidth="2" />
-    <line x1="60" y1="10" x2="60" y2="50" stroke="#b09b74" strokeWidth="1.5" />
-    <line x1="60" y1="10" x2="30" y2="50" stroke="#b09b74" strokeWidth="1" />
-    <line x1="60" y1="10" x2="90" y2="50" stroke="#b09b74" strokeWidth="1" />
-  </svg>
-);
+        {/* Pattern: Tenun Songket */}
+        <pattern id="patternSongket" width="8" height="8" patternUnits="userSpaceOnUse">
+          <path d="M0,4 L4,0 L8,4 L4,8 Z" fill="none" stroke={goldColor} strokeWidth="0.5" opacity="0.3" />
+          <path d="M2,4 L4,2 L6,4 L4,6 Z" fill={goldAccent} opacity="0.22" />
+          <line x1="0" y1="0" x2="8" y2="8" stroke={goldColor} strokeWidth="0.25" opacity="0.18" />
+        </pattern>
+      </defs>
 
-const ChefHatSVG = () => (
-  <svg viewBox="0 0 100 90" className="w-full h-full drop-shadow-md">
-    <rect x="30" y="55" width="40" height="20" fill="#f3f4f6" stroke="#d1d5db" strokeWidth="2" rx="2" />
-    <path d="M20 50 C10 40, 25 20, 40 28 C50 15, 70 20, 75 32 C90 30, 85 50, 75 55 L25 55 Z" fill="#ffffff" stroke="#d1d5db" strokeWidth="2" />
-  </svg>
-);
+      <g id="Peci">
+        {/* Main Peci Body dengan border hitam permanen */}
+        <path
+          fill={color}
+          stroke="#231f20"
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          d="M1.34,58.73c.21-.52.57-1.33,1.15-2.24,1.5-2.4,4.03-4.84,8.79-6.83,8.63-3.59,20.72-4.05,27.32-4.21,5.18-.13,11.2-.26,19.58,0,5.08.16,13,1.07,28.85,2.9.83.1,6.82.83,12.42,3.74,0,0,0,0,0,0,.84.45,1.44.96,1.97,1.45,1.98,1.86,3.16,3.57,3.16,3.57.45.65.77,1.2,1.4,2.29.58,1.01,1.04,1.87,1.36,2.5.81-.9,1.62-1.81,2.43-2.71l-1.34-10.85-3.73-30.85c-4.06-3.27-10.14-7.53-18.24-11.13C81,3.95,73.3.54,62.85.01c-3.08-.16-9.66,1.04-22.83,3.44-12.59,2.29-18.91,3.9-24.26,9.09-1.4,1.36-2.41,2.65-3.06,3.55-3.6,11.16-7.2,22.31-10.79,33.47-.64,1.9-1.27,3.8-1.91,5.7l1.34,3.46Z"
+        />
 
-const LaurelWreathSVG = () => (
-  <svg viewBox="0 0 100 50" className="w-full h-full drop-shadow-md">
-    <path d="M15 35 Q5 15 50 12 Q95 15 85 35" fill="none" stroke="#22c55e" strokeWidth="3.5" strokeLinecap="round" />
-    <ellipse cx="20" cy="22" rx="6" ry="3" fill="#22c55e" transform="rotate(-30 20 22)" />
-    <ellipse cx="32" cy="15" rx="6" ry="3" fill="#22c55e" transform="rotate(-15 32 15)" />
-    <ellipse cx="48" cy="12" rx="6" ry="3" fill="#22c55e" />
-    <ellipse cx="68" cy="15" rx="6" ry="3" fill="#22c55e" transform="rotate(15 68 15)" />
-    <ellipse cx="80" cy="22" rx="6" ry="3" fill="#22c55e" transform="rotate(30 80 22)" />
-  </svg>
-);
+        {/* Motif / Pola Layer (Dibatasi oleh kontur peci) */}
+        <g clipPath="url(#peciBodyClip)" className="pointer-events-none">
+          {pattern === "garis_emas" && (
+            <g opacity="0.55">
+              {/* Gold Trim Bottom (Dinaikkan agar pas di atas lis bawah peci) */}
+              <path d="M-5,44 Q55,34 115,44" fill="none" stroke={goldColor} strokeWidth="2.0" />
+              <path d="M-5,41 Q55,31 115,41" fill="none" stroke={goldAccent} strokeWidth="0.8" />
+              {/* Gold Trim Top (Diturunkan agar pas di bawah mahkota atas) */}
+              <path d="M5,28 Q60,16 105,30" fill="none" stroke={goldColor} strokeWidth="2.0" />
+              <path d="M5,31 Q60,19 105,33" fill="none" stroke={goldAccent} strokeWidth="0.8" />
+            </g>
+          )}
 
-const ReindeerHornsSVG = () => (
-  <svg viewBox="0 0 100 80" className="w-full h-full drop-shadow-md">
-    <path d="M30 45 L20 15 M20 15 L10 10 M20 15 L28 8 M24 25 L14 26" fill="none" stroke="#78350f" strokeWidth="4.5" strokeLinecap="round" />
-    <path d="M70 45 L80 15 M80 15 L90 10 M80 15 L72 8 M76 25 L86 26" fill="none" stroke="#78350f" strokeWidth="4.5" strokeLinecap="round" />
-    <path d="M30 45 Q50 52 70 45" fill="none" stroke="#dc2626" strokeWidth="3.5" />
-  </svg>
-);
+          {pattern === "batik_kawung" && (
+            <rect x="-10" y="0" width="130" height="65" fill="url(#patternKawung)" />
+          )}
 
-const SantaHatSVG = () => (
-  <svg viewBox="0 0 100 70" className="w-full h-full drop-shadow-md">
-    <path d="M25 45 C30 20, 65 10, 80 25 C85 30, 80 40, 75 42 L25 45 Z" fill="#ef4444" stroke="#dc2626" strokeWidth="1" />
-    <rect x="20" y="40" width="60" height="10" fill="#ffffff" rx="4" />
-    <circle cx="78" cy="35" r="7" fill="#ffffff" />
-  </svg>
-);
+          {pattern === "bintang_islami" && (
+            <rect x="-10" y="0" width="130" height="65" fill="url(#patternBintang)" />
+          )}
 
-const WizardHatSVG = () => (
-  <svg viewBox="0 0 100 90" className="w-full h-full drop-shadow-md">
-    <ellipse cx="50" cy="75" rx="45" ry="8" fill="#6d28d9" stroke="#4c1d95" strokeWidth="2" />
-    <path d="M20 72 L50 10 L75 72 Z" fill="#6d28d9" stroke="#4c1d95" strokeWidth="2" />
-    <polygon points="45,35 47,40 52,40 48,43 50,48 45,45 40,48 42,43 38,40 43,40" fill="#fbbf24" />
-    <polygon points="58,50 60,53 64,53 61,55 62,59 58,57 54,59 55,55 52,53 56,53" fill="#fbbf24" />
-  </svg>
-);
+          {pattern === "songket_emas" && (
+            <rect x="-10" y="0" width="130" height="65" fill="url(#patternSongket)" />
+          )}
 
-const AngelHaloSVG = () => (
-  <svg viewBox="0 0 100 40" className="w-full h-full drop-shadow-md">
-    <ellipse cx="50" cy="20" rx="35" ry="10" fill="none" stroke="#fef08a" strokeWidth="5.5" opacity="0.9" />
-    <ellipse cx="50" cy="20" rx="35" ry="10" fill="none" stroke="#fbbf24" strokeWidth="2" />
-  </svg>
-);
+          {pattern === "ukir_sulur" && (
+            <g opacity="0.45">
+              {/* Garis batas lengkung atas & bawah bermotif halus */}
+              <path d="M5,28 Q55,16 105,30" fill="none" stroke={goldAccent} strokeWidth="0.8" strokeDasharray="2 2" />
+              <path d="M2,44 Q55,34 108,44" fill="none" stroke={goldAccent} strokeWidth="0.8" strokeDasharray="2 2" />
 
-const DevilHornsSVG = () => (
-  <svg viewBox="0 0 100 50" className="w-full h-full drop-shadow-md">
-    <path d="M25 40 Q15 25 12 10 Q25 15 32 32 Z" fill="#ef4444" stroke="#991b1b" strokeWidth="2" />
-    <path d="M75 40 Q85 25 88 10 Q75 15 68 32 Z" fill="#ef4444" stroke="#991b1b" strokeWidth="2" />
-  </svg>
-);
+              {/* Batang Sulur Emas Mengalir Mengikuti Lengkung Peci */}
+              <path
+                d="M2,39 Q11,31 20,31 Q28,31 36,33 Q45,35 55,24 Q65,35 74,33 Q82,31 90,31 Q99,31 108,39"
+                fill="none"
+                stroke={goldColor}
+                strokeWidth="1.4"
+                strokeLinecap="round"
+              />
 
-const BirthdayHatSVG = () => (
-  <svg viewBox="0 0 80 90" className="w-full h-full drop-shadow-md">
-    <polygon points="40,10 10,75 70,75" fill="#f43f5e" stroke="#be123c" strokeWidth="2" />
-    <circle cx="40" cy="8" r="6" fill="#fbbf24" />
-    <circle cx="30" cy="40" r="3" fill="#3b82f6" />
-    <circle cx="50" cy="55" r="3.5" fill="#10b981" />
-    <circle cx="35" cy="65" r="3" fill="#fbbf24" />
-  </svg>
-);
+              {/* Ornamen Tengah (Bunga Sulur Mahkota) */}
+              <circle cx="55" cy="24" r="1.8" fill={goldAccent} />
+              <path d="M55,18 Q52,21 55,24 Q58,21 55,18 Z" fill={goldColor} />
+              <path d="M50,22 Q47,20 48,24 Q51,24 50,22 Z" fill={goldAccent} />
+              <path d="M60,22 Q63,20 62,24 Q59,24 60,22 Z" fill={goldAccent} />
 
-const GamingHeadsetSVG = () => (
-  <svg viewBox="0 0 100 80" className="w-full h-full drop-shadow-md">
-    <path d="M15 50 C15 15, 85 15, 85 50" fill="none" stroke="#1f2937" strokeWidth="6" strokeLinecap="round" />
-    <rect x="8" y="40" width="12" height="22" fill="#10b981" rx="4" stroke="#1f2937" strokeWidth="2" />
-    <rect x="80" y="40" width="12" height="22" fill="#10b981" rx="4" stroke="#1f2937" strokeWidth="2" />
-    <path d="M15 55 L8 62" stroke="#1f2937" strokeWidth="3.5" strokeLinecap="round" />
-  </svg>
-);
+              {/* Ornamen Sulur Kiri */}
+              <circle cx="20" cy="31" r="1.5" fill={goldAccent} />
+              <path d="M20,26 Q18,28.5 20,31 Q22,28.5 20,26 Z" fill={goldColor} />
+              <circle cx="36" cy="33" r="1.1" fill={goldAccent} />
 
-const CatEarsSVG = () => (
-  <svg viewBox="0 0 100 40" className="w-full h-full drop-shadow-md">
-    <polygon points="15,35 10,10 35,28" fill="#f472b6" stroke="#db2777" strokeWidth="2" />
-    <polygon points="17,32 14,16 30,27" fill="#fbcfe8" />
-    <polygon points="85,35 90,10 65,28" fill="#f472b6" stroke="#db2777" strokeWidth="2" />
-    <polygon points="83,32 86,16 70,27" fill="#fbcfe8" />
-    <path d="M30 32 Q50 38 70 32" fill="none" stroke="#db2777" strokeWidth="3" />
-  </svg>
-);
+              {/* Ornamen Sulur Kanan */}
+              <circle cx="90" cy="31" r="1.5" fill={goldAccent} />
+              <path d="M90,26 Q88,28.5 90,31 Q92,28.5 90,26 Z" fill={goldColor} />
+              <circle cx="74" cy="33" r="1.1" fill={goldAccent} />
+            </g>
+          )}
+        </g>
 
-const DetectiveCapSVG = () => (
-  <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
-    <path d="M20 40 C20 15, 80 15, 80 40 Z" fill="#78350f" stroke="#451a03" strokeWidth="2" />
-    <path d="M10 40 L90 40 L85 46 L15 46 Z" fill="#78350f" stroke="#451a03" strokeWidth="1.5" />
-    <rect x="42" y="32" width="16" height="8" fill="#fbbf24" rx="1" />
-  </svg>
-);
+        {/* Left Side Shadow / Fold Highlight */}
+        <path
+          fill="black"
+          opacity={0.25}
+          stroke="#231f20"
+          strokeWidth="0.8"
+          strokeLinejoin="round"
+          d="M12.7,16.1l-.1.06c-3.56,11.05-7.13,22.1-10.69,33.15-.64,1.9-1.27,3.8-1.91,5.7l1.34,3.46c.21-.52.57-1.33,1.15-2.24.42-.66,3.25-5.1,8.79-6.83.82-.26,1.5-.39,1.88-.46-.61-4.79-1.07-13.58,2.29-23.77,2.92-8.87,7.52-15.05,10.56-18.55-2,.58-5.06,1.73-8.17,4.12-2.41,1.85-4.06,3.84-5.12,5.34Z"
+        />
+      </g>
+    </svg>
+  );
+}
 
-const PirateHatSVG = () => (
-  <svg viewBox="0 0 110 65" className="w-full h-full drop-shadow-md">
-    <path d="M5 45 C15 25, 95 25, 105 45 C80 32, 30 32, 5 45 Z" fill="#1e2937" stroke="#111827" strokeWidth="2" />
-    <circle cx="55" cy="35" r="4" fill="#ef4444" />
-    <path d="M52 35 L58 35 M55 32 L55 38" stroke="#ffffff" strokeWidth="1.5" />
-  </svg>
-);
+// PALET WARNA CUPLUK / PECI RAJUT
+const CUPLUK_COLORS = [
+  { name: "Cokelat Rajut", hex: "#8d6e53" },
+  { name: "Putih Bersih", hex: "#f8fafc" },
+  { name: "Krem Pasir", hex: "#d7c4a8" },
+  { name: "Hitam Elegan", hex: "#231f20" },
+  { name: "Abu-abu", hex: "#64748b" },
+  { name: "Hijau Zaitun", hex: "#4d5e3a" },
+  { name: "Biru Dongker", hex: "#1e3a8a" },
+  { name: "Merah Marun", hex: "#7f1d1d" },
+];
 
-const FlowerCrownSVG = () => (
-  <svg viewBox="0 0 100 40" className="w-full h-full drop-shadow-md">
-    <path d="M15 25 Q50 35 85 25" fill="none" stroke="#10b981" strokeWidth="3.5" />
-    <circle cx="25" cy="20" r="5" fill="#ec4899" />
-    <circle cx="25" cy="20" r="2" fill="#fbbf24" />
-    <circle cx="50" cy="24" r="6" fill="#a855f7" />
-    <circle cx="50" cy="24" r="2.5" fill="#fbbf24" />
-    <circle cx="75" cy="20" r="5" fill="#3b82f6" />
-    <circle cx="75" cy="20" r="2" fill="#fbbf24" />
-  </svg>
-);
+// KOMPONEN SVG CUPLUK / PECI RAJUT DENGAN TEKSTUR RAJUT KHAS & BORDER HITAM
+function CuplukPeciSVG({
+  color = "#8d6e53",
+  className = "w-full h-full object-contain filter drop-shadow-md",
+}: {
+  color?: string;
+  className?: string;
+}) {
+  const isLight = color === "#f8fafc" || color.toLowerCase() === "#ffffff" || color.toLowerCase() === "#fff";
+  const lineDark = isLight ? "#64748b" : "#1a1614";
+  const lineLight = isLight ? "#ffffff" : "#fef08a";
 
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 56" className={className}>
+      <defs>
+        {/* Clip path untuk badan cupluk rajut berkubah halus */}
+        <clipPath id="cuplukBodyClip">
+          <path d="M4,50 C3.5,42 4,34 5,30 C7,12 24,2 50,2 C76,2 93,12 95,30 C96,34 96.5,42 96,50 Q50,42 4,50 Z" />
+        </clipPath>
 
-// --- MATA (Glasses / Eyes) ---
-const CoolSunglassesSVG = () => (
-  <svg viewBox="0 0 100 35" className="w-full h-full drop-shadow-md">
-    <path d="M10 10 L45 10 L41 28 C30 32, 15 32, 12 25 Z" fill="#111" stroke="#333" strokeWidth="2" />
-    <path d="M55 10 L90 10 L88 25 C85 32, 70 32, 59 28 Z" fill="#111" stroke="#333" strokeWidth="2" />
-    <path d="M15 13 L32 13 L22 25 Z" fill="rgba(255,255,255,0.25)" />
-    <path d="M60 13 L77 13 L67 25 Z" fill="rgba(255,255,255,0.25)" />
-    <rect x="42" y="11" width="16" height="4.5" fill="#333" rx="1" />
-  </svg>
-);
+        {/* Pola Tekstur Rajutan Halus (Knitted Mesh) */}
+        <pattern id="knitTexture" width="3" height="3" patternUnits="userSpaceOnUse">
+          <path d="M0,1.5 Q1.5,0 3,1.5 Q1.5,3 0,1.5 Z" fill="none" stroke={lineDark} strokeWidth="0.35" opacity="0.2" />
+        </pattern>
+      </defs>
 
-const RoundGlassesSVG = () => (
-  <svg viewBox="0 0 100 40" className="w-full h-full drop-shadow-md">
-    <circle cx="25" cy="20" r="15" fill="rgba(173,216,230,0.15)" stroke="#ffd700" strokeWidth="3" />
-    <circle cx="75" cy="20" r="15" fill="rgba(173,216,230,0.15)" stroke="#ffd700" strokeWidth="3" />
-    <path d="M40 20 C45 12, 55 12, 60 20" fill="none" stroke="#ffd700" strokeWidth="3" />
-    <path d="M17 12 Q27 10 23 22" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" />
-    <path d="M67 12 Q77 10 73 22" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" />
-  </svg>
-);
+      <g id="CuplukPeci">
+        {/* Badan Utama Cupluk dengan Border Hitam */}
+        <path
+          fill={color}
+          stroke="#231f20"
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          d="M4,50 C3.5,42 4,34 5,30 C7,12 24,2 50,2 C76,2 93,12 95,30 C96,34 96.5,42 96,50 Q50,42 4,50 Z"
+        />
 
-const PirateEyepatchSVG = () => (
-  <svg viewBox="0 0 100 35" className="w-full h-full drop-shadow-md">
-    <line x1="5" y1="5" x2="95" y2="25" stroke="#111" strokeWidth="3.5" />
-    <path d="M12 8 L42 12 L38 30 C30 33, 18 32, 15 25 Z" fill="#111" stroke="#222" strokeWidth="1.5" />
-  </svg>
-);
+        {/* Detail Tekstur Rajut di dalam ClipPath */}
+        <g clipPath="url(#cuplukBodyClip)" className="pointer-events-none">
+          {/* Base Knit Mesh Texture */}
+          <rect x="0" y="0" width="100" height="56" fill="url(#knitTexture)" />
 
-const MonocleSVG = () => (
-  <svg viewBox="0 0 100 45" className="w-full h-full drop-shadow-md">
-    <circle cx="68" cy="20" r="12" fill="rgba(173,216,230,0.1)" stroke="#ffd700" strokeWidth="2.5" />
-    <path d="M78 26 Q90 35 85 45" fill="none" stroke="#ffd700" strokeWidth="1.5" />
-  </svg>
-);
+          {/* Kubah Atas (Concentric Knitted Ridges) */}
+          <g opacity="0.35">
+            <path d="M12,23 Q50,11 88,23" fill="none" stroke={lineDark} strokeWidth="0.8" />
+            <path d="M20,16 Q50,7 80,16" fill="none" stroke={lineDark} strokeWidth="0.8" />
+            <path d="M30,11 Q50,4 70,11" fill="none" stroke={lineDark} strokeWidth="0.8" />
+            <path d="M40,6.5 Q50,2.5 60,6.5" fill="none" stroke={lineDark} strokeWidth="0.8" />
 
-const HeartGlassesSVG = () => (
-  <svg viewBox="0 0 100 40" className="w-full h-full drop-shadow-md">
-    <path d="M12 12 C12 5, 27 5, 27 12 C27 5, 42 5, 42 12 C42 22, 27 30, 27 32 C27 30, 12 22, 12 12 Z" fill="#ec4899" stroke="#db2777" strokeWidth="2" />
-    <path d="M58 12 C58 5, 73 5, 73 12 C73 5, 88 5, 88 12 C88 22, 73 30, 73 32 C73 30, 58 22, 58 12 Z" fill="#ec4899" stroke="#db2777" strokeWidth="2" />
-    <line x1="42" y1="18" x2="58" y2="18" stroke="#db2777" strokeWidth="3" />
-  </svg>
-);
+            {/* Titik Pusat Puncak Rajutan */}
+            <circle cx="50" cy="3.5" r="1.5" fill={lineDark} />
+          </g>
 
-const PixelThugGlassesSVG = () => (
-  <svg viewBox="0 0 100 30" className="w-full h-full drop-shadow-md" shapeRendering="crispEdges">
-    <rect x="10" y="10" width="80" height="6" fill="#000000" />
-    <rect x="15" y="16" width="22" height="6" fill="#000000" />
-    <rect x="63" y="16" width="22" height="6" fill="#000000" />
-    <rect x="20" y="12" width="6" height="3" fill="#ffffff" />
-    <rect x="68" y="12" width="6" height="3" fill="#ffffff" />
-  </svg>
-);
+          {/* Pola Chevron / Segitiga Rajut & Lubang Angin Sesuai Gambar Referensi */}
+          <g opacity="0.45">
+            {/* Garis Chevron Utama */}
+            <path
+              d="M5,35 L14,27 L23,34 L32,26 L41,33 L50,25 L59,33 L68,26 L77,34 L86,27 L95,35"
+              fill="none"
+              stroke={lineDark}
+              strokeWidth="1.1"
+              strokeLinejoin="round"
+            />
+            {/* Garis Chevron Kedua */}
+            <path
+              d="M5,32 L14,24 L23,31 L32,23 L41,30 L50,22 L59,30 L68,23 L77,31 L86,24 L95,32"
+              fill="none"
+              stroke={lineLight}
+              strokeWidth="0.7"
+              strokeLinejoin="round"
+            />
 
-const GogglesSVG = () => (
-  <svg viewBox="0 0 100 40" className="w-full h-full drop-shadow-md">
-    <rect x="10" y="10" width="80" height="20" rx="10" fill="#1e2937" stroke="#4b5563" strokeWidth="2" />
-    <circle cx="30" cy="20" r="8" fill="#93c5fd" opacity="0.8" />
-    <circle cx="70" cy="20" r="8" fill="#93c5fd" opacity="0.8" />
-  </svg>
-);
+            {/* Lubang Angin Rajutan (Eyelets) di Setiap Puncak Segitiga */}
+            <circle cx="14" cy="22" r="1.0" fill={lineDark} />
+            <circle cx="32" cy="20.5" r="1.0" fill={lineDark} />
+            <circle cx="50" cy="19" r="1.1" fill={lineDark} />
+            <circle cx="68" cy="20.5" r="1.0" fill={lineDark} />
+            <circle cx="86" cy="22" r="1.0" fill={lineDark} />
 
-const ThreeDGlassesSVG = () => (
-  <svg viewBox="0 0 100 35" className="w-full h-full drop-shadow-md">
-    <rect x="10" y="8" width="80" height="20" fill="#ffffff" stroke="#000000" strokeWidth="2.5" rx="3" />
-    <rect x="15" y="12" width="30" height="12" fill="#ef4444" />
-    <rect x="55" y="12" width="30" height="12" fill="#3b82f6" />
-    <rect x="45" y="10" width="10" height="5" fill="#000000" />
-  </svg>
-);
+            <circle cx="14" cy="22" r="0.4" fill={lineLight} />
+            <circle cx="32" cy="20.5" r="0.4" fill={lineLight} />
+            <circle cx="50" cy="19" r="0.5" fill={lineLight} />
+            <circle cx="68" cy="20.5" r="0.4" fill={lineLight} />
+            <circle cx="86" cy="22" r="0.4" fill={lineLight} />
+          </g>
 
-const CyborgEyeSVG = () => (
-  <svg viewBox="0 0 100 35" className="w-full h-full drop-shadow-md">
-    <circle cx="28" cy="18" r="8" fill="#ef4444" stroke="#991b1b" strokeWidth="2" />
-    <circle cx="28" cy="18" r="2.5" fill="#ffffff" className="animate-pulse" />
-    <path d="M12 18 L20 18 M36 18 L48 18" stroke="#ef4444" strokeWidth="1.5" />
-  </svg>
-);
+          {/* Lis Rib Bawah (Ribbed Knit Brim) — Trikot Rajut Bergaris Padat */}
+          <g opacity="0.5">
+            {/* Garis Rib Horizontal */}
+            <path d="M4.5,46.5 Q50,38.5 95.5,46.5" fill="none" stroke={lineDark} strokeWidth="1.0" />
+            <path d="M5,43 Q50,35 95,43" fill="none" stroke={lineDark} strokeWidth="1.0" />
+            <path d="M5.5,39.5 Q50,31.5 94.5,39.5" fill="none" stroke={lineDark} strokeWidth="1.0" />
+            <path d="M6,36 Q50,28 94,36" fill="none" stroke={lineDark} strokeWidth="1.0" />
 
-const VisorNeonSVG = () => (
-  <svg viewBox="0 0 100 30" className="w-full h-full drop-shadow-md">
-    <path d="M10 8 L90 8 L85 24 L15 24 Z" fill="rgba(16, 185, 129, 0.4)" stroke="#10b981" strokeWidth="2.5" />
-    <line x1="12" y1="12" x2="88" y2="12" stroke="#ffffff" strokeWidth="1.5" opacity="0.7" />
-  </svg>
-);
+            {/* Tekstur Jahitan Rajut Vertikal Halus di Lis Bawah */}
+            <path d="M4.5,46.5 Q50,38.5 95.5,46.5" fill="none" stroke={lineLight} strokeWidth="0.6" strokeDasharray="1.2 1.8" />
+            <path d="M5,43 Q50,35 95,43" fill="none" stroke={lineLight} strokeWidth="0.6" strokeDasharray="1.2 1.8" />
+            <path d="M5.5,39.5 Q50,31.5 94.5,39.5" fill="none" stroke={lineLight} strokeWidth="0.6" strokeDasharray="1.2 1.8" />
+          </g>
 
+          {/* Highlight & Shading 3D untuk Efek Bulat Kubah */}
+          <path
+            d="M4,50 C3.5,42 4,34 5,30 C7,12 24,2 50,2 C35,4 12,18 9,35 C8,41 7,46 4,50 Z"
+            fill="black"
+            opacity="0.12"
+          />
+          <path
+            d="M50,2 C65,2 85,10 93,25 C95,30 95.5,38 95,44 C93,36 90,26 80,14 C70,6 58,3 50,2 Z"
+            fill="white"
+            opacity="0.08"
+          />
+        </g>
+      </g>
+    </svg>
+  );
+}
 
-// --- DAGU / LEHER (Collar / Neckwear / Spur) ---
-const BowTieSVG = () => (
-  <svg viewBox="0 0 80 40" className="w-full h-full drop-shadow-md">
-    <path d="M10 10 L40 20 L10 30 Z" fill="#ff2e2e" stroke="#a31010" strokeWidth="2.5" />
-    <path d="M70 10 L40 20 L70 30 Z" fill="#ff2e2e" stroke="#a31010" strokeWidth="2.5" />
-    <circle cx="40" cy="20" r="8" fill="#a31010" />
-  </svg>
-);
-
-const BlackBowTieSVG = () => (
-  <svg viewBox="0 0 80 40" className="w-full h-full drop-shadow-md">
-    <path d="M10 10 L40 20 L10 30 Z" fill="#1f2937" stroke="#111827" strokeWidth="2.5" />
-    <path d="M70 10 L40 20 L70 30 Z" fill="#1f2937" stroke="#111827" strokeWidth="2.5" />
-    <circle cx="40" cy="20" r="8" fill="#111827" />
-  </svg>
-);
-
-const NecktieSVG = () => (
-  <svg viewBox="0 0 40 100" className="w-full h-full drop-shadow-md">
-    <path d="M10 5 L30 5 L25 20 L15 20 Z" fill="#ff2e2e" stroke="#a31010" strokeWidth="2" />
-    <path d="M15 20 L25 20 L30 85 L20 98 L10 85 Z" fill="#ff2e2e" stroke="#a31010" strokeWidth="2" />
-    <path d="M12 30 L27 45" fill="none" stroke="#fff" strokeWidth="2.5" opacity="0.3" />
-    <path d="M11 50 L29 68" fill="none" stroke="#fff" strokeWidth="2.5" opacity="0.3" />
-    <path d="M11 70 L25 84" fill="none" stroke="#fff" strokeWidth="2.5" opacity="0.3" />
-  </svg>
-);
-
-const BlueNecktieSVG = () => (
-  <svg viewBox="0 0 40 100" className="w-full h-full drop-shadow-md">
-    <path d="M10 5 L30 5 L25 20 L15 20 Z" fill="#3b82f6" stroke="#1d4ed8" strokeWidth="2" />
-    <path d="M15 20 L25 20 L30 85 L20 98 L10 85 Z" fill="#3b82f6" stroke="#1d4ed8" strokeWidth="2" />
-  </svg>
-);
-
-const BossChainSVG = () => (
-  <svg viewBox="0 0 100 70" className="w-full h-full drop-shadow-md">
-    <path d="M10 10 Q50 50 90 10" fill="none" stroke="#ffd700" strokeWidth="4.5" />
-    <g transform="translate(23, 26)">
-      <rect x="0" y="0" width="54" height="24" fill="#ffd700" stroke="#b8860b" strokeWidth="2.5" rx="5" />
-      <text x="27" y="17" fill="#111" fontSize="12" fontWeight="900" textAnchor="middle" letterSpacing="1">
-        BOSS
-      </text>
-    </g>
-  </svg>
-);
-
-const GoldChainDiamondSVG = () => (
-  <svg viewBox="0 0 100 70" className="w-full h-full drop-shadow-md">
-    <path d="M15 10 Q50 45 85 10" fill="none" stroke="#ffd700" strokeWidth="4.5" />
-    <polygon points="50,28 62,40 50,55 38,40" fill="#38bdf8" stroke="#0284c7" strokeWidth="2" />
-  </svg>
-);
-
-const BlueScarfSVG = () => (
-  <svg viewBox="0 0 100 50" className="w-full h-full drop-shadow-md">
-    <path d="M15 15 C15 30, 85 30, 85 15 L80 28 C80 35, 20 35, 20 28 Z" fill="#60a5fa" stroke="#2563eb" strokeWidth="2" />
-    <path d="M22 28 L15 48 L27 48 Z" fill="#2563eb" />
-  </svg>
-);
-
-const MagicScarfSVG = () => (
-  <svg viewBox="0 0 100 50" className="w-full h-full drop-shadow-md">
-    <path d="M15 15 C15 30, 85 30, 85 15 L80 28 C80 35, 20 35, 20 28 Z" fill="#7f1d1d" stroke="#f59e0b" strokeWidth="2" />
-    <path d="M22 28 L15 48 L27 48 Z" fill="#f59e0b" />
-  </svg>
-);
-
-const BellCollarSVG = () => (
-  <svg viewBox="0 0 100 50" className="w-full h-full drop-shadow-md">
-    <path d="M15 12 Q50 32 85 12" fill="none" stroke="#dc2626" strokeWidth="5.5" strokeLinecap="round" />
-    <circle cx="50" cy="25" r="9" fill="#fbbf24" stroke="#d97706" strokeWidth="1.5" />
-    <circle cx="50" cy="29" r="2" fill="#111827" />
-  </svg>
-);
-
-const BandanaNeckSVG = () => (
-  <svg viewBox="0 0 90 60" className="w-full h-full drop-shadow-md">
-    <polygon points="15,10 75,10 45,45" fill="#ef4444" stroke="#b91c1c" strokeWidth="2" />
-    <circle cx="30" cy="18" r="2.5" fill="#ffffff" />
-    <circle cx="60" cy="18" r="2.5" fill="#ffffff" />
-    <circle cx="45" cy="30" r="2.5" fill="#ffffff" />
-  </svg>
-);
-
+// DAFTAR MODEL SORBAN (6 PILIHAN MODEL ASLI WEBP)
+const SORBAN_MODELS = [
+  { id: "sorban-hijau-emas", name: "Hijau Emas", src: sorbanImg },
+  { id: "sorban-putih", name: "Putih Polos", src: sorban1Img },
+  { id: "sorban-hijau", name: "Hijau Santri", src: sorban2Img },
+  { id: "sorban-cokelat-emas", name: "Cokelat Emas", src: sorban3Img },
+  { id: "sorban-keffiyeh", name: "Keffiyeh", src: sorban4Img },
+  { id: "sorban-hitam", name: "Hitam Elegan", src: sorban5Img },
+];
 
 // CURATED WEARABLE ACCESSORIES
 const ACCESSORIES = [
   // --- KEPALA / TOPI ---
-  { id: "none_topi", name: "Bawaan", category: "topi" as const, render: () => <Ban className="w-5 h-5 text-white/40" />, width: 0, top: "0%", left: "0%" },
-  { id: "straw", name: "Topi Jerami", category: "topi" as const, render: () => <StrawHatSVG />, width: 170, top: "18%", left: "47%" },
-  { id: "tophat", name: "Topi Tinggi", category: "topi" as const, render: () => <TopHatSVG />, width: 115, top: "12%", left: "47%" },
-  { id: "crown", name: "Mahkota Emas", category: "topi" as const, render: () => <CrownSVG />, width: 110, top: "18%", left: "47%" },
-  { id: "builder", name: "Helm Proyek", category: "topi" as const, render: () => <BuilderHatSVG />, width: 115, top: "18%", left: "47%" },
-  { id: "baseball", name: "Topi Baseball", category: "topi" as const, render: () => <BaseballCapSVG />, width: 120, top: "18%", left: "47%" },
-  { id: "firefighter", name: "Helm Damkar", category: "topi" as const, render: () => <FirefighterHatSVG />, width: 120, top: "17%", left: "47%" },
-  { id: "conical", name: "Caping Bambu", category: "topi" as const, render: () => <ConicalHatSVG />, width: 135, top: "18%", left: "47%" },
-  { id: "chef", name: "Topi Koki", category: "topi" as const, render: () => <ChefHatSVG />, width: 115, top: "12%", left: "47%" },
-  { id: "laurel", name: "Daun Laurel", category: "topi" as const, render: () => <LaurelWreathSVG />, width: 115, top: "19%", left: "47%" },
-  { id: "reindeer", name: "Tanduk Rusa", category: "topi" as const, render: () => <ReindeerHornsSVG />, width: 120, top: "12%", left: "47%" },
-  { id: "santa", name: "Topi Santa", category: "topi" as const, render: () => <SantaHatSVG />, width: 115, top: "18%", left: "47%" },
-  { id: "wizard", name: "Topi Penyihir", category: "topi" as const, render: () => <WizardHatSVG />, width: 125, top: "12%", left: "47%" },
-  { id: "halo", name: "Halo Malaikat", category: "topi" as const, render: () => <AngelHaloSVG />, width: 100, top: "9%", left: "47%" },
-  { id: "devil", name: "Tanduk Iblis", category: "topi" as const, render: () => <DevilHornsSVG />, width: 90, top: "16%", left: "47%" },
-  { id: "birthday", name: "Topi Ultah", category: "topi" as const, render: () => <BirthdayHatSVG />, width: 95, top: "12%", left: "47%" },
-  { id: "gaming", name: "Headset Gaming", category: "topi" as const, render: () => <GamingHeadsetSVG />, width: 115, top: "20%", left: "47%" },
-  { id: "catears", name: "Bando Kucing", category: "topi" as const, render: () => <CatEarsSVG />, width: 105, top: "18%", left: "47%" },
-  { id: "detective", name: "Topi Detektif", category: "topi" as const, render: () => <DetectiveCapSVG />, width: 110, top: "18%", left: "47%" },
-  { id: "pirate", name: "Topi Bajak Laut", category: "topi" as const, render: () => <PirateHatSVG />, width: 125, top: "17%", left: "47%" },
-  { id: "flower_crown", name: "Bando Bunga", category: "topi" as const, render: () => <FlowerCrownSVG />, width: 110, top: "21%", left: "47%" },
-
-  // --- MATA (Kacamata & Visor) ---
-  { id: "none_mata", name: "Bawaan", category: "mata" as const, render: () => <Ban className="w-5 h-5 text-white/40" />, width: 0, top: "0%", left: "0%" },
-  { id: "sunglasses", name: "Kacamata Hitam", category: "mata" as const, render: () => <CoolSunglassesSVG />, width: 105, top: "28%", left: "47.5%" },
-  { id: "roundglasses", name: "Kacamata Bulat", category: "mata" as const, render: () => <RoundGlassesSVG />, width: 105, top: "28%", left: "47.5%" },
-  { id: "eyepatch", name: "Penutup Mata", category: "mata" as const, render: () => <PirateEyepatchSVG />, width: 100, top: "28%", left: "47.5%" },
-  { id: "monocle", name: "Monokel Emas", category: "mata" as const, render: () => <MonocleSVG />, width: 95, top: "28%", left: "47.5%" },
-  { id: "heartglasses", name: "Kacamata Hati", category: "mata" as const, render: () => <HeartGlassesSVG />, width: 105, top: "28%", left: "47.5%" },
-  { id: "pixelglasses", name: "Kacamata Pixel", category: "mata" as const, render: () => <PixelThugGlassesSVG />, width: 105, top: "28%", left: "47.5%" },
-  { id: "goggles", name: "Kacamata Goggles", category: "mata" as const, render: () => <GogglesSVG />, width: 105, top: "28%", left: "47.5%" },
-  { id: "threed", name: "Kacamata 3D", category: "mata" as const, render: () => <ThreeDGlassesSVG />, width: 105, top: "28%", left: "47.5%" },
-  { id: "cyborg", name: "Mata Cyborg", category: "mata" as const, render: () => <CyborgEyeSVG />, width: 95, top: "28%", left: "47.5%" },
-  { id: "neonvisor", name: "Visor Neon Cyber", category: "mata" as const, render: () => <VisorNeonSVG />, width: 105, top: "28%", left: "47.5%" },
-
-  // --- LEHER / DASI / KALUNG ---
-  { id: "none_leher", name: "Bawaan", category: "leher" as const, render: () => <Ban className="w-5 h-5 text-white/40" />, width: 0, top: "0%", left: "0%" },
-  { id: "redbowtie", name: "Bowtie Merah", category: "leher" as const, render: () => <BowTieSVG />, width: 80, top: "54%", left: "43%" },
-  { id: "blackbowtie", name: "Bowtie Hitam", category: "leher" as const, render: () => <BlackBowTieSVG />, width: 80, top: "54%", left: "43%" },
-  { id: "redtie", name: "Dasi Strip", category: "leher" as const, render: () => <NecktieSVG />, width: 40, top: "62%", left: "45%" },
-  { id: "bluetie", name: "Dasi Biru", category: "leher" as const, render: () => <BlueNecktieSVG />, width: 40, top: "62%", left: "45%" },
-  { id: "bosschain", name: "Kalung BOSS", category: "leher" as const, render: () => <BossChainSVG />, width: 100, top: "57%", left: "45%" },
-  { id: "diamondchain", name: "Kalung Berlian", category: "leher" as const, render: () => <GoldChainDiamondSVG />, width: 95, top: "57%", left: "45%" },
-  { id: "bluescarf", name: "Syal Biru", category: "leher" as const, render: () => <BlueScarfSVG />, width: 115, top: "58%", left: "45%" },
-  { id: "magicscarf", name: "Syal Sihir", category: "leher" as const, render: () => <MagicScarfSVG />, width: 115, top: "58%", left: "45%" },
-  { id: "bellcollar", name: "Kalung Lonceng", category: "leher" as const, render: () => <BellCollarSVG />, width: 105, top: "55%", left: "45%" },
-  { id: "bandananeck", name: "Slayer Merah", category: "leher" as const, render: () => <BandanaNeckSVG />, width: 100, top: "55%", left: "45%" },
+  {
+    id: "jalu",
+    name: "Jalu",
+    category: "topi" as const,
+    render: () => <img src={jaluSvg} alt="Jalu" className="w-full h-full object-contain filter drop-shadow-md" />,
+    width: 78,
+    top: "14.5%",
+    left: "52%",
+  },
+  {
+    id: "peci",
+    name: "Peci Hitam",
+    category: "topi" as const,
+    render: (props?: { color?: string; pattern?: string }) => (
+      <PeciSVG color={props?.color} pattern={props?.pattern} />
+    ),
+    width: 76,
+    top: "16%",
+    left: "50.6%",
+  },
+  {
+    id: "cupluk",
+    name: "Cupluk Rajut",
+    category: "topi" as const,
+    render: (props?: { color?: string }) => (
+      <CuplukPeciSVG color={props?.color} />
+    ),
+    width: 76,
+    top: "16%",
+    left: "50.6%",
+  },
+  {
+    id: "sorban",
+    name: "Sorban",
+    category: "topi" as const,
+    render: (props?: { model?: string }) => {
+      const current = SORBAN_MODELS.find((m) => m.id === props?.model) || SORBAN_MODELS[0];
+      return (
+        <img
+          src={current.src}
+          alt={current.name}
+          className="w-full h-full object-contain filter drop-shadow-md -rotate-4"
+        />
+      );
+    },
+    width: 124,
+    top: "18%",
+    left: "50.8%",
+  },
 ];
 
-// ANIMATED BLINKING EYES COMPONENT
-function ChickenBlinkingEyes() {
-  const [blinkState, setBlinkState] = useState<"open" | "closed">("open");
+// RIVE ANIMATED PET CHICKEN COMPONENT
+function RivePetChicken({
+  isTalking = false,
+  onLoaded,
+}: {
+  isTalking?: boolean;
+  onLoaded?: () => void;
+}) {
+  const { rive, RiveComponent } = useRive({
+    src: pejuangMimpiRiv,
+    stateMachines: ["Blink State", "Talking State"],
+    autoplay: true, // False agar Talking State tidak otomatis loop terus menerus
+    layout: new Layout({
+      fit: Fit.Contain,
+      alignment: Alignment.Center,
+    }),
+    onLoad: () => {
+      onLoaded?.();
+    },
+  });
 
+  const triggerTalking = useStateMachineInput(rive, "Talking State", "Trigger 1");
+
+  // Pastikan callback terpanggil saat rive siap
   useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout>;
+    if (rive && onLoaded) {
+      onLoaded();
+    }
+  }, [rive, onLoaded]);
 
-    const scheduleNextBlink = () => {
-      const delay = 2200 + Math.random() * 3200; // Blink every 2.2 - 5.4 seconds
-      timeoutId = setTimeout(() => {
-        setBlinkState("closed");
-        setTimeout(() => {
-          setBlinkState("open");
+  // Jalankan animasi Blink secara independen sesuai interval 3 detik
+  useEffect(() => {
+    if (!rive) return;
 
-          // 30% chance for an expressive quick double-blink
-          if (Math.random() < 0.3) {
-            setTimeout(() => {
-              setBlinkState("closed");
-              setTimeout(() => {
-                setBlinkState("open");
-                scheduleNextBlink();
-              }, 110);
-            }, 130);
-          } else {
-            scheduleNextBlink();
-          }
-        }, 130);
-      }, delay);
-    };
+    // Pastikan Talking State dalam posisi pause saat awal
+    rive.pause("Talking State");
+    rive.pause("Talking");
 
-    scheduleNextBlink();
-    return () => clearTimeout(timeoutId);
-  }, []);
+  }, [rive]);
 
-  const isClosed = blinkState === "closed";
+  // Kontrol Talking State: HANYA berjalan ketika isTalking bernilai true
+  useEffect(() => {
+    if (!rive) return;
 
-  // Posisi mata disesuaikan dengan ayamku-pet.png
-  // Image w-110 (440px) dalam container 340px → overflow 50px tiap sisi
-  // Mata di PNG ≈ 33% dari atas → (0.33×440 - 50)/340 ≈ 33%
-  // Mata kiri ≈ 40% dari kiri PNG → (0.40×440 - 50)/340 ≈ 37%
-  // Mata kanan ≈ 60% dari kiri PNG → (0.60×440 - 50)/340 ≈ 63%
-  const eyeTransform = isClosed
-    ? "translate(-50%, -50%) scaleY(0.07)"
-    : "translate(-50%, -50%)";
-
-  const eyeBaseStyle: React.CSSProperties = {
-    position: "absolute",
-    pointerEvents: "none",
-    userSelect: "none",
-    zIndex: 15,
-    width: "24px",
-    height: "29px",
-    transform: eyeTransform,
-    transition: "transform 0.08s cubic-bezier(0.4, 0, 0.2, 1)",
-    transformOrigin: "center 55%",
-  };
+    if (isTalking) {
+      // Nyalakan Talking State saat sedang bicara
+      rive.play("Talking State");
+      rive.play("Talking");
+      if (triggerTalking) {
+        triggerTalking.fire();
+      }
+    } else {
+      // Hentikan/pause Talking State saat selesai bicara
+      rive.pause("Talking State");
+      rive.pause("Talking");
+    }
+  }, [isTalking, rive, triggerTalking]);
 
   return (
-    <>
-      {/* ── MATA KIRI ── copied exactly from <g id="Mata_Kiri"> in Asset 3.svg */}
-      <div style={{ ...eyeBaseStyle, top: "29%", left: "41%" }}>
-        <svg viewBox="43 106 28 36" xmlns="http://www.w3.org/2000/svg" className="w-full h-full overflow-visible">
-          {/* Sclera putih (background agar pupil terlihat) */}
-          <ellipse cx="57.5" cy="124" rx="11.5" ry="14" fill="#ffffff" />
-          {/* cls-12 path 1 — bentuk utama pupil */}
-          <path fill="#0d182e" d="M67.63,124.17c.32,6.46-4.22,13.99-9.63,13.99s-9.95-7.53-9.63-13.99c.28-5.58,4.28-12.38,9.63-12.38s9.35,6.81,9.63,12.38Z" />
-          {/* cls-12 path 2 — detail outline/shadow (exact copy dari Asset 3.svg) */}
-          <path fill="#0d182e" d="M67.64,121.53c.06-1.56,0-6-3.07-10.01-1.09-1.42-3.94-5.13-8.52-5.24-3.73-.09-6.38,2.27-7.11,2.98-1.94,1.88-2.62,4.1-3.44,6.76-.13.44-.65,2.14-.92,4.47-.16,1.37-.4,3.59,0,6.19.26,1.65.96,4.64,3.21,7.91-3.08-3.31-3.95-6.44-4.24-8.03-.35-1.88-.23-3.47,0-6.65.2-2.73.32-4.23,1.03-6.19.93-2.55,2.31-4.23,2.98-5.04.74-.89,1.74-2.09,3.44-3.17.82-.52,1.92-1.21,3.55-1.53,1.51-.29,2.76-.13,3.44,0,2.18.42,3.59,1.54,4.28,2.1,1.12.91,1.76,1.8,2.25,2.48.32.44,1.56,2.24,2.41,5.04.94,3.14.91,5.96.7,7.91Z" />
-          {/* cls-3 ellipse — highlight putih (exact copy dari Asset 3.svg) */}
-          <ellipse fill="#ffffff" cx="55.55" cy="118.28" rx="2.83" ry="3.44" />
-        </svg>
-      </div>
-
-      {/* ── MATA KANAN ── copied exactly from <g id="Mata_Kanan"> in Asset 3.svg */}
-      <div style={{ ...eyeBaseStyle, top: "29%", left: "53%" }}>
-        <svg viewBox="100 106 28 36" xmlns="http://www.w3.org/2000/svg" className="w-full h-full overflow-visible">
-          {/* Sclera putih (background agar pupil terlihat) */}
-          <ellipse cx="113.4" cy="124" rx="11.5" ry="14" fill="#ffffff" />
-          {/* cls-12 path 1 — bentuk utama pupil */}
-          <path fill="#0d182e" d="M103.77,124.17c-.32,6.46,4.22,13.99,9.63,13.99s9.95-7.53,9.63-13.99c-.28-5.58-4.28-12.38-9.63-12.38s-9.35,6.81-9.63,12.38Z" />
-          {/* cls-12 path 2 — detail outline/shadow (exact copy dari Asset 3.svg) */}
-          <path fill="#0d182e" d="M103.76,121.53c-.06-1.56,0-6,3.07-10.01,1.09-1.42,3.94-5.13,8.52-5.24,3.73-.09,6.38,2.27,7.11,2.98,1.94,1.88,2.62,4.1,3.44,6.76.13.44.65,2.14.92,4.47.16,1.37.4,3.59,0,6.19-.26,1.65-.96,4.64-3.21,7.91,3.08-3.31,3.95-6.44,4.24-8.03.35-1.88.23-3.47,0-6.65-.2-2.73-.32-4.23-1.03-6.19-.93-2.55-2.31-4.23-2.98-5.04-.74-.89-1.74-2.09-3.44-3.17-.82-.52-1.92-1.21-3.55-1.53-1.51-.29-2.76-.13-3.44,0-2.18.42-3.59,1.54-4.28,2.1-1.12.91-1.76,1.8-2.25,2.48-.32.44-1.56,2.24-2.41,5.04-.94,3.14-.91,5.96-.7,7.91Z" />
-          {/* cls-3 ellipse — highlight putih (exact copy dari Asset 3.svg) */}
-          <ellipse fill="#ffffff" cx="110.69" cy="118.25" rx="2.83" ry="3.44" />
-        </svg>
-      </div>
-    </>
+    <div className="w-110 h-110 relative z-10 select-none pointer-events-none flex items-center justify-center">
+      <RiveComponent className="w-full h-full" />
+    </div>
   );
 }
 
@@ -620,6 +547,7 @@ function GentleBreeze() {
 }
 
 export function AyamkuPage({ user: _user }: AyamkuPageProps) {
+  const { navigate } = useRouter();
   const totalPoin = MISI_DATA.filter((m) => m.status === "selesai").reduce((a, m) => a + m.poin, 0);
 
   // Background dinamis berdasarkan jam device — hanya dihitung saat pertama mount
@@ -627,22 +555,196 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
 
   const [showPanel, setShowPanel] = useState(false);
   const [activeTab, setActiveTab] = useState<"topi" | "mata" | "leher">("topi");
+  const [isRiveLoaded, setIsRiveLoaded] = useState(false);
+  const [peciColor, setPeciColor] = useState<string>("#231f20");
+  const [peciPattern, setPeciPattern] = useState<string>("polos");
+  const [cuplukColor, setCuplukColor] = useState<string>("#8d6e53");
+  const [sorbanModel, setSorbanModel] = useState<string>("sorban-hijau-emas");
   const [equipped, setEquipped] = useState<{
     topi: typeof ACCESSORIES[number] | null;
     mata: typeof ACCESSORIES[number] | null;
     leher: typeof ACCESSORIES[number] | null;
   }>({
-    topi: null,
+    topi: ACCESSORIES.find((a) => a.id === "jalu") || null,
     mata: null,
     leher: null,
   });
 
-  const [jumpKey, setJumpKey] = useState(0);
   const [floatingHearts, setFloatingHearts] = useState<Array<{ id: number; x: number; drift: number; rotate: number; emoji: string }>>([]);
+  const [isTalking, setIsTalking] = useState(false);
+  const [showBubble, setShowBubble] = useState(false);
+  const [displayedText, setDisplayedText] = useState<string>("");
+  const [isTyping, setIsTyping] = useState<boolean>(false);
+  const typingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Helper pembersih emotikon/emoji agar teks bersih murni
+  const stripEmojis = (str: string): string => {
+    return str
+      .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F000}-\u{1FAFF}\u{FE00}-\u{FE0F}]/gu, "")
+      .replace(/[^\w\s.,!?'"-\/]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+
+  // Audio effect chirp lucu khas maskot jika browser tidak memiliki voice Indonesia
+  const playPetChirpSound = () => {
+    if (typeof window === "undefined") return;
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+
+      const freqs = [659.25, 880.00, 1046.50]; // E5, A5, C6 (ceria & imut)
+      freqs.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = "sine";
+        const startTime = ctx.currentTime + idx * 0.09;
+        osc.frequency.setValueAtTime(freq, startTime);
+
+        gain.gain.setValueAtTime(0.06, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.13);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(startTime);
+        osc.stop(startTime + 0.15);
+      });
+    } catch {
+      // Audio fallback silently
+    }
+  };
+
+  // Mencari voice Bahasa Indonesia asli di browser / OS
+  const getIndonesianVoice = (): SpeechSynthesisVoice | null => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices || voices.length === 0) return null;
+
+    // Cari voice yang benar-benar Bahasa Indonesia
+    const idVoices = voices.filter(
+      (v) =>
+        v.lang.toLowerCase().startsWith("id") ||
+        v.lang.toLowerCase().startsWith("in") ||
+        v.name.toLowerCase().includes("indonesia") ||
+        v.name.toLowerCase().includes("bahasa") ||
+        v.name.toLowerCase().includes("gadis") ||
+        v.name.toLowerCase().includes("ardi")
+    );
+
+    if (idVoices.length > 0) {
+      // Prioritaskan suara Natural / Google / Gadis / Ardi
+      const naturalVoice = idVoices.find(
+        (v) =>
+          v.name.toLowerCase().includes("natural") ||
+          v.name.toLowerCase().includes("online") ||
+          v.name.toLowerCase().includes("gadis") ||
+          v.name.toLowerCase().includes("ardi") ||
+          v.name.toLowerCase().includes("google")
+      );
+      return naturalVoice || idVoices[0];
+    }
+
+    return null;
+  };
+
+  const speakGreeting = (rawText: string) => {
+    const clean = stripEmojis(rawText);
+    if (!clean) return;
+
+    if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+    if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
+
+    setDisplayedText("");
+    setShowBubble(true);
+    setIsTalking(true);
+    setIsTyping(true);
+
+    // Efek ketik karakter per karakter (typewriter)
+    let idx = 0;
+    typingTimerRef.current = setInterval(() => {
+      idx++;
+      if (idx <= clean.length) {
+        setDisplayedText(clean.slice(0, idx));
+      } else {
+        if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+        setIsTyping(false);
+        // Teks selesai mengetik -> Mulut langsung berhenti berbicara!
+        setIsTalking(false);
+      }
+    }, 38);
+
+    // Suara TTS berbicara bersamaan dengan teks yang sedang mengetik
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      try {
+        window.speechSynthesis.cancel();
+        const voice = getIndonesianVoice();
+
+        if (voice) {
+          const utterance = new SpeechSynthesisUtterance(clean);
+          utterance.voice = voice;
+          utterance.lang = voice.lang || "id-ID";
+          utterance.rate = 1.05;
+          utterance.pitch = 1.22;
+
+          utterance.onend = () => {
+            // Suara selesai -> pastikan mulut langsung berhenti
+            setIsTalking(false);
+          };
+          utterance.onerror = () => setIsTalking(false);
+
+          window.speechSynthesis.speak(utterance);
+        } else {
+          playPetChirpSound();
+        }
+      } catch {
+        playPetChirpSound();
+      }
+    } else {
+      playPetChirpSound();
+    }
+
+    // Timer penutupan otomatis bubble setelah selesai membaca
+    autoCloseTimerRef.current = setTimeout(() => {
+      setShowBubble(false);
+      setIsTalking(false);
+    }, Math.max(4200, clean.length * 38 + 2500));
+  };
+
+  // Pre-load voices dan sapaan awal berdasarkan waktu (tanpa emot)
+  useEffect(() => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+
+    const hour = new Date().getHours();
+    let initialGreeting = "Selamat pagi! Semangat terus ya pejuang mimpi!";
+    if (hour >= 11 && hour < 15) {
+      initialGreeting = "Selamat siang! Tetap semangat ya pejuang mimpi!";
+    } else if (hour >= 15 && hour < 18) {
+      initialGreeting = "Selamat sore! Semangat terus ya pejuang mimpi!";
+    } else if (hour >= 18 || hour < 5) {
+      initialGreeting = "Selamat malam! Istirahat yang cukup ya pejuang mimpi!";
+    }
+
+    const timer = setTimeout(() => {
+      speakGreeting(initialGreeting);
+    }, 600);
+
+    return () => {
+      clearTimeout(timer);
+      if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+      if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
+    };
+  }, []);
 
   const handlePetTap = () => {
-    setJumpKey((k) => k + 1);
-
     // Spawn 1-2 floating joy emojis
     const emojis = ["💖", "✨", "🐣", "⭐", "🎉", "🌾", "❤️"];
     const chosenEmoji = emojis[Math.floor(Math.random() * emojis.length)];
@@ -655,34 +757,27 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
     };
 
     setFloatingHearts((prev) => [...prev.slice(-6), newHeart]);
+
+    const randomDialogues = [
+      "Selamat berjuang! Tetap semangat ya pejuang mimpi!",
+      "Kukuruyuuuk! Kamu hebat, pasti bisa!",
+      "Ayo, selesaikan misimu hari ini ya!",
+      "Yuk, jangan lupa menabung di celenganmu!",
+      "Setiap langkah kecil membawamu lebih dekat ke impian!",
+      "Aku selalu siap menemani kamu berjuang, semangat ya!",
+      "Kerja kerasmu hari ini akan berbuah manis esok hari!",
+      "Fokus pada impianmu, jangan mudah menyerah ya!",
+    ];
+    const picked = randomDialogues[Math.floor(Math.random() * randomDialogues.length)];
+    speakGreeting(picked);
   };
 
   const handleToggleAccessory = (acc: typeof ACCESSORIES[number]) => {
-    if (acc.id.startsWith("none_")) {
-      setEquipped((prev) => ({
-        ...prev,
-        [acc.category]: null,
-      }));
-      toast.info("Tampilan Bawaan", {
-        description: `Aksesoris ${acc.category === "topi" ? "topi" : acc.category === "mata" ? "kacamata" : "leher"} dilepas.`
-      });
-      return;
-    }
-
     setEquipped((prev) => {
       const current = prev[acc.category];
       const isSame = current?.id === acc.id;
+      // Jika diklik lagi saat sedang terpasang, lepas aksesoris tersebut
       const nextVal = isSame ? null : acc;
-
-      if (nextVal) {
-        toast.success("Aksesoris Dipakai", {
-          description: `${acc.name} berhasil dipakai! 🐔✨`
-        });
-      } else {
-        toast.info("Aksesoris Dilepas", {
-          description: `${acc.name} dilepas.`
-        });
-      }
 
       return {
         ...prev,
@@ -691,17 +786,10 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
     });
   };
 
-  const handleResetAccessories = () => {
-    setEquipped({ topi: null, mata: null, leher: null });
-    toast.info("Tampilan Bawaan", {
-      description: "Semua aksesoris dikembalikan ke tampilan bawaan."
-    });
-  };
-
-  // Only render overlays when an accessory is explicitly equipped (and not "none_")
-  const activeTopi = equipped.topi && !equipped.topi.id.startsWith("none_") ? equipped.topi : null;
-  const activeMata = equipped.mata && !equipped.mata.id.startsWith("none_") ? equipped.mata : null;
-  const activeLeher = equipped.leher && !equipped.leher.id.startsWith("none_") ? equipped.leher : null;
+  // Only render overlays when an accessory is explicitly equipped
+  const activeTopi = equipped.topi;
+  const activeMata = equipped.mata;
+  const activeLeher = equipped.leher;
 
   return (
     <div
@@ -718,16 +806,24 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
       {/* Gentle Breeze Ambient Effect */}
       <GentleBreeze />
 
-      {/* Top Header Overlay — top disesuaikan dengan notification bar mobile */}
+      {/* Top Header Overlay — dinaikkan sedikit agar proporsional dan tidak menutupi langit */}
       <div
         className="absolute left-6 right-6 flex justify-end items-center gap-2 z-10"
-        style={{ top: "calc(2.5rem + env(safe-area-inset-top, 0px))" }}
+        style={{ top: "calc(1.25rem + env(safe-area-inset-top, 0px))" }}
       >
         {/* Poin Badge — kiri */}
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-xs border border-white/10 text-white text-[10px] font-bold uppercase tracking-wide shadow-xs">
           <Star style={{ color: THEME_COLORS.hex.accent }} className="w-3.5 h-3.5" />
           {totalPoin} Poin
         </div>
+        {/* Kompas Kiblat navigate button */}
+        <button
+          onClick={() => navigate("MobileKiblat")}
+          className="w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all cursor-pointer border border-white/20 backdrop-blur-xs bg-black/40 text-emerald-400 hover:bg-black/60 hover:text-emerald-300 hover:scale-105 active:scale-95"
+          title="Arah Kiblat"
+        >
+          <Compass className="w-4 h-4" />
+        </button>
         {/* Makeover toggle button — kanan */}
         <button
           onClick={() => setShowPanel((v) => !v)}
@@ -744,7 +840,61 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
 
       {/* Pet Chicken with Accessory Overlays */}
       <div className="absolute inset-0 flex items-center justify-center pt-36 pb-4">
-        <div className="relative w-[340px] h-[340px] flex items-center justify-center translate-y-[25px]">
+        {/* Pixel Game Dialogue Box — Terpasang di luar scale agar tidak pernah meluber melewati layar */}
+        <AnimatePresence>
+          {showBubble && displayedText && (
+            <motion.div
+              key="pixel-speech-bubble"
+              initial={{ opacity: 0, y: 8, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: 0.95 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="absolute z-40 left-4 right-4 flex flex-col items-center pointer-events-none select-none"
+              style={{
+                bottom: "calc(50% + 105px)",
+                maxWidth: "320px",
+                marginLeft: "auto",
+                marginRight: "auto",
+              }}
+            >
+              <div className="flex flex-col items-center w-full">
+                {/* Retro Pixel Box Frame dengan styling THEME_COLORS */}
+                <div
+                  className="w-full text-zinc-900 px-4 py-3 relative shadow-2xl"
+                  style={{
+                    backgroundColor: THEME_COLORS.hex.leftBg,
+                    border: `3px solid ${THEME_COLORS.hex.navBg}`,
+                    boxShadow: `0 4px 0 0 ${THEME_COLORS.hex.navBg}, 0 -2px 0 0 ${THEME_COLORS.hex.navBg}, -2px 0 0 0 ${THEME_COLORS.hex.navBg}, 2px 0 0 0 ${THEME_COLORS.hex.navBg}, inset 0 0 0 2px ${THEME_COLORS.hex.accent}`,
+                    imageRendering: "pixelated",
+                  }}
+                >
+                  {/* Typewriter Text (Berjalan seperti ketikan, TANPA header jalu/talk, & TANPA Emotikon) */}
+                  <p
+                    style={{ color: THEME_COLORS.hex.textDark }}
+                    className="font-mono text-xs font-bold leading-relaxed text-center tracking-tight break-words min-h-[1.4em]"
+                  >
+                    {displayedText}
+                    {isTyping && (
+                      <span
+                        style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                        className="inline-block w-1.5 h-3.5 ml-1 animate-pulse align-middle"
+                      />
+                    )}
+                  </p>
+                </div>
+
+                {/* Pixel Stepped Arrow Pointer dengan warna THEME_COLORS.hex.navBg */}
+                <div className="flex flex-col items-center -mt-[1px]">
+                  <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="w-4 h-1.5" />
+                  <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="w-2.5 h-1" />
+                  <div style={{ backgroundColor: THEME_COLORS.hex.navBg }} className="w-1.5 h-1" />
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="relative w-[340px] h-[340px] flex items-center justify-center translate-y-[25px] scale-[1.2] origin-center">
           {/* Floating Joy Particles / Emojis on Tap */}
           {floatingHearts.map((h) => (
             <motion.div
@@ -764,131 +914,96 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
             </motion.div>
           ))}
 
-          {/* Ground Contact Shadows responding to Jumps */}
-          <motion.div
-            key={`shadow-main-${jumpKey}`}
-            animate={
-              jumpKey > 0
-                ? { scale: [1, 0.55, 1], opacity: [1, 0.25, 1] }
-                : { scale: [1, 0.97, 1], opacity: [1, 0.85, 1] }
-            }
-            transition={{
-              duration: jumpKey > 0 ? 0.68 : 4.2,
-              repeat: jumpKey > 0 ? 0 : Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute top-[83%] left-1/2 -translate-x-1/2 w-48 h-4.5 bg-black/25 rounded-[100%] blur-[4px] pointer-events-none z-0"
-          />
-          <motion.div
-            key={`shadow-left-${jumpKey}`}
-            animate={
-              jumpKey > 0
-                ? { scale: [1, 0.55, 1], opacity: [1, 0.2, 1] }
-                : { scale: [1, 0.97, 1], opacity: [1, 0.85, 1] }
-            }
-            transition={{
-              duration: jumpKey > 0 ? 0.68 : 4.2,
-              repeat: jumpKey > 0 ? 0 : Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute top-[83.5%] left-[39%] -translate-x-1/2 w-14 h-2.5 bg-black/45 rounded-[100%] blur-[1.5px] pointer-events-none z-0"
-          />
-          <motion.div
-            key={`shadow-right-${jumpKey}`}
-            animate={
-              jumpKey > 0
-                ? { scale: [1, 0.55, 1], opacity: [1, 0.2, 1] }
-                : { scale: [1, 0.97, 1], opacity: [1, 0.85, 1] }
-            }
-            transition={{
-              duration: jumpKey > 0 ? 0.68 : 4.2,
-              repeat: jumpKey > 0 ? 0 : Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute top-[83.5%] left-[57%] -translate-x-1/2 w-14 h-2.5 bg-black/45 rounded-[100%] blur-[1.5px] pointer-events-none z-0"
-          />
+          {/* Ground Contact Shadows (tenang / static) */}
+          <div className="absolute top-[83%] left-1/2 -translate-x-1/2 w-48 h-4.5 bg-black/25 rounded-[100%] blur-[4px] pointer-events-none z-0" />
+          <div className="absolute top-[83.5%] left-[39%] -translate-x-1/2 w-14 h-2.5 bg-black/45 rounded-[100%] blur-[1.5px] pointer-events-none z-0" />
+          <div className="absolute top-[83.5%] left-[57%] -translate-x-1/2 w-14 h-2.5 bg-black/45 rounded-[100%] blur-[1.5px] pointer-events-none z-0" />
 
-          {/* Joyful Bouncing Chicken Body + Accessories */}
-          <motion.div
-            key={`chicken-body-${jumpKey}`}
-            animate={
-              jumpKey > 0
-                ? {
-                    y: [0, 10, -56, -64, -36, 6, -4, 0],
-                    scaleY: [1, 0.82, 1.18, 1.14, 0.94, 1.06, 0.98, 1],
-                    scaleX: [1, 1.16, 0.88, 0.92, 1.06, 0.96, 1.02, 1],
-                    rotate: [0, -3.5, 4, -2, 1.5, 0],
-                  }
-                : {
-                    y: [0, -4, 0],
-                    scaleY: [1, 1.01, 1],
-                    scaleX: [1, 0.99, 1],
-                    rotate: [0, 0.3, -0.3, 0],
-                  }
-            }
-            transition={
-              jumpKey > 0
-                ? { duration: 0.68, ease: "easeOut" }
-                : { duration: 4.2, repeat: Infinity, ease: "easeInOut" }
-            }
+          {/* Chicken Body: Diam dan tenang, tidak meloncat saat ditap */}
+          <div
             onClick={handlePetTap}
             className="relative w-full h-full flex items-center justify-center cursor-pointer select-none"
           >
-            {/* Base Pet Chicken */}
-            <img
-              src={ayamkuPet}
-              alt="Ayamku Pet"
-              className="w-110 h-110 object-contain relative z-10 select-none pointer-events-none"
-            />
+            {/* Base Pet Chicken with Rive Animation */}
+            <RivePetChicken isTalking={isTalking} onLoaded={() => setIsRiveLoaded(true)} />
 
-            {/* Animated Blinking Eyes */}
-            <ChickenBlinkingEyes />
-
-            {/* Hat / Topi Overlay */}
-            {activeTopi && (
-              <div
-                className="absolute pointer-events-none z-20 select-none"
-                style={{
-                  top: activeTopi.top,
-                  left: activeTopi.left,
-                  width: `${activeTopi.width}px`,
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                {activeTopi.render()}
-              </div>
-            )}
+            {/* Hat / Topi Overlay - HANYA dirender setelah Rive berhasil dimuat */}
+            <AnimatePresence>
+              {isRiveLoaded && activeTopi && (
+                <motion.div
+                  key={activeTopi.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute pointer-events-none z-20 select-none"
+                  style={{
+                    top: activeTopi.top,
+                    left: activeTopi.left,
+                    width: `${activeTopi.width}px`,
+                    transform: "translate(-50%, -50%)",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                    }}
+                  >
+                    {activeTopi.render({
+                      color: activeTopi.id === "cupluk" ? cuplukColor : peciColor,
+                      pattern: peciPattern,
+                      model: sorbanModel,
+                    })}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Eyes / Mata Overlay */}
-            {activeMata && (
-              <div
-                className="absolute pointer-events-none z-30 select-none"
-                style={{
-                  top: activeMata.top,
-                  left: activeMata.left,
-                  width: `${activeMata.width}px`,
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                {activeMata.render()}
-              </div>
-            )}
+            <AnimatePresence>
+              {isRiveLoaded && activeMata && (
+                <motion.div
+                  key={activeMata.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute pointer-events-none z-30 select-none"
+                  style={{
+                    top: activeMata.top,
+                    left: activeMata.left,
+                    width: `${activeMata.width}px`,
+                    transform: "translate(-50%, -50%)",
+                  }}
+                >
+                  {activeMata.render()}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Neck / Leher Overlay */}
-            {activeLeher && (
-              <div
-                className="absolute pointer-events-none z-10 select-none"
-                style={{
-                  top: activeLeher.top,
-                  left: activeLeher.left,
-                  width: `${activeLeher.width}px`,
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                {activeLeher.render()}
-              </div>
-            )}
-          </motion.div>
+            <AnimatePresence>
+              {isRiveLoaded && activeLeher && (
+                <motion.div
+                  key={activeLeher.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute pointer-events-none z-10 select-none"
+                  style={{
+                    top: activeLeher.top,
+                    left: activeLeher.left,
+                    width: `${activeLeher.width}px`,
+                    transform: "translate(-50%, -50%)",
+                  }}
+                >
+                  {activeLeher.render()}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
 
@@ -901,7 +1016,10 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -60, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="absolute top-[88px] left-4 right-4 bg-black/60 backdrop-blur-md rounded-3xl p-3.5 border border-white/10 z-40 flex flex-col gap-2.5 shadow-xl"
+            style={{
+              top: "calc(3.5rem + env(safe-area-inset-top, 0px))",
+            }}
+            className="absolute left-4 right-4 bg-black/60 backdrop-blur-md rounded-3xl p-3.5 border border-white/10 z-40 flex flex-col gap-2.5 shadow-xl"
           >
             {/* Category & Action Buttons */}
             <div className="flex justify-between items-center">
@@ -920,15 +1038,20 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
                   </button>
                 ))}
               </div>
-              <div className="flex items-center gap-2">
-                {(equipped.topi || equipped.mata || equipped.leher) && (
-                  <button
-                    onClick={handleResetAccessories}
-                    className="text-[8px] font-bold uppercase text-red-400 hover:text-red-300 tracking-wider px-2.5 py-1 bg-red-500/10 border border-red-500/25 rounded-lg transition-all cursor-pointer"
-                  >
-                    Reset
-                  </button>
-                )}
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setShowPanel(false)}
+                  style={{
+                    backgroundColor: `${THEME_COLORS.hex.primary}25`,
+                    borderColor: `${THEME_COLORS.hex.primary}60`,
+                    color: "white",
+                  }}
+                  className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-2.5 py-1.5 border rounded-xl transition-all cursor-pointer hover:bg-white/20 active:scale-95 shadow-xs"
+                  title="Tutup Panel Aksesoris"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Tutup</span>
+                </button>
               </div>
             </div>
 
@@ -939,7 +1062,7 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
             <div className="flex gap-2.5 overflow-x-auto pb-1 no-scrollbar min-h-[80px] items-center">
               {ACCESSORIES.filter((acc) => acc.category === activeTab).map((acc) => {
                 const currentEquipped = equipped[acc.category];
-                const isEquipped = (!currentEquipped && acc.id.startsWith("none_")) || (currentEquipped?.id === acc.id);
+                const isEquipped = currentEquipped?.id === acc.id;
                 return (
                   <button
                     key={acc.id}
@@ -954,7 +1077,11 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
                   >
                     <div className="h-9 flex items-center justify-center overflow-hidden w-full px-1">
                       <div className="scale-75 w-full flex items-center justify-center">
-                        {acc.render()}
+                        {acc.render({
+                          color: acc.id === "cupluk" ? cuplukColor : peciColor,
+                          pattern: peciPattern,
+                          model: sorbanModel,
+                        })}
                       </div>
                     </div>
                     <span className="text-[8px] font-bold text-center text-white/90 line-clamp-1 w-full px-0.5 leading-none">
@@ -964,6 +1091,168 @@ export function AyamkuPage({ user: _user }: AyamkuPageProps) {
                 );
               })}
             </div>
+
+            {/* Pilihan Warna & Motif Peci (Hanya aktif jika Peci sedang dipilih / dipakai) */}
+            <AnimatePresence>
+              {equipped.topi?.id === "peci" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                  animate={{ opacity: 1, height: "auto", marginTop: 4 }}
+                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex flex-col gap-2.5 pt-2 border-t border-white/10"
+                >
+                  {/* Warna Peci */}
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-white/90">Warna Peci:</span>
+                      <span className="text-[9px] text-amber-300 font-semibold">
+                        {PECI_COLORS.find((c) => c.hex === peciColor)?.name || peciColor}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 overflow-x-auto py-1 px-0.5 no-scrollbar">
+                      {PECI_COLORS.map((c) => {
+                        const isSelected = peciColor === c.hex;
+                        return (
+                          <button
+                            key={c.hex}
+                            onClick={() => setPeciColor(c.hex)}
+                            title={c.name}
+                            className={`w-7 h-7 rounded-lg shrink-0 transition-all cursor-pointer flex items-center justify-center ${isSelected
+                              ? "border-2 border-white shadow-md ring-2 ring-white/40"
+                              : "border border-white/20 hover:border-white/50"
+                              }`}
+                            style={{ backgroundColor: c.hex }}
+                          >
+                            {isSelected && (
+                              <span className={`text-[10px] font-black ${c.hex === "#f8fafc" ? "text-slate-900" : "text-white"}`}>
+                                ✓
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Motif / Pola Peci */}
+                  <div className="flex flex-col gap-1.5 pt-1.5 border-t border-white/10">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-white/90">Motif / Pola:</span>
+                      <span className="text-[9px] text-amber-300 font-semibold">
+                        {PECI_PATTERNS.find((p) => p.id === peciPattern)?.name || peciPattern}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 px-0.5 no-scrollbar">
+                      {PECI_PATTERNS.map((p) => {
+                        const isSelected = peciPattern === p.id;
+                        return (
+                          <button
+                            key={p.id}
+                            onClick={() => setPeciPattern(p.id)}
+                            className={`px-2.5 py-1 rounded-lg text-[9px] font-bold shrink-0 transition-all cursor-pointer ${isSelected
+                              ? "bg-amber-500 text-white shadow-md border border-amber-300"
+                              : "bg-white/10 text-white/80 hover:bg-white/20 border border-white/10"
+                              }`}
+                          >
+                            {p.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Pilihan Warna Cupluk / Peci Rajut (Hanya aktif jika Cupluk sedang dipilih / dipakai) */}
+            <AnimatePresence>
+              {equipped.topi?.id === "cupluk" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                  animate={{ opacity: 1, height: "auto", marginTop: 4 }}
+                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex flex-col gap-2 pt-2 border-t border-white/10"
+                >
+                  {/* Warna Cupluk */}
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-white/90">Warna Peci Rajut:</span>
+                      <span className="text-[9px] text-amber-300 font-semibold">
+                        {CUPLUK_COLORS.find((c) => c.hex === cuplukColor)?.name || cuplukColor}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 overflow-x-auto py-1 px-0.5 no-scrollbar">
+                      {CUPLUK_COLORS.map((c) => {
+                        const isSelected = cuplukColor === c.hex;
+                        return (
+                          <button
+                            key={c.hex}
+                            onClick={() => setCuplukColor(c.hex)}
+                            title={c.name}
+                            className={`w-7 h-7 rounded-lg shrink-0 transition-all cursor-pointer flex items-center justify-center ${isSelected
+                              ? "border-2 border-white shadow-md ring-2 ring-white/40"
+                              : "border border-white/20 hover:border-white/50"
+                              }`}
+                            style={{ backgroundColor: c.hex }}
+                          >
+                            {isSelected && (
+                              <span className={`text-[10px] font-black ${c.hex === "#f8fafc" ? "text-slate-900" : "text-white"}`}>
+                                ✓
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Pilihan Model Sorban Asli */}
+            <AnimatePresence>
+              {equipped.topi?.id === "sorban" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                  animate={{ opacity: 1, height: "auto", marginTop: 4 }}
+                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex flex-col gap-2 pt-2 border-t border-white/10"
+                >
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-white/90">Model Sorban:</span>
+                      <span className="text-[9px] text-amber-300 font-semibold">
+                        {SORBAN_MODELS.find((m) => m.id === sorbanModel)?.name || "Sorban"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 overflow-x-auto py-1 px-0.5 no-scrollbar">
+                      {SORBAN_MODELS.map((m) => {
+                        const isSelected = sorbanModel === m.id;
+                        return (
+                          <button
+                            key={m.id}
+                            onClick={() => setSorbanModel(m.id)}
+                            title={m.name}
+                            className={`h-11 px-2.5 rounded-xl shrink-0 transition-all cursor-pointer flex items-center gap-1.5 border ${isSelected
+                              ? "bg-amber-500/25 border-amber-400 ring-2 ring-amber-400/40"
+                              : "bg-white/5 hover:bg-white/10 border-white/10"
+                              }`}
+                          >
+                            <img src={m.src} alt={m.name} className="h-7 w-7 object-contain drop-shadow-xs" />
+                            <span className={`text-[9px] font-bold whitespace-nowrap ${isSelected ? "text-amber-300" : "text-white/80"}`}>
+                              {m.name}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>

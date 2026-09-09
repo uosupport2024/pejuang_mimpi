@@ -2,16 +2,72 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SmartHome, Box, MedalStar, User } from "@solar-icons/react";
 import logoWhite from "@/assets/logo/logo-white.png";
+import { isMenuEnabled } from "@/shared/utils/tenant-permissions";
 
 interface MobileGuidanceTourProps {
   isOpen: boolean;
   onClose: () => void;
   onStepChange: (index: number) => void;
+  activeTabs?: Array<{ key: string; label: string; icon: any; isCenterButton: boolean }>;
 }
 
-export function MobileGuidanceTour({ isOpen, onClose, onStepChange }: MobileGuidanceTourProps) {
+const TAB_TOUR_METADATA: Record<string, { title: string; icon: any; desc: string }> = {
+  MobileHome: {
+    title: "Sangkar (Beranda)",
+    icon: SmartHome,
+    desc: "Dashboard utama Anda untuk memantau Celengan impian, berkas di Loker, serta pengumuman penting perusahaan dalam satu layar terintegrasi."
+  },
+  MobileLumbung: {
+    title: "Pakan (Kehadiran & Lowongan)",
+    icon: Box,
+    desc: "Menu pencatatan kerja mandiri! Lakukan absen masuk/pulang harian, pantau lembur, serta temukan info rekrutmen atau lowongan internal (Pakan)."
+  },
+  MobileAyamku: {
+    title: "Ayamku (Karakter & Misi)",
+    icon: null,
+    desc: "Avatar ayam virtual personal Anda! Kumpulkan poin dengan menyelesaikan misi harian, naikkan tingkat level, dan dandani ayam Anda dengan aksesori premium."
+  },
+  MobilePakan: {
+    title: "Tunas (Pembelajaran)",
+    icon: MedalStar,
+    desc: "Pusat peningkatan keahlian (E-Learning). Ikuti materi pelatihan terstruktur, tonton video tutorial, dan kumpulkan poin edukasi resmi."
+  },
+  MobileProfile: {
+    title: "Induk (Profil & Berkas)",
+    icon: User,
+    desc: "Kelola informasi pribadi kepegawaian Anda. Ajukan cuti/izin, perbarui rekening bank payroll secara instan, dan tunjukkan kartu identitas digital Anda."
+  }
+};
+
+export function MobileGuidanceTour({ isOpen, onClose, onStepChange, activeTabs }: MobileGuidanceTourProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
+
+  const allDefaultTabs = [
+    { key: "MobileHome", label: "Sangkar", icon: SmartHome, isCenterButton: false },
+    { key: "MobileLumbung", label: "Pakan", icon: Box, isCenterButton: false },
+    { key: "MobileAyamku", label: "Ayamku", icon: logoWhite, isCenterButton: true },
+    { key: "MobilePakan", label: "Tunas", icon: MedalStar, isCenterButton: false },
+    { key: "MobileProfile", label: "Induk", icon: User, isCenterButton: false },
+  ];
+
+  const currentTabs = activeTabs && activeTabs.length > 0
+    ? activeTabs
+    : allDefaultTabs.filter((tab) => isMenuEnabled(tab.key));
+
+  const steps = currentTabs.map((tab, idx) => {
+    const meta = TAB_TOUR_METADATA[tab.key] || {
+      title: tab.label,
+      icon: tab.icon,
+      desc: `Menu ${tab.label} aplikasi Pejuang Mimpi.`
+    };
+    return {
+      ...meta,
+      key: tab.key,
+      isCenterButton: tab.isCenterButton,
+      targetIndex: idx
+    };
+  });
 
   useEffect(() => {
     if (isOpen) {
@@ -23,42 +79,9 @@ export function MobileGuidanceTour({ isOpen, onClose, onStepChange }: MobileGuid
     }
   }, [isOpen]);
 
-  if (!isOpen || !mounted) return null;
+  if (!isOpen || !mounted || steps.length === 0) return null;
 
-  const steps = [
-    {
-      title: "Sangkar (Beranda)",
-      icon: SmartHome,
-      desc: "Dashboard utama Anda untuk memantau Celengan impian, berkas di Loker, serta pengumuman penting perusahaan dalam satu layar terintegrasi.",
-      targetIndex: 0,
-    },
-    {
-      title: "Pakan (Kehadiran & Lowongan)",
-      icon: Box,
-      desc: "Menu pencatatan kerja mandiri! Lakukan absen masuk/pulang harian, pantau lembur, serta temukan info rekrutmen atau lowongan internal (Pakan).",
-      targetIndex: 1,
-    },
-    {
-      title: "Ayamku (Karakter & Misi)",
-      icon: null, // Custom logo image
-      desc: "Avatar ayam virtual personal Anda! Kumpulkan poin dengan menyelesaikan misi harian, naikkan tingkat level, dan dandani ayam Anda dengan aksesori premium.",
-      targetIndex: 2,
-    },
-    {
-      title: "Tunas (Pembelajaran)",
-      icon: MedalStar,
-      desc: "Pusat peningkatan keahlian (E-Learning). Ikuti materi pelatihan terstruktur, tonton video tutorial, dan kumpulkan poin edukasi resmi.",
-      targetIndex: 3,
-    },
-    {
-      title: "Induk (Profil & Berkas)",
-      icon: User,
-      desc: "Kelola informasi pribadi kepegawaian Anda. Ajukan cuti/izin, perbarui rekening bank payroll secara instan, dan tunjukkan kartu identitas digital Anda.",
-      targetIndex: 4,
-    },
-  ];
-
-  const currentStep = steps[currentIndex];
+  const currentStep = steps[currentIndex] || steps[0];
 
   const handleNext = () => {
     if (currentIndex < steps.length - 1) {
@@ -83,17 +106,17 @@ export function MobileGuidanceTour({ isOpen, onClose, onStepChange }: MobileGuid
     onClose();
   };
 
-  // Determine highlight coordinates matching the layout
-  const isCenterTab = currentIndex === 2;
-  
-  const highlightLeft = isCenterTab
-    ? `calc(50% - 1.75rem)` // centered (width is 56px / 3.5rem)
-    : `calc(${currentIndex * 20}% + (20% - 3.5rem) / 2)`; // standard button
+  // Determine dynamic highlight coordinates matching dynamic activeTabs layout
+  const tabCount = steps.length;
+  const tabWidthPercent = 100 / tabCount;
+  const isCenterTab = Boolean(currentStep?.isCenterButton);
 
+  const highlightLeft = `calc(${(currentIndex + 0.5) * tabWidthPercent}% - 1.75rem)`;
   const highlightBottom = isCenterTab ? "26px" : "14px";
   const highlightWidth = "3.5rem"; // 56px
-  const highlightHeight = isCenterTab ? "3.5rem" : "3rem"; // 56px vs 48px
-  const highlightRadius = isCenterTab ? "9999px" : "12px";
+  const highlightHeight = isCenterTab ? "3.5rem" : "3rem";
+  const highlightRadius = isCenterTab ? "9999px" : "16px";
+  const arrowLeft = `calc(${(currentIndex + 0.5) * tabWidthPercent}% - 12px)`;
 
   return (
     <div 
@@ -104,9 +127,9 @@ export function MobileGuidanceTour({ isOpen, onClose, onStepChange }: MobileGuid
         handleComplete();
       }}
     >
-      {/* Wrapper to match the exact px-2 (8px) padding of the bottom navigation bar */}
+      {/* Wrapper matching the navbar bottom layout */}
       <div className="absolute bottom-0 left-2 right-2 top-0 pointer-events-none">
-        {/* Spotlight highlight over the active tab (Rendering a true transparent cutout via giant box-shadow) */}
+        {/* Spotlight highlight over the active tab */}
         <motion.div
           layout
           className="absolute pointer-events-none transition-all duration-300 ease-out z-40 border-2 border-[#ff7e5a] shadow-[0_0_0_9999px_rgba(9,9,11,0.65),_0_0_20px_rgba(255,126,90,0.65)]"
@@ -120,12 +143,12 @@ export function MobileGuidanceTour({ isOpen, onClose, onStepChange }: MobileGuid
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         />
 
-        {/* Speech Bubble Arrow pointing to the highlighted tab (Clean SVG Triangle) */}
+        {/* Speech Bubble Arrow pointing to the highlighted tab */}
         <motion.div
           layout
           className="absolute bottom-[75px] z-45 pointer-events-none"
           style={{
-            left: `calc(${currentIndex * 20}% + 10% - 12px)`,
+            left: arrowLeft,
           }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >

@@ -43,6 +43,8 @@ export type RouteType =
   | "MobileLeaveHistory"
   | "MobileIdCard"
   | "MobilePayroll"
+  | "MobileNotificationHistory"
+  | "MobileKiblat"
   | "EmployeeAdd"
   | "EmployeeEdit"
   | "EmployeeInputShift"
@@ -107,6 +109,8 @@ export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   MobileLeaveHistory: "Riwayat Cuti",
   MobileIdCard: "Kartu Identitas",
   MobilePayroll: "Payroll Saya",
+  MobileNotificationHistory: "Notifikasi",
+  MobileKiblat: "Kiblat",
 };
 
 export const ROUTE_TO_PATH: Record<RouteType, string> = {
@@ -153,6 +157,8 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   MobileLeaveHistory: "/mobile/leave-history",
   MobileIdCard: "/mobile/id-card",
   MobilePayroll: "/mobile/payroll",
+  MobileNotificationHistory: "/mobile/notifications",
+  MobileKiblat: "/mobile/kiblat",
   EmployeeAdd: "/pegawai/tambah",
   EmployeeEdit: "/pegawai/edit",
   EmployeeInputShift: "/pegawai/shift",
@@ -207,6 +213,8 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/mobile/leave-history": "MobileLeaveHistory",
   "/mobile/id-card": "MobileIdCard",
   "/mobile/payroll": "MobilePayroll",
+  "/mobile/notifications": "MobileNotificationHistory",
+  "/mobile/kiblat": "MobileKiblat",
   "/pegawai/tambah": "EmployeeAdd",
   "/pegawai/edit": "EmployeeEdit",
   "/pegawai/shift": "EmployeeInputShift",
@@ -242,12 +250,6 @@ function RouterInnerProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const pageTitle = ROUTE_TITLE_MAP[currentRoute] || "Menu";
     document.title = `Pejuang Mimpi | ${pageTitle}`;
-    console.log(
-      `%c[NAVIGATION LOG] %c${pageTitle} %c(${resolvedPath})`,
-      "background: #1e2a4a; color: #fee279; font-weight: bold; padding: 2px 6px; border-radius: 4px;",
-      "color: #1f2937; font-weight: bold;",
-      "color: #6b7280; font-size: 11px;"
-    );
   }, [currentRoute, resolvedPath]);
 
   const navigate = useCallback((route: RouteType, state?: any) => {
