@@ -79,6 +79,8 @@ export async function fetchEmployees(
     q?: string;
     page?: number;
     per_page?: number;
+    lokasi_id?: number | string;
+    jabatan_id?: number | string;
   },
   signal?: AbortSignal
 ): Promise<FetchEmployeesResponse> {
@@ -86,6 +88,8 @@ export async function fetchEmployees(
   if (params?.q) query.append("q", params.q);
   if (params?.page) query.append("page", String(params.page));
   if (params?.per_page) query.append("per_page", String(params.per_page));
+  if (params?.lokasi_id) query.append("lokasi_id", String(params.lokasi_id));
+  if (params?.jabatan_id) query.append("jabatan_id", String(params.jabatan_id));
 
   const response = await fetch(`${API_BASE_URL}/employees?${query.toString()}`, {
     method: "GET",
