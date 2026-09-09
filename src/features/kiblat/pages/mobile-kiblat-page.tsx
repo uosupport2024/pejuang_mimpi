@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, Compass } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
 import { THEME_COLORS } from "@/shared/constants/colors";
+import { useTenantBranding } from "@/shared/hooks/use-tenant-branding";
+import patternBg from "@/assets/bg/pattern-background.png";
+import kepalaAyam from "@/assets/logo/kepala-ayam.png";
 
 // Koordinat Ka'bah, Masjidil Haram, Makkah
 const KAABA_LAT = 21.422487;
@@ -25,17 +28,223 @@ function calculateQiblaBearing(lat: number, lng: number): number {
   return Math.round(((qibla + 360) % 360) * 10) / 10;
 }
 
+// Marker Ka'bah di Puncak Kompas (12 o'clock)
+function KaabaMarker({ isAligned }: { isAligned: boolean }) {
+  const { hex } = THEME_COLORS;
+
+  return (
+    <div className="flex flex-col items-center pointer-events-none select-none">
+      <div
+        className={`relative transition-all duration-300 ${
+          isAligned
+            ? "scale-115 drop-shadow-[0_0_14px_rgba(127,164,109,0.85)]"
+            : "drop-shadow-[0_2px_5px_rgba(0,0,0,0.35)]"
+        }`}
+      >
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 40 40"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          {/* Badan Ka'bah */}
+          <rect
+            x="4"
+            y="4"
+            width="32"
+            height="32"
+            rx="4"
+            fill={hex.textDark}
+            stroke="#111827"
+            strokeWidth="1.5"
+          />
+          {/* Garis Atap */}
+          <rect x="5" y="5" width="30" height="2" rx="1" fill="#374151" />
+          {/* Kiswah Pita Emas (Hizam) */}
+          <rect x="4" y="13" width="32" height="5" fill={hex.padiKemakmuran} />
+          <line
+            x1="4"
+            y1="14"
+            x2="36"
+            y2="14"
+            stroke={hex.accent}
+            strokeWidth="0.8"
+          />
+          <line
+            x1="4"
+            y1="17"
+            x2="36"
+            y2="17"
+            stroke={hex.padiKemakmuranDark}
+            strokeWidth="0.6"
+          />
+          {/* Pintu Ka'bah Emas (Bab al-Ka'bah) */}
+          <rect
+            x="22"
+            y="18"
+            width="9"
+            height="15"
+            rx="1.5"
+            fill={hex.padiKemakmuran}
+            stroke={hex.padiKemakmuranDark}
+            strokeWidth="0.8"
+          />
+          <rect
+            x="24"
+            y="20"
+            width="5"
+            height="11"
+            rx="1"
+            fill={hex.padiKemakmuranDark}
+          />
+          <line
+            x1="26.5"
+            y1="20"
+            x2="26.5"
+            y2="31"
+            stroke={hex.accent}
+            strokeWidth="0.6"
+          />
+        </svg>
+      </div>
+      {/* Panah Penanda Arah ke Pusat Lingkaran */}
+      <div
+        className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] -mt-0.5 transition-colors duration-200"
+        style={{
+          borderTopColor: isAligned ? hex.sawahPertumbuhan : hex.primary,
+        }}
+      />
+    </div>
+  );
+}
+
+// Jarum Kompas Modern & Elegan dengan Dual-tone Facets & Theme Colors
+function CompassNeedle({
+  angle,
+  isAligned,
+}: {
+  angle: number;
+  isAligned: boolean;
+}) {
+  const { hex } = THEME_COLORS;
+
+  return (
+    <div
+      className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
+      style={{
+        transform: `rotate(${angle}deg)`,
+        transition: "transform 0.15s cubic-bezier(0.1, 0.9, 0.2, 1)",
+      }}
+    >
+      <svg
+        width="264"
+        height="264"
+        viewBox="0 0 264 264"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={`w-full h-full transition-all duration-300 ${
+          isAligned
+            ? "filter drop-shadow-[0_0_12px_rgba(127,164,109,0.7)]"
+            : "filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.3)]"
+        }`}
+      >
+        <defs>
+          {/* North Left Gradient (Terang) */}
+          <linearGradient id="northFacetLeft" x1="0" y1="0" x2="1" y2="0">
+            <stop
+              offset="0%"
+              stopColor={isAligned ? hex.sawahPertumbuhan : hex.padiKemakmuran}
+            />
+            <stop
+              offset="100%"
+              stopColor={isAligned ? hex.sawahPertumbuhanDark : hex.apiSemangat}
+            />
+          </linearGradient>
+
+          {/* North Right Gradient (Bayangan/Depth) */}
+          <linearGradient id="northFacetRight" x1="0" y1="0" x2="1" y2="0">
+            <stop
+              offset="0%"
+              stopColor={isAligned ? hex.sawahPertumbuhanDark : hex.primary}
+            />
+            <stop
+              offset="100%"
+              stopColor={isAligned ? "#3f5d34" : hex.primaryHover}
+            />
+          </linearGradient>
+
+          {/* South Left Gradient */}
+          <linearGradient id="southFacetLeft" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#f5f4ed" />
+            <stop offset="100%" stopColor="#e5e4dd" />
+          </linearGradient>
+
+          {/* South Right Gradient */}
+          <linearGradient id="southFacetRight" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#6b7280" />
+            <stop offset="100%" stopColor="#4b5563" />
+          </linearGradient>
+        </defs>
+
+        {/* Jarum Utara (North): Facet Kiri Terang Mengarah ke Ka'bah */}
+        <polygon
+          points="132,38 125,108 132,132"
+          fill="url(#northFacetLeft)"
+        />
+
+        {/* Jarum Utara (North): Facet Kanan Berbayang */}
+        <polygon
+          points="132,38 132,132 139,108"
+          fill="url(#northFacetRight)"
+        />
+
+        {/* Tulang Tengah Mengkilap */}
+        <line
+          x1="132"
+          y1="40"
+          x2="132"
+          y2="132"
+          stroke={hex.accent}
+          strokeOpacity="0.6"
+          strokeWidth="0.75"
+        />
+
+        {/* Ekor Selatan (South): Facet Kiri */}
+        <polygon
+          points="132,132 127,150 132,174"
+          fill="url(#southFacetLeft)"
+        />
+
+        {/* Ekor Selatan (South): Facet Kanan */}
+        <polygon
+          points="132,132 132,174 137,150"
+          fill="url(#southFacetRight)"
+        />
+      </svg>
+    </div>
+  );
+}
+
 export function MobileKiblatPage() {
   const { navigate } = useRouter();
+  const { navbarBgStyle } = useTenantBranding();
 
   const [coords, setCoords] = useState<{ lat: number; lng: number }>({
     lat: DEFAULT_LAT,
     lng: DEFAULT_LNG,
   });
   const [cityName, setCityName] = useState<string>("Kota Bogor");
+
+  // Continuous unwrapped heading to completely prevent 360° flipping/bouncing in CSS transitions
+  const [unwrappedHeading, setUnwrappedHeading] = useState<number>(0);
   const [deviceHeading, setDeviceHeading] = useState<number>(0);
+  const unwrappedHeadingRef = useRef<number>(0);
+  const hasAbsoluteRef = useRef<boolean>(false);
+
   const [hasVibrated, setHasVibrated] = useState<boolean>(false);
   const lastVibrateTime = useRef<number>(0);
+  const [needsPermission, setNeedsPermission] = useState<boolean>(false);
 
   // Ambil bearing kiblat berdasarkan lokasi user
   const qiblaBearing = calculateQiblaBearing(coords.lat, coords.lng);
@@ -75,54 +284,118 @@ export function MobileKiblatPage() {
     );
   }, []);
 
-  // Sensor Kompas
-  const handleOrientation = useCallback((e: DeviceOrientationEvent) => {
-    let heading: number | null = null;
+  // Filter & smoothing heading untuk mencegah lompat dan drifting saat diam
+  const processHeading = useCallback((rawH: number) => {
+    const currentUnwrapped = unwrappedHeadingRef.current;
+    const currentNorm = ((currentUnwrapped % 360) + 360) % 360;
 
-    if ((e as any).webkitCompassHeading != null) {
-      heading = (e as any).webkitCompassHeading;
-    } else if (e.alpha != null) {
-      heading = (360 - e.alpha) % 360;
+    // Shortest angular difference between new heading and current heading
+    const delta = ((rawH - currentNorm + 540) % 360) - 180;
+
+    // Deadband filter:
+    // Abaikan jitter sensor mikro (< 0.25°) saat perangkat diam agar tidak perlahan bergeser (drift)
+    if (Math.abs(delta) < 0.25) {
+      return;
     }
 
-    if (heading !== null) {
-      setDeviceHeading(heading);
-    }
+    // Dynamic low-pass smoothing:
+    // Respon cepat saat berputar kencang, peredaman halus saat perlahan
+    const smoothingFactor = Math.min(1, Math.max(0.18, Math.abs(delta) / 30));
+    const nextUnwrapped = currentUnwrapped + delta * smoothingFactor;
+
+    unwrappedHeadingRef.current = nextUnwrapped;
+    setUnwrappedHeading(nextUnwrapped);
+    setDeviceHeading(((nextUnwrapped % 360) + 360) % 360);
   }, []);
 
+  // Sensor Kompas
   useEffect(() => {
+    const handleAbsolute = (e: any) => {
+      let heading: number | null = null;
+      if (e.webkitCompassHeading != null) {
+        heading = e.webkitCompassHeading;
+      } else if (e.alpha != null) {
+        // Absolute orientation on Android
+        heading = (360 - e.alpha) % 360;
+      }
+
+      if (heading !== null) {
+        hasAbsoluteRef.current = true;
+        processHeading(heading);
+      }
+    };
+
+    const handleStandard = (e: any) => {
+      // Jika sudah menerima sinyal absolute (magnetometer), abaikan event relatif agar gyro tidak drift
+      if (hasAbsoluteRef.current) return;
+
+      let heading: number | null = null;
+      if (e.webkitCompassHeading != null) {
+        heading = e.webkitCompassHeading;
+        hasAbsoluteRef.current = true;
+      } else if (e.absolute === true && e.alpha != null) {
+        heading = (360 - e.alpha) % 360;
+        hasAbsoluteRef.current = true;
+      } else if (e.alpha != null) {
+        // Fallback relative orientation
+        heading = (360 - e.alpha) % 360;
+      }
+
+      if (heading !== null) {
+        processHeading(heading);
+      }
+    };
+
     const win = window as any;
 
     if (
       win.DeviceOrientationEvent &&
       typeof win.DeviceOrientationEvent.requestPermission === "function"
     ) {
-      win.DeviceOrientationEvent.requestPermission()
-        .then((perm: string) => {
-          if (perm === "granted") {
-            win.addEventListener("deviceorientation", handleOrientation);
-          }
-        })
-        .catch(() => {});
+      // iOS permission prompt check
+      setNeedsPermission(true);
     } else {
-      if ("ondeviceorientationabsolute" in win) {
-        win.addEventListener("deviceorientationabsolute", handleOrientation);
-      } else if ("ondeviceorientation" in win) {
-        win.addEventListener("deviceorientation", handleOrientation);
-      }
+      // Pasang listener absolute terlebih dahulu (menggunakan kompas fisik)
+      win.addEventListener("deviceorientationabsolute", handleAbsolute, true);
+      win.addEventListener("deviceorientation", handleStandard, true);
     }
 
     return () => {
-      win.removeEventListener("deviceorientation", handleOrientation);
-      win.removeEventListener("deviceorientationabsolute", handleOrientation);
+      win.removeEventListener("deviceorientationabsolute", handleAbsolute, true);
+      win.removeEventListener("deviceorientation", handleStandard, true);
     };
-  }, [handleOrientation]);
+  }, [processHeading]);
+
+  const requestCompassPermission = async () => {
+    const win = window as any;
+    if (
+      win.DeviceOrientationEvent &&
+      typeof win.DeviceOrientationEvent.requestPermission === "function"
+    ) {
+      try {
+        const res = await win.DeviceOrientationEvent.requestPermission();
+        if (res === "granted") {
+          setNeedsPermission(false);
+          win.addEventListener(
+            "deviceorientation",
+            (e: any) => {
+              const h = e.webkitCompassHeading ?? (e.alpha != null ? (360 - e.alpha) % 360 : null);
+              if (h !== null) processHeading(h);
+            },
+            true
+          );
+        }
+      } catch {
+        // user denied or error
+      }
+    }
+  };
 
   // Selisih antara arah hadap HP (heading) dengan arah kiblat (qiblaBearing)
   // diff > 0 berarti kiblat berada di kanan, diff < 0 berarti kiblat berada di kiri
   const rawDiff = ((qiblaBearing - deviceHeading + 540) % 360) - 180;
   const absDiff = Math.abs(rawDiff);
-  const isAligned = absDiff <= 3.5;
+  const isAligned = absDiff <= 4;
 
   // Haptic Feedback getar saat pas
   useEffect(() => {
@@ -146,18 +419,17 @@ export function MobileKiblatPage() {
     }
   };
 
-  // Sudut rotasi piringan kompas: dial berputar berlawanan arah heading
-  const dialRotation = -deviceHeading;
+  // Sudut rotasi piringan kompas berbasis unwrappedHeading agar tidak pernah memutar 360° terbalik
+  const dialRotation = -unwrappedHeading;
 
-  // Sudut Ka'bah pada piringan kompas adalah qiblaBearing
-  // Maka pada layar, posisi Ka'bah relatif terhadap puncak (12 o'clock) adalah rawDiff
-  const needleAngle = rawDiff;
+  // Sudut Jarum Kompas: selalu mengarah ke Kiblat relatif terhadap orientasi HP
+  const needleAngle = qiblaBearing - unwrappedHeading;
 
   return (
     <div
-      className="min-h-screen flex flex-col justify-between select-none relative overflow-x-hidden"
+      className="min-h-screen flex flex-col justify-between select-none relative overflow-x-hidden -mt-6 -mx-5 pb-8"
       style={{
-        backgroundColor: THEME_COLORS.hex.leftBg, // "#f5f4ed"
+        backgroundColor: THEME_COLORS.hex.leftBg,
         backgroundImage: `
           linear-gradient(to right, rgba(31, 41, 55, 0.05) 1px, transparent 1px),
           linear-gradient(to bottom, rgba(31, 41, 55, 0.05) 1px, transparent 1px)
@@ -165,49 +437,69 @@ export function MobileKiblatPage() {
         backgroundSize: "22px 22px",
       }}
     >
-      {/* Header Bar */}
-      <div className="pt-8 px-5 pb-4 flex items-center justify-between relative z-10">
-        {/* Tombol Back Bulat Putih Khas Gambar 2 */}
-        <button
-          type="button"
-          onClick={handleBack}
-          className="w-10 h-10 rounded-2xl bg-white shadow-sm border border-stone-200/70 flex items-center justify-center text-stone-700 hover:bg-stone-50 active:scale-95 transition-all cursor-pointer"
-        >
-          <ArrowLeft className="w-5 h-5 text-stone-800 stroke-[2.2]" />
-        </button>
+      {/* Header Bar — Biru Batik Rata Kanan-Kiri */}
+      <div
+        style={navbarBgStyle || { backgroundColor: THEME_COLORS.hex.navBg }}
+        className="w-full text-white rounded-t-none rounded-b-[28px] shadow-md relative overflow-hidden mb-3 shrink-0"
+      >
+        {/* Batik Pattern Overlay */}
+        <div
+          className="absolute inset-0 opacity-15 pointer-events-none"
+          style={{
+            backgroundImage: `url(${patternBg})`,
+            backgroundSize: "180px auto",
+            backgroundRepeat: "repeat",
+          }}
+        />
 
-        {/* Title Center */}
-        <div className="flex-1 flex flex-col items-center justify-center text-center px-2">
-          <h1
-            style={{ color: THEME_COLORS.hex.textDark }}
-            className="text-lg font-black tracking-tight leading-none font-sans"
-          >
-            Kiblat
-          </h1>
-          <p className="text-[11px] font-semibold text-stone-500 mt-1.5 leading-none">
-            {cityName} → Makkah • {Math.round(qiblaBearing)}° Barat Laut
-          </p>
+        <div className="relative z-10 flex items-center justify-between px-5 pt-8 pb-5">
+          {/* Tombol Back & Judul (Kiri) */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleBack}
+              className="p-2 hover:bg-white/15 active:scale-95 rounded-full transition-all cursor-pointer text-white border border-white/20 bg-white/10 backdrop-blur-xs shadow-xs shrink-0"
+              title="Kembali"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="flex flex-col text-left">
+              <h1 className="text-base font-bold tracking-tight text-white leading-none">
+                Arah Kiblat
+              </h1>
+              <p className="text-[11px] font-medium text-white/80 mt-1.5 leading-none">
+                {cityName} → Makkah
+              </p>
+            </div>
+          </div>
+
+          {/* Derajat & Arah Kiblat (Kanan) */}
+          <div className="flex flex-col items-end text-right">
+            <span className="text-sm font-black text-white leading-none tracking-tight">
+              {Math.round(qiblaBearing)}°
+            </span>
+            <span className="text-[10px] font-semibold text-white/70 mt-1 leading-none">
+              Barat Laut
+            </span>
+          </div>
         </div>
-
-        {/* Spacer kanan agar judul tepat di tengah */}
-        <div className="w-10" />
       </div>
 
       {/* Main Analog Compass Section */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-2 my-auto">
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-4 my-auto">
         <div className="relative w-[300px] h-[300px] flex items-center justify-center">
           {/* Ring Luar Bezel Warna Sand/Krem Hangat */}
           <div
-            className="absolute inset-0 rounded-full border-[18px] shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
+            className="absolute inset-0 rounded-full border-[18px] shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-300"
             style={{
-              borderColor: "#ebdcc4",
-              backgroundColor: "#ebdcc4",
+              borderColor: isAligned ? THEME_COLORS.hex.sawahPertumbuhan + "33" : "#ebdcc4",
+              backgroundColor: isAligned ? THEME_COLORS.hex.sawahPertumbuhan + "15" : "#ebdcc4",
             }}
           />
 
-          {/* Penanda Arah HP (Segitiga Hitam di Puncak 12 o'clock) */}
-          <div className="absolute top-[3px] left-1/2 -translate-x-1/2 z-30 flex flex-col items-center pointer-events-none">
-            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[9px] border-t-stone-800" />
+          {/* Penanda Ka'bah di Puncak 12 o'clock */}
+          <div className="absolute top-[2px] left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
+            <KaabaMarker isAligned={isAligned} />
           </div>
 
           {/* Dial Lingkaran Kompas yang Berputar Mengikuti Orientasi HP */}
@@ -215,7 +507,7 @@ export function MobileKiblatPage() {
             className="relative w-[264px] h-[264px] rounded-full bg-[#fdfbf7] border-2 border-stone-800 overflow-hidden shadow-inner flex items-center justify-center"
             style={{
               transform: `rotate(${dialRotation}deg)`,
-              transition: "transform 0.12s cubic-bezier(0.1, 0.9, 0.2, 1)",
+              transition: "transform 0.15s cubic-bezier(0.1, 0.9, 0.2, 1)",
             }}
           >
             {/* Garis-garis Tick Derajat di Sepanjang Keliling */}
@@ -249,103 +541,62 @@ export function MobileKiblatPage() {
             >
               U
             </span>
-            <span className="absolute right-4 text-[10px] font-bold text-stone-400">
+            <span
+              style={{ color: THEME_COLORS.hex.textMuted }}
+              className="absolute right-4 text-[10px] font-bold"
+            >
               T
             </span>
-            <span className="absolute bottom-4 text-[10px] font-bold text-stone-400">
+            <span
+              style={{ color: THEME_COLORS.hex.textMuted }}
+              className="absolute bottom-4 text-[10px] font-bold"
+            >
               S
             </span>
-            <span className="absolute left-4 text-[10px] font-bold text-stone-400">
+            <span
+              style={{ color: THEME_COLORS.hex.textMuted }}
+              className="absolute left-4 text-[10px] font-bold"
+            >
               B
             </span>
-
-            {/* Ikon Ka'bah 3D Isometric Mini di Pinggir Dial pada Derajat Kiblat */}
-            <div
-              style={{ transform: `rotate(${qiblaBearing}deg)` }}
-              className="absolute inset-0 flex justify-center pointer-events-none"
-            >
-              <div className="flex flex-col items-center -mt-0.5">
-                <div
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition-transform duration-200 ${
-                    isAligned ? "scale-110" : ""
-                  }`}
-                  style={{
-                    backgroundColor: "#1c1917",
-                    border: "1.5px solid #d97706",
-                    boxShadow: isAligned
-                      ? "0 0 14px rgba(127, 164, 109, 0.8)"
-                      : "0 2px 6px rgba(0,0,0,0.25)",
-                  }}
-                >
-                  {/* Pita Kiswah Emas */}
-                  <div className="w-full flex flex-col items-center">
-                    <div className="w-full h-1 bg-[#fbbf24] border-t border-b border-[#b45309]" />
-                    <div className="w-1.5 h-2.5 bg-[#f59e0b] rounded-[1px] mt-1 mr-2 self-end" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Poros Tengah Kompas */}
-            <div className="w-5 h-5 rounded-full bg-white border-2 border-stone-800 z-20 shadow-sm flex items-center justify-center">
-              <div
-                style={{
-                  backgroundColor: isAligned
-                    ? THEME_COLORS.hex.sawahPertumbuhan
-                    : THEME_COLORS.hex.primary,
-                }}
-                className="w-2 h-2 rounded-full transition-colors duration-200"
-              />
-            </div>
           </div>
 
-          {/* Jarum Kompas Retro Gaya Gambar 2: Menunjuk Langsung ke Ka'bah */}
-          <div
-            className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
-            style={{
-              transform: `rotate(${needleAngle}deg)`,
-              transition: "transform 0.12s cubic-bezier(0.1, 0.9, 0.2, 1)",
-            }}
-          >
-            {/* Badan Jarum Kompas */}
-            <div className="relative w-full h-full flex items-center justify-center">
-              {/* Batang jarum dari pusat mengarah ke atas */}
-              <div
-                className="absolute bottom-1/2 w-4 origin-bottom flex flex-col items-center"
-                style={{ height: "92px" }}
-              >
-                {/* Ujung runcing jarum */}
-                <div
-                  className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent transition-colors duration-200"
-                  style={{
-                    borderBottomWidth: "18px",
-                    borderBottomColor: "#1c1917",
-                  }}
-                />
-                {/* Badan jarum berwarna emas/oranye hangat */}
-                <div
-                  className="w-3 flex-1 border-x-2 border-b-2 border-stone-800 transition-colors duration-200"
-                  style={{
-                    backgroundColor: isAligned
-                      ? THEME_COLORS.hex.sawahPertumbuhan
-                      : "#eab308",
-                  }}
-                />
-              </div>
+          {/* Jarum Kompas Presisi Faceted Modern (Mengarah ke Kiblat) */}
+          <CompassNeedle angle={needleAngle} isAligned={isAligned} />
 
-              {/* Ekor jarum pendek ke arah bawah */}
-              <div
-                className="absolute top-1/2 w-2.5 bg-stone-300 border-x-2 border-b-2 border-stone-800 rounded-b-sm"
-                style={{ height: "18px" }}
-              />
-            </div>
+          {/* Poros Titik Tengah: Kepala Ayam Pejuang Mimpi (Tanpa Background) */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+            <img
+              src={kepalaAyam}
+              alt="Kepala Ayam Pejuang Mimpi"
+              className={`w-13 h-13 object-contain select-none transition-all duration-300 ${
+                isAligned
+                  ? "scale-115 filter drop-shadow-[0_4px_12px_rgba(127,164,109,0.8)]"
+                  : "filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.25)]"
+              }`}
+            />
           </div>
         </div>
+
+        {/* Prompt Izin Sensor untuk iOS Safari jika diperlukan */}
+        {needsPermission && (
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={requestCompassPermission}
+              style={{ backgroundColor: THEME_COLORS.hex.primary }}
+              className="px-4 py-2 hover:opacity-90 text-white rounded-full text-xs font-bold shadow-md active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <Compass className="w-4 h-4" />
+              <span>Aktifkan Sensor Kompas</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Bottom Control & Feedback Section */}
-      <div className="px-6 pb-8 flex flex-col items-center text-center gap-3 relative z-10">
-        {/* Direction Hint Pill Button Khas Gambar 2 */}
+      <div className="px-6 pb-4 flex flex-col items-center text-center gap-3 relative z-10 shrink-0">
+        {/* Direction Hint Pill Button */}
         <div
           style={
             isAligned
@@ -389,11 +640,11 @@ export function MobileKiblatPage() {
         <p className="text-[11px] font-medium text-stone-500 max-w-xs leading-relaxed">
           {isAligned
             ? "Alhamdulillah! Posisi ponsel Anda telah tepat menghadap Ka'bah."
-            : "Putar HP perlahan sampai ikon Ka'bah masuk ke penanda di puncak lingkaran"}
+            : "Putar HP perlahan sampai jarum kompas mengarah tepat ke Ka'bah di puncak lingkaran"}
         </p>
 
         {/* Disclaimer Footer Note */}
-        <p className="text-[9.5px] font-normal text-stone-400 mt-2 max-w-xs leading-normal">
+        <p className="text-[9.5px] font-normal text-stone-400 mt-1 max-w-xs leading-normal">
           Akurasi kompas bergantung pada sensor perangkat — untuk keperluan penting,
           mohon verifikasi dengan sumber lain.
         </p>
