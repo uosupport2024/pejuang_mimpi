@@ -13,6 +13,7 @@ export type RouteType =
   | "Overtime"
   | "Shift"
   | "ScheduleShift"
+  | "OrgManagement"
   | "KoreksiAbsenApproval"
   | "Recruitment"
   | "Onboarding"
@@ -71,6 +72,7 @@ export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   Overtime: "Lembur",
   Shift: "Shift",
   ScheduleShift: "Jadwal Shift",
+  OrgManagement: "Manajemen Organisasi",
   KoreksiAbsenApproval: "Persetujuan Absen",
   Recruitment: "Rekrutmen",
   Onboarding: "Onboarding",
@@ -124,6 +126,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   Overtime: "/overtime",
   Shift: "/shift",
   ScheduleShift: "/jadwal-shift",
+  OrgManagement: "/manajemen-organisasi",
   KoreksiAbsenApproval: "/persetujuan-absen",
   Recruitment: "/recruitment",
   Onboarding: "/onboarding",
@@ -180,6 +183,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/overtime": "Overtime",
   "/shift": "Shift",
   "/jadwal-shift": "ScheduleShift",
+  "/manajemen-organisasi": "OrgManagement",
   "/persetujuan-absen": "KoreksiAbsenApproval",
   "/recruitment": "Recruitment",
   "/onboarding": "Onboarding",

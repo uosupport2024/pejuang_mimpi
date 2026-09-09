@@ -18,7 +18,7 @@ interface LeaveApprovalItem {
   namaCuti: string;
   tanggal: string;
   alasanCuti: string;
-  statusCuti: "Approved" | "Pending" | "Rejected";
+  statusCuti: "Diterima" | "Pending" | "Ditolak";
   catatan: string | null;
   approvedByName: string | null;
   fotoCuti: string | null;
@@ -40,7 +40,7 @@ const getLeaveStyle = (name: string) => {
 };
 
 export function LeavePage() {
-  const [activeTab, setActiveTab] = useState<"All" | "Pending" | "Approved" | "Rejected">("Pending");
+  const [activeTab, setActiveTab] = useState<"All" | "Pending" | "Diterima" | "Ditolak">("Pending");
   const [list, setList] = useState<LeaveApprovalItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -51,7 +51,7 @@ export function LeavePage() {
   // Approval modal states
   const [actionModal, setActionModal] = useState<{
     isOpen: boolean;
-    type: "Approved" | "Rejected" | null;
+    type: "Diterima" | "Ditolak" | null;
     id: number | null;
   }>({
     isOpen: false,
@@ -110,7 +110,7 @@ export function LeavePage() {
     setPage(1);
   };
 
-  const handleOpenAction = (id: number, type: "Approved" | "Rejected") => {
+  const handleOpenAction = (id: number, type: "Diterima" | "Ditolak") => {
     setAdminNotes("");
     setActionModal({
       isOpen: true,
@@ -130,7 +130,7 @@ export function LeavePage() {
       });
 
       if (res && (res.code === 200 || res.success)) {
-        toast.success(`Pengajuan cuti/izin berhasil di-${actionModal.type === "Approved" ? "setujui" : "tolak"}`);
+        toast.success(`Pengajuan cuti/izin berhasil di-${actionModal.type === "Diterima" ? "setujui" : "tolak"}`);
         setActionModal({ isOpen: false, type: null, id: null });
         window.dispatchEvent(new Event("koreksi-approval-updated"));
         loadRequests();
@@ -147,9 +147,9 @@ export function LeavePage() {
 
   const getStatusStyle = (status: string) => {
     switch (status) {
-      case "Approved":
+      case "Diterima":
         return "bg-[#7FA46D] text-white font-bold";
-      case "Rejected":
+      case "Ditolak":
         return "bg-rose-500/10 text-rose-700 border border-rose-500/20";
       default:
         return "bg-amber-500/10 text-amber-700 border border-amber-500/20";
@@ -158,9 +158,9 @@ export function LeavePage() {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case "Approved":
+      case "Diterima":
         return "Disetujui";
-      case "Rejected":
+      case "Ditolak":
         return "Ditolak";
       default:
         return "Menunggu";
@@ -286,7 +286,7 @@ export function LeavePage() {
           <div className="flex items-center justify-center gap-1.5">
             <button
               type="button"
-              onClick={() => handleOpenAction(row.id, "Approved")}
+              onClick={() => handleOpenAction(row.id, "Diterima")}
               className="p-1.5 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white rounded-lg border border-emerald-500/20 transition-all cursor-pointer"
               title="Setujui"
             >
@@ -294,7 +294,7 @@ export function LeavePage() {
             </button>
             <button
               type="button"
-              onClick={() => handleOpenAction(row.id, "Rejected")}
+              onClick={() => handleOpenAction(row.id, "Ditolak")}
               className="p-1.5 bg-rose-500/10 text-rose-600 hover:bg-rose-500 hover:text-white rounded-lg border border-rose-500/20 transition-all cursor-pointer"
               title="Tolak"
             >
@@ -341,7 +341,7 @@ export function LeavePage() {
 
           {/* Right: Tab Chips */}
           <div className="flex flex-wrap items-center gap-1.5">
-            {(["Pending", "Approved", "Rejected", "All"] as const).map((tab) => {
+            {(["Pending", "Diterima", "Ditolak", "All"] as const).map((tab) => {
               const isActive = activeTab === tab;
               return (
                 <button
@@ -360,9 +360,9 @@ export function LeavePage() {
                 >
                   {tab === "Pending"
                     ? "Menunggu Approval"
-                    : tab === "Approved"
+                    : tab === "Diterima"
                       ? "Disetujui"
-                      : tab === "Rejected"
+                      : tab === "Ditolak"
                         ? "Ditolak"
                         : "Semua Pengajuan"}
                 </button>
@@ -401,10 +401,10 @@ export function LeavePage() {
           <div className="bg-white rounded-2xl border border-gray-200 shadow-xl max-w-sm w-full p-6 space-y-4 z-50 animate-in zoom-in-95 duration-200">
             <div className="text-left space-y-2">
               <h3 className="text-base font-bold text-gray-900 leading-tight">
-                {actionModal.type === "Approved" ? "Setujui Cuti & Izin" : "Tolak Cuti & Izin"}
+                {actionModal.type === "Diterima" ? "Setujui Cuti & Izin" : "Tolak Cuti & Izin"}
               </h3>
               <p className="text-xs text-gray-500 font-medium leading-relaxed">
-                {actionModal.type === "Approved"
+                {actionModal.type === "Diterima"
                   ? "Apakah Anda yakin ingin menyetujui pengajuan cuti/izin karyawan ini?"
                   : "Apakah Anda yakin ingin menolak pengajuan cuti/izin karyawan ini?"}
               </p>
@@ -436,12 +436,12 @@ export function LeavePage() {
                 type="button"
                 disabled={submitting}
                 onClick={handleConfirmAction}
-                className={`w-full h-9 px-4 py-2 text-xs font-bold text-white rounded-lg transition-all shadow-sm focus:outline-none focus:ring-1 focus:ring-offset-1 cursor-pointer disabled:opacity-50 flex items-center justify-center ${actionModal.type === "Approved"
+                className={`w-full h-9 px-4 py-2 text-xs font-bold text-white rounded-lg transition-all shadow-sm focus:outline-none focus:ring-1 focus:ring-offset-1 cursor-pointer disabled:opacity-50 flex items-center justify-center ${actionModal.type === "Diterima"
                     ? "bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500"
                     : "bg-rose-600 hover:bg-rose-700 focus:ring-rose-500"
                   }`}
               >
-                {submitting ? "Memproses..." : actionModal.type === "Approved" ? "Setujui" : "Tolak"}
+                {submitting ? "Memproses..." : actionModal.type === "Diterima" ? "Setujui" : "Tolak"}
               </button>
             </div>
           </div>

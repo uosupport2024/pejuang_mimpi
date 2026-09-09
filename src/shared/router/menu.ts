@@ -1,5 +1,6 @@
 import {
   UsersGroupRounded,
+  UsersGroupTwoRounded,
   Refresh,
   Structure,
   Buildings3,
@@ -54,6 +55,7 @@ export const menuItems: MenuItem[] = [
     ]
   },
   { name: "Jadwal Shift", route: "ScheduleShift", icon: CalendarMark, group: "Operasional" },
+  { name: "Manajemen Organisasi", route: "OrgManagement", icon: UsersGroupTwoRounded, group: "Operasional" },
   { name: "Lembur", route: "Overtime", icon: ClockCircle, group: "Operasional" },
   { name: "Pelatihan", route: "Training", icon: BookBookmark, group: "Operasional" },
 
