@@ -577,8 +577,14 @@ export function MobileKiblatPage() {
           {/* Jarum Kompas Presisi Faceted Modern (Mengarah ke Kiblat) */}
           <CompassNeedle angle={needleAngle} isAligned={isAligned} />
 
-          {/* Poros Titik Tengah: Kepala Ayam Pejuang Mimpi (Tanpa Background) */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+          {/* Poros Titik Tengah: Kepala Ayam Pejuang Mimpi (Ikut Muter dengan Jarum) */}
+          <div
+            className="absolute inset-0 flex items-center justify-center pointer-events-none z-30"
+            style={{
+              transform: `rotate(${needleAngle}deg)`,
+              transition: "transform 0.08s ease-out",
+            }}
+          >
             <img
               src={kepalaAyam}
               alt="Kepala Ayam Pejuang Mimpi"
