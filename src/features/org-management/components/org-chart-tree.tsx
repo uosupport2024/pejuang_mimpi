@@ -11,6 +11,13 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+// Same 3-letter abbreviation convention used on the location cards in the
+// "Lokasi & Divisi" tab, so a long location name never overflows this tiny
+// tag on a person's card.
+function abbreviate(name: string): string {
+  return name.replace(/\s+/g, "").slice(0, 3).toUpperCase() || "-";
+}
+
 const AVATAR_COLOR = THEME_COLORS.hex.navBg;
 const LINE_COLOR = "#94a3b8"; // slate-400
 
@@ -216,8 +223,11 @@ function OrgChartNode({
             {(node.lokasi || isCrossSite) && (
               <div className="flex items-center gap-1 mt-0.5">
                 {node.lokasi && (
-                  <span className="inline-flex items-center px-[3px] rounded-sm text-[9px] leading-tight font-medium bg-zinc-100 text-gray-500 truncate">
-                    {node.lokasi.nama_lokasi}
+                  <span
+                    title={node.lokasi.nama_lokasi}
+                    className="inline-flex items-center px-[3px] rounded-sm text-[9px] leading-tight font-medium bg-zinc-100 text-gray-500 truncate"
+                  >
+                    {abbreviate(node.lokasi.nama_lokasi)}
                   </span>
                 )}
                 {isCrossSite && (

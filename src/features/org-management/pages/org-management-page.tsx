@@ -20,6 +20,10 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
+function abbreviate(name: string): string {
+  return name.replace(/\s+/g, "").slice(0, 3).toUpperCase() || "-";
+}
+
 export function OrgManagementPage() {
   const { navigate } = useRouter();
   const [hierarchy, setHierarchy] = useState<HierarchyNode[]>([]);
@@ -125,6 +129,40 @@ export function OrgManagementPage() {
       }
     });
     return Array.from(counts.entries()).map(([id, v]) => ({ id, ...v }));
+  }, [hierarchy]);
+
+  // One card per location, each broken down by division within that
+  // location — feeds the "Lokasi & Divisi" tab.
+  const locationCards = useMemo(() => {
+    const byLocation = new Map<
+      number,
+      { nama_lokasi: string; total: number; divisions: Map<number, { nama_jabatan: string; count: number }> }
+    >();
+    hierarchy.forEach((n) => {
+      if (!n.lokasi) return;
+      const entry = byLocation.get(n.lokasi.id) || {
+        nama_lokasi: n.lokasi.nama_lokasi,
+        total: 0,
+        divisions: new Map<number, { nama_jabatan: string; count: number }>(),
+      };
+      entry.total += 1;
+      if (n.jabatan) {
+        const d = entry.divisions.get(n.jabatan.id) || { nama_jabatan: n.jabatan.nama_jabatan, count: 0 };
+        d.count += 1;
+        entry.divisions.set(n.jabatan.id, d);
+      }
+      byLocation.set(n.lokasi.id, entry);
+    });
+    return Array.from(byLocation.entries())
+      .map(([id, v]) => ({
+        id,
+        nama_lokasi: v.nama_lokasi,
+        total: v.total,
+        divisions: Array.from(v.divisions.entries())
+          .map(([did, dv]) => ({ id: did, ...dv }))
+          .sort((a, b) => b.count - a.count),
+      }))
+      .sort((a, b) => b.total - a.total);
   }, [hierarchy]);
 
   // Search/site/divisi all feed the SAME highlight mechanism (rather than
@@ -421,62 +459,77 @@ export function OrgManagementPage() {
       )}
 
       {activeTab === "locations" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white border border-gray-200/80 rounded-2xl shadow-xs p-6 space-y-3">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-              <h3 className="text-sm font-semibold text-gray-800">Lokasi</h3>
-              <button type="button" onClick={() => navigate("Location")} className="text-[11px] font-bold" style={{ color: THEME_COLORS.hex.primary }}>
-                Kelola Lokasi →
-              </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {locationCards.length === 0 ? (
+            <div className="col-span-full bg-white border border-gray-200/80 rounded-2xl shadow-xs p-10 text-center">
+              <p className="text-xs text-gray-400">Belum ada data lokasi.</p>
             </div>
-            {siteOptions.length === 0 ? (
-              <p className="text-xs text-gray-400 py-4 text-center">Belum ada data lokasi.</p>
-            ) : (
-              siteOptions.map((s) => (
-                <div key={s.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
-                  <span className="text-xs font-medium text-gray-700">{s.nama_lokasi}</span>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-gray-400">{s.count} pegawai</span>
-                    <button
-                      type="button"
-                      onClick={() => goToDirectory({ lokasi_id: s.id })}
-                      className="text-[10px] font-bold text-gray-500 hover:text-gray-800 cursor-pointer"
-                    >
-                      Lihat di Direktori
-                    </button>
-                  </div>
+          ) : (
+            locationCards.map((loc) => (
+              <div key={loc.id} className="bg-white border border-gray-200/80 rounded-2xl shadow-xs p-5 space-y-4">
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="text-base font-bold text-gray-800 leading-tight">{loc.nama_lokasi}</h3>
+                  <span
+                    style={{ backgroundColor: THEME_COLORS.hex.navBg }}
+                    className="shrink-0 px-2 py-1 rounded-md text-[10px] font-black text-white tracking-wide"
+                  >
+                    {abbreviate(loc.nama_lokasi)}
+                  </span>
                 </div>
-              ))
-            )}
-          </div>
 
-          <div className="bg-white border border-gray-200/80 rounded-2xl shadow-xs p-6 space-y-3">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-              <h3 className="text-sm font-semibold text-gray-800">Divisi</h3>
-              <button type="button" onClick={() => navigate("Organization")} className="text-[11px] font-bold" style={{ color: THEME_COLORS.hex.primary }}>
-                Kelola Divisi →
-              </button>
-            </div>
-            {divisiOptions.length === 0 ? (
-              <p className="text-xs text-gray-400 py-4 text-center">Belum ada data divisi.</p>
-            ) : (
-              divisiOptions.map((d) => (
-                <div key={d.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
-                  <span className="text-xs font-medium text-gray-700">{d.nama_jabatan}</span>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-gray-400">{d.count} pegawai</span>
-                    <button
-                      type="button"
-                      onClick={() => goToDirectory({ jabatan_id: d.id })}
-                      className="text-[10px] font-bold text-gray-500 hover:text-gray-800 cursor-pointer"
-                    >
-                      Lihat di Direktori
-                    </button>
-                  </div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-3xl font-black text-gray-800 leading-none">{loc.total}</span>
+                  <span className="text-xs text-gray-500 font-medium">kontrak aktif</span>
                 </div>
-              ))
-            )}
-          </div>
+
+                <div className="border-t border-gray-100 pt-3 space-y-2.5">
+                  {loc.divisions.length === 0 ? (
+                    <p className="text-[11px] text-gray-400">Belum ada divisi tercatat di lokasi ini.</p>
+                  ) : (
+                    loc.divisions.map((d) => (
+                      <div key={d.id} className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span
+                            style={{ color: THEME_COLORS.hex.primary }}
+                            className="text-[10px] font-black shrink-0 w-7"
+                          >
+                            {abbreviate(d.nama_jabatan)}
+                          </span>
+                          <span className="text-xs font-semibold text-gray-700 truncate">{d.nama_jabatan}</span>
+                        </div>
+                        <span className="text-xs text-gray-400 font-medium shrink-0">{d.count}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => navigate("Location")}
+                    className="flex-1 h-8 text-[11px] font-bold rounded-lg bg-zinc-100 hover:bg-zinc-200/80 text-gray-600 transition-colors cursor-pointer"
+                  >
+                    Kelola Lokasi
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate("Organization")}
+                    className="flex-1 h-8 text-[11px] font-bold rounded-lg bg-zinc-100 hover:bg-zinc-200/80 text-gray-600 transition-colors cursor-pointer"
+                  >
+                    Kelola Divisi
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => goToDirectory({ lokasi_id: loc.id })}
+                  style={{ color: THEME_COLORS.hex.primary }}
+                  className="w-full text-[11px] font-bold text-center cursor-pointer hover:opacity-80"
+                >
+                  Lihat di Direktori →
+                </button>
+              </div>
+            ))
+          )}
         </div>
       )}
 
