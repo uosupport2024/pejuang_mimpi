@@ -10,6 +10,7 @@ import {
   ClockCircle,
   Dollar,
   DocumentText,
+  FolderWithFiles,
   Widget2,
   BookBookmark,
   ShieldCheck,
@@ -56,6 +57,7 @@ export const menuItems: MenuItem[] = [
   },
   { name: "Jadwal Shift", route: "ScheduleShift", icon: CalendarMark, group: "Operasional" },
   { name: "Manajemen Organisasi", route: "OrgManagement", icon: UsersGroupTwoRounded, group: "Operasional" },
+  { name: "Dokumen", route: "Document", icon: FolderWithFiles, group: "Operasional" },
   { name: "Lembur", route: "Overtime", icon: ClockCircle, group: "Operasional" },
   { name: "Pelatihan", route: "Training", icon: BookBookmark, group: "Operasional" },
 
