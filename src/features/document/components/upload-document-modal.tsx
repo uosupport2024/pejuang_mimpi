@@ -18,24 +18,30 @@ const SELF_VALUE = "__self__";
 interface UploadDocumentModalProps {
   onCancel: () => void;
   onUploaded: (doc: UserDocument) => void;
+  // Admin usage (default) lets the uploader pick who the document is for.
+  // Mobile self-service passes false: a plain employee shouldn't be able to
+  // upload on someone else's behalf, so the picker (and the employee list
+  // fetch it needs) is skipped entirely rather than just hidden.
+  allowTargetSelection?: boolean;
 }
 
-export function UploadDocumentModal({ onCancel, onUploaded }: UploadDocumentModalProps) {
+export function UploadDocumentModal({ onCancel, onUploaded, allowTargetSelection = true }: UploadDocumentModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [documentType, setDocumentType] = useState("");
   const [targetUser, setTargetUser] = useState(SELF_VALUE);
   const [employees, setEmployees] = useState<BackendEmployee[]>([]);
-  const [loadingEmployees, setLoadingEmployees] = useState(true);
+  const [loadingEmployees, setLoadingEmployees] = useState(allowTargetSelection);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    if (!allowTargetSelection) return;
     fetchEmployees({ per_page: 50 })
       .then((res) => setEmployees(res.data))
       .catch(() => toast.error("Gagal memuat daftar pegawai"))
       .finally(() => setLoadingEmployees(false));
-  }, []);
+  }, [allowTargetSelection]);
 
   const employeeOptions = [
     { value: SELF_VALUE, label: "Diri Sendiri" },
@@ -146,14 +152,16 @@ export function UploadDocumentModal({ onCancel, onUploaded }: UploadDocumentModa
           </div>
         </div>
 
-        <div className="space-y-1">
-          <label className="text-[11px] font-semibold text-gray-500">Untuk Pegawai</label>
-          {loadingEmployees ? (
-            <div className="h-9 w-full bg-zinc-100 animate-pulse rounded-lg" />
-          ) : (
-            <Combobox options={employeeOptions} value={targetUser} onChange={setTargetUser} searchPlaceholder="Cari pegawai..." />
-          )}
-        </div>
+        {allowTargetSelection && (
+          <div className="space-y-1">
+            <label className="text-[11px] font-semibold text-gray-500">Untuk Pegawai</label>
+            {loadingEmployees ? (
+              <div className="h-9 w-full bg-zinc-100 animate-pulse rounded-lg" />
+            ) : (
+              <Combobox options={employeeOptions} value={targetUser} onChange={setTargetUser} searchPlaceholder="Cari pegawai..." />
+            )}
+          </div>
+        )}
 
         <div className="flex items-center gap-3 pt-2">
           <button

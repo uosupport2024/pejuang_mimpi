@@ -16,7 +16,7 @@ import { RecruitmentPage } from "@/features/recruitment";
 import { OnboardingPage } from "@/features/onboarding";
 import { AppraisalPage } from "@/features/appraisal";
 import { TrainingPage, TrainingFormPage, TrainingDetailPage } from "@/features/training";
-import { DocumentPage } from "@/features/document";
+import { DocumentPage, DocumentHistoryPage } from "@/features/document";
 import { AnnouncementPage } from "@/features/announcement";
 import { OrganizationPage } from "@/features/organization";
 import { LocationPage, LocationAddPage, LocationEditPage } from "@/features/location";
@@ -168,6 +168,8 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <LeaveRequestPage user={user} />;
       case "MobileLeaveHistory":
         return <LeaveHistoryPage user={user} />;
+      case "MobileDocumentHistory":
+        return <DocumentHistoryPage user={user} />;
       case "MobileIdCard":
         return <IdCardPage user={user} />;
       case "MobilePayroll":
