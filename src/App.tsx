@@ -99,6 +99,7 @@ function AppContent({ session, isInitializing, handleLoginSuccess, handleLogout,
         currentRoute === "MobileHistory" ||
         currentRoute === "MobileLeaveRequest" ||
         currentRoute === "MobileLeaveHistory" ||
+        currentRoute === "MobileDocumentHistory" ||
         currentRoute === "MobileIdCard" ||
         currentRoute === "MobilePayroll" ||
         currentRoute === "MobileNotificationHistory" ||

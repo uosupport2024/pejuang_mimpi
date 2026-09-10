@@ -13,8 +13,10 @@ export interface UserDocument {
   file_size: number | null;
   created_at: string;
   updated_at: string;
-  user: { id: number; name: string } | null;
-  uploader: { id: number; name: string; roles?: { id: number; name: string }[] } | null;
+  // Only eager-loaded on POST /user-documents and GET /user-documents/tenant
+  // — the self-scoped GET /user-documents doesn't include these at all.
+  user?: { id: number; name: string } | null;
+  uploader?: { id: number; name: string; roles?: { id: number; name: string }[] } | null;
 }
 
 export interface PaginatedResponse<T> {
@@ -60,6 +62,25 @@ export async function fetchTenantDocuments(params?: {
 
   if (!response.ok) {
     throw await parseError(response, "Gagal memuat daftar dokumen");
+  }
+
+  const json = await response.json();
+  const paginated: PaginatedResponse<UserDocument> = json.data;
+  return paginated?.data || [];
+}
+
+export async function fetchMyDocuments(params?: { document_type?: string }): Promise<UserDocument[]> {
+  const query = new URLSearchParams();
+  query.append("per_page", "100");
+  if (params?.document_type) query.append("document_type", params.document_type);
+
+  const response = await fetch(`${API_BASE_URL}/user-documents?${query.toString()}`, {
+    method: "GET",
+    headers: authHeaders(),
+  });
+
+  if (!response.ok) {
+    throw await parseError(response, "Gagal memuat dokumen saya");
   }
 
   const json = await response.json();
