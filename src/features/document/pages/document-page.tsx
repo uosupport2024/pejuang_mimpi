@@ -6,7 +6,7 @@ import { THEME_COLORS } from "@/shared/constants/colors";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
 import { UploadDocumentModal } from "../components/upload-document-modal";
-import { fetchTenantDocuments, deleteDocument, downloadDocumentBlob, type UserDocument } from "../api/document";
+import { fetchTenantDocuments, deleteDocument, downloadDocumentBlob, isPayslip, type UserDocument } from "../api/document";
 
 const PRIVILEGED_ROLES = ["super_admin", "admin", "hrd", "general_manager", "kepala_cabang"];
 
@@ -78,7 +78,7 @@ export function DocumentPage() {
     if (!["jpg", "jpeg", "png", "pdf"].includes(ext)) return;
 
     setPreviewLoading(true);
-    downloadDocumentBlob(selected.id)
+    downloadDocumentBlob(selected)
       .then((blob) => setPreviewUrl(URL.createObjectURL(blob)))
       .catch(() => toast.error("Gagal memuat pratinjau dokumen"))
       .finally(() => setPreviewLoading(false));
@@ -113,7 +113,7 @@ export function DocumentPage() {
 
   const handleDownload = async (doc: UserDocument) => {
     try {
-      const blob = await downloadDocumentBlob(doc.id);
+      const blob = await downloadDocumentBlob(doc);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -129,7 +129,7 @@ export function DocumentPage() {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      await deleteDocument(deleteTarget.id);
+      await deleteDocument(deleteTarget);
       toast.success("Dokumen berhasil dihapus.");
       setDocuments((prev) => prev.filter((d) => d.id !== deleteTarget.id));
       if (selected?.id === deleteTarget.id) setSelected(null);
@@ -288,14 +288,16 @@ export function DocumentPage() {
                             >
                               <Download size={14} />
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => setDeleteTarget(doc)}
-                              title="Hapus"
-                              className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                            >
-                              <Trash2 size={14} />
-                            </button>
+                            {!isPayslip(doc) && (
+                              <button
+                                type="button"
+                                onClick={() => setDeleteTarget(doc)}
+                                title="Hapus"
+                                className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -370,13 +372,15 @@ export function DocumentPage() {
               >
                 <Download size={13} /> Unduh
               </button>
-              <button
-                type="button"
-                onClick={() => setDeleteTarget(selected)}
-                className="flex-1 h-9 flex items-center justify-center gap-1.5 text-xs font-bold rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer"
-              >
-                <Trash2 size={13} /> Hapus
-              </button>
+              {!isPayslip(selected) && (
+                <button
+                  type="button"
+                  onClick={() => setDeleteTarget(selected)}
+                  className="flex-1 h-9 flex items-center justify-center gap-1.5 text-xs font-bold rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer"
+                >
+                  <Trash2 size={13} /> Hapus
+                </button>
+              )}
             </div>
           </div>
         )}
