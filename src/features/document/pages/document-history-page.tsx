@@ -8,7 +8,7 @@ import { THEME_COLORS } from "@/shared/constants/colors";
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { UploadDocumentModal } from "../components/upload-document-modal";
-import { fetchMyDocuments, deleteDocument, downloadDocumentBlob, type UserDocument } from "../api/document";
+import { fetchMyDocuments, deleteDocument, downloadDocumentBlob, isPayslip, type UserDocument } from "../api/document";
 
 interface DocumentHistoryPageProps {
   user: any;
@@ -79,7 +79,7 @@ export function DocumentHistoryPage(_props: DocumentHistoryPageProps) {
     if (!["jpg", "jpeg", "png", "pdf"].includes(ext)) return;
 
     setPreviewLoading(true);
-    downloadDocumentBlob(selected.id)
+    downloadDocumentBlob(selected)
       .then((blob) => setPreviewUrl(URL.createObjectURL(blob)))
       .catch(() => toast.error("Gagal memuat pratinjau dokumen"))
       .finally(() => setPreviewLoading(false));
@@ -105,7 +105,7 @@ export function DocumentHistoryPage(_props: DocumentHistoryPageProps) {
 
   const handleDownload = async (doc: UserDocument) => {
     try {
-      const blob = await downloadDocumentBlob(doc.id);
+      const blob = await downloadDocumentBlob(doc);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -121,7 +121,7 @@ export function DocumentHistoryPage(_props: DocumentHistoryPageProps) {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      await deleteDocument(deleteTarget.id);
+      await deleteDocument(deleteTarget);
       toast.success("Dokumen berhasil dihapus.");
       setDocuments((prev) => prev.filter((d) => d.id !== deleteTarget.id));
       if (selected?.id === deleteTarget.id) setSelected(null);
@@ -312,7 +312,7 @@ export function DocumentHistoryPage(_props: DocumentHistoryPageProps) {
               >
                 <Download size={13} /> Unduh
               </button>
-              {isSelfUploaded(selected) && (
+              {!isPayslip(selected) && isSelfUploaded(selected) && (
                 <button
                   type="button"
                   onClick={() => setDeleteTarget(selected)}
