@@ -13,6 +13,7 @@ export type RouteType =
   | "Overtime"
   | "Shift"
   | "ScheduleShift"
+  | "OrgManagement"
   | "KoreksiAbsenApproval"
   | "Recruitment"
   | "Onboarding"
@@ -41,6 +42,7 @@ export type RouteType =
   | "MobileHistory"
   | "MobileLeaveRequest"
   | "MobileLeaveHistory"
+  | "MobileDocumentHistory"
   | "MobileIdCard"
   | "MobilePayroll"
   | "MobileNotificationHistory"
@@ -71,6 +73,7 @@ export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   Overtime: "Lembur",
   Shift: "Shift",
   ScheduleShift: "Jadwal Shift",
+  OrgManagement: "Manajemen Organisasi",
   KoreksiAbsenApproval: "Persetujuan Absen",
   Recruitment: "Rekrutmen",
   Onboarding: "Onboarding",
@@ -107,6 +110,7 @@ export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   MobileHistory: "Riwayat",
   MobileLeaveRequest: "Pengajuan Cuti",
   MobileLeaveHistory: "Riwayat Cuti",
+  MobileDocumentHistory: "Dokumen Saya",
   MobileIdCard: "Kartu Identitas",
   MobilePayroll: "Payroll Saya",
   MobileNotificationHistory: "Notifikasi",
@@ -124,6 +128,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   Overtime: "/overtime",
   Shift: "/shift",
   ScheduleShift: "/jadwal-shift",
+  OrgManagement: "/manajemen-organisasi",
   KoreksiAbsenApproval: "/persetujuan-absen",
   Recruitment: "/recruitment",
   Onboarding: "/onboarding",
@@ -155,6 +160,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   MobileHistory: "/mobile/history",
   MobileLeaveRequest: "/mobile/leave-request",
   MobileLeaveHistory: "/mobile/leave-history",
+  MobileDocumentHistory: "/mobile/dokumen",
   MobileIdCard: "/mobile/id-card",
   MobilePayroll: "/mobile/payroll",
   MobileNotificationHistory: "/mobile/notifications",
@@ -180,6 +186,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/overtime": "Overtime",
   "/shift": "Shift",
   "/jadwal-shift": "ScheduleShift",
+  "/manajemen-organisasi": "OrgManagement",
   "/persetujuan-absen": "KoreksiAbsenApproval",
   "/recruitment": "Recruitment",
   "/onboarding": "Onboarding",
@@ -211,6 +218,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/mobile/history": "MobileHistory",
   "/mobile/leave-request": "MobileLeaveRequest",
   "/mobile/leave-history": "MobileLeaveHistory",
+  "/mobile/dokumen": "MobileDocumentHistory",
   "/mobile/id-card": "MobileIdCard",
   "/mobile/payroll": "MobilePayroll",
   "/mobile/notifications": "MobileNotificationHistory",

@@ -227,11 +227,11 @@ export function LeaveHistoryPage({ user }: LeaveHistoryPageProps) {
 
                     {/* Right: Status & Actions */}
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className={`px-2 py-0.5 rounded-full text-[8.5px] font-extrabold uppercase tracking-wider ${item.status_cuti === "Approved" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" :
+                      <span className={`px-2 py-0.5 rounded-full text-[8.5px] font-extrabold uppercase tracking-wider ${item.status_cuti === "Diterima" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" :
                         item.status_cuti === "Pending" ? "bg-amber-50 text-amber-700 border border-amber-100" :
                           "bg-rose-50 text-rose-700 border border-rose-100"
                         }`}>
-                        {item.status_cuti === "Approved" ? "APPROVED" : item.status_cuti === "Pending" ? "PENDING" : "REJECTED"}
+                        {item.status_cuti === "Diterima" ? "DITERIMA" : item.status_cuti === "Pending" ? "MENUNGGU" : "DITOLAK"}
                       </span>
 
                       {item.status_cuti === "Pending" && (

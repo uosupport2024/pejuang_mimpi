@@ -14,6 +14,7 @@ export interface ScheduleEmployee {
   email: string;
   telepon: string | null;
   lokasi: { id: number; nama_lokasi: string } | null;
+  jabatan: { id: number; nama_jabatan: string } | null;
 }
 
 export interface FetchScheduleEmployeesResponse {

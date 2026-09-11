@@ -98,7 +98,7 @@ export async function fetchCutiForAdminAPI(page = 1, perPage = 10, status?: stri
   return await response.json();
 }
 
-export async function approveCutiAPI(id: number, payload: { status: "Approved" | "Rejected"; notes?: string }) {
+export async function approveCutiAPI(id: number, payload: { status: "Diterima" | "Ditolak"; notes?: string }) {
   const response = await fetch(`${API_BASE_URL}/cuti/${id}/approval`, {
     method: "POST",
     headers: getHeaders(),

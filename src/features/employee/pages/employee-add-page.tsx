@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "@/shared/router/router";
 import { createEmployee, fetchMasters, type MasterData } from "../api/employee";
 import { toast } from "sonner";
+import { FileWarning } from "lucide-react";
 import { FormField } from "@/shared/components/ui/form-field";
 import { cn } from "@/shared/lib/utils";
 import { THEME_COLORS } from "@/shared/constants/colors";
@@ -369,14 +370,28 @@ export function EmployeeAddPage() {
 
         {/* Tab 7: Tunjangan & Potongan */}
         {activeTab === "tunjangan" && (
-          <div className="bg-white border border-gray-200/80 rounded-2xl shadow-xs p-6 space-y-4">
-            <h2 style={{ color: THEME_COLORS.hex.primary }} className="text-sm font-semibold border-b border-gray-100 pb-2">Tunjangan & Potongan Pajak / BPJS</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField label="Tunjangan BPJS Kesehatan (Rp)" type="number" name="tunjangan_bpjs_kesehatan" value={formData.tunjangan_bpjs_kesehatan} onChange={handleChange} isCurrency={true} />
-              <FormField label="Tunjangan BPJS Ketenagakerjaan (Rp)" type="number" name="tunjangan_bpjs_ketenagakerjaan" value={formData.tunjangan_bpjs_ketenagakerjaan} onChange={handleChange} isCurrency={true} />
-              <FormField label="Potongan BPJS Kesehatan (Rp)" type="number" name="potongan_bpjs_kesehatan" value={formData.potongan_bpjs_kesehatan} onChange={handleChange} isCurrency={true} />
-              <FormField label="Potongan BPJS Ketenagakerjaan (Rp)" type="number" name="potongan_bpjs_ketenagakerjaan" value={formData.potongan_bpjs_ketenagakerjaan} onChange={handleChange} isCurrency={true} />
-              <FormField label="Tunjangan Pajak (Gross Up)" type="number" name="tunjangan_pajak" value={formData.tunjangan_pajak} onChange={handleChange} isCurrency={true} className="md:col-span-2" />
+          <div className="space-y-6">
+            <div className="bg-white border border-gray-200/80 rounded-2xl shadow-xs p-6 space-y-4">
+              <h2 style={{ color: THEME_COLORS.hex.primary }} className="text-sm font-semibold border-b border-gray-100 pb-2">Tunjangan & Potongan Pajak / BPJS</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField label="Tunjangan BPJS Kesehatan (Rp)" type="number" name="tunjangan_bpjs_kesehatan" value={formData.tunjangan_bpjs_kesehatan} onChange={handleChange} isCurrency={true} />
+                <FormField label="Tunjangan BPJS Ketenagakerjaan (Rp)" type="number" name="tunjangan_bpjs_ketenagakerjaan" value={formData.tunjangan_bpjs_ketenagakerjaan} onChange={handleChange} isCurrency={true} />
+                <FormField label="Potongan BPJS Kesehatan (Rp)" type="number" name="potongan_bpjs_kesehatan" value={formData.potongan_bpjs_kesehatan} onChange={handleChange} isCurrency={true} />
+                <FormField label="Potongan BPJS Ketenagakerjaan (Rp)" type="number" name="potongan_bpjs_ketenagakerjaan" value={formData.potongan_bpjs_ketenagakerjaan} onChange={handleChange} isCurrency={true} />
+                <FormField label="Tunjangan Pajak (Gross Up)" type="number" name="tunjangan_pajak" value={formData.tunjangan_pajak} onChange={handleChange} isCurrency={true} className="md:col-span-2" />
+              </div>
+            </div>
+
+            <div className="bg-white border border-gray-200/80 rounded-2xl shadow-xs p-6 space-y-4">
+              <h2 style={{ color: THEME_COLORS.hex.primary }} className="text-sm font-semibold border-b border-gray-100 pb-2">Alokasi & Pemotongan Lainnya</h2>
+              <div className="flex flex-col items-center justify-center text-center gap-3 py-10">
+                <FileWarning size={36} className="text-amber-500" />
+                <p className="text-sm font-semibold text-gray-700">Belum tersedia untuk pegawai baru.</p>
+                <p className="text-xs text-gray-500 max-w-md">
+                  Alokasi & pemotongan lainnya (investasi/amal) baru bisa ditambahkan setelah pegawai ini disimpan.
+                  Simpan pegawai terlebih dahulu, lalu buka halaman Edit Pegawai untuk mengatur alokasinya.
+                </p>
+              </div>
             </div>
           </div>
         )}

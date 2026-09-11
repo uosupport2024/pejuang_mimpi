@@ -605,8 +605,15 @@ export function ScheduleShiftPage() {
       cell: (row) => <span className="text-gray-600 font-medium">{row.telepon || "-"}</span>,
     },
     {
-      header: "Lokasi",
-      cell: (row) => <span className="text-gray-600 font-medium">{row.lokasi?.nama_lokasi || "-"}</span>,
+      header: "Divisi",
+      cell: (row) => (
+        <div className="min-w-0">
+          <p className="font-bold text-gray-800 leading-tight truncate">{row.jabatan?.nama_jabatan || "-"}</p>
+          <p className="text-[10px] text-gray-400 font-medium leading-none mt-0.5 truncate">
+            {row.lokasi?.nama_lokasi || "-"}
+          </p>
+        </div>
+      ),
       sortable: false,
     },
   ];

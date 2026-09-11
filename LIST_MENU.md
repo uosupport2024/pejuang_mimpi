@@ -80,6 +80,22 @@
       - `GET /api/mapping-shifts?start_date=&end_date=&lokasi_id=` — Pratinjau jadwal shift mingguan (tenant-wide, dikelompokkan per pegawai).
       - `POST /api/mapping-shifts/bulk` — Terapkan satu shift ke banyak `user_ids` sekaligus untuk rentang tanggal `start_date`–`end_date`.
 
+  - 🧭 **Manajemen Organisasi** (Org Chart, Lokasi & Divisi, Direktori)
+    - **Path URL:** `/manajemen-organisasi` | **Route ID:** `OrgManagement`
+    - **Fitur BE:**
+      - `GET /api/user-contracts/hierarchy` — Roster aktif satu tenant (unpaginated), tiap baris bawa `manager_contract_id` & `direct_report_count` untuk dirangkai jadi bagan organisasi di frontend.
+      - `PUT /api/user-contracts/{id}` (`manager_contract_id`) — Ubah/tetapkan atasan seorang pegawai langsung dari bagan, sudah divalidasi same-tenant + anti-siklus oleh backend.
+      - `GET /api/employees?lokasi_id=&jabatan_id=&q=&page=&per_page=` — Dipakai ulang untuk tab Direktori (list pegawai searchable/filterable).
+
+  - 📁 **Dokumen** (Shared Document Library)
+    - **Path URL:** `/document` | **Route ID:** `Document`
+    - **Fitur BE:**
+      - `GET /api/user-documents/tenant?user_id=&document_type=` — List semua dokumen tenant (termasuk `file_size` & `uploader.roles` untuk label ukuran dan badge HR).
+      - `POST /api/user-documents` (`document_type`, `title`, `user_id`, `file`) — Unggah dokumen untuk diri sendiri atau (khusus role admin/hrd/gm/kepala_cabang) untuk pegawai lain; tipe `rotation`/`notification` juga khusus role tersebut.
+      - `GET /api/user-documents/{id}/download` — Unduh/pratinjau file (dipakai lewat fetch+blob karena butuh header Authorization).
+      - `DELETE /api/user-documents/{id}` — Hapus dokumen (hard delete, file + record).
+      - `GET /api/employees?per_page=` — Dipakai ulang untuk pemilih "Untuk Pegawai" saat unggah.
+
   - ⏰ **Lembur** (Overtime Approval)
     - **Path URL:** `/overtime` | **Route ID:** `Overtime`
     - **Fitur BE:**
