@@ -20,17 +20,34 @@ export interface LeaderboardPeriod {
   end?: string;
 }
 
+let cachedLeaderboardData: {
+  big3Data: LeaderboardUser[];
+  listData: LeaderboardUser[];
+  period: LeaderboardPeriod | null;
+  timestamp: number;
+} | null = null;
+const LEADERBOARD_CACHE_TTL = 60 * 1000;
+
 export function AttendanceLeaderboard() {
   const { navbarBgStyle, buttonColor } = useTenantBranding();
   const [activeTab, setActiveTab] = useState<"big3" | "list">("big3");
-  const [big3Data, setBig3Data] = useState<LeaderboardUser[]>([]);
-  const [listData, setListData] = useState<LeaderboardUser[]>([]);
-  const [period, setPeriod] = useState<LeaderboardPeriod | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [big3Data, setBig3Data] = useState<LeaderboardUser[]>(() => cachedLeaderboardData?.big3Data || []);
+  const [listData, setListData] = useState<LeaderboardUser[]>(() => cachedLeaderboardData?.listData || []);
+  const [period, setPeriod] = useState<LeaderboardPeriod | null>(() => cachedLeaderboardData?.period || null);
+  const [isLoading, setIsLoading] = useState<boolean>(() => !cachedLeaderboardData);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
+
+    // Reuse cache if still within TTL
+    if (cachedLeaderboardData && Date.now() - cachedLeaderboardData.timestamp < LEADERBOARD_CACHE_TTL) {
+      setBig3Data(cachedLeaderboardData.big3Data);
+      setListData(cachedLeaderboardData.listData);
+      setPeriod(cachedLeaderboardData.period);
+      setIsLoading(false);
+      return;
+    }
 
     async function loadLeaderboard() {
       try {
@@ -48,10 +65,21 @@ export function AttendanceLeaderboard() {
           }),
         ]);
 
+        const newBig3 = big3Res.leaderboard || [];
+        const newList = listRes.leaderboardData || [];
+        const newPeriod = big3Res.period || listRes.period || null;
+
+        cachedLeaderboardData = {
+          big3Data: newBig3,
+          listData: newList,
+          period: newPeriod,
+          timestamp: Date.now(),
+        };
+
         if (isMounted) {
-          setBig3Data(big3Res.leaderboard || []);
-          setListData(listRes.leaderboardData || []);
-          setPeriod(big3Res.period || listRes.period || null);
+          setBig3Data(newBig3);
+          setListData(newList);
+          setPeriod(newPeriod);
         }
       } catch (err: any) {
         if (isMounted) {

@@ -138,7 +138,7 @@ export function UploadDocumentModal({ onCancel, onUploaded, allowTargetSelection
             className="w-full h-9 px-3 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#e0542c] focus:border-[#e0542c] text-gray-700 font-medium"
           />
           <div className="flex flex-wrap gap-1.5 pt-0.5">
-            {QUICK_TYPES.map((t) => (
+            {QUICK_TYPES.filter((t) => allowTargetSelection || !t.hrOnly).map((t) => (
               <button
                 key={t.value}
                 type="button"

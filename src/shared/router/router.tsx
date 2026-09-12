@@ -47,6 +47,7 @@ export type RouteType =
   | "MobilePayroll"
   | "MobileNotificationHistory"
   | "MobileKiblat"
+  | "MobileCompany"
   | "EmployeeAdd"
   | "EmployeeEdit"
   | "EmployeeInputShift"
@@ -115,6 +116,7 @@ export const ROUTE_TITLE_MAP: Record<RouteType, string> = {
   MobilePayroll: "Payroll Saya",
   MobileNotificationHistory: "Notifikasi",
   MobileKiblat: "Kiblat",
+  MobileCompany: "Profil Perusahaan",
 };
 
 export const ROUTE_TO_PATH: Record<RouteType, string> = {
@@ -165,6 +167,7 @@ export const ROUTE_TO_PATH: Record<RouteType, string> = {
   MobilePayroll: "/mobile/payroll",
   MobileNotificationHistory: "/mobile/notifications",
   MobileKiblat: "/mobile/kiblat",
+  MobileCompany: "/mobile/perusahaan",
   EmployeeAdd: "/pegawai/tambah",
   EmployeeEdit: "/pegawai/edit",
   EmployeeInputShift: "/pegawai/shift",
@@ -223,6 +226,7 @@ export const PATH_TO_ROUTE: Record<string, RouteType> = {
   "/mobile/payroll": "MobilePayroll",
   "/mobile/notifications": "MobileNotificationHistory",
   "/mobile/kiblat": "MobileKiblat",
+  "/mobile/perusahaan": "MobileCompany",
   "/pegawai/tambah": "EmployeeAdd",
   "/pegawai/edit": "EmployeeEdit",
   "/pegawai/shift": "EmployeeInputShift",

@@ -5,9 +5,9 @@ import {
   Dollar,
   DocumentText,
   Refresh,
-  MedalStar,
   Buildings,
   BillList,
+  FolderWithFiles,
 } from "@solar-icons/react";
 import { Download, Loader2, X, FileText } from "lucide-react";
 import { toast } from "sonner";
@@ -83,8 +83,8 @@ export function MenuGrid() {
     { label: "Riwayat Presensi", icon: History, action: () => navigate("MobileHistory") },
     { label: "Riwayat Izin", icon: DocumentText, action: () => navigate("MobileLeaveHistory") },
     { label: "Riwayat Lembur", icon: Refresh, action: () => navigate("MobileLemburHistory") },
-    { label: "Kinerja", icon: MedalStar, action: () => toast.info("Membuka menu Kinerja...") },
-    { label: "Perusahaan", icon: Buildings, action: () => toast.info("Membuka profil Perusahaan...") },
+    { label: "Dokumen", icon: FolderWithFiles, action: () => navigate("MobileDocumentHistory") },
+    { label: "Perusahaan", icon: Buildings, action: () => navigate("MobileCompany") },
   ];
 
   const row1 = menuItems.slice(0, 4);

@@ -35,6 +35,7 @@ import { LeaveRequestPage, LeaveHistoryPage } from "@/features/leave-request";
 import { IdCardPage } from "@/features/id-card";
 import { MobileNotificationPage } from "@/features/notification";
 import { MobileKiblatPage } from "@/features/kiblat";
+import { MobileCompanyPage } from "@/features/company";
 
 interface MainContainerProps {
   user: {
@@ -178,6 +179,8 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
         return <MobileNotificationPage />;
       case "MobileKiblat":
         return <MobileKiblatPage />;
+      case "MobileCompany":
+        return <MobileCompanyPage user={user} />;
       default:
         return <SangkarPage user={user} />;
     }

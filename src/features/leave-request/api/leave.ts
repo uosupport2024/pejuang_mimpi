@@ -1,4 +1,4 @@
-import { API_BASE_URL, getHeaders } from "@/shared/utils/api";
+import { API_BASE_URL, getHeaders, dedupFetch, clearDedupCache } from "@/shared/utils/api";
 
 export async function fetchCutiHistoryAPI(startDate?: string, endDate?: string, page = 1, perPage = 10) {
   let url = `${API_BASE_URL}/cuti?page=${page}&per_page=${perPage}`;
@@ -6,7 +6,7 @@ export async function fetchCutiHistoryAPI(startDate?: string, endDate?: string, 
     url += `&start_date=${startDate}&end_date=${endDate}`;
   }
 
-  const response = await fetch(url, {
+  const response = await dedupFetch(url, {
     method: "GET",
     headers: getHeaders(),
   });
@@ -25,6 +25,9 @@ export async function postCutiRequestAPI(payload: FormData) {
   if (headers["Authorization"]) {
     multipartHeaders["Authorization"] = headers["Authorization"];
   }
+  if (headers["X-Tenant-ID"]) {
+    multipartHeaders["X-Tenant-ID"] = headers["X-Tenant-ID"];
+  }
   multipartHeaders["Accept"] = "application/json";
 
   const response = await fetch(`${API_BASE_URL}/cuti`, {
@@ -37,6 +40,8 @@ export async function postCutiRequestAPI(payload: FormData) {
     const errorJson = await response.json().catch(() => ({}));
     throw new Error(errorJson.message || "Gagal mengajukan permohonan cuti");
   }
+
+  clearDedupCache("cuti");
   return await response.json();
 }
 
@@ -50,6 +55,8 @@ export async function deleteCutiAPI(id: number) {
     const errorJson = await response.json().catch(() => ({}));
     throw new Error(errorJson.message || "Gagal membatalkan pengajuan cuti");
   }
+
+  clearDedupCache("cuti");
   return await response.json();
 }
 
@@ -58,6 +65,9 @@ export async function updateCutiAPI(id: number, payload: FormData) {
   const multipartHeaders: Record<string, string> = {};
   if (headers["Authorization"]) {
     multipartHeaders["Authorization"] = headers["Authorization"];
+  }
+  if (headers["X-Tenant-ID"]) {
+    multipartHeaders["X-Tenant-ID"] = headers["X-Tenant-ID"];
   }
   multipartHeaders["Accept"] = "application/json";
 
@@ -74,6 +84,8 @@ export async function updateCutiAPI(id: number, payload: FormData) {
     const errorJson = await response.json().catch(() => ({}));
     throw new Error(errorJson.message || "Gagal memperbarui pengajuan cuti");
   }
+
+  clearDedupCache("cuti");
   return await response.json();
 }
 
@@ -86,7 +98,7 @@ export async function fetchCutiForAdminAPI(page = 1, perPage = 10, status?: stri
     url += `&q=${encodeURIComponent(query)}`;
   }
 
-  const response = await fetch(url, {
+  const response = await dedupFetch(url, {
     method: "GET",
     headers: getHeaders(),
   });
@@ -110,5 +122,6 @@ export async function approveCutiAPI(id: number, payload: { status: "Diterima" |
     throw new Error(errorJson.message || "Gagal memproses approval cuti/izin");
   }
 
+  clearDedupCache("cuti");
   return await response.json();
 }
