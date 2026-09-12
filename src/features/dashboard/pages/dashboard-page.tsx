@@ -531,12 +531,15 @@ export function DashboardPage() {
                 },
                 {
                   header: "Pegawai",
-                  cell: (item: any) => (
-                    <div>
-                      <div className="font-extrabold text-gray-900 leading-tight">{item.User?.name || "Pegawai"}</div>
-                      <div className="text-[10px] text-gray-400 font-semibold mt-0.5">{item.User?.email || "—"}</div>
-                    </div>
-                  ),
+                  cell: (item: any) => {
+                    const u = item.user || item.User || {};
+                    return (
+                      <div>
+                        <div className="font-extrabold text-gray-900 leading-tight">{u.name || "Pegawai"}</div>
+                        <div className="text-[10px] text-gray-400 font-semibold mt-0.5">{u.email || "—"}</div>
+                      </div>
+                    );
+                  },
                 },
                 {
                   header: "Pengajuan",

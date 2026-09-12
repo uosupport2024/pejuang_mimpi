@@ -42,7 +42,8 @@ function FileTypeIcon({ filename, size = 18 }: { filename: string | null; size?:
 
 export function DocumentHistoryPage(_props: DocumentHistoryPageProps) {
   const { navigate } = useRouter();
-  const { navbarBgStyle } = useTenantBranding();
+  const { navbarBgStyle, buttonColor } = useTenantBranding();
+  const primaryColor = typeof buttonColor === "string" && buttonColor ? buttonColor : THEME_COLORS.hex.primary;
 
   const [documents, setDocuments] = useState<UserDocument[]>([]);
   const [loading, setLoading] = useState(true);
@@ -175,7 +176,7 @@ export function DocumentHistoryPage(_props: DocumentHistoryPageProps) {
               key={s}
               type="button"
               onClick={() => setSourceFilter(s)}
-              style={sourceFilter === s ? { backgroundColor: `${THEME_COLORS.hex.primary}1A`, color: THEME_COLORS.hex.primary } : undefined}
+              style={sourceFilter === s ? { backgroundColor: `${primaryColor}1A`, color: primaryColor } : undefined}
               className={cn(
                 "flex-1 py-2 rounded-xl text-[11px] font-bold text-center transition-colors cursor-pointer",
                 sourceFilter === s ? "" : "bg-white border border-zinc-200/80 text-gray-500"
@@ -258,7 +259,7 @@ export function DocumentHistoryPage(_props: DocumentHistoryPageProps) {
       <button
         type="button"
         onClick={() => setShowUpload(true)}
-        style={{ backgroundColor: THEME_COLORS.hex.primary }}
+        style={{ backgroundColor: primaryColor }}
         className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2.5rem)] max-w-sm h-11 flex items-center justify-center gap-2 text-white rounded-xl text-xs font-bold shadow-lg cursor-pointer hover:opacity-90 transition-opacity"
       >
         <Upload size={14} /> Unggah File

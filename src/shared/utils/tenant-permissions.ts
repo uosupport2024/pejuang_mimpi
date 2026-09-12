@@ -50,6 +50,7 @@ export const ROUTE_MENU_MAPPING: Record<string, string> = {
   MobilePayroll: "mobile-lumbung",
   MobileNotificationHistory: "mobile-notification",
   MobileKiblat: "mobile-ayamku",
+  MobileCompany: "mobile-perusahaan",
 };
 
 // ============================================================
@@ -133,6 +134,7 @@ export function isMenuEnabled(menuIdOrRoute: string, _tenantId?: string | number
     menuIdOrRoute === "MobileNotificationHistory" ||
     menuIdOrRoute === "MobileKiblat" ||
     menuIdOrRoute === "MobileProfile" ||
+    menuIdOrRoute === "MobileCompany" ||
     menuIdOrRoute === "TenantMapping" ||
     menuIdOrRoute === "TenantManagement" ||
     menuIdOrRoute === "TenantConfig" ||

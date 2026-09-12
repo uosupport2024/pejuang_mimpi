@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "@/shared/utils/api";
+import { API_BASE_URL, dedupFetch, clearDedupCache } from "@/shared/utils/api";
 import { getCookie } from "@/shared/utils/cookies";
 
 export interface UserDocument {
@@ -70,7 +70,7 @@ export async function fetchTenantDocuments(params?: {
   if (params?.user_id) query.append("user_id", String(params.user_id));
   if (params?.document_type) query.append("document_type", params.document_type);
 
-  const response = await fetch(`${API_BASE_URL}/documents/tenant?${query.toString()}`, {
+  const response = await dedupFetch(`${API_BASE_URL}/documents/tenant?${query.toString()}`, {
     method: "GET",
     headers: authHeaders(),
   });
@@ -89,7 +89,7 @@ export async function fetchMyDocuments(params?: { document_type?: string }): Pro
   query.append("per_page", "100");
   if (params?.document_type) query.append("document_type", params.document_type);
 
-  const response = await fetch(`${API_BASE_URL}/documents?${query.toString()}`, {
+  const response = await dedupFetch(`${API_BASE_URL}/documents?${query.toString()}`, {
     method: "GET",
     headers: authHeaders(),
   });
@@ -127,6 +127,7 @@ export async function uploadDocument(payload: UploadDocumentPayload): Promise<Us
     throw await parseError(response, "Gagal mengunggah dokumen");
   }
 
+  clearDedupCache("documents");
   const json = await response.json();
   return json.data;
 }
@@ -150,6 +151,8 @@ export async function deleteDocument(doc: UserDocument): Promise<void> {
   if (!response.ok) {
     throw await parseError(response, "Gagal menghapus dokumen");
   }
+
+  clearDedupCache("documents");
 }
 
 // Uses the row's own download_url when present (set by GET /documents(/

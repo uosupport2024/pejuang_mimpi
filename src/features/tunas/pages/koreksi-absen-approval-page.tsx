@@ -5,6 +5,7 @@ import { fetchKoreksiAbsenForAdminAPI, approveKoreksiAbsenAPI } from "../api/abs
 import { ReusableTable, type ColumnDef } from "@/shared/components/ui/reusable-table";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { THEME_COLORS } from "@/shared/constants/colors";
+import { API_BASE_URL } from "@/shared/utils/api";
 
 interface ApprovalItem {
   id: number;
@@ -57,23 +58,40 @@ export function KoreksiAbsenApprovalPage() {
         const rawItems = paginator.data || [];
         setTotal(paginator.total || 0);
 
-        const mapped: ApprovalItem[] = rawItems.map((item: any) => ({
-          id: item.id,
-          user: {
-            id: item.User?.id || item.user_id,
-            name: item.User?.name || "Pegawai",
-            email: item.User?.email || "—",
-            role: item.User?.role || "Karyawan",
-            avatar: item.User?.avatar,
-          },
-          tanggal: item.tanggal,
-          jamMasuk: item.jam_masuk ? item.jam_masuk.substring(0, 5) : null,
-          jamPulang: item.jam_pulang ? item.jam_pulang.substring(0, 5) : null,
-          alasan: item.alasan,
-          status: item.status,
-          notes: item.notes,
-          approvedByName: item.approved_by?.name || item.approved_by_name || null,
-        }));
+        const mapped: ApprovalItem[] = rawItems.map((item: any) => {
+          const u = item.user || item.User || {};
+          const roleName =
+            u.jabatan?.nama_jabatan ||
+            (Array.isArray(u.roles) && u.roles[0]?.name) ||
+            u.role ||
+            (u.is_admin ? "Admin" : "Karyawan");
+
+          const avatarUrl =
+            u.avatar ||
+            (u.foto_karyawan
+              ? (u.foto_karyawan.startsWith("http")
+                  ? u.foto_karyawan
+                  : `${API_BASE_URL.replace("/api/v1", "")}/storage/${u.foto_karyawan}`)
+              : undefined);
+
+          return {
+            id: item.id,
+            user: {
+              id: u.id || item.user_id,
+              name: u.name || u.nama_lengkap || u.username || "Pegawai",
+              email: u.email || "—",
+              role: roleName,
+              avatar: avatarUrl,
+            },
+            tanggal: item.tanggal,
+            jamMasuk: item.jam_masuk ? item.jam_masuk.substring(0, 5) : null,
+            jamPulang: item.jam_pulang ? item.jam_pulang.substring(0, 5) : null,
+            alasan: item.alasan,
+            status: item.status,
+            notes: item.notes,
+            approvedByName: item.approved_by?.name || item.approved_by_name || null,
+          };
+        });
 
         setList(mapped);
       }
