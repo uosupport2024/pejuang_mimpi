@@ -13,6 +13,7 @@ import { AppLoadingSkeleton } from "@/shared/components/layout/app-loading-skele
 import { toast } from "sonner"
 
 interface UserProfile {
+  id?: number | string;
   name: string;
   email: string;
   role: string;
@@ -181,10 +182,11 @@ function App() {
     try {
       const bridge = (window as any).FlutterOneSignal;
       if (bridge && typeof bridge.postMessage === "function") {
+        const resolvedUserId = (userObj?.id != null && userObj?.id !== "") ? String(userObj.id) : (userObj?.email || "");
         bridge.postMessage(
           JSON.stringify({
             event,
-            userId: userObj?.id || userObj?.email,
+            userId: resolvedUserId,
             tenantId: tenantIdVal || userObj?.tenant_id || 3,
           })
         );
@@ -234,6 +236,7 @@ function App() {
       const userTenantId = (response.user as any).tenant_id || (response.user as any).tenant?.id || (response.user as any).tenant_list?.[0]?.tenant_id || 3;
 
       const userProfile: UserProfile = {
+        id: response.user.id,
         name: response.user.name,
         email: response.user.email,
         role: response.user.role,
