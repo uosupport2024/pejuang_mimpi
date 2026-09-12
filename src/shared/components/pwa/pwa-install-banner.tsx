@@ -67,8 +67,9 @@ export function PWAInstallBanner() {
     localStorage.setItem("pwa_install_dismissed", "true");
   };
 
-  // If already installed, dismissed, or no prompt available (unless iOS where prompt event never fires)
-  if (isStandalone || dismissed || (!deferredPrompt && !isIOS)) {
+  // Di-hide sementara sesuai permintaan (ubah ke true jika ingin dimunculkan kembali)
+  const SHOW_PWA_BANNER = false;
+  if (!SHOW_PWA_BANNER || isStandalone || dismissed || (!deferredPrompt && !isIOS)) {
     return null;
   }
 
