@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Camera, RefreshCw, CheckCircle, X, XCircle, AlertCircle } from "lucide-react";
+import { ArrowLeft, Camera, RefreshCw, CheckCircle, X, XCircle } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
 import { useTunas } from "../hooks/use-tunas";
 import { toast } from "sonner";
@@ -7,7 +7,6 @@ import { fetchProfileAPI, fetchLokasiAPI, fetchJadwalHariIniAPI, postAbsenMasukA
 import patternBg from "@/assets/bg/pattern-background.png";
 import { AttendanceHistory } from "../components/attendance-history";
 import { BiometricScannerOverlay } from "../components/biometric-scanner-overlay";
-import { useLiveFaceCheck } from "../hooks/use-live-face-check";
 import { THEME_COLORS } from "@/shared/constants/colors";
 
 // Import react-leaflet and leaflet
@@ -118,12 +117,6 @@ export function MobileAbsensiPage() {
   const [isProfileLoading, setIsProfileLoading] = useState<boolean>(true);
   const [distance, setDistance] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
-  // Real-time quality & liveness pre-check (brightness, sharpness, single face detection)
-  const liveQuality = useLiveFaceCheck(
-    videoRef,
-    isCameraModalOpen && !tempCapturedImage && !isVerifyingFace
-  );
 
   const isCheckOut = isCheckedIn;
 
@@ -796,28 +789,15 @@ export function MobileAbsensiPage() {
 
           {/* Floating Bottom Controls */}
           {!tempCapturedImage && (
-            <div className="absolute bottom-0 left-0 right-0 p-6 pb-10 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10 flex flex-col items-center justify-center gap-3.5">
-              {/* Real-time Quality Warning Pill (Only shown when condition fails: dark / blurry / multiple) */}
-              {!cameraError && !liveQuality.passed && (
-                <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold text-white shadow-xl backdrop-blur-md border border-rose-400/40 bg-rose-600/90 animate-in fade-in duration-200">
-                  <AlertCircle className="w-3.5 h-3.5 text-white shrink-0" />
-                  <span>{liveQuality.message}</span>
-                </div>
-              )}
-
+            <div className="absolute bottom-0 left-0 right-0 p-6 pb-10 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10 flex flex-col items-center justify-center">
               {/* Shutter Button (Center) */}
               {!cameraError && (
                 <button
                   type="button"
                   onClick={capturePhoto}
-                  disabled={!liveQuality.passed || isVerifyingFace}
-                  style={{
-                    backgroundColor: liveQuality.passed ? THEME_COLORS.hex.primary : "#475569"
-                  }}
-                  className={`w-18 h-18 rounded-full flex items-center justify-center shadow-2xl transition-all border-4 border-white ${liveQuality.passed
-                      ? "active:scale-90 hover:scale-105 cursor-pointer ring-4 ring-[#e0542c]/40"
-                      : "opacity-45 cursor-not-allowed"
-                    }`}
+                  disabled={isVerifyingFace}
+                  style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                  className="w-18 h-18 rounded-full flex items-center justify-center shadow-2xl active:scale-90 hover:scale-105 transition-all cursor-pointer border-4 border-white disabled:opacity-50"
                 >
                   <Camera className="w-6 h-6 text-white" />
                 </button>
