@@ -316,7 +316,7 @@ export function UploadAvatarDrawer({
                       playsInline
                       muted
                       autoPlay
-                      className="w-full h-full object-cover -scale-x-100"
+                      className="w-full h-full object-cover"
                     />
                     {/* Face Oval Guideline Overlay */}
                     <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
@@ -428,7 +428,7 @@ export function UploadAvatarDrawer({
 
           {/* Rejection Alert Box (if reasons exist) */}
           {reasons.length > 0 && (
-            <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-left space-y-2 animate-fade-in">
+            <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-left space-y-2.5 animate-fade-in">
               <div className="flex items-center gap-2 text-red-700 font-bold text-xs">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>Foto Profil Tidak Memenuhi Standar:</span>
@@ -440,15 +440,16 @@ export function UploadAvatarDrawer({
                   </li>
                 ))}
               </ul>
-              <div className="pt-2 border-t border-red-100 flex items-center justify-between">
-                <p className="text-[10px] text-red-500 font-semibold">
+              <div className="pt-2 border-t border-red-100 space-y-2">
+                <p className="text-[11px] text-red-500 font-semibold">
                   Silakan foto ulang sesuai petunjuk di atas.
                 </p>
                 <button
                   type="button"
                   onClick={handleRetake}
-                  className="px-2.5 py-1 rounded-lg bg-red-600 text-white text-[10px] font-bold hover:bg-red-700 active:scale-95"
+                  className="w-full py-2.5 rounded-xl bg-red-600 text-white text-xs font-bold hover:bg-red-700 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                 >
+                  <RefreshCw className="w-3.5 h-3.5" />
                   Foto Ulang Sekarang
                 </button>
               </div>
