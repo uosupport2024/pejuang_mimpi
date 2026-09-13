@@ -102,14 +102,25 @@ export function UploadAvatarDrawer({
   const capturePhoto = () => {
     if (!videoRef.current) return;
     const video = videoRef.current;
+    const rawW = video.videoWidth || 640;
+    const rawH = video.videoHeight || 640;
+    const MAX_DIM = 720;
+    let targetW = rawW;
+    let targetH = rawH;
+    if (Math.max(rawW, rawH) > MAX_DIM) {
+      const scale = MAX_DIM / Math.max(rawW, rawH);
+      targetW = Math.round(rawW * scale);
+      targetH = Math.round(rawH * scale);
+    }
+
     const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 640;
+    canvas.width = targetW;
+    canvas.height = targetH;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.88);
     setPreviewImage(dataUrl);
     stopCamera();
 
@@ -125,7 +136,7 @@ export function UploadAvatarDrawer({
         }
       },
       "image/jpeg",
-      0.92
+      0.88
     );
   };
 

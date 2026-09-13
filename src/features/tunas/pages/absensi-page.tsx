@@ -275,14 +275,27 @@ export function MobileAbsensiPage() {
       const context = canvas.getContext("2d");
 
       if (context) {
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 480;
+        const rawW = video.videoWidth || 640;
+        const rawH = video.videoHeight || 480;
+        // Optimize resolution: limit max dimension to 720px keeping aspect ratio for fast upload and lightweight AI inference
+        const MAX_DIM = 720;
+        let targetW = rawW;
+        let targetH = rawH;
+        if (Math.max(rawW, rawH) > MAX_DIM) {
+          const scale = MAX_DIM / Math.max(rawW, rawH);
+          targetW = Math.round(rawW * scale);
+          targetH = Math.round(rawH * scale);
+        }
+
+        canvas.width = targetW;
+        canvas.height = targetH;
         // Flip horizontal for mirrored selfie view
         context.translate(canvas.width, 0);
         context.scale(-1, 1);
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        const dataUrl = canvas.toDataURL("image/jpeg");
+        // Quality 0.85 generates compact (~60-80KB) payload while maintaining crisp facial landmarks
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
         setTempCapturedImage(dataUrl);
         setVerificationResult(null);
         setIsVerifyingFace(true);
