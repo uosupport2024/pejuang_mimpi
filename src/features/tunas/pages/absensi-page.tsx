@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Camera, RefreshCw, CheckCircle, X, Loader2, XCircle } from "lucide-react";
+import { ArrowLeft, Camera, RefreshCw, CheckCircle, X, XCircle } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
 import { useTunas } from "../hooks/use-tunas";
 import { toast } from "sonner";
 import { fetchProfileAPI, fetchLokasiAPI, fetchJadwalHariIniAPI, postAbsenMasukAPI, postAbsenPulangAPI, verifySelfieAPI } from "../api/absensi";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { AttendanceHistory } from "../components/attendance-history";
+import { BiometricScannerOverlay } from "../components/biometric-scanner-overlay";
 import { THEME_COLORS } from "@/shared/constants/colors";
 
 // Import react-leaflet and leaflet
@@ -257,13 +258,15 @@ export function MobileAbsensiPage() {
   // Hook camera video srcObject when stream or videoRef resolves
   useEffect(() => {
     if (stream && videoRef.current) {
-      videoRef.current.srcObject = stream;
+      if (videoRef.current.srcObject !== stream) {
+        videoRef.current.srcObject = stream;
+      }
       videoRef.current.onloadedmetadata = () => {
         videoRef.current?.play().catch(console.error);
       };
-      videoRef.current.play().catch(() => {});
+      videoRef.current.play().catch(() => { });
     }
-  }, [stream, isCameraModalOpen]);
+  }, [stream, isCameraModalOpen, tempCapturedImage]);
 
   const capturePhoto = async () => {
     if (videoRef.current && canvasRef.current) {
@@ -328,6 +331,15 @@ export function MobileAbsensiPage() {
     setVerificationResult(null);
     setIsVerifyingFace(false);
     setIsCameraModalOpen(true);
+
+    if (stream && videoRef.current) {
+      if (videoRef.current.srcObject !== stream) {
+        videoRef.current.srcObject = stream;
+      }
+      videoRef.current.play().catch(console.error);
+    } else {
+      startCamera();
+    }
   };
 
   const handleSubmit = async () => {
@@ -677,80 +689,9 @@ export function MobileAbsensiPage() {
                 <p className="text-sm text-rose-500 font-bold mb-2">Kamera Tidak Dapat Diakses</p>
                 <p className="text-xs text-zinc-400">Silakan aktifkan akses kamera pada perangkat Anda untuk melakukan absensi.</p>
               </div>
-            ) : tempCapturedImage ? (
-              // Frozen Snapshot View with Verification Feedback
-              <div className="w-full h-full relative flex items-center justify-center">
-                <img
-                  src={tempCapturedImage}
-                  alt="Captured Selfie"
-                  className="w-full h-full object-cover absolute inset-0 z-0"
-                />
-
-                {/* Dark Vignette Overlay */}
-                <div className="absolute inset-0 bg-black/40 z-10" />
-
-                {/* 1. Verifying State */}
-                {isVerifyingFace && (
-                  <div className="relative z-20 flex flex-col items-center justify-center p-6 text-center max-w-xs bg-black/75 backdrop-blur-md rounded-3xl border border-white/20 shadow-2xl animate-in zoom-in-95 duration-200">
-                    <Loader2 className="w-12 h-12 text-blue-400 animate-spin mb-4" />
-                    <h3 className="text-base font-bold text-white mb-1.5">Memverifikasi Wajah...</h3>
-                    <p className="text-xs text-white/70 leading-relaxed">
-                      AI sedang mencocokkan wajah Anda dengan profil biometrik terdaftar...
-                    </p>
-                  </div>
-                )}
-
-                {/* 2. Success State */}
-                {verificationResult && verificationResult.matched && (
-                  <div className="relative z-20 flex flex-col items-center justify-center p-6 text-center max-w-xs bg-emerald-950/85 backdrop-blur-md rounded-3xl border border-emerald-500/40 shadow-2xl animate-in zoom-in-95 duration-200">
-                    <CheckCircle className="w-14 h-14 text-emerald-400 mb-3" />
-                    <h3 className="text-lg font-bold text-white mb-1">Wajah Cocok & Terverifikasi!</h3>
-                    {verificationResult.similarity !== undefined && (
-                      <span className="text-xs text-emerald-300 font-medium bg-emerald-900/60 px-3 py-1 rounded-full border border-emerald-500/30 mt-1">
-                        Kemiripan: {Math.round(verificationResult.similarity * 100)}%
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                {/* 3. Failure State */}
-                {verificationResult && !verificationResult.matched && !isVerifyingFace && (
-                  <div className="relative z-20 flex flex-col items-center justify-center p-6 text-center max-w-[88vw] sm:max-w-sm bg-rose-950/90 backdrop-blur-md rounded-3xl border border-rose-500/40 shadow-2xl animate-in zoom-in-95 duration-200 text-white">
-                    <div className="w-14 h-14 rounded-full bg-rose-500/20 border border-rose-500/30 flex items-center justify-center mb-3">
-                      <XCircle className="w-8 h-8 text-rose-400" />
-                    </div>
-                    <h3 className="text-base font-bold text-white mb-1">Verifikasi Wajah Gagal</h3>
-                    <p className="text-xs text-rose-200/80 mb-3">
-                      Foto selfie tidak dapat digunakan untuk absensi:
-                    </p>
-
-                    <div className="w-full bg-black/40 rounded-2xl p-3 border border-white/10 mb-5 max-h-44 overflow-y-auto">
-                      <ul className="space-y-2 text-left text-xs text-rose-100">
-                        {verificationResult.reasons.map((reason, idx) => (
-                          <li key={idx} className="flex items-start gap-2">
-                            <span className="text-rose-400 font-bold shrink-0 mt-0.5">•</span>
-                            <span className="leading-tight">{reason}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setTempCapturedImage(null);
-                        setVerificationResult(null);
-                      }}
-                      className="w-full py-3.5 px-5 rounded-2xl bg-white text-zinc-900 font-bold text-sm shadow-xl active:scale-95 hover:bg-zinc-100 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                      <span>Ambil Foto Ulang</span>
-                    </button>
-                  </div>
-                )}
-              </div>
             ) : (
               <>
+                {/* 1. Live Camera Video Stream - ALWAYS MOUNTED so stream doesn't turn black on retake */}
                 <video
                   ref={videoRef}
                   autoPlay
@@ -761,13 +702,80 @@ export function MobileAbsensiPage() {
                   className="w-full h-full object-cover scale-x-[-1] absolute inset-0 z-0 pointer-events-none"
                 />
 
-                {/* Face Silhouette Guide Overlay (Mask effect) */}
-                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
-                  <div className="w-[65vw] h-[45dvh] max-w-[260px] max-h-[340px] rounded-[50%] border-4 border-dashed border-white/60 shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] relative"></div>
-                  <span className="text-[10px] font-bold text-white uppercase tracking-widest mt-6 bg-black/60 px-4 py-2 rounded-full backdrop-blur-xs shadow-md">
-                    Posisikan Wajah di Area Oval
-                  </span>
-                </div>
+                {/* 2. Frozen Captured Image (displayed on top of live video when photo is taken) */}
+                {tempCapturedImage && (
+                  <img
+                    src={tempCapturedImage}
+                    alt="Captured Selfie"
+                    className="w-full h-full object-cover absolute inset-0 z-10"
+                  />
+                )}
+
+                {/* 3. Live Silhouette Guide Overlay (Visible when NOT captured) */}
+                {!tempCapturedImage && (
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
+                    <div className="w-[65vw] h-[45dvh] max-w-[260px] max-h-[340px] rounded-[50%] border-4 border-dashed border-white/60 shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] relative" />
+                    <span className="text-[10px] font-bold text-white uppercase tracking-widest mt-6 bg-black/60 px-4 py-2 rounded-full backdrop-blur-xs shadow-md">
+                      Posisikan Wajah di Area Oval
+                    </span>
+                  </div>
+                )}
+
+                {/* 4. Futuristic Biometric Scanning Animation (Image 3 inspired) */}
+                <BiometricScannerOverlay isVerifying={isVerifyingFace} />
+
+                {/* 5. Verification Success State */}
+                {verificationResult && verificationResult.matched && (
+                  <div className="absolute inset-0 z-30 flex items-center justify-center p-6 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
+                    <div className="flex flex-col items-center justify-center p-7 text-center max-w-xs bg-emerald-950/90 backdrop-blur-md rounded-3xl border border-emerald-500/50 shadow-[0_0_35px_rgba(16,185,129,0.3)] animate-in zoom-in-95 duration-200">
+                      <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mb-3">
+                        <CheckCircle className="w-9 h-9 text-emerald-400" />
+                      </div>
+                      <h3 className="text-lg font-bold text-white mb-1">Wajah Terverifikasi!</h3>
+                      <p className="text-xs text-emerald-200/80 mb-2">Biometrik cocok dengan profil Anda</p>
+                      {verificationResult.similarity !== undefined && (
+                        <span className="text-xs text-emerald-300 font-mono font-bold bg-emerald-900/60 px-3 py-1 rounded-full border border-emerald-500/30">
+                          Kecocokan: {Math.round(verificationResult.similarity * 100)}%
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* 6. Verification Failure State */}
+                {verificationResult && !verificationResult.matched && !isVerifyingFace && (
+                  <div className="absolute inset-0 z-30 flex items-center justify-center p-5 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="flex flex-col items-center justify-center p-6 text-center max-w-[88vw] sm:max-w-sm bg-zinc-950/95 backdrop-blur-xl rounded-3xl border border-rose-500/40 shadow-2xl animate-in zoom-in-95 duration-200 text-white">
+                      <div className="w-14 h-14 rounded-full bg-rose-500/20 border border-rose-500/30 flex items-center justify-center mb-3">
+                        <XCircle className="w-8 h-8 text-rose-400" />
+                      </div>
+                      <h3 className="text-base font-bold text-white mb-1">Verifikasi Wajah Gagal</h3>
+                      <p className="text-xs text-zinc-300 mb-3">
+                        Foto selfie tidak dapat digunakan untuk absensi:
+                      </p>
+
+                      <div className="w-full bg-black/60 rounded-2xl p-3 border border-white/10 mb-5 max-h-44 overflow-y-auto">
+                        <ul className="space-y-2 text-left text-xs text-rose-200">
+                          {verificationResult.reasons.map((reason, idx) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <span className="text-rose-400 font-bold shrink-0 mt-0.5">•</span>
+                              <span className="leading-tight">{reason}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={retakePhoto}
+                        className="w-full py-3.5 px-5 rounded-2xl bg-white text-zinc-900 font-bold text-sm shadow-xl active:scale-95 hover:bg-zinc-100 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                        <span>Ambil Foto Ulang</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </>
             )}
             {/* Hidden canvas for capturing frame */}
