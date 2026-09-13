@@ -3,29 +3,28 @@ import { useState, useEffect, useRef } from "react";
 export interface LiveQualityStatus {
   passed: boolean;
   message: string;
-  type: "ready" | "dark" | "too_bright" | "blurry" | "multiple_faces" | "no_face";
+  type: "ready" | "dark" | "too_bright" | "blurry" | "multiple_faces";
 }
 
 /**
- * Lightweight real-time face & camera quality checker:
- * 1. Checks brightness (detects dark / dim lighting).
- * 2. Checks sharpness / blurriness (detects unfocused / covered camera).
- * 3. Checks face presence & multi-face count (using native Shape Detection API or skin-tone cluster fallback).
+ * Lightweight real-time camera quality check (Gojek/Grab/BCA style):
+ * - Checks physical conditions: brightness (dark/glare) and sharpness (blur/shaky).
+ * - Leaves actual biometric face verification & anti-spoofing to server-side AI (InsightFace).
  */
 export function useLiveFaceCheck(
   videoRef: React.RefObject<HTMLVideoElement | null>,
   isActive: boolean
 ) {
   const [quality, setQuality] = useState<LiveQualityStatus>({
-    passed: false,
-    message: "Menyiapkan sensor kamera...",
-    type: "no_face",
+    passed: true,
+    message: "Kamera Siap • Posisikan Wajah",
+    type: "ready",
   });
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const detectorRef = useRef<any>(null);
 
-  // Initialize native FaceDetector if supported
+  // Initialize native FaceDetector if supported (used only for multi-person warning)
   useEffect(() => {
     if (typeof window !== "undefined" && "FaceDetector" in window) {
       try {
@@ -81,8 +80,8 @@ export function useLiveFaceCheck(
       // Draw current video frame to low-res offscreen canvas
       ctx.drawImage(video, 0, 0, vw, vh, 0, 0, cw, ch);
 
-      // 1. Check face detection with native API if available
-      let faceCount = -1; // -1 means unknown/fallback
+      // Check if native API explicitly detects more than 1 face
+      let faceCount = -1;
       if (detectorRef.current) {
         try {
           const faces = await detectorRef.current.detect(canvas);
@@ -92,7 +91,7 @@ export function useLiveFaceCheck(
         }
       }
 
-      // 2. Sample the center face oval region (middle 50% of the canvas)
+      // Sample center region
       const rx = Math.floor(cw * 0.25);
       const ry = Math.floor(ch * 0.2);
       const rw = Math.floor(cw * 0.5);
@@ -102,9 +101,6 @@ export function useLiveFaceCheck(
       const pixels = frameData.data;
 
       let totalBrightness = 0;
-      let skinPixels = 0;
-
-      // Sharpness gradient accumulator
       let sumGrad = 0;
       let gradCount = 0;
 
@@ -115,16 +111,11 @@ export function useLiveFaceCheck(
           const g = pixels[idx + 1];
           const b = pixels[idx + 2];
 
-          // Luminance formula
+          // Luminance calculation
           const lum = 0.299 * r + 0.587 * g + 0.114 * b;
           totalBrightness += lum;
 
-          // Simple skin tone heuristic in RGB: R > G > B, (R - G) > 15
-          if (r > 60 && g > 40 && b > 20 && r > g && r > b && (r - g) > 12) {
-            skinPixels++;
-          }
-
-          // Compute horizontal and vertical difference for blur detection
+          // Gradient difference for blur detection
           const idxRight = idx + 8;
           const idxDown = idx + rw * 8;
           if (idxRight < pixels.length && idxDown < pixels.length) {
@@ -139,63 +130,53 @@ export function useLiveFaceCheck(
       const sampledCount = gradCount || 1;
       const avgBrightness = totalBrightness / sampledCount;
       const sharpness = sumGrad / sampledCount;
-      const skinRatio = skinPixels / sampledCount;
 
       let newStatus: LiveQualityStatus;
 
-      // Evaluation hierarchy
+      // 1. Dark lighting check
       if (avgBrightness < 45) {
         newStatus = {
           passed: false,
           message: "Pencahayaan Terlalu Gelap",
           type: "dark",
         };
+      // 2. Glare check
       } else if (avgBrightness > 235) {
         newStatus = {
           passed: false,
           message: "Pencahayaan Terlalu Silau",
           type: "too_bright",
         };
+      // 3. Multi-face check (if detected by native sensor)
       } else if (faceCount > 1) {
         newStatus = {
           passed: false,
           message: `Terdeteksi ${faceCount} Orang! Hanya Boleh 1 Orang`,
           type: "multiple_faces",
         };
-      } else if (sharpness < 7.5) {
+      // 4. Blur / Shaky camera check
+      } else if (sharpness < 6.5) {
         newStatus = {
           passed: false,
           message: "Kamera Buram / Kurang Stabil",
           type: "blurry",
         };
-      } else if (faceCount === 0) {
-        newStatus = {
-          passed: false,
-          message: "Posisikan Wajah di Area Oval",
-          type: "no_face",
-        };
-      } else if (faceCount === -1 && skinRatio < 0.12) {
-        // Fallback when native face detector isn't available
-        newStatus = {
-          passed: false,
-          message: "Posisikan Wajah di Area Oval",
-          type: "no_face",
-        };
+      // 5. Conditions ready
       } else {
         newStatus = {
           passed: true,
-          message: "Wajah Terdeteksi & Siap",
+          message: "Kamera Siap • Posisikan Wajah",
           type: "ready",
         };
       }
 
       if (isSubscribed) {
         setQuality(newStatus);
-        timerId = setTimeout(performCheck, 280);
+        timerId = setTimeout(performCheck, 300);
       }
     };
 
-    timerId = setTimeout(performCheck, 350);
+    timerId = setTimeout(performCheck, 200);
 
     return () => {
       isSubscribed = false;

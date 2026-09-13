@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Camera, RefreshCw, CheckCircle, X, XCircle, Check, AlertCircle } from "lucide-react";
+import { ArrowLeft, Camera, RefreshCw, CheckCircle, X, XCircle, AlertCircle } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
 import { useTunas } from "../hooks/use-tunas";
 import { toast } from "sonner";
@@ -723,23 +723,12 @@ export function MobileAbsensiPage() {
                   <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
                     <div
                       style={{
-                        borderColor: liveQuality.passed ? THEME_COLORS.hex.primary : "rgba(255, 255, 255, 0.6)",
-                        boxShadow: liveQuality.passed
-                          ? `0 0 25px ${THEME_COLORS.hex.primary}80, 0 0 0 9999px rgba(0,0,0,0.5)`
-                          : "0 0 0 9999px rgba(0,0,0,0.5)"
+                        boxShadow: "0 0 0 9999px rgba(0,0,0,0.5)"
                       }}
-                      className={`w-[65vw] h-[45dvh] max-w-[260px] max-h-[340px] rounded-[50%] transition-all duration-300 ${
-                        liveQuality.passed ? "border-4 border-solid" : "border-4 border-dashed"
-                      } relative`}
+                      className="w-[65vw] h-[45dvh] max-w-[260px] max-h-[340px] rounded-[50%] border-4 border-dashed border-white/60 relative"
                     />
-                    <span
-                      style={{
-                        backgroundColor: liveQuality.passed ? THEME_COLORS.hex.navBg : "rgba(0,0,0,0.65)",
-                        borderColor: liveQuality.passed ? `${THEME_COLORS.hex.primary}60` : "rgba(255,255,255,0.15)"
-                      }}
-                      className="text-[10px] font-bold text-white uppercase tracking-widest mt-6 px-4 py-2 rounded-full backdrop-blur-xs shadow-md border transition-all duration-300"
-                    >
-                      {liveQuality.passed ? "Wajah Siap Diambil" : "Posisikan Wajah di Area Oval"}
+                    <span className="text-[10px] font-bold text-white uppercase tracking-widest mt-6 bg-black/60 px-4 py-2 rounded-full backdrop-blur-xs shadow-md border border-white/10">
+                      Posisikan Wajah di Area Oval
                     </span>
                   </div>
                 )}
@@ -808,34 +797,11 @@ export function MobileAbsensiPage() {
           {/* Floating Bottom Controls */}
           {!tempCapturedImage && (
             <div className="absolute bottom-0 left-0 right-0 p-6 pb-10 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10 flex flex-col items-center justify-center gap-3.5">
-              {/* Real-time Quality / Liveness Status Pill */}
-              {!cameraError && (
-                <div
-                  style={{
-                    backgroundColor: liveQuality.passed
-                      ? "rgba(16, 185, 129, 0.9)"
-                      : liveQuality.type === "no_face"
-                      ? "rgba(30, 42, 74, 0.9)"
-                      : "rgba(225, 29, 72, 0.9)",
-                    borderColor: liveQuality.passed
-                      ? "rgba(52, 211, 153, 0.4)"
-                      : liveQuality.type === "no_face"
-                      ? "rgba(255, 255, 255, 0.2)"
-                      : "rgba(251, 113, 133, 0.4)"
-                  }}
-                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold text-white shadow-xl backdrop-blur-md border transition-all duration-200"
-                >
-                  {liveQuality.passed ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-white shrink-0" />
-                      <span>{liveQuality.message}</span>
-                    </>
-                  ) : (
-                    <>
-                      <AlertCircle className="w-3.5 h-3.5 text-white shrink-0" />
-                      <span>{liveQuality.message}</span>
-                    </>
-                  )}
+              {/* Real-time Quality Warning Pill (Only shown when condition fails: dark / blurry / multiple) */}
+              {!cameraError && !liveQuality.passed && (
+                <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold text-white shadow-xl backdrop-blur-md border border-rose-400/40 bg-rose-600/90 animate-in fade-in duration-200">
+                  <AlertCircle className="w-3.5 h-3.5 text-white shrink-0" />
+                  <span>{liveQuality.message}</span>
                 </div>
               )}
 
@@ -848,11 +814,10 @@ export function MobileAbsensiPage() {
                   style={{
                     backgroundColor: liveQuality.passed ? THEME_COLORS.hex.primary : "#475569"
                   }}
-                  className={`w-18 h-18 rounded-full flex items-center justify-center shadow-2xl transition-all border-4 border-white ${
-                    liveQuality.passed
+                  className={`w-18 h-18 rounded-full flex items-center justify-center shadow-2xl transition-all border-4 border-white ${liveQuality.passed
                       ? "active:scale-90 hover:scale-105 cursor-pointer ring-4 ring-[#e0542c]/40"
                       : "opacity-45 cursor-not-allowed"
-                  }`}
+                    }`}
                 >
                   <Camera className="w-6 h-6 text-white" />
                 </button>
