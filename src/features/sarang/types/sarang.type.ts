@@ -9,6 +9,7 @@ export interface SarangUser {
   bank?: string;
   rekening?: string;
   status?: string;
+  avatar?: string;
 }
 
 export interface SarangPageProps {

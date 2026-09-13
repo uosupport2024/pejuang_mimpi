@@ -8,9 +8,10 @@ interface ProfileHeaderProps {
   user: SarangUser;
   onBack: () => void;
   onNotificationClick: () => void;
+  onAvatarClick?: () => void;
 }
 
-export function ProfileHeader({ user, onNotificationClick }: ProfileHeaderProps) {
+export function ProfileHeader({ user, onNotificationClick, onAvatarClick }: ProfileHeaderProps) {
   const { navbarBgStyle, navbarBg, buttonColor } = useTenantBranding();
 
   // Get initials from user name
@@ -37,18 +38,35 @@ export function ProfileHeader({ user, onNotificationClick }: ProfileHeaderProps)
       {/* Profile info row */}
       <div className="flex items-center gap-4 relative z-10 w-full">
         {/* Avatar Container on the left (Square with rounded 12px) */}
-        <div className="relative shrink-0">
-          <div className="p-0.5 rounded-xl bg-white/10 backdrop-blur-xs shadow-md">
-            <div className="w-14 h-14 rounded-xl bg-zinc-100 border border-white flex items-center justify-center font-bold text-lg text-zinc-700 shadow-inner">
-              {initials}
-            </div>
+        <div
+          onClick={onAvatarClick}
+          className="relative shrink-0 cursor-pointer group"
+          title="Ubah Foto Profil"
+        >
+          <div className="p-0.5 rounded-xl bg-white/10 backdrop-blur-xs shadow-md group-hover:bg-white/20 transition-all">
+            {user.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="w-14 h-14 rounded-xl object-cover border border-white shadow-inner"
+              />
+            ) : (
+              <div className="w-14 h-14 rounded-xl bg-zinc-100 border border-white flex items-center justify-center font-bold text-lg text-zinc-700 shadow-inner">
+                {initials}
+              </div>
+            )}
           </div>
           <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAvatarClick?.();
+            }}
             style={{
               background: buildCssBackground(buttonColor, THEME_COLORS.hex.primary),
-              borderColor: typeof navbarBg === "string" ? navbarBg : THEME_COLORS.hex.navBg
+              borderColor: typeof navbarBg === "string" ? navbarBg : THEME_COLORS.hex.navBg,
             }}
-            className="absolute -bottom-1 -right-1 text-white p-1 rounded-full border hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-sm"
+            className="absolute -bottom-1 -right-1 text-white p-1.5 rounded-full border hover:scale-110 active:scale-95 transition-all cursor-pointer shadow-sm"
           >
             <Camera className="w-2.5 h-2.5" />
           </button>
