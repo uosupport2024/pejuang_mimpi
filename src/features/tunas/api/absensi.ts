@@ -84,6 +84,41 @@ export async function postAbsenPulangAPI(payload: FormData) {
   return await response.json();
 }
 
+export async function verifySelfieAPI(file: File) {
+  const headers = getHeaders();
+  const multipartHeaders: Record<string, string> = {};
+  if (headers["Authorization"]) {
+    multipartHeaders["Authorization"] = headers["Authorization"];
+  }
+  multipartHeaders["Accept"] = "application/json";
+
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const response = await fetch(`${API_BASE_URL}/attendance/verify-selfie`, {
+    method: "POST",
+    headers: multipartHeaders,
+    body: formData,
+  });
+
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    return {
+      success: false,
+      matched: false,
+      message: json.message || "Verifikasi wajah gagal.",
+      reasons: (json.data?.reasons || json.reasons || [json.message || "Wajah tidak cocok dengan profil terdaftar."]) as string[],
+    };
+  }
+
+  return {
+    success: true,
+    matched: true,
+    data: json.data,
+    message: json.message || "Wajah cocok dan terverifikasi.",
+  };
+}
+
 export async function fetchJadwalHistoryAPI(page = 1, perPage = 10, startDate?: string, endDate?: string, shiftId?: number | null) {
   let url = `${API_BASE_URL}/jadwal?page=${page}&per_page=${perPage}`;
   if (startDate && endDate) {
