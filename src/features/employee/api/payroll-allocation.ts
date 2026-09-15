@@ -90,7 +90,7 @@ export async function createContract(payload: {
 
 export async function updateContractAssignment(
   contractId: number,
-  payload: { golongan_id?: number | null; manager_contract_id?: number | null }
+  payload: { golongan_id?: number | null; manager_contract_id?: number | null; jabatan_id?: number }
 ): Promise<UserContract> {
   const response = await fetch(`${API_BASE_URL}/user-contracts/${contractId}`, {
     method: "PUT",

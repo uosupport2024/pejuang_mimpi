@@ -14,6 +14,9 @@ import {
   type BackendGolongan,
 } from "../api/organization";
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
+import { ReassignDivisiModal } from "../components/reassign-divisi-modal";
+import { fetchHierarchy } from "@/features/org-management/api/org-management";
+import { updateContractAssignment } from "@/features/employee/api/payroll-allocation";
 
 export function OrganizationPage() {
   const [divisions, setDivisions] = useState<BackendJabatan[]>([]);
@@ -56,6 +59,11 @@ export function OrganizationPage() {
     name: "",
   });
   const [deletingGolongan, setDeletingGolongan] = useState(false);
+
+  // Reassign-then-delete flow — triggered when a divisi still has employees
+  const [reassignFlow, setReassignFlow] = useState<{ id: number; name: string } | null>(null);
+  const [reassignSubmitting, setReassignSubmitting] = useState(false);
+  const [reassignProgress, setReassignProgress] = useState<string | null>(null);
 
   const loadDivisions = async () => {
     try {
@@ -114,9 +122,54 @@ export function OrganizationPage() {
       setConfirmDelete({ isOpen: false, id: null, name: "" });
       loadDivisions();
     } catch (err: any) {
-      toast.error(err.message || "Gagal menghapus divisi");
+      const message: string = err.message || "Gagal menghapus divisi";
+      if (message.includes("masih memiliki pegawai")) {
+        const { id, name } = confirmDelete;
+        setConfirmDelete({ isOpen: false, id: null, name: "" });
+        setReassignFlow({ id, name });
+      } else {
+        toast.error(message);
+      }
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleReassignAndDelete = async (destinationId: number) => {
+    if (!reassignFlow) return;
+    try {
+      setReassignSubmitting(true);
+      setReassignProgress("Memuat daftar pegawai...");
+      const hierarchy = await fetchHierarchy();
+      const members = hierarchy.filter((node) => node.jabatan?.id === reassignFlow.id);
+
+      for (let i = 0; i < members.length; i++) {
+        setReassignProgress(`Memindahkan pegawai ${i + 1} dari ${members.length}...`);
+        try {
+          await updateContractAssignment(members[i].contract_id, {
+            jabatan_id: destinationId,
+            golongan_id: null,
+          });
+        } catch (err: any) {
+          toast.error(
+            `Gagal memindahkan pegawai setelah ${i} dari ${members.length} berhasil dipindahkan: ${
+              err.message || "Kesalahan tidak diketahui"
+            }`
+          );
+          return;
+        }
+      }
+
+      setReassignProgress("Menghapus divisi...");
+      await deleteJabatan(reassignFlow.id);
+      toast.success(`Divisi "${reassignFlow.name}" berhasil dihapus setelah ${members.length} pegawai dipindahkan`);
+      setReassignFlow(null);
+      loadDivisions();
+    } catch (err: any) {
+      toast.error(err.message || "Gagal memindahkan pegawai");
+    } finally {
+      setReassignSubmitting(false);
+      setReassignProgress(null);
     }
   };
 
@@ -222,14 +275,21 @@ export function OrganizationPage() {
       className: "w-16 text-center",
     },
     {
-      header: <span className="text-left block w-full text-xs font-semibold text-gray-500 tracking-wider">Nama Divisi / Jabatan</span>,
+      header: <span className="text-left block w-full text-xs font-semibold text-gray-500 tracking-wider">Divisi</span>,
       accessorKey: "nama_jabatan",
       cell: (row: BackendJabatan) => (
-        <div className="flex items-center gap-2">
-          <span className="text-left block text-xs font-semibold text-gray-800">{row.nama_jabatan}</span>
-          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-zinc-100 text-gray-500">
-            {row.golongans?.length ?? 0} Posisi
-          </span>
+        <div className="text-left">
+          <div className="flex items-center gap-2">
+            <span className="text-left block text-xs font-semibold text-gray-800">{row.nama_jabatan}</span>
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-zinc-100 text-gray-500">
+              {row.golongans?.length ?? 0} Posisi
+            </span>
+          </div>
+          {row.golongans && row.golongans.length > 0 && (
+            <p className="text-[10px] text-gray-400 font-medium mt-0.5">
+              {row.golongans.map((g) => g.name).join(", ")}
+            </p>
+          )}
         </div>
       ),
     },
@@ -431,10 +491,23 @@ export function OrganizationPage() {
         onClose={() => setConfirmDelete({ isOpen: false, id: null, name: "" })}
         onConfirm={handleConfirmDelete}
         title="Hapus Divisi"
-        message={`Apakah Anda yakin ingin menghapus divisi "${confirmDelete.name}"? Pegawai yang terhubung dengan divisi ini mungkin akan kehilangan referensi divisi.`}
+        message={`Apakah Anda yakin ingin menghapus divisi "${confirmDelete.name}"? Jika masih ada pegawai di divisi ini, Anda akan diminta memindahkan mereka ke divisi lain terlebih dahulu.`}
         variant="danger"
         loading={submitting}
       />
+
+      {reassignFlow && (
+        <ReassignDivisiModal
+          sourceName={reassignFlow.name}
+          options={divisions
+            .filter((d) => d.id !== reassignFlow.id)
+            .map((d) => ({ value: String(d.id), label: d.nama_jabatan }))}
+          submitting={reassignSubmitting}
+          progress={reassignProgress}
+          onCancel={() => (reassignSubmitting ? undefined : setReassignFlow(null))}
+          onConfirm={handleReassignAndDelete}
+        />
+      )}
 
       <ConfirmationModal
         isOpen={confirmDeleteGolongan.isOpen}
