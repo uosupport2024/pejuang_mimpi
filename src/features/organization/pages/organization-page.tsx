@@ -1,9 +1,22 @@
 import { useState, useEffect } from "react";
-import { Plus, Edit2, Trash2, X } from "lucide-react";
+import { Plus, Edit2, Trash2, X, Check } from "lucide-react";
 import { toast } from "sonner";
 import { ReusableTable } from "@/shared/components/ui/reusable-table";
-import { fetchJabatans, createJabatan, updateJabatan, deleteJabatan, type BackendJabatan } from "../api/organization";
+import {
+  fetchJabatans,
+  createJabatan,
+  updateJabatan,
+  deleteJabatan,
+  createGolongan,
+  updateGolongan,
+  deleteGolongan,
+  type BackendJabatan,
+  type BackendGolongan,
+} from "../api/organization";
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
+import { ReassignDivisiModal } from "../components/reassign-divisi-modal";
+import { fetchHierarchy } from "@/features/org-management/api/org-management";
+import { updateContractAssignment } from "@/features/employee/api/payroll-allocation";
 
 export function OrganizationPage() {
   const [divisions, setDivisions] = useState<BackendJabatan[]>([]);
@@ -29,6 +42,29 @@ export function OrganizationPage() {
     name: "",
   });
 
+  // Golongan (posisi) management — only relevant in edit mode
+  const [golongans, setGolongans] = useState<BackendGolongan[]>([]);
+  const [newGolonganName, setNewGolonganName] = useState("");
+  const [addingGolongan, setAddingGolongan] = useState(false);
+  const [editingGolonganId, setEditingGolonganId] = useState<number | null>(null);
+  const [editingGolonganName, setEditingGolonganName] = useState("");
+  const [savingGolonganEdit, setSavingGolonganEdit] = useState(false);
+  const [confirmDeleteGolongan, setConfirmDeleteGolongan] = useState<{
+    isOpen: boolean;
+    id: number | null;
+    name: string;
+  }>({
+    isOpen: false,
+    id: null,
+    name: "",
+  });
+  const [deletingGolongan, setDeletingGolongan] = useState(false);
+
+  // Reassign-then-delete flow — triggered when a divisi still has employees
+  const [reassignFlow, setReassignFlow] = useState<{ id: number; name: string } | null>(null);
+  const [reassignSubmitting, setReassignSubmitting] = useState(false);
+  const [reassignProgress, setReassignProgress] = useState<string | null>(null);
+
   const loadDivisions = async () => {
     try {
       setLoading(true);
@@ -51,6 +87,9 @@ export function OrganizationPage() {
     setFormData({
       nama_jabatan: "",
     });
+    setGolongans([]);
+    setNewGolonganName("");
+    setEditingGolonganId(null);
     setIsModalOpen(true);
   };
 
@@ -60,6 +99,9 @@ export function OrganizationPage() {
     setFormData({
       nama_jabatan: division.nama_jabatan,
     });
+    setGolongans(division.golongans || []);
+    setNewGolonganName("");
+    setEditingGolonganId(null);
     setIsModalOpen(true);
   };
 
@@ -80,9 +122,121 @@ export function OrganizationPage() {
       setConfirmDelete({ isOpen: false, id: null, name: "" });
       loadDivisions();
     } catch (err: any) {
-      toast.error(err.message || "Gagal menghapus divisi");
+      const message: string = err.message || "Gagal menghapus divisi";
+      if (message.includes("masih memiliki pegawai")) {
+        const { id, name } = confirmDelete;
+        setConfirmDelete({ isOpen: false, id: null, name: "" });
+        setReassignFlow({ id, name });
+      } else {
+        toast.error(message);
+      }
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleReassignAndDelete = async (destinationId: number) => {
+    if (!reassignFlow) return;
+    try {
+      setReassignSubmitting(true);
+      setReassignProgress("Memuat daftar pegawai...");
+      const hierarchy = await fetchHierarchy();
+      const members = hierarchy.filter((node) => node.jabatan?.id === reassignFlow.id);
+
+      for (let i = 0; i < members.length; i++) {
+        setReassignProgress(`Memindahkan pegawai ${i + 1} dari ${members.length}...`);
+        try {
+          await updateContractAssignment(members[i].contract_id, {
+            jabatan_id: destinationId,
+            golongan_id: null,
+          });
+        } catch (err: any) {
+          toast.error(
+            `Gagal memindahkan pegawai setelah ${i} dari ${members.length} berhasil dipindahkan: ${
+              err.message || "Kesalahan tidak diketahui"
+            }`
+          );
+          return;
+        }
+      }
+
+      setReassignProgress("Menghapus divisi...");
+      await deleteJabatan(reassignFlow.id);
+      toast.success(`Divisi "${reassignFlow.name}" berhasil dihapus setelah ${members.length} pegawai dipindahkan`);
+      setReassignFlow(null);
+      loadDivisions();
+    } catch (err: any) {
+      toast.error(err.message || "Gagal memindahkan pegawai");
+    } finally {
+      setReassignSubmitting(false);
+      setReassignProgress(null);
+    }
+  };
+
+  const handleAddGolongan = async () => {
+    if (!selectedDivision) return;
+    if (!newGolonganName.trim()) {
+      toast.error("Nama posisi harus diisi");
+      return;
+    }
+    try {
+      setAddingGolongan(true);
+      const created = await createGolongan(selectedDivision.id, newGolonganName.trim());
+      setGolongans((prev) => [...prev, created]);
+      setNewGolonganName("");
+      toast.success("Posisi berhasil ditambahkan");
+    } catch (err: any) {
+      toast.error(err.message || "Gagal menambahkan posisi");
+    } finally {
+      setAddingGolongan(false);
+    }
+  };
+
+  const handleStartEditGolongan = (golongan: BackendGolongan) => {
+    setEditingGolonganId(golongan.id);
+    setEditingGolonganName(golongan.name);
+  };
+
+  const handleCancelEditGolongan = () => {
+    setEditingGolonganId(null);
+    setEditingGolonganName("");
+  };
+
+  const handleSaveEditGolongan = async () => {
+    if (!editingGolonganId) return;
+    if (!editingGolonganName.trim()) {
+      toast.error("Nama posisi harus diisi");
+      return;
+    }
+    try {
+      setSavingGolonganEdit(true);
+      const updated = await updateGolongan(editingGolonganId, editingGolonganName.trim());
+      setGolongans((prev) => prev.map((g) => (g.id === updated.id ? updated : g)));
+      handleCancelEditGolongan();
+      toast.success("Posisi berhasil diperbarui");
+    } catch (err: any) {
+      toast.error(err.message || "Gagal memperbarui posisi");
+    } finally {
+      setSavingGolonganEdit(false);
+    }
+  };
+
+  const handleDeleteGolonganClick = (golongan: BackendGolongan) => {
+    setConfirmDeleteGolongan({ isOpen: true, id: golongan.id, name: golongan.name });
+  };
+
+  const handleConfirmDeleteGolongan = async () => {
+    if (!confirmDeleteGolongan.id) return;
+    try {
+      setDeletingGolongan(true);
+      await deleteGolongan(confirmDeleteGolongan.id);
+      setGolongans((prev) => prev.filter((g) => g.id !== confirmDeleteGolongan.id));
+      toast.success(`Posisi "${confirmDeleteGolongan.name}" berhasil dihapus`);
+      setConfirmDeleteGolongan({ isOpen: false, id: null, name: "" });
+    } catch (err: any) {
+      toast.error(err.message || "Gagal menghapus posisi");
+    } finally {
+      setDeletingGolongan(false);
     }
   };
 
@@ -121,10 +275,22 @@ export function OrganizationPage() {
       className: "w-16 text-center",
     },
     {
-      header: <span className="text-left block w-full text-xs font-semibold text-gray-500 tracking-wider">Nama Divisi / Jabatan</span>,
+      header: <span className="text-left block w-full text-xs font-semibold text-gray-500 tracking-wider">Divisi</span>,
       accessorKey: "nama_jabatan",
       cell: (row: BackendJabatan) => (
-        <span className="text-left block text-xs font-semibold text-gray-800">{row.nama_jabatan}</span>
+        <div className="text-left">
+          <div className="flex items-center gap-2">
+            <span className="text-left block text-xs font-semibold text-gray-800">{row.nama_jabatan}</span>
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-zinc-100 text-gray-500">
+              {row.golongans?.length ?? 0} Posisi
+            </span>
+          </div>
+          {row.golongans && row.golongans.length > 0 && (
+            <p className="text-[10px] text-gray-400 font-medium mt-0.5">
+              {row.golongans.map((g) => g.name).join(", ")}
+            </p>
+          )}
+        </div>
       ),
     },
     {
@@ -170,7 +336,7 @@ export function OrganizationPage() {
       {/* Add / Edit Dialog Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl border border-gray-200/80 shadow-lg max-w-sm w-full p-6 space-y-4">
+          <div className="bg-white rounded-2xl border border-gray-200/80 shadow-lg max-w-md w-full p-6 space-y-4">
             <div className="flex justify-between items-center border-b border-gray-100 pb-3">
               <h3 className="text-xs font-bold text-gray-800">
                 {modalMode === "add" ? "Tambah Divisi Baru" : "Edit Divisi"}
@@ -195,6 +361,107 @@ export function OrganizationPage() {
                   className="w-full h-9 px-3 py-2 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#e0542c] focus:border-[#e0542c] text-gray-700 font-medium"
                 />
               </div>
+
+              {modalMode === "edit" && selectedDivision && (
+                <div className="space-y-2 pt-2 border-t border-gray-100">
+                  <label className="text-[11px] font-semibold text-gray-500">Posisi</label>
+
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newGolonganName}
+                      onChange={(e) => setNewGolonganName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddGolongan();
+                        }
+                      }}
+                      placeholder="Contoh: Manager, Senior Staff, Staff"
+                      className="flex-1 h-9 px-3 py-2 text-xs bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#e0542c] focus:border-[#e0542c] text-gray-700 font-medium"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddGolongan}
+                      disabled={addingGolongan}
+                      className="px-3 h-9 text-xs font-bold text-white rounded-lg transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1 shrink-0"
+                      style={{ background: "var(--theme-button, #e0542c)" }}
+                    >
+                      <Plus size={14} /> Tambah
+                    </button>
+                  </div>
+
+                  {golongans.length === 0 ? (
+                    <p className="text-[11px] text-gray-400 py-2 text-center">Belum ada posisi untuk divisi ini.</p>
+                  ) : (
+                    <div className="space-y-1 max-h-40 overflow-y-auto">
+                      {golongans.map((g) => (
+                        <div key={g.id} className="flex items-center justify-between gap-2 px-2.5 py-1.5 bg-zinc-50 rounded-lg">
+                          {editingGolonganId === g.id ? (
+                            <>
+                              <input
+                                type="text"
+                                autoFocus
+                                value={editingGolonganName}
+                                onChange={(e) => setEditingGolonganName(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    handleSaveEditGolongan();
+                                  }
+                                  if (e.key === "Escape") handleCancelEditGolongan();
+                                }}
+                                className="flex-1 h-7 px-2 text-xs bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#e0542c] focus:border-[#e0542c] text-gray-700 font-medium"
+                              />
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={handleSaveEditGolongan}
+                                  disabled={savingGolonganEdit}
+                                  className="p-1 text-emerald-600 hover:bg-emerald-50 rounded-md transition-colors cursor-pointer disabled:opacity-50"
+                                  title="Simpan"
+                                >
+                                  <Check size={13} />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={handleCancelEditGolongan}
+                                  className="p-1 text-gray-400 hover:bg-gray-100 rounded-md transition-colors cursor-pointer"
+                                  title="Batal"
+                                >
+                                  <X size={13} />
+                                </button>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-xs font-semibold text-gray-700 truncate">{g.name}</span>
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => handleStartEditGolongan(g)}
+                                  className="p-1 text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 rounded-md transition-colors cursor-pointer"
+                                  title="Edit"
+                                >
+                                  <Edit2 size={12} />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteGolonganClick(g)}
+                                  className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
+                                  title="Hapus"
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                 <button
@@ -224,9 +491,32 @@ export function OrganizationPage() {
         onClose={() => setConfirmDelete({ isOpen: false, id: null, name: "" })}
         onConfirm={handleConfirmDelete}
         title="Hapus Divisi"
-        message={`Apakah Anda yakin ingin menghapus divisi "${confirmDelete.name}"? Pegawai yang terhubung dengan divisi ini mungkin akan kehilangan referensi divisi.`}
+        message={`Apakah Anda yakin ingin menghapus divisi "${confirmDelete.name}"? Jika masih ada pegawai di divisi ini, Anda akan diminta memindahkan mereka ke divisi lain terlebih dahulu.`}
         variant="danger"
         loading={submitting}
+      />
+
+      {reassignFlow && (
+        <ReassignDivisiModal
+          sourceName={reassignFlow.name}
+          options={divisions
+            .filter((d) => d.id !== reassignFlow.id)
+            .map((d) => ({ value: String(d.id), label: d.nama_jabatan }))}
+          submitting={reassignSubmitting}
+          progress={reassignProgress}
+          onCancel={() => (reassignSubmitting ? undefined : setReassignFlow(null))}
+          onConfirm={handleReassignAndDelete}
+        />
+      )}
+
+      <ConfirmationModal
+        isOpen={confirmDeleteGolongan.isOpen}
+        onClose={() => setConfirmDeleteGolongan({ isOpen: false, id: null, name: "" })}
+        onConfirm={handleConfirmDeleteGolongan}
+        title="Hapus Posisi"
+        message={`Apakah Anda yakin ingin menghapus posisi "${confirmDeleteGolongan.name}"? Ini akan gagal jika masih ada pegawai dengan kontrak yang menggunakan posisi ini.`}
+        variant="danger"
+        loading={deletingGolongan}
       />
     </div>
   );

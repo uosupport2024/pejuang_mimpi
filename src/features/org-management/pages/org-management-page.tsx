@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { toast } from "sonner";
-import { Search, ScanEye, ChevronsUpDown, ChevronsDownUp, UserPlus } from "lucide-react";
+import { Search, ScanEye, ChevronsUpDown, ChevronsDownUp, UserPlus, Settings2 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { THEME_COLORS } from "@/shared/constants/colors";
 import { useRouter } from "@/shared/router/router";
@@ -8,9 +8,12 @@ import { ReusableTable } from "@/shared/components/ui/reusable-table";
 import type { ColumnDef } from "@/shared/components/ui/reusable-table";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { fetchEmployees, type BackendEmployee } from "@/features/employee/api/employee";
-import { fetchHierarchy, reassignManager, type HierarchyNode } from "../api/org-management";
+import { updateContractAssignment } from "@/features/employee/api/payroll-allocation";
+import { fetchJabatans, type BackendJabatan } from "@/features/organization/api/organization";
+import { fetchHierarchy, reassignManager, bulkAssignManager, type HierarchyNode } from "../api/org-management";
 import { OrgChartTree } from "../components/org-chart-tree";
 import { ReassignManagerModal } from "../components/reassign-manager-modal";
+import { ManageEmployeeModal, type ManageEmployeeSavePayload } from "../components/manage-employee-modal";
 
 const TABS = [
   { id: "chart", label: "Bagan Organisasi" },
@@ -41,6 +44,11 @@ export function OrgManagementPage() {
   const [reassignTarget, setReassignTarget] = useState<HierarchyNode | null>(null);
   const [reassigning, setReassigning] = useState(false);
 
+  // Manage-employee flow (divisi, posisi & subordinates) — used from the Direktori tab
+  const [jabatans, setJabatans] = useState<BackendJabatan[]>([]);
+  const [manageTarget, setManageTarget] = useState<HierarchyNode | null>(null);
+  const [managing, setManaging] = useState(false);
+
   // Directory tab
   const [directoryData, setDirectoryData] = useState<BackendEmployee[]>([]);
   const [directoryLoading, setDirectoryLoading] = useState(false);
@@ -50,6 +58,7 @@ export function OrgManagementPage() {
   const [directorySearch, setDirectorySearch] = useState("");
   const [directoryLokasiFilter, setDirectoryLokasiFilter] = useState<number | "">("");
   const [directoryJabatanFilter, setDirectoryJabatanFilter] = useState<number | "">("");
+  const [directoryRefreshTick, setDirectoryRefreshTick] = useState(0);
 
   const loadHierarchy = useCallback(() => {
     setLoading(true);
@@ -62,6 +71,12 @@ export function OrgManagementPage() {
   useEffect(() => {
     loadHierarchy();
   }, [loadHierarchy]);
+
+  useEffect(() => {
+    fetchJabatans()
+      .then(setJabatans)
+      .catch((err: any) => toast.error(err.message || "Gagal memuat data divisi"));
+  }, []);
 
   // ── Derived tree structures ──────────────────────────────────────────
   const nodeByContractId = useMemo(() => {
@@ -244,6 +259,65 @@ export function OrgManagementPage() {
       .map((n) => ({ value: String(n.contract_id), label: `${n.name || "-"} — ${n.jabatan?.nama_jabatan || "-"}` }));
   }, [reassignTarget, hierarchy, descendantIds]);
 
+  // ── Manage-employee flow ─────────────────────────────────────────────
+  const ancestorIds = useCallback(
+    (contractId: number): Set<number> => {
+      const result = new Set<number>();
+      let cur = nodeByContractId.get(contractId)?.manager_contract_id ?? null;
+      while (cur != null) {
+        result.add(cur);
+        cur = nodeByContractId.get(cur)?.manager_contract_id ?? null;
+      }
+      return result;
+    },
+    [nodeByContractId]
+  );
+
+  const managePeers = useMemo(() => {
+    if (!manageTarget) return [];
+    const excluded = ancestorIds(manageTarget.contract_id);
+    return hierarchy.filter(
+      (n) =>
+        n.contract_id !== manageTarget.contract_id &&
+        n.jabatan?.id === manageTarget.jabatan?.id &&
+        !excluded.has(n.contract_id)
+    );
+  }, [manageTarget, hierarchy, ancestorIds]);
+
+  const manageInitialSubordinateIds = useMemo(() => {
+    if (!manageTarget) return [];
+    return managePeers.filter((p) => p.manager_contract_id === manageTarget.contract_id).map((p) => p.contract_id);
+  }, [manageTarget, managePeers]);
+
+  const handleSaveManage = async (payload: ManageEmployeeSavePayload) => {
+    if (!manageTarget) return;
+    setManaging(true);
+    try {
+      const jabatanChanged = payload.jabatan_id !== manageTarget.jabatan?.id;
+      const golonganChanged = payload.golongan_id !== (manageTarget.golongan?.id ?? null);
+      if (jabatanChanged || golonganChanged) {
+        await updateContractAssignment(manageTarget.contract_id, {
+          jabatan_id: payload.jabatan_id,
+          golongan_id: payload.golongan_id,
+        });
+      }
+      if (payload.addedContractIds.length > 0) {
+        await bulkAssignManager(manageTarget.contract_id, payload.addedContractIds);
+      }
+      for (const contractId of payload.removedContractIds) {
+        await reassignManager(contractId, null);
+      }
+      toast.success(`Data ${manageTarget.name} berhasil diperbarui`);
+      setManageTarget(null);
+      loadHierarchy();
+      setDirectoryRefreshTick((t) => t + 1);
+    } catch (err: any) {
+      toast.error(err.message || "Gagal memperbarui data pegawai");
+    } finally {
+      setManaging(false);
+    }
+  };
+
   const handleConfirmReassign = async (managerContractId: number | null) => {
     if (!reassignTarget) return;
     setReassigning(true);
@@ -277,7 +351,7 @@ export function OrgManagementPage() {
       })
       .catch((err: any) => toast.error(err.message || "Gagal memuat direktori pegawai"))
       .finally(() => setDirectoryLoading(false));
-  }, [activeTab, directorySearch, directoryPage, directoryLokasiFilter, directoryJabatanFilter]);
+  }, [activeTab, directorySearch, directoryPage, directoryLokasiFilter, directoryJabatanFilter, directoryRefreshTick]);
 
   const managerNameByUserId = useMemo(() => {
     const m = new Map<number, string>();
@@ -289,6 +363,20 @@ export function OrgManagementPage() {
     });
     return m;
   }, [hierarchy, nodeByContractId]);
+
+  const golonganNameByUserId = useMemo(() => {
+    const m = new Map<number, string>();
+    hierarchy.forEach((n) => {
+      if (n.golongan) m.set(n.user_id, n.golongan.name);
+    });
+    return m;
+  }, [hierarchy]);
+
+  const hierarchyNodeByUserId = useMemo(() => {
+    const m = new Map<number, HierarchyNode>();
+    hierarchy.forEach((n) => m.set(n.user_id, n));
+    return m;
+  }, [hierarchy]);
 
   const directoryColumns: ColumnDef<BackendEmployee>[] = [
     {
@@ -302,12 +390,37 @@ export function OrgManagementPage() {
       ),
     },
     { header: "Divisi", cell: (row) => <span className="text-gray-600 font-medium">{row.jabatan?.nama_jabatan || "-"}</span>, sortable: false },
+    {
+      header: "Posisi",
+      cell: (row) => <span className="text-gray-600 font-medium">{golonganNameByUserId.get(row.id) || ""}</span>,
+      sortable: false,
+    },
     { header: "Lokasi", cell: (row) => <span className="text-gray-600 font-medium">{row.lokasi?.nama_lokasi || "-"}</span>, sortable: false },
     { header: "Email", accessorKey: "email", cell: (row) => <span className="text-gray-600 font-medium">{row.email}</span> },
     { header: "Telepon", accessorKey: "telepon", cell: (row) => <span className="text-gray-600 font-medium">{row.telepon || "-"}</span> },
     {
       header: "Atasan",
       cell: (row) => <span className="text-gray-600 font-medium">{managerNameByUserId.get(row.id) || "-"}</span>,
+      sortable: false,
+    },
+    {
+      header: "Aksi",
+      cell: (row) => {
+        const node = hierarchyNodeByUserId.get(row.id);
+        return (
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => node && setManageTarget(node)}
+              disabled={!node}
+              title={node ? "Kelola divisi, posisi & bawahan" : "Tidak ada kontrak aktif"}
+              className="p-1.5 text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 rounded-md transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <Settings2 size={14} />
+            </button>
+          </div>
+        );
+      },
       sortable: false,
     },
   ];
@@ -447,7 +560,15 @@ export function OrgManagementPage() {
                   >
                     <div className="text-left">
                       <p className="text-xs font-bold text-gray-700">{n.name}</p>
-                      <p className="text-[10px] text-gray-400">{n.jabatan?.nama_jabatan || "-"}</p>
+                      <p className="text-[10px] text-gray-400">
+                        {n.jabatan?.nama_jabatan || "-"}
+                        {n.golongan && ` · ${n.golongan.name}`}
+                      </p>
+                      {n.lokasi && (
+                        <span className="inline-flex items-center px-1 py-px mt-0.5 rounded text-[9px] font-bold bg-zinc-100 text-gray-500">
+                          {abbreviate(n.lokasi.nama_lokasi)}
+                        </span>
+                      )}
                     </div>
                     <UserPlus size={13} className="text-gray-400" />
                   </button>
@@ -545,6 +666,40 @@ export function OrgManagementPage() {
             setDirectoryPage(1);
           }}
           searchPlaceholder="Cari nama, username, email, telepon..."
+          customActions={
+            <>
+              <select
+                value={directoryJabatanFilter}
+                onChange={(e) => {
+                  setDirectoryJabatanFilter(e.target.value ? Number(e.target.value) : "");
+                  setDirectoryPage(1);
+                }}
+                className="h-9 px-3 text-xs bg-zinc-50 border border-gray-200 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-[#e0542c]"
+              >
+                <option value="">Semua Divisi</option>
+                {divisiOptions.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.nama_jabatan} ({d.count})
+                  </option>
+                ))}
+              </select>
+              <select
+                value={directoryLokasiFilter}
+                onChange={(e) => {
+                  setDirectoryLokasiFilter(e.target.value ? Number(e.target.value) : "");
+                  setDirectoryPage(1);
+                }}
+                className="h-9 px-3 text-xs bg-zinc-50 border border-gray-200 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-[#e0542c]"
+              >
+                <option value="">Semua Lokasi</option>
+                {siteOptions.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.nama_lokasi} ({s.count})
+                  </option>
+                ))}
+              </select>
+            </>
+          }
           showPagination
           currentPage={directoryPage}
           totalPages={directoryTotalPages}
@@ -567,6 +722,23 @@ export function OrgManagementPage() {
           submitting={reassigning}
           onCancel={() => setReassignTarget(null)}
           onConfirm={handleConfirmReassign}
+        />
+      )}
+
+      {manageTarget && (
+        <ManageEmployeeModal
+          target={manageTarget}
+          jabatans={jabatans}
+          peers={managePeers}
+          initialSubordinateContractIds={manageInitialSubordinateIds}
+          submitting={managing}
+          onCancel={() => (managing ? undefined : setManageTarget(null))}
+          onSave={handleSaveManage}
+          onGolonganCreated={(jabatanId, golongan) =>
+            setJabatans((prev) =>
+              prev.map((j) => (j.id === jabatanId ? { ...j, golongans: [...(j.golongans || []), golongan] } : j))
+            )
+          }
         />
       )}
     </div>

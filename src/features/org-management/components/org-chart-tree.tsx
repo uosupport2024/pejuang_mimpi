@@ -219,6 +219,7 @@ function OrgChartNode({
             <p className="font-bold text-gray-800 text-xs leading-tight truncate">{node.name || "-"}</p>
             <p className="text-[10px] text-gray-400 font-medium leading-tight truncate">
               {node.jabatan?.nama_jabatan || "-"}
+              {node.golongan && ` · ${node.golongan.name}`}
             </p>
             {(node.lokasi || isCrossSite) && (
               <div className="flex items-center gap-1 mt-0.5">
