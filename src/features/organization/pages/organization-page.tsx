@@ -123,7 +123,7 @@ export function OrganizationPage() {
   const handleAddGolongan = async () => {
     if (!selectedDivision) return;
     if (!newGolonganName.trim()) {
-      toast.error("Nama golongan/posisi harus diisi");
+      toast.error("Nama posisi harus diisi");
       return;
     }
     try {
@@ -131,9 +131,9 @@ export function OrganizationPage() {
       const created = await createGolongan(selectedDivision.id, newGolonganName.trim());
       setGolongans((prev) => [...prev, created]);
       setNewGolonganName("");
-      toast.success("Golongan/posisi berhasil ditambahkan");
+      toast.success("Posisi berhasil ditambahkan");
     } catch (err: any) {
-      toast.error(err.message || "Gagal menambahkan golongan/posisi");
+      toast.error(err.message || "Gagal menambahkan posisi");
     } finally {
       setAddingGolongan(false);
     }
@@ -152,7 +152,7 @@ export function OrganizationPage() {
   const handleSaveEditGolongan = async () => {
     if (!editingGolonganId) return;
     if (!editingGolonganName.trim()) {
-      toast.error("Nama golongan/posisi harus diisi");
+      toast.error("Nama posisi harus diisi");
       return;
     }
     try {
@@ -160,9 +160,9 @@ export function OrganizationPage() {
       const updated = await updateGolongan(editingGolonganId, editingGolonganName.trim());
       setGolongans((prev) => prev.map((g) => (g.id === updated.id ? updated : g)));
       handleCancelEditGolongan();
-      toast.success("Golongan/posisi berhasil diperbarui");
+      toast.success("Posisi berhasil diperbarui");
     } catch (err: any) {
-      toast.error(err.message || "Gagal memperbarui golongan/posisi");
+      toast.error(err.message || "Gagal memperbarui posisi");
     } finally {
       setSavingGolonganEdit(false);
     }
@@ -178,10 +178,10 @@ export function OrganizationPage() {
       setDeletingGolongan(true);
       await deleteGolongan(confirmDeleteGolongan.id);
       setGolongans((prev) => prev.filter((g) => g.id !== confirmDeleteGolongan.id));
-      toast.success(`Golongan/posisi "${confirmDeleteGolongan.name}" berhasil dihapus`);
+      toast.success(`Posisi "${confirmDeleteGolongan.name}" berhasil dihapus`);
       setConfirmDeleteGolongan({ isOpen: false, id: null, name: "" });
     } catch (err: any) {
-      toast.error(err.message || "Gagal menghapus golongan/posisi");
+      toast.error(err.message || "Gagal menghapus posisi");
     } finally {
       setDeletingGolongan(false);
     }
@@ -304,7 +304,7 @@ export function OrganizationPage() {
 
               {modalMode === "edit" && selectedDivision && (
                 <div className="space-y-2 pt-2 border-t border-gray-100">
-                  <label className="text-[11px] font-semibold text-gray-500">Golongan / Posisi</label>
+                  <label className="text-[11px] font-semibold text-gray-500">Posisi</label>
 
                   <div className="flex gap-2">
                     <input
@@ -332,7 +332,7 @@ export function OrganizationPage() {
                   </div>
 
                   {golongans.length === 0 ? (
-                    <p className="text-[11px] text-gray-400 py-2 text-center">Belum ada golongan/posisi untuk divisi ini.</p>
+                    <p className="text-[11px] text-gray-400 py-2 text-center">Belum ada posisi untuk divisi ini.</p>
                   ) : (
                     <div className="space-y-1 max-h-40 overflow-y-auto">
                       {golongans.map((g) => (
@@ -440,8 +440,8 @@ export function OrganizationPage() {
         isOpen={confirmDeleteGolongan.isOpen}
         onClose={() => setConfirmDeleteGolongan({ isOpen: false, id: null, name: "" })}
         onConfirm={handleConfirmDeleteGolongan}
-        title="Hapus Golongan/Posisi"
-        message={`Apakah Anda yakin ingin menghapus golongan/posisi "${confirmDeleteGolongan.name}"? Ini akan gagal jika masih ada pegawai dengan kontrak yang menggunakan posisi ini.`}
+        title="Hapus Posisi"
+        message={`Apakah Anda yakin ingin menghapus posisi "${confirmDeleteGolongan.name}"? Ini akan gagal jika masih ada pegawai dengan kontrak yang menggunakan posisi ini.`}
         variant="danger"
         loading={deletingGolongan}
       />

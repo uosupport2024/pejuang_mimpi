@@ -290,6 +290,14 @@ export function OrgManagementPage() {
     return m;
   }, [hierarchy, nodeByContractId]);
 
+  const golonganNameByUserId = useMemo(() => {
+    const m = new Map<number, string>();
+    hierarchy.forEach((n) => {
+      if (n.golongan) m.set(n.user_id, n.golongan.name);
+    });
+    return m;
+  }, [hierarchy]);
+
   const directoryColumns: ColumnDef<BackendEmployee>[] = [
     {
       header: "Nama",
@@ -302,6 +310,11 @@ export function OrgManagementPage() {
       ),
     },
     { header: "Divisi", cell: (row) => <span className="text-gray-600 font-medium">{row.jabatan?.nama_jabatan || "-"}</span>, sortable: false },
+    {
+      header: "Posisi",
+      cell: (row) => <span className="text-gray-600 font-medium">{golonganNameByUserId.get(row.id) || ""}</span>,
+      sortable: false,
+    },
     { header: "Lokasi", cell: (row) => <span className="text-gray-600 font-medium">{row.lokasi?.nama_lokasi || "-"}</span>, sortable: false },
     { header: "Email", accessorKey: "email", cell: (row) => <span className="text-gray-600 font-medium">{row.email}</span> },
     { header: "Telepon", accessorKey: "telepon", cell: (row) => <span className="text-gray-600 font-medium">{row.telepon || "-"}</span> },
@@ -447,7 +460,15 @@ export function OrgManagementPage() {
                   >
                     <div className="text-left">
                       <p className="text-xs font-bold text-gray-700">{n.name}</p>
-                      <p className="text-[10px] text-gray-400">{n.jabatan?.nama_jabatan || "-"}</p>
+                      <p className="text-[10px] text-gray-400">
+                        {n.jabatan?.nama_jabatan || "-"}
+                        {n.golongan && ` · ${n.golongan.name}`}
+                      </p>
+                      {n.lokasi && (
+                        <span className="inline-flex items-center px-1 py-px mt-0.5 rounded text-[9px] font-bold bg-zinc-100 text-gray-500">
+                          {abbreviate(n.lokasi.nama_lokasi)}
+                        </span>
+                      )}
                     </div>
                     <UserPlus size={13} className="text-gray-400" />
                   </button>

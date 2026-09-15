@@ -295,6 +295,17 @@ export function EmployeeAddPage() {
 
               <FormField label="Status Pajak" type="combobox" name="status_pajak" value={formData.status_pajak} options={statusPajakOptions} onChange={handleChange} />
             </div>
+
+            <div className="pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-gray-500">Posisi</label>
+                <FormField label="" type="combobox" value="" options={[]} disabled onChange={() => {}} placeholder="Tersedia setelah pegawai disimpan" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-gray-500">Atasan</label>
+                <FormField label="" type="combobox" value="" options={[]} disabled onChange={() => {}} placeholder="Tersedia setelah pegawai disimpan" />
+              </div>
+            </div>
           </div>
         )}
 

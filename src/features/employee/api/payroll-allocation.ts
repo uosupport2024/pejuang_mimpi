@@ -37,6 +37,8 @@ export interface UserContract {
   contract_start_date: string;
   contract_end_date: string | null;
   is_active: boolean;
+  golongan_id?: number | null;
+  manager_contract_id?: number | null;
 }
 
 async function parseError(response: Response, fallback: string): Promise<Error> {
@@ -80,6 +82,24 @@ export async function createContract(payload: {
 
   if (!response.ok) {
     throw await parseError(response, "Gagal membuat kontrak pegawai");
+  }
+
+  const json = await response.json();
+  return json.data;
+}
+
+export async function updateContractAssignment(
+  contractId: number,
+  payload: { golongan_id?: number | null; manager_contract_id?: number | null }
+): Promise<UserContract> {
+  const response = await fetch(`${API_BASE_URL}/user-contracts/${contractId}`, {
+    method: "PUT",
+    headers: { ...getHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw await parseError(response, "Gagal memperbarui golongan/atasan pegawai");
   }
 
   const json = await response.json();

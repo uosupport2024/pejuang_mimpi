@@ -7,6 +7,7 @@ export interface HierarchyNode {
   username: string | null;
   jabatan: { id: number; nama_jabatan: string } | null;
   lokasi: { id: number; nama_lokasi: string } | null;
+  golongan: { id: number; name: string } | null;
   manager_contract_id: number | null;
   direct_report_count: number;
   contract_start_date: string | null;
