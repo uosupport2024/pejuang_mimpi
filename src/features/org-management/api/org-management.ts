@@ -38,6 +38,18 @@ export async function fetchHierarchy(): Promise<HierarchyNode[]> {
   return json.data || [];
 }
 
+export async function bulkAssignManager(managerContractId: number, contractIds: number[]): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/user-contracts/bulk-assign-manager`, {
+    method: "POST",
+    headers: { ...getHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify({ manager_contract_id: managerContractId, contract_ids: contractIds }),
+  });
+
+  if (!response.ok) {
+    throw await parseError(response, "Gagal menetapkan bawahan");
+  }
+}
+
 export async function reassignManager(
   contractId: number,
   managerContractId: number | null
