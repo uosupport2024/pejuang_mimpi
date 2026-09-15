@@ -73,3 +73,66 @@ export async function changePasswordOnBackend(
     };
   }
 }
+
+/**
+ * Upload profile photo to backend for AI biometric face validation and storage.
+ */
+export async function uploadProfilePhotoAPI(
+  file: File
+): Promise<{
+  success: boolean;
+  message: string;
+  data?: any;
+  reasons?: string[];
+}> {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  // Headers for multipart upload without overriding Content-Type boundary
+  const baseHeaders = getHeaders();
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+  };
+  if (baseHeaders["Authorization"]) {
+    headers["Authorization"] = baseHeaders["Authorization"];
+  }
+  if (baseHeaders["X-Tenant-ID"]) {
+    headers["X-Tenant-ID"] = baseHeaders["X-Tenant-ID"];
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/profile/photo`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+
+    const json = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      const reasons =
+        json.data?.reasons ||
+        json.errors?.reasons ||
+        (Array.isArray(json.message) ? json.message : undefined);
+
+      return {
+        success: false,
+        message: json.message || "Gagal mengunggah foto profil.",
+        reasons: reasons || [json.message || "Foto tidak memenuhi kriteria verifikasi wajah."],
+      };
+    }
+
+    return {
+      success: true,
+      message: json.message || "Foto profil berhasil diperbarui!",
+      data: json.data,
+    };
+  } catch (err: any) {
+    console.error("Upload profile photo error:", err);
+    return {
+      success: false,
+      message: "Terjadi gangguan koneksi ke server saat mengunggah foto.",
+      reasons: ["Gagal terhubung ke server backend atau layanan AI."],
+    };
+  }
+}

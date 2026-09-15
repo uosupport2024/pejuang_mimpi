@@ -10,6 +10,7 @@ import { RouterProvider, useRouter } from "@/shared/router/router"
 import { loadTenantPermissions, isMenuEnabled, subscribePermissions } from "@/shared/utils/tenant-permissions"
 import { loadTenantBranding } from "@/shared/utils/tenant-branding"
 import { AppLoadingSkeleton } from "@/shared/components/layout/app-loading-skeleton"
+import { PWAInstallBanner } from "@/shared/components/pwa/pwa-install-banner"
 import { toast } from "sonner"
 
 interface UserProfile {
@@ -314,6 +315,7 @@ function App() {
         handleLogout={handleLogout}
         onUpdateUser={handleUpdateUser}
       />
+      <PWAInstallBanner />
       <Toaster richColors />
       <ConfirmationModal
         isOpen={showLogoutConfirm}

@@ -12,6 +12,7 @@ import {
   HelpCenterDrawer,
   TermsAndPrivacyDrawer,
 } from "../components/profile-drawers";
+import { UploadAvatarDrawer } from "../components/upload-avatar-drawer";
 import { useRouter } from "@/shared/router/router";
 import { Button } from "@/shared/components/ui/button";
 import { Logout } from "@solar-icons/react";
@@ -37,6 +38,7 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
   const [isJadwalShiftOpen, setIsJadwalShiftOpen] = useState(false);
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
   const [isTermsAndPrivacyOpen, setIsTermsAndPrivacyOpen] = useState(false);
+  const [isUploadAvatarOpen, setIsUploadAvatarOpen] = useState(false);
 
   const handleSaveProfile = async (updatedData: any) => {
     try {
@@ -76,6 +78,7 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
         user={user}
         onBack={goBack}
         onNotificationClick={() => navigate("MobileNotificationHistory")}
+        onAvatarClick={() => setIsUploadAvatarOpen(true)}
       />
 
       {/* Warning banner if payroll account is not set */}
@@ -388,6 +391,19 @@ export function SarangPage({ user, onLogout, onUpdateUser }: SarangPageProps) {
       <TermsAndPrivacyDrawer
         isOpen={isTermsAndPrivacyOpen}
         onClose={() => setIsTermsAndPrivacyOpen(false)}
+      />
+
+      <UploadAvatarDrawer
+        isOpen={isUploadAvatarOpen}
+        onClose={() => setIsUploadAvatarOpen(false)}
+        onAvatarUpdated={(newAvatarUrl) => {
+          if (onUpdateUser) {
+            onUpdateUser({
+              ...user,
+              avatar: newAvatarUrl,
+            });
+          }
+        }}
       />
     </div>
   );

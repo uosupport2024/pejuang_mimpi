@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Camera, RefreshCw, CheckCircle, X } from "lucide-react";
+import { ArrowLeft, Camera, RefreshCw, CheckCircle, X, XCircle } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
 import { useTunas } from "../hooks/use-tunas";
 import { toast } from "sonner";
-import { fetchProfileAPI, fetchLokasiAPI, fetchJadwalHariIniAPI, postAbsenMasukAPI, postAbsenPulangAPI } from "../api/absensi";
+import { fetchProfileAPI, fetchLokasiAPI, fetchJadwalHariIniAPI, postAbsenMasukAPI, postAbsenPulangAPI, verifySelfieAPI } from "../api/absensi";
 import patternBg from "@/assets/bg/pattern-background.png";
 import { AttendanceHistory } from "../components/attendance-history";
+import { BiometricScannerOverlay } from "../components/biometric-scanner-overlay";
 import { THEME_COLORS } from "@/shared/constants/colors";
 
 // Import react-leaflet and leaflet
@@ -101,6 +102,13 @@ export function MobileAbsensiPage() {
 
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [tempCapturedImage, setTempCapturedImage] = useState<string | null>(null);
+  const [isVerifyingFace, setIsVerifyingFace] = useState<boolean>(false);
+  const [verificationResult, setVerificationResult] = useState<{
+    matched: boolean;
+    reasons: string[];
+    similarity?: number;
+  } | null>(null);
   const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
   const [cameraError, setCameraError] = useState<boolean>(false);
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -250,38 +258,101 @@ export function MobileAbsensiPage() {
   // Hook camera video srcObject when stream or videoRef resolves
   useEffect(() => {
     if (stream && videoRef.current) {
-      videoRef.current.srcObject = stream;
+      if (videoRef.current.srcObject !== stream) {
+        videoRef.current.srcObject = stream;
+      }
       videoRef.current.onloadedmetadata = () => {
         videoRef.current?.play().catch(console.error);
       };
-      videoRef.current.play().catch(() => {});
+      videoRef.current.play().catch(() => { });
     }
-  }, [stream, isCameraModalOpen]);
+  }, [stream, isCameraModalOpen, tempCapturedImage]);
 
-  const capturePhoto = () => {
+  const capturePhoto = async () => {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
       const context = canvas.getContext("2d");
 
       if (context) {
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 480;
+        const rawW = video.videoWidth || 640;
+        const rawH = video.videoHeight || 480;
+        // Optimize resolution: limit max dimension to 720px keeping aspect ratio for fast upload and lightweight AI inference
+        const MAX_DIM = 720;
+        let targetW = rawW;
+        let targetH = rawH;
+        if (Math.max(rawW, rawH) > MAX_DIM) {
+          const scale = MAX_DIM / Math.max(rawW, rawH);
+          targetW = Math.round(rawW * scale);
+          targetH = Math.round(rawH * scale);
+        }
+
+        canvas.width = targetW;
+        canvas.height = targetH;
         // Flip horizontal for mirrored selfie view
         context.translate(canvas.width, 0);
         context.scale(-1, 1);
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        const dataUrl = canvas.toDataURL("image/jpeg");
-        setCapturedImage(dataUrl);
-        setIsCameraModalOpen(false);
+        // Quality 0.85 generates compact (~60-80KB) payload while maintaining crisp facial landmarks
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+        setTempCapturedImage(dataUrl);
+        setVerificationResult(null);
+        setIsVerifyingFace(true);
+
+        try {
+          const imageFile = dataURLtoFile(dataUrl, `selfie_verify_${Date.now()}.jpg`);
+          const res = await verifySelfieAPI(imageFile);
+
+          if (res.success && res.matched) {
+            setVerificationResult({
+              matched: true,
+              reasons: [],
+              similarity: res.data?.similarity,
+            });
+            setCapturedImage(dataUrl);
+
+            // Brief delay to showcase successful biometric match before returning
+            setTimeout(() => {
+              setIsCameraModalOpen(false);
+              setTempCapturedImage(null);
+              setVerificationResult(null);
+              toast.success("Wajah berhasil diverifikasi! Silakan lakukan absensi.");
+            }, 1200);
+          } else {
+            setVerificationResult({
+              matched: false,
+              reasons: res.reasons || [res.message || "Verifikasi wajah gagal."],
+              similarity: res.data?.similarity,
+            });
+          }
+        } catch (err: any) {
+          setVerificationResult({
+            matched: false,
+            reasons: [err.message || "Gagal menghubungi server verifikasi wajah."],
+          });
+        } finally {
+          setIsVerifyingFace(false);
+        }
       }
     }
   };
 
   const retakePhoto = () => {
     setCapturedImage(null);
+    setTempCapturedImage(null);
+    setVerificationResult(null);
+    setIsVerifyingFace(false);
     setIsCameraModalOpen(true);
+
+    if (stream && videoRef.current) {
+      if (videoRef.current.srcObject !== stream) {
+        videoRef.current.srcObject = stream;
+      }
+      videoRef.current.play().catch(console.error);
+    } else {
+      startCamera();
+    }
   };
 
   const handleSubmit = async () => {
@@ -613,7 +684,11 @@ export function MobileAbsensiPage() {
             <span className="text-sm font-bold tracking-wider uppercase drop-shadow-md">Ambil Foto Selfie</span>
             <button
               type="button"
-              onClick={() => setIsCameraModalOpen(false)}
+              onClick={() => {
+                setIsCameraModalOpen(false);
+                setTempCapturedImage(null);
+                setVerificationResult(null);
+              }}
               className="p-2 bg-black/25 hover:bg-black/45 rounded-full transition-colors cursor-pointer text-white border border-white/10 backdrop-blur-xs"
             >
               <X className="w-5 h-5" />
@@ -629,6 +704,7 @@ export function MobileAbsensiPage() {
               </div>
             ) : (
               <>
+                {/* 1. Live Camera Video Stream - ALWAYS MOUNTED so stream doesn't turn black on retake */}
                 <video
                   ref={videoRef}
                   autoPlay
@@ -639,13 +715,85 @@ export function MobileAbsensiPage() {
                   className="w-full h-full object-cover scale-x-[-1] absolute inset-0 z-0 pointer-events-none"
                 />
 
-                {/* Face Silhouette Guide Overlay (Mask effect) */}
-                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
-                  <div className="w-[65vw] h-[45dvh] max-w-[260px] max-h-[340px] rounded-[50%] border-4 border-dashed border-white/60 shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] relative"></div>
-                  <span className="text-[10px] font-bold text-white uppercase tracking-widest mt-6 bg-black/60 px-4 py-2 rounded-full backdrop-blur-xs shadow-md">
-                    Posisikan Wajah di Area Oval
-                  </span>
-                </div>
+                {/* 2. Frozen Captured Image (displayed on top of live video when photo is taken) */}
+                {tempCapturedImage && (
+                  <img
+                    src={tempCapturedImage}
+                    alt="Captured Selfie"
+                    className="w-full h-full object-cover absolute inset-0 z-10"
+                  />
+                )}
+
+                {/* 3. Live Silhouette Guide Overlay (Visible when NOT captured) */}
+                {!tempCapturedImage && (
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
+                    <div
+                      style={{
+                        boxShadow: "0 0 0 9999px rgba(0,0,0,0.5)"
+                      }}
+                      className="w-[65vw] h-[45dvh] max-w-[260px] max-h-[340px] rounded-[50%] border-4 border-dashed border-white/60 relative"
+                    />
+                    <span className="text-[10px] font-bold text-white uppercase tracking-widest mt-6 bg-black/60 px-4 py-2 rounded-full backdrop-blur-xs shadow-md border border-white/10">
+                      Posisikan Wajah di Area Oval
+                    </span>
+                  </div>
+                )}
+
+                {/* 4. Futuristic Biometric Scanning Animation (Image 3 inspired) */}
+                <BiometricScannerOverlay isVerifying={isVerifyingFace} />
+
+                {/* 5. Verification Success State */}
+                {verificationResult && verificationResult.matched && (
+                  <div className="absolute inset-0 z-30 flex items-center justify-center p-6 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
+                    <div className="flex flex-col items-center justify-center p-7 text-center max-w-xs bg-emerald-950/90 backdrop-blur-md rounded-3xl border border-emerald-500/50 shadow-[0_0_35px_rgba(16,185,129,0.3)] animate-in zoom-in-95 duration-200">
+                      <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mb-3">
+                        <CheckCircle className="w-9 h-9 text-emerald-400" />
+                      </div>
+                      <h3 className="text-lg font-bold text-white mb-1">Wajah Terverifikasi!</h3>
+                      <p className="text-xs text-emerald-200/80 mb-2">Biometrik cocok dengan profil Anda</p>
+                      {verificationResult.similarity !== undefined && (
+                        <span className="text-xs text-emerald-300 font-mono font-bold bg-emerald-900/60 px-3 py-1 rounded-full border border-emerald-500/30">
+                          Kecocokan: {Math.round(verificationResult.similarity * 100)}%
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* 6. Verification Failure State */}
+                {verificationResult && !verificationResult.matched && !isVerifyingFace && (
+                  <div className="absolute inset-0 z-30 flex items-center justify-center p-5 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="flex flex-col items-center justify-center p-6 text-center max-w-[88vw] sm:max-w-sm bg-zinc-950/95 backdrop-blur-xl rounded-3xl border border-rose-500/40 shadow-2xl animate-in zoom-in-95 duration-200 text-white">
+                      <div className="w-14 h-14 rounded-full bg-rose-500/20 border border-rose-500/30 flex items-center justify-center mb-3">
+                        <XCircle className="w-8 h-8 text-rose-400" />
+                      </div>
+                      <h3 className="text-base font-bold text-white mb-1">Verifikasi Wajah Gagal</h3>
+                      <p className="text-xs text-zinc-300 mb-3">
+                        Foto selfie tidak dapat digunakan untuk absensi:
+                      </p>
+
+                      <div className="w-full bg-black/60 rounded-2xl p-3 border border-white/10 mb-5 max-h-44 overflow-y-auto">
+                        <ul className="space-y-2 text-left text-xs text-rose-200">
+                          {verificationResult.reasons.map((reason, idx) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <span className="text-rose-400 font-bold shrink-0 mt-0.5">•</span>
+                              <span className="leading-tight">{reason}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={retakePhoto}
+                        className="w-full py-3.5 px-5 rounded-2xl bg-white text-zinc-900 font-bold text-sm shadow-xl active:scale-95 hover:bg-zinc-100 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                        <span>Ambil Foto Ulang</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </>
             )}
             {/* Hidden canvas for capturing frame */}
@@ -653,19 +801,22 @@ export function MobileAbsensiPage() {
           </div>
 
           {/* Floating Bottom Controls */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 pb-10 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10 flex flex-col items-center justify-center">
-            {/* Shutter Button (Center) */}
-            {!cameraError && (
-              <button
-                type="button"
-                onClick={capturePhoto}
-                style={{ backgroundColor: THEME_COLORS.hex.primary }}
-                className="w-18 h-18 rounded-full flex items-center justify-center shadow-2xl active:scale-90 hover:scale-105 transition-all cursor-pointer border-4 border-white"
-              >
-                <Camera className="w-6 h-6 text-white" />
-              </button>
-            )}
-          </div>
+          {!tempCapturedImage && (
+            <div className="absolute bottom-0 left-0 right-0 p-6 pb-10 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10 flex flex-col items-center justify-center">
+              {/* Shutter Button (Center) */}
+              {!cameraError && (
+                <button
+                  type="button"
+                  onClick={capturePhoto}
+                  disabled={isVerifyingFace}
+                  style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                  className="w-18 h-18 rounded-full flex items-center justify-center shadow-2xl active:scale-90 hover:scale-105 transition-all cursor-pointer border-4 border-white disabled:opacity-50"
+                >
+                  <Camera className="w-6 h-6 text-white" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
