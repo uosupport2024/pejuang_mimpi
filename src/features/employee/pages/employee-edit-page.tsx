@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { CalendarRange, Trash2 } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
 import { useLocation } from "react-router-dom";
@@ -6,6 +6,7 @@ import { updateEmployee, fetchEmployeeById, fetchMasters, deleteEmployee, type M
 import { fetchActiveContract, createContract, updateContractAssignment } from "../api/payroll-allocation";
 import { fetchGolongans, createGolongan, type BackendGolongan } from "@/features/organization/api/organization";
 import { fetchHierarchy, type HierarchyNode } from "@/features/org-management/api/org-management";
+import { fetchTenantsAPI } from "@/features/tenant-mapping/api/tenant-mapping";
 import { toast } from "sonner";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { FormField } from "@/shared/components/ui/form-field";
@@ -27,7 +28,16 @@ const TABS = [
   { id: "tunjangan", label: "Tunjangan & Potongan" },
 ];
 
-export function EmployeeEditPage() {
+interface EmployeeEditPageProps {
+  user?: {
+    email?: string;
+    tenant_id?: number | string;
+    tenant?: { id?: number | string; name?: string } | null;
+    tenant_list?: { tenant_id?: number | string; tenant_name?: string }[];
+  };
+}
+
+export function EmployeeEditPage({ user }: EmployeeEditPageProps) {
   const { navigate } = useRouter();
   const location = useLocation();
   const [employeeId] = useState(() => location.state?.employeeId);
@@ -39,6 +49,24 @@ export function EmployeeEditPage() {
   const [submitting, setSubmitting] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // Super admin manages multiple tenants and always sees/controls the
+  // Tenant field; every other admin only ever works within their own
+  // tenant, so it's hidden here (the loaded employee's real tenant_id is
+  // still submitted unchanged either way).
+  const isSuperAdmin = user?.email?.toLowerCase() === "admin@gmail.com";
+  const [tenantOptions, setTenantOptions] = useState([{ value: "1", label: "Tenant" }]);
+
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+    fetchTenantsAPI()
+      .then((tenants) => {
+        if (tenants.length > 0) {
+          setTenantOptions(tenants.map((t) => ({ value: String(t.id), label: t.name })));
+        }
+      })
+      .catch((err: any) => toast.error(err.message || "Gagal memuat daftar tenant."));
+  }, [isSuperAdmin]);
 
   // Golongan & Atasan — live on the employee's active contract, not on the
   // legacy `users` fields the rest of this form submits to.
@@ -258,6 +286,30 @@ export function EmployeeEditPage() {
       .catch((err: any) => toast.error(err.message || "Gagal memuat daftar posisi."));
   }, [formData.jabatan_id]);
 
+  // Atasan must belong to the same Divisi as the employee — options are
+  // scoped to formData.jabatan_id below. If the admin changes Divisi after
+  // an Atasan was already selected, drop it once it no longer matches
+  // (gated on `contractLoading`/`managerOptions` being ready so the initial
+  // load of a genuinely-valid pre-existing manager is never clobbered by a
+  // premature check before that data has arrived).
+  const managerReadyRef = useRef(false);
+  const lastJabatanIdRef = useRef("");
+  useEffect(() => {
+    if (contractLoading || managerOptions.length === 0) return;
+    if (!managerReadyRef.current) {
+      managerReadyRef.current = true;
+      lastJabatanIdRef.current = formData.jabatan_id;
+      return;
+    }
+    if (lastJabatanIdRef.current === formData.jabatan_id) return;
+    lastJabatanIdRef.current = formData.jabatan_id;
+    if (managerContractId === NO_MANAGER_VALUE) return;
+    const stillValid = managerOptions.some(
+      (m) => String(m.contract_id) === managerContractId && String(m.jabatan?.id ?? "") === String(formData.jabatan_id)
+    );
+    if (!stillValid) setManagerContractId(NO_MANAGER_VALUE);
+  }, [formData.jabatan_id, managerOptions, contractLoading, managerContractId]);
+
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -420,11 +472,10 @@ export function EmployeeEditPage() {
   const managerComboOptions = [
     { value: NO_MANAGER_VALUE, label: "— Tidak ada —" },
     ...managerOptions
-      .filter((m) => m.contract_id !== contractId)
+      .filter((m) => m.contract_id !== contractId && String(m.jabatan?.id ?? "") === String(formData.jabatan_id))
       .map((m) => ({ value: String(m.contract_id), label: `${m.name || "-"} — ${m.jabatan?.nama_jabatan || "-"}` })),
   ];
 
-  const tenantOptions = [{ value: "1", label: "Default Tenant (default)" }];
   const roleOptions = [
     { value: "staff", label: "staff" },
     { value: "admin", label: "admin" },
@@ -597,7 +648,9 @@ export function EmployeeEditPage() {
                   <FormField label="Username *" type="text" name="username" required value={formData.username} onChange={handleChange} />
                   <FormField label="Password (Minimal 6 karakter, kosongkan jika tidak diubah)" type="password" name="password" minLength={6} value={formData.password} onChange={handleChange} />
 
-                  <FormField label="Tenant *" type="combobox" name="tenant_id" value={formData.tenant_id} options={tenantOptions} onChange={handleChange} />
+                  {isSuperAdmin && (
+                    <FormField label="Tenant *" type="combobox" name="tenant_id" value={formData.tenant_id} options={tenantOptions} onChange={handleChange} />
+                  )}
 
                   <div className="space-y-1">
                     <label className="text-[11px] font-semibold text-gray-500">Lokasi Kantor *</label>
@@ -709,7 +762,9 @@ export function EmployeeEditPage() {
                           options={managerComboOptions}
                           onChange={(e: any) => setManagerContractId(e.target.value)}
                           searchPlaceholder="Cari atasan..."
+                          placeholder={!formData.jabatan_id ? "Pilih Divisi terlebih dahulu" : undefined}
                         />
+                        <p className="text-[10px] text-gray-400 mt-1">Atasan harus berasal dari divisi yang sama.</p>
                       </div>
                     </div>
                   )}

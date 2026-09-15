@@ -2,6 +2,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import { THEME_COLORS } from "@/shared/constants/colors";
+import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
 import { createGolongan, type BackendJabatan } from "@/features/organization/api/organization";
 import type { HierarchyNode } from "../api/org-management";
 
@@ -41,12 +42,16 @@ export function ManageEmployeeModal({
   const [newGolonganName, setNewGolonganName] = useState("");
   const [addingGolongan, setAddingGolongan] = useState(false);
   const [extraGolongans, setExtraGolongans] = useState<{ id: number; jabatan_id: number; name: string }[]>([]);
+  const [confirming, setConfirming] = useState(false);
 
   const selectedJabatan = jabatans.find((j) => j.id === jabatanId);
   const golonganOptions = [
     ...(selectedJabatan?.golongans || []),
     ...extraGolongans.filter((g) => g.jabatan_id === jabatanId),
   ];
+
+  const jabatanChanged = jabatanId !== "" && jabatanId !== (target.jabatan?.id ?? "");
+  const golonganChanged = (golonganId || null) !== (target.golongan?.id ?? null);
 
   const handleJabatanChange = (value: string) => {
     setJabatanId(value ? Number(value) : "");
@@ -84,7 +89,7 @@ export function ManageEmployeeModal({
     });
   };
 
-  const handleSave = () => {
+  const submitSave = () => {
     if (!jabatanId) return;
     const initial = new Set(initialSubordinateContractIds);
     const addedContractIds = Array.from(selectedSubordinates).filter((id) => !initial.has(id));
@@ -96,6 +101,46 @@ export function ManageEmployeeModal({
       removedContractIds,
     });
   };
+
+  const handleSaveClick = () => {
+    if (!jabatanId) return;
+    if (jabatanChanged || golonganChanged) {
+      setConfirming(true);
+      return;
+    }
+    submitSave();
+  };
+
+  if (confirming) {
+    const newJabatanName = selectedJabatan?.nama_jabatan || "-";
+    const newGolonganNameLabel = golonganId
+      ? golonganOptions.find((g) => g.id === golonganId)?.name || "-"
+      : "Tidak ada";
+    const oldJabatanName = target.jabatan?.nama_jabatan || "-";
+    const oldGolonganNameLabel = target.golongan?.name || "Tidak ada";
+
+    let message = `Anda yakin ingin mengubah data ${target.name}?`;
+    if (jabatanChanged && golonganChanged) {
+      message = `Divisi ${target.name} akan diubah dari "${oldJabatanName}" ke "${newJabatanName}", dan posisi dari "${oldGolonganNameLabel}" ke "${newGolonganNameLabel}". Lanjutkan?`;
+    } else if (jabatanChanged) {
+      message = `Divisi ${target.name} akan diubah dari "${oldJabatanName}" ke "${newJabatanName}". Lanjutkan?`;
+    } else if (golonganChanged) {
+      message = `Posisi ${target.name} akan diubah dari "${oldGolonganNameLabel}" ke "${newGolonganNameLabel}". Lanjutkan?`;
+    }
+
+    return (
+      <ConfirmationModal
+        isOpen
+        onClose={() => setConfirming(false)}
+        onConfirm={submitSave}
+        title="Ubah Divisi & Posisi"
+        message={message}
+        confirmText="Ya, Ubah"
+        variant="warning"
+        loading={submitting}
+      />
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
@@ -216,7 +261,7 @@ export function ManageEmployeeModal({
           </button>
           <button
             type="button"
-            onClick={handleSave}
+            onClick={handleSaveClick}
             disabled={submitting || !jabatanId}
             style={{ background: THEME_COLORS.hex.primary }}
             className="px-4 py-2 text-xs font-bold text-white hover:brightness-105 rounded-lg transition-colors cursor-pointer disabled:opacity-50"

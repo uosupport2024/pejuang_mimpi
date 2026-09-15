@@ -68,9 +68,9 @@ export function MainContainer({ user, onLogout, onUpdateUser }: MainContainerPro
       case "Employee":
         return <EmployeePage />;
       case "EmployeeAdd":
-        return <EmployeeAddPage />;
+        return <EmployeeAddPage user={user} />;
       case "EmployeeEdit":
-        return <EmployeeEditPage />;
+        return <EmployeeEditPage user={user} />;
       case "EmployeeInputShift":
         return <EmployeeInputShiftPage />;
       case "Attendance":
