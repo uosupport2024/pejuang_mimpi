@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { CalendarRange, Trash2 } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
 import { useLocation } from "react-router-dom";
@@ -286,30 +286,6 @@ export function EmployeeEditPage({ user }: EmployeeEditPageProps) {
       .catch((err: any) => toast.error(err.message || "Gagal memuat daftar posisi."));
   }, [formData.jabatan_id]);
 
-  // Atasan must belong to the same Divisi as the employee — options are
-  // scoped to formData.jabatan_id below. If the admin changes Divisi after
-  // an Atasan was already selected, drop it once it no longer matches
-  // (gated on `contractLoading`/`managerOptions` being ready so the initial
-  // load of a genuinely-valid pre-existing manager is never clobbered by a
-  // premature check before that data has arrived).
-  const managerReadyRef = useRef(false);
-  const lastJabatanIdRef = useRef("");
-  useEffect(() => {
-    if (contractLoading || managerOptions.length === 0) return;
-    if (!managerReadyRef.current) {
-      managerReadyRef.current = true;
-      lastJabatanIdRef.current = formData.jabatan_id;
-      return;
-    }
-    if (lastJabatanIdRef.current === formData.jabatan_id) return;
-    lastJabatanIdRef.current = formData.jabatan_id;
-    if (managerContractId === NO_MANAGER_VALUE) return;
-    const stillValid = managerOptions.some(
-      (m) => String(m.contract_id) === managerContractId && String(m.jabatan?.id ?? "") === String(formData.jabatan_id)
-    );
-    if (!stillValid) setManagerContractId(NO_MANAGER_VALUE);
-  }, [formData.jabatan_id, managerOptions, contractLoading, managerContractId]);
-
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -472,7 +448,7 @@ export function EmployeeEditPage({ user }: EmployeeEditPageProps) {
   const managerComboOptions = [
     { value: NO_MANAGER_VALUE, label: "— Tidak ada —" },
     ...managerOptions
-      .filter((m) => m.contract_id !== contractId && String(m.jabatan?.id ?? "") === String(formData.jabatan_id))
+      .filter((m) => m.contract_id !== contractId)
       .map((m) => ({ value: String(m.contract_id), label: `${m.name || "-"} — ${m.jabatan?.nama_jabatan || "-"}` })),
   ];
 
@@ -762,9 +738,7 @@ export function EmployeeEditPage({ user }: EmployeeEditPageProps) {
                           options={managerComboOptions}
                           onChange={(e: any) => setManagerContractId(e.target.value)}
                           searchPlaceholder="Cari atasan..."
-                          placeholder={!formData.jabatan_id ? "Pilih Divisi terlebih dahulu" : undefined}
                         />
-                        <p className="text-[10px] text-gray-400 mt-1">Atasan harus berasal dari divisi yang sama.</p>
                       </div>
                     </div>
                   )}

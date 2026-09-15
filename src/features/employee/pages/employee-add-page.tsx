@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "@/shared/router/router";
 import { createEmployee, fetchMasters, type MasterData } from "../api/employee";
-import { createContract, updateContractAssignment } from "../api/payroll-allocation";
+import { createContract, updateContractAssignment, fetchActiveContract } from "../api/payroll-allocation";
 import { fetchGolongans, createGolongan, type BackendGolongan } from "@/features/organization/api/organization";
 import { fetchHierarchy, type HierarchyNode } from "@/features/org-management/api/org-management";
 import { fetchTenantsAPI } from "@/features/tenant-mapping/api/tenant-mapping";
@@ -177,18 +177,6 @@ export function EmployeeAddPage({ user }: EmployeeAddPageProps) {
       .catch((err: any) => toast.error(err.message || "Gagal memuat daftar posisi."));
   }, [formData.jabatan_id]);
 
-  // Atasan must belong to the same Divisi — drop the current selection if
-  // it no longer matches after a Divisi change.
-  useEffect(() => {
-    setManagerContractId((prev) => {
-      if (prev === NO_MANAGER_VALUE) return prev;
-      const stillValid = managerOptions.some(
-        (m) => String(m.contract_id) === prev && String(m.jabatan?.id ?? "") === String(formData.jabatan_id)
-      );
-      return stillValid ? prev : NO_MANAGER_VALUE;
-    });
-  }, [formData.jabatan_id, managerOptions]);
-
   const handleAddGolongan = async () => {
     if (!formData.jabatan_id) {
       toast.error("Pilih Divisi terlebih dahulu.");
@@ -275,17 +263,21 @@ export function EmployeeAddPage({ user }: EmployeeAddPageProps) {
       const created = await createEmployee(submitData);
       toast.success("Pegawai berhasil ditambahkan!");
 
-      // Posisi/Atasan live on the contract, not on `users` — a brand-new
-      // employee has no contract yet, so only create one if the admin
-      // actually set either field (a plain add with neither touched keeps
-      // today's behavior: no contract until "Buat Kontrak Sekarang" later).
+      // Posisi/Atasan live on the contract, not on `users`. A contract is
+      // already auto-provisioned for the new employee's tenant as soon as
+      // the backend saves the User row (SyncsTenantContract) — reuse that
+      // one instead of creating a second, which used to leave the employee
+      // with two contract rows (the auto-provisioned one expired, a
+      // duplicate active one from here).
       if (golonganId !== NO_GOLONGAN_VALUE || managerContractId !== NO_MANAGER_VALUE) {
         try {
-          const contract = await createContract({
-            user_id: created.id,
-            tenant_id: Number(formData.tenant_id),
-            contract_start_date: new Date().toISOString().slice(0, 10),
-          });
+          const contract =
+            (await fetchActiveContract(created.id)) ||
+            (await createContract({
+              user_id: created.id,
+              tenant_id: Number(formData.tenant_id),
+              contract_start_date: new Date().toISOString().slice(0, 10),
+            }));
           await updateContractAssignment(contract.id, {
             golongan_id: golonganId === NO_GOLONGAN_VALUE ? null : Number(golonganId),
             manager_contract_id: managerContractId === NO_MANAGER_VALUE ? null : Number(managerContractId),
@@ -312,9 +304,7 @@ export function EmployeeAddPage({ user }: EmployeeAddPageProps) {
   ];
   const managerComboOptions = [
     { value: NO_MANAGER_VALUE, label: "— Tidak ada —" },
-    ...managerOptions
-      .filter((m) => String(m.jabatan?.id ?? "") === String(formData.jabatan_id))
-      .map((m) => ({ value: String(m.contract_id), label: `${m.name || "-"} — ${m.jabatan?.nama_jabatan || "-"}` })),
+    ...managerOptions.map((m) => ({ value: String(m.contract_id), label: `${m.name || "-"} — ${m.jabatan?.nama_jabatan || "-"}` })),
   ];
 
   const roleOptions = [
@@ -478,9 +468,7 @@ export function EmployeeAddPage({ user }: EmployeeAddPageProps) {
                   options={managerComboOptions}
                   onChange={(e: any) => setManagerContractId(e.target.value)}
                   searchPlaceholder="Cari atasan..."
-                  placeholder={!formData.jabatan_id ? "Pilih Divisi terlebih dahulu" : undefined}
                 />
-                <p className="text-[10px] text-gray-400 mt-1">Atasan harus berasal dari divisi yang sama.</p>
               </div>
             </div>
           </div>
