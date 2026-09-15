@@ -1,11 +1,18 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "@/shared/router/router";
 import { createEmployee, fetchMasters, type MasterData } from "../api/employee";
+import { createContract, updateContractAssignment, fetchActiveContract } from "../api/payroll-allocation";
+import { fetchGolongans, createGolongan, type BackendGolongan } from "@/features/organization/api/organization";
+import { fetchHierarchy, type HierarchyNode } from "@/features/org-management/api/org-management";
+import { fetchTenantsAPI } from "@/features/tenant-mapping/api/tenant-mapping";
 import { toast } from "sonner";
 import { FileWarning } from "lucide-react";
 import { FormField } from "@/shared/components/ui/form-field";
 import { cn } from "@/shared/lib/utils";
 import { THEME_COLORS } from "@/shared/constants/colors";
+
+const NO_GOLONGAN_VALUE = "__none__";
+const NO_MANAGER_VALUE = "__none__";
 
 const TABS = [
   { id: "pribadi", label: "Informasi Pribadi" },
@@ -17,12 +24,39 @@ const TABS = [
   { id: "tunjangan", label: "Tunjangan & Potongan" },
 ];
 
-export function EmployeeAddPage() {
+interface EmployeeAddPageProps {
+  user?: {
+    email?: string;
+    tenant_id?: number | string;
+    tenant?: { id?: number | string; name?: string } | null;
+    tenant_list?: { tenant_id?: number | string; tenant_name?: string }[];
+  };
+}
+
+export function EmployeeAddPage({ user }: EmployeeAddPageProps) {
   const { navigate } = useRouter();
   const [activeTab, setActiveTab] = useState("pribadi");
   const [masters, setMasters] = useState<MasterData | null>(null);
   const [loadingMasters, setLoadingMasters] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  // Super admin manages multiple tenants and always sees/controls the
+  // Tenant field; every other admin only ever works within their own
+  // tenant, so it's preset silently and hidden to avoid confusion.
+  const isSuperAdmin = user?.email?.toLowerCase() === "admin@gmail.com";
+  const currentTenantId = user?.tenant_id || user?.tenant?.id || user?.tenant_list?.[0]?.tenant_id || 3;
+  const currentTenantName = user?.tenant?.name || user?.tenant_list?.[0]?.tenant_name || "Tenant Saat Ini";
+  const [tenantOptions, setTenantOptions] = useState([{ value: String(currentTenantId), label: currentTenantName }]);
+
+  // Posisi & Atasan — set on the new employee's contract, created right
+  // after the employee itself is saved (a brand-new employee has no
+  // contract yet, so these can't be written until then).
+  const [golonganId, setGolonganId] = useState(NO_GOLONGAN_VALUE);
+  const [managerContractId, setManagerContractId] = useState(NO_MANAGER_VALUE);
+  const [golonganOptions, setGolonganOptions] = useState<BackendGolongan[]>([]);
+  const [managerOptions, setManagerOptions] = useState<HierarchyNode[]>([]);
+  const [newGolonganName, setNewGolonganName] = useState("");
+  const [addingGolongan, setAddingGolongan] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -31,7 +65,7 @@ export function EmployeeAddPage() {
     telepon: "",
     username: "",
     password: "",
-    tenant_id: "1",
+    tenant_id: String(currentTenantId),
     lokasi_id: "",
     jabatan_id: "",
     tgl_lahir: "",
@@ -110,6 +144,62 @@ export function EmployeeAddPage() {
       });
   }, []);
 
+  useEffect(() => {
+    fetchHierarchy()
+      .then(setManagerOptions)
+      .catch((err: any) => toast.error(err.message || "Gagal memuat daftar atasan."));
+  }, []);
+
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+    fetchTenantsAPI()
+      .then((tenants) => {
+        if (tenants.length > 0) {
+          setTenantOptions(tenants.map((t) => ({ value: String(t.id), label: t.name })));
+        }
+      })
+      .catch((err: any) => toast.error(err.message || "Gagal memuat daftar tenant."));
+  }, [isSuperAdmin]);
+
+  // Posisi is jabatan-scoped — refetch whenever Divisi changes, and drop
+  // the current selection if it no longer belongs to the newly-picked
+  // jabatan.
+  useEffect(() => {
+    if (!formData.jabatan_id) {
+      setGolonganOptions([]);
+      return;
+    }
+    fetchGolongans(Number(formData.jabatan_id))
+      .then((options) => {
+        setGolonganOptions(options);
+        setGolonganId((prev) => (prev === NO_GOLONGAN_VALUE || options.some((o) => String(o.id) === prev) ? prev : NO_GOLONGAN_VALUE));
+      })
+      .catch((err: any) => toast.error(err.message || "Gagal memuat daftar posisi."));
+  }, [formData.jabatan_id]);
+
+  const handleAddGolongan = async () => {
+    if (!formData.jabatan_id) {
+      toast.error("Pilih Divisi terlebih dahulu.");
+      return;
+    }
+    if (!newGolonganName.trim()) {
+      toast.error("Nama posisi harus diisi.");
+      return;
+    }
+    setAddingGolongan(true);
+    try {
+      const created = await createGolongan(Number(formData.jabatan_id), newGolonganName.trim());
+      setGolonganOptions((prev) => [...prev, created]);
+      setGolonganId(String(created.id));
+      setNewGolonganName("");
+      toast.success("Posisi berhasil ditambahkan.");
+    } catch (err: any) {
+      toast.error(err.message || "Gagal menambahkan posisi.");
+    } finally {
+      setAddingGolongan(false);
+    }
+  };
+
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -170,8 +260,33 @@ export function EmployeeAddPage() {
         tunjangan_pajak: Number(formData.tunjangan_pajak),
       };
 
-      await createEmployee(submitData);
+      const created = await createEmployee(submitData);
       toast.success("Pegawai berhasil ditambahkan!");
+
+      // Posisi/Atasan live on the contract, not on `users`. A contract is
+      // already auto-provisioned for the new employee's tenant as soon as
+      // the backend saves the User row (SyncsTenantContract) — reuse that
+      // one instead of creating a second, which used to leave the employee
+      // with two contract rows (the auto-provisioned one expired, a
+      // duplicate active one from here).
+      if (golonganId !== NO_GOLONGAN_VALUE || managerContractId !== NO_MANAGER_VALUE) {
+        try {
+          const contract =
+            (await fetchActiveContract(created.id)) ||
+            (await createContract({
+              user_id: created.id,
+              tenant_id: Number(formData.tenant_id),
+              contract_start_date: new Date().toISOString().slice(0, 10),
+            }));
+          await updateContractAssignment(contract.id, {
+            golongan_id: golonganId === NO_GOLONGAN_VALUE ? null : Number(golonganId),
+            manager_contract_id: managerContractId === NO_MANAGER_VALUE ? null : Number(managerContractId),
+          });
+        } catch (err: any) {
+          toast.error(err.message || "Pegawai dibuat, namun gagal mengatur posisi/atasan.");
+        }
+      }
+
       navigate("Employee");
     } catch (err: any) {
       toast.error(err.message || "Gagal menambahkan pegawai.");
@@ -183,7 +298,15 @@ export function EmployeeAddPage() {
   const lokasiOptions = masters?.lokasi.map(l => ({ value: String(l.id), label: l.nama_lokasi })) || [];
   const jabatanOptions = masters?.jabatan.map(j => ({ value: String(j.id), label: j.nama_jabatan })) || [];
 
-  const tenantOptions = [{ value: "1", label: "Default Tenant (default)" }];
+  const golonganComboOptions = [
+    { value: NO_GOLONGAN_VALUE, label: "— Tidak ada —" },
+    ...golonganOptions.map((g) => ({ value: String(g.id), label: g.name })),
+  ];
+  const managerComboOptions = [
+    { value: NO_MANAGER_VALUE, label: "— Tidak ada —" },
+    ...managerOptions.map((m) => ({ value: String(m.contract_id), label: `${m.name || "-"} — ${m.jabatan?.nama_jabatan || "-"}` })),
+  ];
+
   const roleOptions = [
     { value: "staff", label: "staff" },
     { value: "admin", label: "admin" },
@@ -254,7 +377,9 @@ export function EmployeeAddPage() {
               <FormField label="Username *" type="text" name="username" required value={formData.username} onChange={handleChange} />
               <FormField label="Password *" type="password" name="password" required minLength={6} value={formData.password} onChange={handleChange} />
 
-              <FormField label="Tenant *" type="combobox" name="tenant_id" value={formData.tenant_id} options={tenantOptions} onChange={handleChange} />
+              {isSuperAdmin && (
+                <FormField label="Tenant *" type="combobox" name="tenant_id" value={formData.tenant_id} options={tenantOptions} onChange={handleChange} />
+              )}
 
               <div className="space-y-1">
                 <label className="text-[11px] font-semibold text-gray-500">Lokasi Kantor *</label>
@@ -294,6 +419,57 @@ export function EmployeeAddPage() {
               </div>
 
               <FormField label="Status Pajak" type="combobox" name="status_pajak" value={formData.status_pajak} options={statusPajakOptions} onChange={handleChange} />
+            </div>
+
+            <div className="pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-gray-500">Posisi</label>
+                <FormField
+                  label=""
+                  type="combobox"
+                  value={golonganId}
+                  options={golonganComboOptions}
+                  onChange={(e: any) => setGolonganId(e.target.value)}
+                  searchPlaceholder="Cari posisi..."
+                  placeholder={!formData.jabatan_id ? "Pilih Divisi terlebih dahulu" : undefined}
+                />
+                {formData.jabatan_id && (
+                  <div className="flex gap-1.5 pt-1">
+                    <input
+                      type="text"
+                      value={newGolonganName}
+                      onChange={(e) => setNewGolonganName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddGolongan();
+                        }
+                      }}
+                      placeholder="Posisi baru..."
+                      className="flex-1 h-8 px-2.5 text-[11px] bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#e0542c] focus:border-[#e0542c] text-gray-700 font-medium"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddGolongan}
+                      disabled={addingGolongan}
+                      className="px-2.5 h-8 text-[11px] font-bold text-gray-700 bg-zinc-100 hover:bg-zinc-200/80 rounded-lg transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+                    >
+                      {addingGolongan ? "..." : "+ Tambah"}
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-gray-500">Atasan</label>
+                <FormField
+                  label=""
+                  type="combobox"
+                  value={managerContractId}
+                  options={managerComboOptions}
+                  onChange={(e: any) => setManagerContractId(e.target.value)}
+                  searchPlaceholder="Cari atasan..."
+                />
+              </div>
             </div>
           </div>
         )}

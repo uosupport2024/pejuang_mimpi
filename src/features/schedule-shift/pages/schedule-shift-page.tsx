@@ -595,16 +595,6 @@ export function ScheduleShiftPage() {
       ),
     },
     {
-      header: "Email",
-      accessorKey: "email",
-      cell: (row) => <span className="text-gray-600 font-medium">{row.email}</span>,
-    },
-    {
-      header: "Telepon",
-      accessorKey: "telepon",
-      cell: (row) => <span className="text-gray-600 font-medium">{row.telepon || "-"}</span>,
-    },
-    {
       header: "Divisi",
       cell: (row) => (
         <div className="min-w-0">
@@ -615,6 +605,16 @@ export function ScheduleShiftPage() {
         </div>
       ),
       sortable: false,
+    },
+    {
+      header: "Email",
+      accessorKey: "email",
+      cell: (row) => <span className="text-gray-600 font-medium">{row.email}</span>,
+    },
+    {
+      header: "Telepon",
+      accessorKey: "telepon",
+      cell: (row) => <span className="text-gray-600 font-medium">{row.telepon || "-"}</span>,
     },
   ];
 

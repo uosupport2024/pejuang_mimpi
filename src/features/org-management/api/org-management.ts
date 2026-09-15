@@ -7,6 +7,7 @@ export interface HierarchyNode {
   username: string | null;
   jabatan: { id: number; nama_jabatan: string } | null;
   lokasi: { id: number; nama_lokasi: string } | null;
+  golongan: { id: number; name: string } | null;
   manager_contract_id: number | null;
   direct_report_count: number;
   contract_start_date: string | null;
@@ -35,6 +36,18 @@ export async function fetchHierarchy(): Promise<HierarchyNode[]> {
 
   const json = await response.json();
   return json.data || [];
+}
+
+export async function bulkAssignManager(managerContractId: number, contractIds: number[]): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/user-contracts/bulk-assign-manager`, {
+    method: "POST",
+    headers: { ...getHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify({ manager_contract_id: managerContractId, contract_ids: contractIds }),
+  });
+
+  if (!response.ok) {
+    throw await parseError(response, "Gagal menetapkan bawahan");
+  }
 }
 
 export async function reassignManager(

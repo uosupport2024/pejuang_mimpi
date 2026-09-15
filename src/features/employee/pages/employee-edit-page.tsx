@@ -3,6 +3,10 @@ import { CalendarRange, Trash2 } from "lucide-react";
 import { useRouter } from "@/shared/router/router";
 import { useLocation } from "react-router-dom";
 import { updateEmployee, fetchEmployeeById, fetchMasters, deleteEmployee, type MasterData } from "../api/employee";
+import { fetchActiveContract, createContract, updateContractAssignment } from "../api/payroll-allocation";
+import { fetchGolongans, createGolongan, type BackendGolongan } from "@/features/organization/api/organization";
+import { fetchHierarchy, type HierarchyNode } from "@/features/org-management/api/org-management";
+import { fetchTenantsAPI } from "@/features/tenant-mapping/api/tenant-mapping";
 import { toast } from "sonner";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { FormField } from "@/shared/components/ui/form-field";
@@ -10,6 +14,9 @@ import { cn } from "@/shared/lib/utils";
 import { ConfirmationModal } from "@/shared/components/ui/confirmation-modal";
 import { THEME_COLORS } from "@/shared/constants/colors";
 import { PayrollAllocationTab } from "../components/payroll-allocation-tab";
+
+const NO_GOLONGAN_VALUE = "__none__";
+const NO_MANAGER_VALUE = "__none__";
 
 const TABS = [
   { id: "pribadi", label: "Informasi Pribadi" },
@@ -21,7 +28,16 @@ const TABS = [
   { id: "tunjangan", label: "Tunjangan & Potongan" },
 ];
 
-export function EmployeeEditPage() {
+interface EmployeeEditPageProps {
+  user?: {
+    email?: string;
+    tenant_id?: number | string;
+    tenant?: { id?: number | string; name?: string } | null;
+    tenant_list?: { tenant_id?: number | string; tenant_name?: string }[];
+  };
+}
+
+export function EmployeeEditPage({ user }: EmployeeEditPageProps) {
   const { navigate } = useRouter();
   const location = useLocation();
   const [employeeId] = useState(() => location.state?.employeeId);
@@ -33,6 +49,36 @@ export function EmployeeEditPage() {
   const [submitting, setSubmitting] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // Super admin manages multiple tenants and always sees/controls the
+  // Tenant field; every other admin only ever works within their own
+  // tenant, so it's hidden here (the loaded employee's real tenant_id is
+  // still submitted unchanged either way).
+  const isSuperAdmin = user?.email?.toLowerCase() === "admin@gmail.com";
+  const [tenantOptions, setTenantOptions] = useState([{ value: "1", label: "Tenant" }]);
+
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+    fetchTenantsAPI()
+      .then((tenants) => {
+        if (tenants.length > 0) {
+          setTenantOptions(tenants.map((t) => ({ value: String(t.id), label: t.name })));
+        }
+      })
+      .catch((err: any) => toast.error(err.message || "Gagal memuat daftar tenant."));
+  }, [isSuperAdmin]);
+
+  // Golongan & Atasan — live on the employee's active contract, not on the
+  // legacy `users` fields the rest of this form submits to.
+  const [contractId, setContractId] = useState<number | null>(null);
+  const [contractLoading, setContractLoading] = useState(true);
+  const [creatingContract, setCreatingContract] = useState(false);
+  const [golonganId, setGolonganId] = useState(NO_GOLONGAN_VALUE);
+  const [managerContractId, setManagerContractId] = useState(NO_MANAGER_VALUE);
+  const [golonganOptions, setGolonganOptions] = useState<BackendGolongan[]>([]);
+  const [managerOptions, setManagerOptions] = useState<HierarchyNode[]>([]);
+  const [newGolonganName, setNewGolonganName] = useState("");
+  const [addingGolongan, setAddingGolongan] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -198,6 +244,48 @@ export function EmployeeEditPage() {
       });
   }, [employeeId]);
 
+  useEffect(() => {
+    if (!employeeId) {
+      setContractLoading(false);
+      return;
+    }
+
+    setContractLoading(true);
+    fetchActiveContract(employeeId)
+      .then((contract) => {
+        if (contract) {
+          setContractId(contract.id);
+          setGolonganId(contract.golongan_id ? String(contract.golongan_id) : NO_GOLONGAN_VALUE);
+          setManagerContractId(contract.manager_contract_id ? String(contract.manager_contract_id) : NO_MANAGER_VALUE);
+        } else {
+          setContractId(null);
+        }
+      })
+      .catch((err: any) => toast.error(err.message || "Gagal memuat data kontrak pegawai."))
+      .finally(() => setContractLoading(false));
+
+    fetchHierarchy()
+      .then(setManagerOptions)
+      .catch((err: any) => toast.error(err.message || "Gagal memuat daftar atasan."));
+  }, [employeeId]);
+
+  // Golongan is jabatan-scoped — refetch whenever Divisi changes, and drop
+  // the current selection if it no longer belongs to the newly-picked
+  // jabatan (this also correctly keeps a still-valid selection on the very
+  // first load, since it's only cleared when genuinely not found).
+  useEffect(() => {
+    if (!formData.jabatan_id) {
+      setGolonganOptions([]);
+      return;
+    }
+    fetchGolongans(Number(formData.jabatan_id))
+      .then((options) => {
+        setGolonganOptions(options);
+        setGolonganId((prev) => (prev === NO_GOLONGAN_VALUE || options.some((o) => String(o.id) === prev) ? prev : NO_GOLONGAN_VALUE));
+      })
+      .catch((err: any) => toast.error(err.message || "Gagal memuat daftar posisi."));
+  }, [formData.jabatan_id]);
+
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -226,6 +314,47 @@ export function EmployeeEditPage() {
 
   const handleDelete = () => {
     setIsConfirmDeleteOpen(true);
+  };
+
+  const handleCreateContract = async () => {
+    if (!employeeId) return;
+    setCreatingContract(true);
+    try {
+      const contract = await createContract({
+        user_id: Number(employeeId),
+        tenant_id: Number(formData.tenant_id),
+        contract_start_date: new Date().toISOString().slice(0, 10),
+      });
+      toast.success("Kontrak berhasil dibuat.");
+      setContractId(contract.id);
+    } catch (err: any) {
+      toast.error(err.message || "Gagal membuat kontrak pegawai.");
+    } finally {
+      setCreatingContract(false);
+    }
+  };
+
+  const handleAddGolongan = async () => {
+    if (!formData.jabatan_id) {
+      toast.error("Pilih Divisi terlebih dahulu.");
+      return;
+    }
+    if (!newGolonganName.trim()) {
+      toast.error("Nama posisi harus diisi.");
+      return;
+    }
+    setAddingGolongan(true);
+    try {
+      const created = await createGolongan(Number(formData.jabatan_id), newGolonganName.trim());
+      setGolonganOptions((prev) => [...prev, created]);
+      setGolonganId(String(created.id));
+      setNewGolonganName("");
+      toast.success("Posisi berhasil ditambahkan.");
+    } catch (err: any) {
+      toast.error(err.message || "Gagal menambahkan posisi.");
+    } finally {
+      setAddingGolongan(false);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -283,6 +412,24 @@ export function EmployeeEditPage() {
 
       await updateEmployee(employeeId, submitData);
       toast.success("Pegawai berhasil diupdate!");
+
+      // Golongan/Atasan live on the contract, not on `users` — must run
+      // AFTER updateEmployee() so a Divisi change in this same submit has
+      // already dual-written onto the contract's jabatan_id before the
+      // backend validates golongan_id against it. A failure here is
+      // reported on its own without blocking navigation — the employee
+      // fields above already saved successfully.
+      if (contractId) {
+        try {
+          await updateContractAssignment(contractId, {
+            golongan_id: golonganId === NO_GOLONGAN_VALUE ? null : Number(golonganId),
+            manager_contract_id: managerContractId === NO_MANAGER_VALUE ? null : Number(managerContractId),
+          });
+        } catch (err: any) {
+          toast.error(err.message || "Gagal memperbarui posisi/atasan pegawai.");
+        }
+      }
+
       navigate("Employee");
     } catch (err: any) {
       toast.error(err.message || "Gagal mengupdate pegawai.");
@@ -294,7 +441,17 @@ export function EmployeeEditPage() {
   const lokasiOptions = masters?.lokasi.map(l => ({ value: String(l.id), label: l.nama_lokasi })) || [];
   const jabatanOptions = masters?.jabatan.map(j => ({ value: String(j.id), label: j.nama_jabatan })) || [];
 
-  const tenantOptions = [{ value: "1", label: "Default Tenant (default)" }];
+  const golonganComboOptions = [
+    { value: NO_GOLONGAN_VALUE, label: "— Tidak ada —" },
+    ...golonganOptions.map((g) => ({ value: String(g.id), label: g.name })),
+  ];
+  const managerComboOptions = [
+    { value: NO_MANAGER_VALUE, label: "— Tidak ada —" },
+    ...managerOptions
+      .filter((m) => m.contract_id !== contractId)
+      .map((m) => ({ value: String(m.contract_id), label: `${m.name || "-"} — ${m.jabatan?.nama_jabatan || "-"}` })),
+  ];
+
   const roleOptions = [
     { value: "staff", label: "staff" },
     { value: "admin", label: "admin" },
@@ -467,7 +624,9 @@ export function EmployeeEditPage() {
                   <FormField label="Username *" type="text" name="username" required value={formData.username} onChange={handleChange} />
                   <FormField label="Password (Minimal 6 karakter, kosongkan jika tidak diubah)" type="password" name="password" minLength={6} value={formData.password} onChange={handleChange} />
 
-                  <FormField label="Tenant *" type="combobox" name="tenant_id" value={formData.tenant_id} options={tenantOptions} onChange={handleChange} />
+                  {isSuperAdmin && (
+                    <FormField label="Tenant *" type="combobox" name="tenant_id" value={formData.tenant_id} options={tenantOptions} onChange={handleChange} />
+                  )}
 
                   <div className="space-y-1">
                     <label className="text-[11px] font-semibold text-gray-500">Lokasi Kantor *</label>
@@ -507,6 +666,82 @@ export function EmployeeEditPage() {
                   </div>
 
                   <FormField label="Status Pajak" type="combobox" name="status_pajak" value={formData.status_pajak} options={statusPajakOptions} onChange={handleChange} />
+                </div>
+
+                <div className="pt-4 border-t border-gray-100">
+                  {contractLoading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="h-9 w-full bg-zinc-100 animate-pulse rounded-lg" />
+                      <div className="h-9 w-full bg-zinc-100 animate-pulse rounded-lg" />
+                    </div>
+                  ) : !contractId ? (
+                    <div className="flex flex-col items-center justify-center text-center gap-2 py-6">
+                      <p className="text-xs font-semibold text-gray-700">Pegawai ini belum memiliki kontrak aktif.</p>
+                      <p className="text-[11px] text-gray-500 max-w-md">
+                        Posisi & Atasan tersimpan per-kontrak. Buat kontrak aktif untuk pegawai ini terlebih dahulu.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleCreateContract}
+                        disabled={creatingContract}
+                        style={{ backgroundColor: THEME_COLORS.hex.primary }}
+                        className="mt-1 px-4 py-2 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 hover:opacity-90"
+                      >
+                        {creatingContract ? "Membuat Kontrak..." : "Buat Kontrak Sekarang"}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-semibold text-gray-500">Posisi</label>
+                        <FormField
+                          label=""
+                          type="combobox"
+                          value={golonganId}
+                          options={golonganComboOptions}
+                          onChange={(e: any) => setGolonganId(e.target.value)}
+                          searchPlaceholder="Cari posisi..."
+                          placeholder={!formData.jabatan_id ? "Pilih Divisi terlebih dahulu" : undefined}
+                        />
+                        {formData.jabatan_id && (
+                          <div className="flex gap-1.5 pt-1">
+                            <input
+                              type="text"
+                              value={newGolonganName}
+                              onChange={(e) => setNewGolonganName(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  handleAddGolongan();
+                                }
+                              }}
+                              placeholder="Posisi baru..."
+                              className="flex-1 h-8 px-2.5 text-[11px] bg-zinc-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#e0542c] focus:border-[#e0542c] text-gray-700 font-medium"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleAddGolongan}
+                              disabled={addingGolongan}
+                              className="px-2.5 h-8 text-[11px] font-bold text-gray-700 bg-zinc-100 hover:bg-zinc-200/80 rounded-lg transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+                            >
+                              {addingGolongan ? "..." : "+ Tambah"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-semibold text-gray-500">Atasan</label>
+                        <FormField
+                          label=""
+                          type="combobox"
+                          value={managerContractId}
+                          options={managerComboOptions}
+                          onChange={(e: any) => setManagerContractId(e.target.value)}
+                          searchPlaceholder="Cari atasan..."
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
